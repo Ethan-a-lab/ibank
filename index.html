@@ -1,0 +1,1447 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>iBank平台 · 投资银行学智慧课堂</title>
+  <style>
+    :root {
+      --bg: #f6f7fb;
+      --panel: rgba(255, 255, 255, 0.9);
+      --panel-border: rgba(15, 23, 42, 0.10);
+      --panel-solid: #ffffff;
+      --text: #1a2233;
+      --muted: #5b6478;
+      --dim: #8a94a8;
+      --accent: #6366f1;
+      --accent2: #22d3ee;
+      --accent3: #8b5cf6;
+      --good: #22d3ee;          /* 主题色「提升/改善」= 青色 */
+      --before: #94a3b8;        /* 对比色「实训前」= 中性灰蓝 */
+      --radius: 20px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: "PingFang SC", "Microsoft YaHei", "Segoe UI", system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      line-height: 1.7;
+    }
+    a { color: var(--accent2); }
+
+    /* ===== 背景光斑 ===== */
+    .bg-blob { position: fixed; border-radius: 50%; filter: blur(90px); opacity: 0.5; z-index: 0; pointer-events: none; }
+    .bg-blob-1 { width: 460px; height: 460px; background: #c7d2fe; top: -140px; left: -110px; }
+    .bg-blob-2 { width: 420px; height: 420px; background: #a5f3fc; bottom: -140px; right: -90px; }
+    .bg-blob-3 { width: 320px; height: 320px; background: #ddd6fe; top: 38%; left: 58%; opacity: 0.32; }
+
+    .wrap { position: relative; z-index: 1; max-width: 1200px; margin: 0 auto; padding: 0 22px 80px; }
+
+    /* ===== 顶部导航 ===== */
+    .navbar {
+      position: sticky; top: 0; z-index: 50;
+      display: flex; align-items: center; gap: 18px;
+      padding: 14px 20px; margin: 0 -22px 26px;
+      background: rgba(255, 255, 255, 0.88);
+      border-bottom: 1px solid var(--panel-border);
+      backdrop-filter: blur(16px);
+    }
+    .nav-brand { display: flex; align-items: center; gap: 12px; flex: 0 0 auto; }
+    .nav-brand .mini-robot { width: 40px; height: 40px; }
+    .nav-brand .t1 { font-size: 16px; font-weight: 700; line-height: 1.25; }
+    .nav-brand .t2 { font-size: 11.5px; color: var(--muted); }
+    .nav-tabs { display: flex; gap: 6px; margin-left: auto; flex-wrap: wrap; justify-content: flex-end; }
+    .tab-btn {
+      border: 1px solid transparent; background: transparent; color: var(--muted);
+      padding: 8px 14px; border-radius: 999px; font-size: 14px; cursor: pointer;
+      white-space: nowrap; transition: 0.2s;
+    }
+    .tab-btn:hover { color: var(--text); background: rgba(15, 23, 42, 0.06); }
+    .tab-btn.active {
+      color: #fff; background: linear-gradient(135deg, #6366f1, #8b5cf6);
+      border-color: transparent; box-shadow: 0 4px 16px rgba(99, 102, 241, 0.35);
+    }
+
+    /* ===== 页面容器 ===== */
+    .page { display: none; animation: fade .35s ease; }
+    .page.active { display: block; }
+    @keyframes fade { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+
+    /* ===== 通用面板 / 标题 ===== */
+    .panel {
+      background: var(--panel); border: 1px solid var(--panel-border);
+      border-radius: var(--radius); backdrop-filter: blur(14px); padding: 26px;
+    }
+    .section-title { display: flex; align-items: center; gap: 10px; font-size: 19px; font-weight: 700; margin-bottom: 4px; }
+    .section-title .bar { width: 4px; height: 20px; border-radius: 2px; background: linear-gradient(180deg, #22d3ee, #6366f1); }
+    .section-sub { color: var(--muted); font-size: 13.5px; margin-bottom: 22px; }
+    .hint { color: var(--dim); font-size: 12.5px; }
+    .muted { color: var(--muted); }
+
+    /* ===== 首页 hero ===== */
+    .hero { text-align: center; padding: 34px 20px 30px; }
+    .hero .badge {
+      display: inline-block; font-size: 12.5px; color: #6366f1;
+      background: rgba(99, 102, 241, 0.18); border: 1px solid rgba(99, 102, 241, 0.35);
+      padding: 5px 14px; border-radius: 999px; margin-bottom: 16px;
+    }
+    .hero h1 { font-size: 32px; line-height: 1.3; }
+    .hero h1 .grad { background: linear-gradient(135deg, #0891b2, #6366f1); -webkit-background-clip: text; background-clip: text; color: transparent; }
+    .hero p { color: var(--muted); font-size: 15px; margin-top: 10px; max-width: 720px; margin-left: auto; margin-right: auto; }
+
+    /* ===== 信息卡 ===== */
+    .info-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 14px; }
+    .info-item {
+      background: rgba(15, 23, 42, 0.03); border: 1px solid var(--panel-border);
+      border-radius: 14px; padding: 14px 16px;
+    }
+    .info-item .k { font-size: 12px; color: var(--dim); margin-bottom: 4px; }
+    .info-item .v { font-size: 14.5px; }
+
+    /* ===== KPI 统计卡 ===== */
+    .kpi-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 14px; }
+    .kpi-card {
+      position: relative; overflow: hidden; text-align: center;
+      background: rgba(15, 23, 42, 0.03); border: 1px solid var(--panel-border);
+      border-radius: 16px; padding: 20px 12px 16px;
+    }
+    .kpi-card .num { font-size: 30px; font-weight: 800; line-height: 1.1;
+      background: linear-gradient(135deg, #0891b2, #6366f1); -webkit-background-clip: text; background-clip: text; color: transparent; }
+    .kpi-card .unit { font-size: 13px; color: #6366f1; margin-left: 2px; }
+    .kpi-card .label { font-size: 13px; color: var(--muted); margin-top: 6px; }
+    .kpi-card::after { content: ""; position: absolute; inset: 0; border-radius: 16px; border: 1px solid transparent;
+      background: linear-gradient(135deg, rgba(99,102,241,0.35), rgba(34,211,238,0.25)) border-box;
+      -webkit-mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0); -webkit-mask-composite: xor; mask-composite: exclude; opacity: 0.5; }
+
+    /* ===== 能力卡 / 场景卡 ===== */
+    .cap-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 16px; }
+    .cap-card {
+      background: rgba(15, 23, 42, 0.03); border: 1px solid var(--panel-border);
+      border-radius: 16px; padding: 20px 18px; transition: 0.22s;
+    }
+    .cap-card:hover { transform: translateY(-3px); border-color: rgba(99, 102, 241, 0.5); }
+    .cap-card .ico {
+      width: 42px; height: 42px; border-radius: 12px; display: flex; align-items: center; justify-content: center;
+      background: linear-gradient(135deg, #6366f1, #8b5cf6); font-size: 20px; margin-bottom: 12px;
+    }
+    .cap-card h4 { font-size: 15.5px; margin-bottom: 6px; }
+    .cap-card p { font-size: 13px; color: var(--muted); line-height: 1.7; }
+
+    /* ===== 标签 chips ===== */
+    .chips { display: flex; flex-wrap: wrap; gap: 8px; }
+    .chip {
+      font-size: 12.5px; color: #6366f1; background: rgba(99, 102, 241, 0.16);
+      border: 1px solid rgba(99, 102, 241, 0.3); padding: 5px 12px; border-radius: 999px;
+    }
+    .chip.cyan { color: #0e7490; background: rgba(34, 211, 238, 0.14); border-color: rgba(34, 211, 238, 0.3); }
+
+    /* ===== 痛点 / 文本框 ===== */
+    .text-slot {
+      border: 1px dashed var(--panel-border); border-radius: 14px;
+      padding: 16px 18px; color: #3a4458; font-size: 14.5px; line-height: 1.9;
+      background: rgba(15, 23, 42, 0.02);
+    }
+    .text-slot strong { color: #0e7490; font-weight: 600; }
+
+    /* ===== 时间轴（教学闭环） ===== */
+    .timeline { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; }
+    .tl-item {
+      position: relative; background: rgba(15, 23, 42, 0.03); border: 1px solid var(--panel-border);
+      border-radius: 14px; padding: 16px 14px;
+    }
+    .tl-item .step { font-size: 11.5px; color: #6366f1; font-weight: 600; letter-spacing: 1px; margin-bottom: 6px; }
+    .tl-item h5 { font-size: 14.5px; margin-bottom: 5px; }
+    .tl-item p { font-size: 12.5px; color: var(--muted); line-height: 1.65; }
+
+    /* ===== 创新点卡 ===== */
+    .innov-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 16px; }
+    .innov-card {
+      background: rgba(15, 23, 42, 0.03); border: 1px solid var(--panel-border);
+      border-radius: 16px; padding: 22px 20px; position: relative; overflow: hidden;
+    }
+    .innov-card .tag-num {
+      position: absolute; top: 14px; right: 16px; font-size: 40px; font-weight: 800; line-height: 1;
+      color: rgba(99, 102, 241, 0.16);
+    }
+    .innov-card .kind { font-size: 12px; color: #6366f1; font-weight: 600; margin-bottom: 8px; }
+    .innov-card h4 { font-size: 16px; margin-bottom: 8px; }
+    .innov-card p { font-size: 13px; color: var(--muted); line-height: 1.75; }
+
+    /* ===== 图表卡 ===== */
+    .chart-card { background: rgba(15, 23, 42, 0.03); border: 1px solid var(--panel-border); border-radius: 16px; padding: 20px; }
+    .chart-card h4 { font-size: 15px; margin-bottom: 4px; }
+    .chart-card .note { font-size: 12px; color: var(--dim); margin-bottom: 14px; }
+    .legend { display: flex; gap: 16px; font-size: 12.5px; color: var(--muted); margin-bottom: 12px; }
+    .legend .sw { display: inline-block; width: 12px; height: 12px; border-radius: 3px; margin-right: 6px; vertical-align: -1px; }
+    .bar-rect { cursor: pointer; transition: opacity .15s; }
+    .bar-rect:hover { opacity: .82; }
+
+    /* ===== 三层适配 ===== */
+    .tier-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; }
+    .tier-card { background: rgba(15, 23, 42, 0.03); border: 1px solid var(--panel-border); border-radius: 16px; padding: 20px 18px; }
+    .tier-card .lvl { font-size: 12px; font-weight: 700; letter-spacing: 1px; margin-bottom: 8px; }
+    .tier-card p { font-size: 13px; color: var(--muted); line-height: 1.7; }
+
+    /* ===== 案例展示（第7页）复用旧版结构 ===== */
+    .photo-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 16px; }
+    .photo-slot { position: relative; aspect-ratio: 4 / 3; border-radius: 14px; overflow: hidden;
+      border: 1px dashed var(--panel-border); background: rgba(15, 23, 42, 0.02); }
+    .photo-slot img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .photo-slot .caption { position: absolute; left: 0; right: 0; bottom: 0; padding: 8px 12px; font-size: 12.5px; color: #cbd5ff;
+      background: linear-gradient(transparent, rgba(0,0,0,0.7)); }
+    .q-list { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+    .q-list li { display: flex; gap: 10px; align-items: flex-start; padding: 13px 15px;
+      border: 1px solid var(--panel-border); border-radius: 12px; font-size: 14px; line-height: 1.65;
+      background: rgba(15, 23, 42, 0.02); }
+    .q-list li .num { flex: 0 0 auto; width: 24px; height: 24px; border-radius: 50%;
+      background: linear-gradient(135deg, #22d3ee, #6366f1); color: #fff;
+      display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; }
+    .section { margin-bottom: 24px; }
+
+    /* ===== 悬浮机器人助手 ===== */
+    .float-btn {
+      position: fixed; right: 22px; bottom: 22px; z-index: 60; width: 60px; height: 60px;
+      border-radius: 50%; border: none; cursor: pointer;
+      background: linear-gradient(135deg, #6366f1, #8b5cf6);
+      box-shadow: 0 8px 28px rgba(99, 102, 241, 0.5);
+      display: flex; align-items: center; justify-content: center; transition: 0.2s;
+    }
+    .float-btn:hover { transform: translateY(-3px) scale(1.05); }
+    .float-btn svg { width: 36px; height: 36px; }
+    .chat-panel {
+      position: fixed; right: 22px; bottom: 96px; z-index: 60; width: 320px; max-width: calc(100vw - 40px);
+      background: #ffffff; border: 1px solid var(--panel-border); border-radius: 18px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.5); display: none; flex-direction: column; overflow: hidden;
+    }
+    .chat-panel.open { display: flex; }
+    .chat-head { display: flex; align-items: center; gap: 10px; padding: 13px 16px; border-bottom: 1px solid var(--panel-border); background: rgba(255,255,255,0.03); }
+    .chat-head .mini-robot { width: 30px; height: 30px; }
+    .chat-head b { font-size: 14px; }
+    .chat-head span { font-size: 11.5px; color: var(--muted); display: block; }
+    .chat-body { padding: 12px; max-height: 260px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; }
+    .msg { font-size: 13px; line-height: 1.55; padding: 9px 12px; border-radius: 12px; max-width: 88%; }
+    .msg.bot { background: rgba(99, 102, 241, 0.18); color: #334155; align-self: flex-start; }
+    .msg.user { background: rgba(34, 211, 238, 0.14); color: #0e7490; align-self: flex-end; }
+    .chat-input { display: flex; gap: 8px; padding: 10px; border-top: 1px solid var(--panel-border); }
+    .chat-input input { flex: 1; height: 38px; padding: 0 12px; border-radius: 10px;
+      border: 1px solid var(--panel-border); background: rgba(255,255,255,0.05); color: var(--text); font-size: 13px; outline: none; }
+    .chat-input input:focus { border-color: var(--accent); }
+    .chat-input button { height: 38px; padding: 0 14px; border: none; border-radius: 10px;
+      background: linear-gradient(135deg, #6366f1, #8b5cf6); color: #fff; font-size: 13px; font-weight: 600; cursor: pointer; }
+
+    .footer-note { margin-top: 40px; font-size: 12px; color: var(--dim); text-align: center; }
+
+    /* ===== 案例库（手风琴） ===== */
+    .case-item { border: 1px solid var(--panel-border); border-radius: 16px; overflow: hidden; margin-bottom: 14px; background: rgba(255,255,255,0.02); }
+    .case-head { width: 100%; display: flex; align-items: center; gap: 12px; padding: 16px 18px;
+      background: transparent; border: none; color: var(--text); font-size: 15px; cursor: pointer; text-align: left; transition: 0.2s; }
+    .case-head:hover { background: rgba(255,255,255,0.05); }
+    .case-idx { width: 30px; height: 30px; flex: 0 0 auto; border-radius: 9px; display: flex; align-items: center; justify-content: center;
+      background: linear-gradient(135deg, #6366f1, #8b5cf6); font-weight: 700; font-size: 13px; color: #fff; }
+    .case-title { font-weight: 600; }
+    .case-tag { font-size: 11.5px; color: #0e7490; background: rgba(34,211,238,0.14); padding: 3px 9px; border-radius: 999px; }
+    .case-arrow { margin-left: auto; color: var(--muted); transition: 0.2s; }
+    .case-item.open .case-arrow { transform: rotate(180deg); }
+    .case-body { display: none; padding: 4px 18px 20px; border-top: 1px solid var(--panel-border); }
+    .case-item.open .case-body { display: block; }
+    .case-body .sub-h { font-size: 13px; color: #6366f1; font-weight: 600; margin: 16px 0 8px; }
+
+    /* ===== 股市模拟 ===== */
+    .sim-grid { display: grid; grid-template-columns: 1.25fr 1fr; gap: 16px; margin-top: 18px; }
+    .stock-row { display: flex; align-items: center; gap: 10px; padding: 11px 4px; border-bottom: 1px solid var(--panel-border); }
+    .stock-row:last-child { border-bottom: none; }
+    .stock-name { font-size: 14px; font-weight: 600; min-width: 74px; cursor: pointer; }
+    .stock-code { font-size: 11.5px; color: var(--dim); display: block; }
+    .stock-price { text-align: right; min-width: 84px; font-variant-numeric: tabular-nums; }
+    .stock-price .p { font-size: 14px; font-weight: 700; }
+    .stock-price .chg { font-size: 11.5px; }
+    .up { color: #f87171; }
+    .down { color: #34d399; }
+    .flat { color: var(--muted); }
+    .trade-qty { width: 56px; height: 30px; padding: 0 6px; border-radius: 8px; border: 1px solid var(--panel-border);
+      background: rgba(255,255,255,0.05); color: var(--text); font-size: 13px; text-align: center; outline: none; }
+    .btn-buy, .btn-sell { height: 30px; padding: 0 12px; border: none; border-radius: 8px; font-size: 12.5px; font-weight: 600; cursor: pointer; }
+    .btn-buy { background: #f87171; color: #fff; }
+    .btn-sell { background: #34d399; color: #04291c; }
+    .btn-buy:hover, .btn-sell:hover { filter: brightness(1.08); }
+    .sim-actions { display: flex; gap: 10px; margin-top: 18px; flex-wrap: wrap; align-items: center; }
+    .sim-btn { height: 40px; padding: 0 20px; border: none; border-radius: 11px; font-size: 14px; font-weight: 600; cursor: pointer; transition: 0.2s; }
+    .sim-btn.primary { background: linear-gradient(135deg, #6366f1, #8b5cf6); color: #fff; }
+    .sim-btn.ghost { background: rgba(255,255,255,0.06); color: var(--text); border: 1px solid var(--panel-border); }
+    .sim-btn:hover { filter: brightness(1.1); }
+    @media (max-width: 820px) { .sim-grid { grid-template-columns: 1fr; } }
+
+    /* ===== 首页模块卡片 ===== */
+    .home-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(168px, 1fr)); gap: 14px; }
+    .home-card { background: rgba(255,255,255,0.03); border: 1px solid var(--panel-border); border-radius: 14px; padding: 18px 16px; cursor: pointer; transition: 0.2s; }
+    .home-card:hover { transform: translateY(-3px); border-color: rgba(99,102,241,0.5); }
+    .home-card .ico { width: 40px; height: 40px; border-radius: 11px; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg,#6366f1,#8b5cf6); font-size: 19px; margin-bottom: 10px; }
+    .home-card h4 { font-size: 14.5px; }
+    .home-card p { font-size: 12px; color: var(--muted); margin-top: 3px; }
+
+    /* ===== 智能答疑 ===== */
+    .qa-box { display: flex; flex-direction: column; gap: 10px; }
+    .qa-box .chat-body { padding: 0; }
+    .qa-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+    .qa-chips .chip { cursor: pointer; }
+
+    /* ===== 习题训练 ===== */
+    .quiz-q { font-size: 15px; margin-bottom: 14px; line-height: 1.7; }
+    .quiz-opts { display: flex; flex-direction: column; gap: 9px; }
+    .quiz-opt { text-align: left; padding: 12px 14px; border: 1px solid var(--panel-border); border-radius: 11px; background: rgba(255,255,255,0.02); color: var(--text); cursor: pointer; font-size: 14px; transition: 0.15s; }
+    .quiz-opt:hover { border-color: var(--accent); }
+    .quiz-opt.correct { border-color: #34d399; background: rgba(52,211,153,0.15); color: #d7f9e9; }
+    .quiz-opt.wrong { border-color: #f87171; background: rgba(248,113,113,0.15); color: #ffe2e2; }
+    .quiz-opt.disabled { pointer-events: none; }
+    .quiz-score { margin-top: 14px; font-size: 14px; }
+    .quiz-actions { margin-top: 14px; display: flex; gap: 10px; }
+
+    /* ===== 错题定位 ===== */
+    .wrong-item { border: 1px solid var(--panel-border); border-radius: 13px; padding: 14px 16px; margin-bottom: 12px; background: rgba(255,255,255,0.02); }
+    .wrong-item .q { font-size: 14px; line-height: 1.6; }
+    .wrong-item .tag { display: inline-block; font-size: 11.5px; color: #fda4af; background: rgba(248,113,113,0.15); padding: 2px 9px; border-radius: 999px; margin: 8px 8px 0 0; }
+    .wrong-item .ans { font-size: 13px; color: #0e7490; margin-top: 8px; }
+    .wrong-item .exp { font-size: 12.5px; color: var(--muted); margin-top: 4px; line-height: 1.6; }
+
+    /* ===== 学情画像 ===== */
+    .profile-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .profile-bar { display: flex; align-items: center; gap: 10px; margin-bottom: 13px; }
+    .profile-bar .name { width: 76px; font-size: 13px; color: var(--muted); text-align: right; flex: 0 0 auto; }
+    .profile-bar .track { flex: 1; height: 18px; background: rgba(255,255,255,0.06); border-radius: 9px; overflow: hidden; }
+    .profile-bar .fill { height: 100%; border-radius: 9px; background: linear-gradient(90deg,#0ea5e9,#6366f1); }
+    .profile-bar .val { width: 34px; font-size: 12.5px; color: #0e7490; flex: 0 0 auto; }
+
+    /* ===== IPO 仿真 ===== */
+    .steps { display: flex; gap: 6px; margin-bottom: 18px; flex-wrap: wrap; }
+    .step-dot { flex: 1; min-width: 68px; text-align: center; font-size: 11.5px; color: var(--muted); padding: 8px 6px; border-radius: 9px; background: rgba(255,255,255,0.04); border: 1px solid var(--panel-border); }
+    .step-dot.active { color: #fff; background: linear-gradient(135deg,#6366f1,#8b5cf6); border-color: transparent; }
+    .step-dot.done { color: #0e7490; border-color: rgba(34,211,238,0.4); }
+    .ipo-stage { min-height: 150px; }
+    .ipo-stage h4 { font-size: 17px; margin-bottom: 10px; }
+    .ipo-stage p { font-size: 14px; color: var(--muted); line-height: 1.8; }
+    .ipo-actions { display: flex; gap: 10px; margin-top: 16px; }
+
+    /* ===== 估值实验 ===== */
+    .val-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .val-field { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 14px; }
+    .val-field label { font-size: 13.5px; color: var(--muted); }
+    .val-field input { width: 120px; height: 36px; padding: 0 10px; border-radius: 9px; border: 1px solid var(--panel-border); background: rgba(255,255,255,0.05); color: var(--text); font-size: 14px; outline: none; }
+    .val-field input:focus { border-color: var(--accent); }
+    .val-item { border: 1px solid var(--panel-border); border-radius: 13px; padding: 14px 16px; margin-bottom: 12px; }
+    .val-item .m { font-size: 12.5px; color: var(--muted); }
+    .val-item .v { font-size: 22px; font-weight: 800; margin-top: 2px; }
+    .val-item .note { font-size: 12px; color: var(--dim); margin-top: 4px; }
+    @media (max-width: 820px) { .profile-grid, .val-grid { grid-template-columns: 1fr; } }
+
+    /* ===== 后台统计（浅色管理后台） ===== */
+    body.light { background: #f4f6fa; }
+    body.light .bg-blob { opacity: 0; }
+    body.light .navbar { background: rgba(255,255,255,0.92); border-bottom: 1px solid #e5e9f0; }
+    body.light .nav-brand .t1 { color: #1a202c; }
+    body.light .nav-brand .t2 { color: #64748b; }
+    body.light .tab-btn { color: #64748b; }
+    body.light .tab-btn:hover { color: #1a202c; background: #eef2f7; }
+    body.light .tab-btn.active { color: #fff; background: #2563eb; box-shadow: 0 4px 14px rgba(37,99,235,0.3); }
+    body.light .footer-note { color: #94a3b8; }
+
+    .admin-head { margin-bottom: 18px; }
+    .admin-head h2 { font-size: 22px; color: #1a202c; }
+    .admin-head p { font-size: 13.5px; color: #64748b; margin-top: 4px; }
+    .admin-kpi-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 16px; }
+    .admin-kpi { background: #fff; border: 1px solid #e5e9f0; border-radius: 14px; padding: 18px 18px 16px; box-shadow: 0 1px 3px rgba(16,24,40,0.05); }
+    .admin-kpi .k { font-size: 13px; color: #64748b; }
+    .admin-kpi .v { font-size: 30px; font-weight: 800; color: #1a202c; margin-top: 2px; }
+    .admin-kpi .v .u { font-size: 13px; color: #94a3b8; margin-left: 3px; font-weight: 600; }
+    .admin-kpi .sub { font-size: 12px; color: #94a3b8; margin-top: 2px; }
+    .admin-panel { background: #fff; border: 1px solid #e5e9f0; border-radius: 16px; padding: 22px; box-shadow: 0 1px 3px rgba(16,24,40,0.05); }
+    .admin-panel h4 { font-size: 15.5px; color: #1a202c; font-weight: 700; }
+    .admin-panel .sub { font-size: 12.5px; color: #94a3b8; margin: 4px 0 14px; }
+    .admin-legend { display: flex; gap: 16px; font-size: 12.5px; color: #64748b; margin-bottom: 12px; }
+    .admin-legend .sw { display: inline-block; width: 12px; height: 12px; border-radius: 3px; margin-right: 6px; vertical-align: -1px; }
+    .admin-cap-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 12px; }
+    .admin-cap { border: 1px solid #eef2f7; border-radius: 12px; padding: 14px 16px; background: #fbfcfe; }
+    .admin-cap .ico { width: 34px; height: 34px; border-radius: 9px; background: #e8f0fe; color: #2563eb; display: flex; align-items: center; justify-content: center; font-size: 17px; margin-bottom: 8px; }
+    .admin-cap h5 { font-size: 14px; color: #1a202c; }
+    .admin-cap p { font-size: 12.5px; color: #64748b; line-height: 1.6; margin-top: 4px; }
+    .admin-tier-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; }
+    .admin-tier { border: 1px solid #eef2f7; border-radius: 12px; padding: 14px 16px; background: #fbfcfe; }
+    .admin-tier .lvl { font-size: 12px; font-weight: 700; color: #2563eb; margin-bottom: 6px; }
+    .admin-tier p { font-size: 12.5px; color: #64748b; line-height: 1.6; }
+
+    @media (max-width: 820px) {
+      .navbar { flex-wrap: wrap; }
+      .nav-tabs { margin-left: 0; justify-content: flex-start; overflow-x: auto; flex-wrap: nowrap; width: 100%; }
+      .hero h1 { font-size: 25px; }
+      .tab-btn { padding: 7px 11px; font-size: 13px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="bg-blob bg-blob-1"></div>
+  <div class="bg-blob bg-blob-2"></div>
+  <div class="bg-blob bg-blob-3"></div>
+
+  <div class="wrap">
+    <!-- ===== 顶部导航（7 个页面标签） ===== -->
+    <nav class="navbar">
+      <div class="nav-brand">
+        <div class="mini-robot">
+          <svg viewBox="0 0 320 400" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <defs>
+              <linearGradient id="nBody" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#67e8f9"/><stop offset="1" stop-color="#6366f1"/></linearGradient>
+              <linearGradient id="nHead" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#232a4d"/><stop offset="1" stop-color="#11142e"/></linearGradient>
+            </defs>
+            <circle cx="160" cy="20" r="9" fill="#22d3ee"/>
+            <line x1="160" y1="62" x2="160" y2="30" stroke="#8b93b8" stroke-width="5" stroke-linecap="round"/>
+            <rect x="86" y="214" width="148" height="150" rx="30" fill="url(#nBody)"/>
+            <rect x="70" y="62" width="180" height="160" rx="26" fill="url(#nHead)"/>
+            <rect x="113" y="115" width="18" height="34" rx="9" fill="#a5f3fc"/>
+            <rect x="189" y="115" width="18" height="34" rx="9" fill="#a5f3fc"/>
+            <rect x="136" y="169" width="48" height="18" rx="9" fill="#a5f3fc"/>
+          </svg>
+        </div>
+        <div>
+          <div class="t1">iBank平台</div>
+          <div class="t2">投资银行学 · 智慧课堂</div>
+        </div>
+      </div>
+      <div class="nav-tabs" id="nav-tabs">
+        <button class="tab-btn active" data-page="p-home">首页</button>
+        <button class="tab-btn" data-page="p-qa">智能答疑</button>
+        <button class="tab-btn" data-page="p-exercise">习题训练</button>
+        <button class="tab-btn" data-page="p-wrong">错题定位</button>
+        <button class="tab-btn" data-page="p-profile">学情画像</button>
+        <button class="tab-btn" data-page="p-ipo">IPO仿真</button>
+        <button class="tab-btn" data-page="p-valuation">估值实验</button>
+        <button class="tab-btn" data-page="p-case">案例库</button>
+        <button class="tab-btn" data-page="p-macro">宏观市场</button>
+        <button class="tab-btn" data-page="p-sim">股市模拟</button>
+        <button class="tab-btn" data-page="p-admin">后台统计</button>
+      </div>
+    </nav>
+
+    <!-- ================================================================
+         ① 首页
+    ================================================================= -->
+    <section class="page active" id="p-home">
+      <div class="hero panel">
+        <h1><span class="grad">iBank平台</span></h1>
+        <p>《投资银行学》智慧教学平台 · AI 导学答疑 · 实务习题 · 错题定位 · 学情画像 · IPO 仿真 · 估值实验，一站式投行实务训练。</p>
+      </div>
+
+      <div class="panel" style="margin-top:18px;">
+        <div class="section-title"><span class="bar"></span>功能模块</div>
+        <div class="home-grid">
+          <div class="home-card" data-page="p-qa"><div class="ico">💬</div><h4>智能答疑</h4><p>AI 学伴随问随答</p></div>
+          <div class="home-card" data-page="p-exercise"><div class="ico">✍️</div><h4>习题训练</h4><p>实务习题即时反馈</p></div>
+          <div class="home-card" data-page="p-wrong"><div class="ico">🎯</div><h4>错题定位</h4><p>薄弱知识点靶向补学</p></div>
+          <div class="home-card" data-page="p-profile"><div class="ico">📊</div><h4>学情画像</h4><p>章节掌握一目了然</p></div>
+          <div class="home-card" data-page="p-ipo"><div class="ico">🏭</div><h4>IPO 仿真</h4><p>全流程上市推演</p></div>
+          <div class="home-card" data-page="p-valuation"><div class="ico">🧮</div><h4>估值实验</h4><p>参数可调估值测算</p></div>
+          <div class="home-card" data-page="p-case"><div class="ico">📚</div><h4>案例库</h4><p>投行实务案例</p></div>
+          <div class="home-card" data-page="p-macro"><div class="ico">🌐</div><h4>宏观市场</h4><p>美元·黄金·股票·美债</p></div>
+          <div class="home-card" data-page="p-sim"><div class="ico">📈</div><h4>股市模拟</h4><p>虚拟盘实战交易</p></div>
+          <div class="home-card" data-page="p-admin"><div class="ico">🗂️</div><h4>后台统计</h4><p>学情数据看板</p></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================================================================
+         ② 智能答疑
+    ================================================================= -->
+    <section class="page" id="p-qa">
+      <div class="panel">
+        <div class="section-title"><span class="bar"></span>智能答疑 · AI 学伴</div>
+        <div class="section-sub">关于投资银行、IPO、并购、承销、估值，以及美元、黄金、股票、美债，随问随答。</div>
+        <div class="qa-box">
+          <div class="chat-body" id="qa-body" style="max-height:400px;">
+            <div class="msg bot">你好，我是 iBank 助手 👋 关于投资银行、IPO、并购、承销、估值，以及美元、黄金、股票、美债，都可以问我。</div>
+          </div>
+          <div class="qa-chips" id="qa-chips">
+            <span class="chip">什么是 IPO？</span>
+            <span class="chip">包销和代销的区别</span>
+            <span class="chip">市盈率 PE 怎么用</span>
+            <span class="chip">美元为什么影响黄金</span>
+            <span class="chip">美债收益率是什么</span>
+            <span class="chip">并购估值怎么做</span>
+          </div>
+          <form class="chat-input" id="qa-form">
+            <input id="qa-input" type="text" placeholder="输入你的问题…" autocomplete="off" />
+            <button type="submit">发送</button>
+          </form>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================================================================
+         ③ 习题训练
+    ================================================================= -->
+    <section class="page" id="p-exercise">
+      <div class="panel">
+        <div class="section-title"><span class="bar"></span>实务习题训练</div>
+        <div class="section-sub">选择答案后即时判断，答错的题会自动进入「错题定位」。</div>
+        <div id="quiz-box"></div>
+      </div>
+    </section>
+
+    <!-- ================================================================
+         ④ 错题定位
+    ================================================================= -->
+    <section class="page" id="p-wrong">
+      <div class="panel">
+        <div class="section-title"><span class="bar"></span>错题定位</div>
+        <div class="section-sub">针对反复出错的知识点，推送讲解与情景化练习。</div>
+        <div id="wrong-list"></div>
+      </div>
+    </section>
+
+    <!-- ================================================================
+         ⑤ 学情画像
+    ================================================================= -->
+    <section class="page" id="p-profile">
+      <div class="panel">
+        <div class="section-title"><span class="bar"></span>个人学情画像</div>
+        <div class="section-sub">六大维度掌握度，帮助查漏补缺。</div>
+        <div class="profile-grid">
+          <div class="chart-card"><h4>能力雷达</h4><svg id="radar" viewBox="0 0 360 320" width="100%"></svg></div>
+          <div class="chart-card"><h4>维度掌握度</h4><div id="profile-bars"></div></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================================================================
+         ⑥ IPO 发行流程仿真
+    ================================================================= -->
+    <section class="page" id="p-ipo">
+      <div class="panel">
+        <div class="section-title"><span class="bar"></span>IPO 发行流程仿真</div>
+        <div class="section-sub">按顺序完成从改制到上市的全流程任务。</div>
+        <div class="steps" id="ipo-steps"></div>
+        <div class="ipo-stage">
+          <h4 id="ipo-title"></h4>
+          <p id="ipo-desc"></p>
+        </div>
+        <div class="ipo-actions">
+          <button class="sim-btn ghost" id="ipo-prev">上一步</button>
+          <button class="sim-btn primary" id="ipo-next">下一步</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================================================================
+         ⑦ 企业估值实操实验
+    ================================================================= -->
+    <section class="page" id="p-valuation">
+      <div class="panel">
+        <div class="section-title"><span class="bar"></span>企业估值实操实验</div>
+        <div class="section-sub">调整参数，观察市盈率法与现金流折现法的估值变化。</div>
+        <div class="val-grid">
+          <div class="chart-card">
+            <h4>参数设置</h4>
+            <div class="val-field"><label>净利润（万元）</label><input id="val-profit" type="number" value="8000" /></div>
+            <div class="val-field"><label>盈利增长率 g（%）</label><input id="val-g" type="number" value="10" /></div>
+            <div class="val-field"><label>折现率 r（%）</label><input id="val-r" type="number" value="15" /></div>
+            <div class="val-field"><label>可比市盈率 PE（倍）</label><input id="val-pe" type="number" value="40" /></div>
+          </div>
+          <div class="chart-card">
+            <h4>估值结果</h4>
+            <div id="val-result"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+
+    <!-- ================================================================
+         ⑧ 案例库（投行教学案例，点击标题展开）
+    ================================================================= -->
+    <section class="page" id="p-case">
+      <div class="panel">
+        <div class="section-title"><span class="bar"></span>投行教学案例库</div>
+        <div class="section-sub">点击案例标题展开完整内容。</div>
+
+        <!-- 案例 1：星辰科技 · 科创板 IPO -->
+        <div class="case-item open">
+          <button class="case-head">
+            <span class="case-idx">01</span>
+            <span class="case-title">星辰科技 · 科创板 IPO</span>
+            <span class="case-tag">承销保荐</span>
+            <span class="case-arrow">▾</span>
+          </button>
+          <div class="case-body">
+            <div class="sub-h">案例简介</div>
+            <div class="text-slot">
+              <strong>星辰科技</strong>是一家 AI 芯片初创公司，2024 年营收 8.6 亿元、连续三年高速增长，拟在科创板上市，计划募资 12 亿元。<br/><br/>
+              公司聘请<strong>华信证券</strong>担任保荐机构与主承销商。投行团队先后完成：<strong>尽职调查</strong> → <strong>上市辅导</strong> → <strong>估值定价</strong>（PE=40x、PS=8x）→ <strong>路演询价</strong> → <strong>发行上市</strong>。最终发行价 35 元/股，超额认购 52 倍，上市首日上涨 68%。
+            </div>
+
+            <div class="sub-h">案例图表</div>
+            <div class="photo-grid">
+              <div class="photo-slot">
+                <svg viewBox="0 0 400 300" style="width:100%;height:100%;display:block" xmlns="http://www.w3.org/2000/svg">
+                  <rect width="400" height="300" fill="#f8fafc"/>
+                  <g font-family="Microsoft YaHei, sans-serif" text-anchor="middle">
+                    <g><rect x="140" y="14" width="120" height="40" rx="8" fill="#eef2f8" stroke="#d4dae4"/><text x="200" y="39" fill="#0e7490" font-size="15">① 尽职调查</text></g>
+                    <line x1="200" y1="54" x2="200" y2="64" stroke="#d4dae4" stroke-width="2"/><polygon points="195,64 205,64 200,72" fill="#3b4270"/>
+                    <g><rect x="140" y="72" width="120" height="40" rx="8" fill="#eef2f8" stroke="#d4dae4"/><text x="200" y="97" fill="#0e7490" font-size="15">② 上市辅导</text></g>
+                    <line x1="200" y1="112" x2="200" y2="122" stroke="#d4dae4" stroke-width="2"/><polygon points="195,122 205,122 200,130" fill="#3b4270"/>
+                    <g><rect x="140" y="130" width="120" height="40" rx="8" fill="#6366f1" stroke="#6366f1"/><text x="200" y="155" fill="#fff" font-size="15">③ 估值定价</text></g>
+                    <line x1="200" y1="170" x2="200" y2="180" stroke="#d4dae4" stroke-width="2"/><polygon points="195,180 205,180 200,188" fill="#3b4270"/>
+                    <g><rect x="140" y="188" width="120" height="40" rx="8" fill="#eef2f8" stroke="#d4dae4"/><text x="200" y="213" fill="#0e7490" font-size="15">④ 路演询价</text></g>
+                    <line x1="200" y1="228" x2="200" y2="238" stroke="#d4dae4" stroke-width="2"/><polygon points="195,238 205,238 200,246" fill="#3b4270"/>
+                    <g><rect x="140" y="246" width="120" height="40" rx="8" fill="#cffafe" stroke="#22d3ee"/><text x="200" y="271" fill="#0e7490" font-size="15">⑤ 发行上市</text></g>
+                  </g>
+                </svg>
+                <div class="caption">图 1：IPO 承销五步流程</div>
+              </div>
+              <div class="photo-slot">
+                <svg viewBox="0 0 400 300" style="width:100%;height:100%;display:block" xmlns="http://www.w3.org/2000/svg">
+                  <rect width="400" height="300" fill="#f8fafc"/>
+                  <g font-family="Microsoft YaHei, sans-serif" text-anchor="middle">
+                    <line x1="40" y1="30" x2="40" y2="250" stroke="#d4dae4" stroke-width="2"/>
+                    <line x1="40" y1="250" x2="390" y2="250" stroke="#d4dae4" stroke-width="2"/>
+                    <rect x="70" y="195" width="60" height="55" rx="6" fill="#6366f1"/><text x="100" y="186" fill="#6366f1" font-size="14">1.2亿</text>
+                    <rect x="170" y="120" width="60" height="130" rx="6" fill="#22d3ee"/><text x="200" y="111" fill="#6366f1" font-size="14">3.5亿</text>
+                    <rect x="270" y="60" width="60" height="190" rx="6" fill="#8b5cf6"/><text x="300" y="51" fill="#6366f1" font-size="14">8.6亿</text>
+                    <text x="100" y="272" fill="#64748b" font-size="13">2022</text><text x="200" y="272" fill="#64748b" font-size="13">2023</text><text x="300" y="272" fill="#64748b" font-size="13">2024</text>
+                  </g>
+                </svg>
+                <div class="caption">图 2：近三年营收增长</div>
+              </div>
+              <div class="photo-slot">
+                <svg viewBox="0 0 400 300" style="width:100%;height:100%;display:block" xmlns="http://www.w3.org/2000/svg">
+                  <rect width="400" height="300" fill="#f8fafc"/>
+                  <g font-family="Microsoft YaHei, sans-serif">
+                    <text x="200" y="36" fill="#1a2233" font-size="16" font-weight="bold" text-anchor="middle">估值与发行定价</text>
+                    <text x="30" y="96" fill="#0e7490" font-size="15">市盈率 PE</text>
+                    <rect x="150" y="80" width="240" height="26" rx="13" fill="#6366f1"/><text x="396" y="98" fill="#fff" font-size="14" text-anchor="end">40x</text>
+                    <text x="30" y="166" fill="#0e7490" font-size="15">市销率 PS</text>
+                    <rect x="150" y="150" width="48" height="26" rx="13" fill="#22d3ee"/><text x="396" y="168" fill="#fff" font-size="14" text-anchor="end">8x</text>
+                    <text x="30" y="236" fill="#0e7490" font-size="15">发行价</text>
+                    <rect x="150" y="220" width="210" height="26" rx="13" fill="#8b5cf6"/><text x="396" y="238" fill="#fff" font-size="14" text-anchor="end">35元/股</text>
+                  </g>
+                </svg>
+                <div class="caption">图 3：估值方法与发行定价</div>
+              </div>
+            </div>
+
+            <div class="sub-h">思考题</div>
+            <ul class="q-list">
+              <li><span class="num">1</span><span>投行（保荐机构）在本次 IPO 中承担了哪些核心职能？尽职调查、辅导、定价、路演各环节分别解决什么问题？</span></li>
+              <li><span class="num">2</span><span>本次估值同时用了市盈率法和市销率法，为什么？两种方法分别适用于什么类型的公司？</span></li>
+              <li><span class="num">3</span><span>承销若采用「包销」或「代销」，二者在风险分担上有什么不同？</span></li>
+            </ul>
+
+            <div class="sub-h">结论与启示</div>
+            <div class="text-slot">
+              投行在 IPO 中扮演「<strong>信息中介</strong>」与「<strong>定价中枢</strong>」的双重角色：一方面通过尽职调查缓解信息不对称，另一方面通过估值与询价实现合理定价。<br/><br/>
+              本案例说明：<strong>成长型科技公司</strong>往往采用市盈率 + 市销率结合估值；而承销方式的选择（包销 vs 代销）直接决定发行人的募资确定性与投行的风险敞口。
+            </div>
+          </div>
+        </div>
+
+        <!-- 案例 2：蓝海集团 · 并购重组 -->
+        <div class="case-item">
+          <button class="case-head">
+            <span class="case-idx">02</span>
+            <span class="case-title">蓝海集团 · 并购重组</span>
+            <span class="case-tag">并购 M&amp;A</span>
+            <span class="case-arrow">▾</span>
+          </button>
+          <div class="case-body">
+            <div class="sub-h">案例简介</div>
+            <div class="text-slot">
+              <strong>蓝海集团</strong>是区域性零售龙头，拟以 45 亿元收购竞争对手<strong>速达零售</strong>以扩大市场份额。投行团队需完成：标的尽调 → 估值（可比公司法 EV/EBITDA=12x、DCF 现金流折现）→ 交易结构设计 → 反垄断合规 → 并购后整合。最终以「现金 60% + 换股 40%」完成交易。
+            </div>
+            <div class="sub-h">关键数据</div>
+            <div class="photo-grid">
+              <div class="photo-slot">
+                <svg viewBox="0 0 400 300" style="width:100%;height:100%;display:block" xmlns="http://www.w3.org/2000/svg">
+                  <rect width="400" height="300" fill="#f8fafc"/>
+                  <g font-family="Microsoft YaHei, sans-serif">
+                    <text x="200" y="44" fill="#1a2233" font-size="16" font-weight="bold" text-anchor="middle">并购估值对比（亿元）</text>
+                    <text x="30" y="134" fill="#0e7490" font-size="15">可比公司法</text>
+                    <rect x="150" y="114" width="230" height="26" rx="13" fill="#6366f1"/><text x="388" y="132" fill="#fff" font-size="14" text-anchor="end">54 亿</text>
+                    <text x="30" y="214" fill="#0e7490" font-size="15">DCF 折现</text>
+                    <rect x="150" y="194" width="205" height="26" rx="13" fill="#22d3ee"/><text x="388" y="212" fill="#fff" font-size="14" text-anchor="end">48 亿</text>
+                  </g>
+                </svg>
+                <div class="caption">图：并购估值（可比公司 vs DCF）</div>
+              </div>
+            </div>
+            <div class="sub-h">思考题</div>
+            <ul class="q-list">
+              <li><span class="num">1</span><span>并购估值中，可比公司法与 DCF 法各自的适用条件与局限是什么？</span></li>
+              <li><span class="num">2</span><span>现金收购与换股收购对买卖双方各有什么利弊？</span></li>
+              <li><span class="num">3</span><span>反垄断审查在并购交易中为什么重要？</span></li>
+            </ul>
+            <div class="sub-h">结论与启示</div>
+            <div class="text-slot">
+              并购是投行核心业务，<strong>估值合理</strong>与<strong>交易结构设计</strong>决定交易成败，需在买卖双方利益之间寻求平衡，并充分考虑合规与整合风险。
+            </div>
+          </div>
+        </div>
+
+        <!-- 案例 3：国泰城投 · 债券承销 -->
+        <div class="case-item">
+          <button class="case-head">
+            <span class="case-idx">03</span>
+            <span class="case-title">国泰城投 · 债券承销</span>
+            <span class="case-tag">债券发行</span>
+            <span class="case-arrow">▾</span>
+          </button>
+          <div class="case-body">
+            <div class="sub-h">案例简介</div>
+            <div class="text-slot">
+              <strong>国泰城投</strong>是市级城投平台，拟发行 30 亿元 5 年期公司债用于基建项目。投行需完成：信用评级辅导 → 募集说明书撰写 → 簿记建档 → 定价（票面利率 3.85%）→ 发行上市。最终认购倍数 2.6 倍。
+            </div>
+            <div class="sub-h">思考题</div>
+            <ul class="q-list">
+              <li><span class="num">1</span><span>债券定价中票面利率如何确定？与信用评级、市场利率有什么关系？</span></li>
+              <li><span class="num">2</span><span>簿记建档与 IPO 询价有什么异同？</span></li>
+              <li><span class="num">3</span><span>城投债的信用风险主要来自哪些方面？</span></li>
+            </ul>
+            <div class="sub-h">结论与启示</div>
+            <div class="text-slot">
+              债券承销体现投行的<strong>「信用中介」</strong>职能，票面利率定价综合反映信用风险与市场利率环境。
+            </div>
+          </div>
+        </div>
+
+        <!-- 案例 4：中远能源 · 港股上市 -->
+        <div class="case-item">
+          <button class="case-head">
+            <span class="case-idx">04</span>
+            <span class="case-title">中远能源 · 港股上市</span>
+            <span class="case-tag">境外上市</span>
+            <span class="case-arrow">▾</span>
+          </button>
+          <div class="case-body">
+            <div class="sub-h">案例简介</div>
+            <div class="text-slot">
+              <strong>中远能源</strong>是新能源企业，拟赴港交所上市募资 50 亿港元。涉及：境外上市架构搭建（红筹 / VIE）→ 国际路演 → 定价（对标国际同业市盈率）→ 全球配售。最终发行价 18 港元，机构超额认购 40 倍。
+            </div>
+            <div class="sub-h">思考题</div>
+            <ul class="q-list">
+              <li><span class="num">1</span><span>境内上市与境外上市，企业通常基于哪些因素选择？</span></li>
+              <li><span class="num">2</span><span>什么是红筹架构和 VIE 架构？各自适用于什么场景？</span></li>
+              <li><span class="num">3</span><span>国际路演与境内路演有什么不同？</span></li>
+            </ul>
+            <div class="sub-h">结论与启示</div>
+            <div class="text-slot">
+              境外上市帮助企业在国际资本市场融资，投行在其中承担<strong>跨境发行、定价与配售</strong>职能。
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================================================================
+         ⑨ 宏观市场（美元 / 黄金 / 股票 / 美债）
+    ================================================================= -->
+    <section class="page" id="p-macro">
+      <div class="panel">
+        <div class="section-title"><span class="bar"></span>宏观市场 · 资产专题</div>
+        <div class="section-sub">围绕美元、黄金、股票、美债四类核心资产，理解其定价逻辑与投行实务联系。</div>
+
+        <!-- 美元 -->
+        <div class="case-item open">
+          <button class="case-head">
+            <span class="case-idx">$</span>
+            <span class="case-title">美元</span>
+            <span class="case-tag">储备货币</span>
+            <span class="case-arrow">▾</span>
+          </button>
+          <div class="case-body">
+            <div class="sub-h">概述</div>
+            <div class="text-slot">美元（USD）是全球最主要的<strong>储备货币</strong>与计价结算货币，多数国际贸易与大宗商品（如石油、黄金）以美元计价结算。</div>
+            <div class="sub-h">关键驱动</div>
+            <div class="text-slot">美元汇率的核心驱动是<strong>美联储货币政策</strong>——加息通常吸引资本回流、推升美元，降息则相反；同时美国经济基本面、通胀与全球避险情绪也会影响美元强弱。</div>
+            <div class="sub-h">投行视角</div>
+            <div class="text-slot">美元汇率影响跨境并购的收购成本、外币债券的发行成本与企业的<strong>汇兑风险管理</strong>，跨国投行业务需密切关注美元利率与汇率走势。</div>
+            <div class="sub-h">讨论题</div>
+            <ul class="q-list">
+              <li><span class="num">1</span><span>美联储加息为什么通常会推升美元？这对企业的外币债务成本意味着什么？</span></li>
+              <li><span class="num">2</span><span>美元走强或走弱，对黄金、美债价格分别有何影响？</span></li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- 黄金 -->
+        <div class="case-item">
+          <button class="case-head">
+            <span class="case-idx">金</span>
+            <span class="case-title">黄金</span>
+            <span class="case-tag">避险资产</span>
+            <span class="case-arrow">▾</span>
+          </button>
+          <div class="case-body">
+            <div class="sub-h">概述</div>
+            <div class="text-slot">黄金是典型的<strong>避险资产</strong>与价值贮藏工具，在通胀上行或市场动荡时往往受到追捧。</div>
+            <div class="sub-h">关键驱动</div>
+            <div class="text-slot">金价常与美元、<strong>实际利率</strong>反向变动：美元走弱、实际利率（名义利率减通胀）下行时金价走强，通胀上行也推高金价。</div>
+            <div class="sub-h">投行视角</div>
+            <div class="text-slot">黄金与股票、债券相关性较低，可起到<strong>分散投资组合风险</strong>的作用，是投行为客户做资产配置或大宗商品交易时的重要工具。</div>
+            <div class="sub-h">讨论题</div>
+            <ul class="q-list">
+              <li><span class="num">1</span><span>为什么说「实际利率」比名义利率更能解释金价？</span></li>
+              <li><span class="num">2</span><span>通胀上行时，黄金和股票通常各自如何反应？</span></li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- 股票 -->
+        <div class="case-item">
+          <button class="case-head">
+            <span class="case-idx">股</span>
+            <span class="case-title">股票</span>
+            <span class="case-tag">权益资产</span>
+            <span class="case-arrow">▾</span>
+          </button>
+          <div class="case-body">
+            <div class="sub-h">概述</div>
+            <div class="text-slot">股票是公司发行的<strong>所有权凭证</strong>，代表股东对公司的剩余索取权。</div>
+            <div class="sub-h">关键驱动</div>
+            <div class="text-slot">股价长期由<strong>企业盈利与成长预期</strong>决定，短期受市场情绪、流动性与资金面影响。</div>
+            <div class="sub-h">投行视角</div>
+            <div class="text-slot">在一级市场，投行帮助企业通过 IPO、增发等发行股票融资并负责定价承销；在二级市场，投资者自由买卖。投行连接了企业与资本市场。</div>
+            <div class="sub-h">讨论题</div>
+            <ul class="q-list">
+              <li><span class="num">1</span><span>一级市场与二级市场在功能上有什么区别？投行主要活跃在哪一级？</span></li>
+              <li><span class="num">2</span><span>为什么说「估值」是投行在股票发行中的核心工作？</span></li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- 美债 -->
+        <div class="case-item">
+          <button class="case-head">
+            <span class="case-idx">债</span>
+            <span class="case-title">美债</span>
+            <span class="case-tag">利率基准</span>
+            <span class="case-arrow">▾</span>
+          </button>
+          <div class="case-body">
+            <div class="sub-h">概述</div>
+            <div class="text-slot">美国国债（美债）是全球金融市场的<strong>定价基准</strong>，其收益率常被视为「无风险利率」。</div>
+            <div class="sub-h">关键驱动</div>
+            <div class="text-slot">债券价格与收益率<strong>反向变动</strong>：收益率上行则债券价格下跌；美债收益率受美联储政策、通胀预期与经济前景影响。</div>
+            <div class="sub-h">投行视角</div>
+            <div class="text-slot">美债收益率是估值中<strong>折现率（DCF）</strong>的重要参照，直接影响股票与债券估值水平，也是判断全球流动性松紧的关键指标。</div>
+            <div class="sub-h">讨论题</div>
+            <ul class="q-list">
+              <li><span class="num">1</span><span>为什么债券价格与收益率反向变动？</span></li>
+              <li><span class="num">2</span><span>美债收益率上行，对股票估值（尤其是成长股）通常意味着什么？</span></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================================================================
+         ⑩ 股市模拟（模拟交易）
+    ================================================================= -->
+    <section class="page" id="p-sim">
+      <div class="panel">
+        <div class="section-title"><span class="bar"></span>股市模拟 · 模拟交易</div>
+        <div class="section-sub">虚拟资金 100 万元。点击「下一交易日」推进行情，点击股票名查看走势。红涨绿跌（A股惯例）。</div>
+
+        <div class="kpi-row">
+          <div class="kpi-card"><div class="num" id="sim-cash">100.00<span class="unit">万</span></div><div class="label">可用资金</div></div>
+          <div class="kpi-card"><div class="num" id="sim-mv">0.00<span class="unit">万</span></div><div class="label">持仓市值</div></div>
+          <div class="kpi-card"><div class="num" id="sim-total">100.00<span class="unit">万</span></div><div class="label">总资产</div></div>
+          <div class="kpi-card"><div class="num" id="sim-pnl">0.00<span class="unit">%</span></div><div class="label">累计盈亏</div></div>
+        </div>
+
+        <div class="sim-grid">
+          <div class="chart-card">
+            <h4 id="sim-chart-title">星辰科技 688123 · 近 30 日走势</h4>
+            <svg id="sim-chart" viewBox="0 0 560 220" width="100%" role="img" aria-label="选中股票走势图"></svg>
+          </div>
+          <div class="chart-card">
+            <h4>行情列表</h4>
+            <div class="hint" style="margin-bottom:10px;">数量默认 100 股。</div>
+            <div id="sim-stocks"></div>
+          </div>
+        </div>
+
+        <div class="sim-actions">
+          <button class="sim-btn primary" id="sim-next">下一交易日</button>
+          <button class="sim-btn ghost" id="sim-reset">重置模拟</button>
+          <span class="hint">本模块为教学模拟，不构成投资建议。</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================================================================
+         ⑪ 后台统计（浅色管理后台）
+    ================================================================= -->
+    <section class="page" id="p-admin">
+      <div class="admin-head">
+        <h2>数据后台 · 学情统计</h2>
+        <p>iBank平台运行数据 · 2026 春季学期（金融 2303 / 2304）</p>
+      </div>
+
+      <!-- 核心指标 -->
+      <div class="admin-kpi-row">
+        <div class="admin-kpi"><div class="k">覆盖学生</div><div class="v">89<span class="u">名</span></div><div class="sub">金融 2303 / 2304</div></div>
+        <div class="admin-kpi"><div class="k">课程知识问答</div><div class="v">3200<span class="u">次</span></div><div class="sub">累计咨询交互</div></div>
+        <div class="admin-kpi"><div class="k">习题训练</div><div class="v">5400<span class="u">道</span></div><div class="sub">配套实务习题</div></div>
+        <div class="admin-kpi"><div class="k">仿真·估值实验</div><div class="v">78<span class="u">人</span></div><div class="sub">IPO 流程仿真 / 估值</div></div>
+      </div>
+
+      <!-- 达成率对比 -->
+      <div class="admin-panel" style="margin-top:16px;">
+        <h4>关键能力达成率（实训前 → 实训后）</h4>
+        <div class="sub">单位：% · 蓝色为实训后</div>
+        <div class="admin-legend">
+          <span><span class="sw" style="background:#cbd5e1;"></span>实训前</span>
+          <span><span class="sw" style="background:#2563eb;"></span>实训后</span>
+        </div>
+        <svg viewBox="0 0 560 260" width="100%" role="img" aria-label="关键能力达成率对比图">
+          <g font-family="Microsoft YaHei, sans-serif">
+            <line x1="120" y1="30" x2="120" y2="215" stroke="#cbd5e1" stroke-width="2"/>
+            <line x1="120" y1="215" x2="545" y2="215" stroke="#cbd5e1" stroke-width="2"/>
+            <g font-size="11" fill="#94a3b8" text-anchor="end">
+              <text x="110" y="219">0</text><text x="110" y="179">20</text><text x="110" y="139">40</text>
+              <text x="110" y="99">60</text><text x="110" y="59">80</text><text x="110" y="19">100</text>
+            </g>
+            <g stroke="#eef2f7" stroke-dasharray="3 4" stroke-width="1">
+              <line x1="120" y1="175" x2="545" y2="175"/><line x1="120" y1="135" x2="545" y2="135"/>
+              <line x1="120" y1="95" x2="545" y2="95"/><line x1="120" y1="55" x2="545" y2="55"/>
+            </g>
+            <rect x="150" y="98" width="60" height="117" fill="#cbd5e1" rx="4"/>
+            <text x="180" y="88" fill="#64748b" font-size="13" text-anchor="middle" font-weight="700">58.3%</text>
+            <rect x="225" y="56" width="60" height="159" fill="#2563eb" rx="4"/>
+            <text x="255" y="46" fill="#2563eb" font-size="13" text-anchor="middle" font-weight="700">79.6%</text>
+            <text x="210" y="240" fill="#1a202c" font-size="13" text-anchor="middle">上市环节阐述完整率</text>
+            <text x="210" y="256" fill="#94a3b8" font-size="11" text-anchor="middle">+21.3 pp</text>
+            <rect x="350" y="121" width="60" height="94" fill="#cbd5e1" rx="4"/>
+            <text x="380" y="111" fill="#64748b" font-size="13" text-anchor="middle" font-weight="700">47.1%</text>
+            <rect x="425" y="72" width="60" height="143" fill="#2563eb" rx="4"/>
+            <text x="455" y="62" fill="#2563eb" font-size="13" text-anchor="middle" font-weight="700">71.5%</text>
+            <text x="410" y="240" fill="#1a202c" font-size="13" text-anchor="middle">估值方法选用能力</text>
+            <text x="410" y="256" fill="#94a3b8" font-size="11" text-anchor="middle">+24.4 pp</text>
+          </g>
+        </svg>
+      </div>
+
+      <!-- 错误率下降 -->
+      <div class="admin-panel" style="margin-top:16px;">
+        <h4>基础概念错误率</h4>
+        <div class="sub">单位：% · 下降 13.4 pp</div>
+        <div class="admin-legend">
+          <span><span class="sw" style="background:#cbd5e1;"></span>实训前</span>
+          <span><span class="sw" style="background:#2563eb;"></span>实训后</span>
+        </div>
+        <svg viewBox="0 0 560 180" width="100%" role="img" aria-label="基础概念错误率图">
+          <g font-family="Microsoft YaHei, sans-serif">
+            <line x1="150" y1="20" x2="150" y2="150" stroke="#cbd5e1" stroke-width="2"/>
+            <line x1="150" y1="150" x2="545" y2="150" stroke="#cbd5e1" stroke-width="2"/>
+            <g font-size="11" fill="#94a3b8" text-anchor="end">
+              <text x="140" y="154">0</text><text x="140" y="122">10</text><text x="140" y="90">20</text>
+              <text x="140" y="58">30</text><text x="140" y="26">40</text>
+            </g>
+            <g stroke="#eef2f7" stroke-dasharray="3 4" stroke-width="1">
+              <line x1="150" y1="118" x2="545" y2="118"/><line x1="150" y1="86" x2="545" y2="86"/>
+              <line x1="150" y1="54" x2="545" y2="54"/>
+            </g>
+            <rect x="210" y="45" width="90" height="105" fill="#cbd5e1" rx="4"/>
+            <text x="255" y="35" fill="#64748b" font-size="13" text-anchor="middle" font-weight="700">32.8%</text>
+            <text x="255" y="172" fill="#1a202c" font-size="13" text-anchor="middle">实训前</text>
+            <rect x="360" y="88" width="90" height="62" fill="#2563eb" rx="4"/>
+            <text x="405" y="78" fill="#2563eb" font-size="13" text-anchor="middle" font-weight="700">19.4%</text>
+            <text x="405" y="172" fill="#1a202c" font-size="13" text-anchor="middle">实训后</text>
+          </g>
+        </svg>
+      </div>
+
+      <!-- 六大能力 -->
+      <div class="admin-panel" style="margin-top:16px;">
+        <h4>六大 AI 教学支撑能力</h4>
+        <div class="admin-cap-grid">
+          <div class="admin-cap"><div class="ico">📖</div><h5>AI 导学答疑</h5><p>依托课程专属知识库，分步讲解概念与业务步骤。</p></div>
+          <div class="admin-cap"><div class="ico">✍️</div><h5>实务习题训练</h5><p>配套实务习题，系统留存作答记录。</p></div>
+          <div class="admin-cap"><div class="ico">🎯</div><h5>错题定位分析</h5><p>识别薄弱知识点，推送讲解与情景练习。</p></div>
+          <div class="admin-cap"><div class="ico">📊</div><h5>个人学情画像</h5><p>汇聚多维数据，生成章节掌握画像。</p></div>
+          <div class="admin-cap"><div class="ico">🏭</div><h5>IPO 发行流程仿真</h5><p>模拟改制到发行全流程项目任务。</p></div>
+          <div class="admin-cap"><div class="ico">🧮</div><h5>企业估值实操实验</h5><p>调整参数观察估值变动并归因分析。</p></div>
+        </div>
+      </div>
+
+      <!-- 分层适配 -->
+      <div class="admin-panel" style="margin-top:16px;">
+        <h4>分层教学适配</h4>
+        <div class="admin-tier-grid">
+          <div class="admin-tier"><div class="lvl">基础薄弱</div><p>夯实概念基础，错题溯源定位知识漏洞。</p></div>
+          <div class="admin-tier"><div class="lvl">中等层次</div><p>通过 IPO 项目仿真理顺业务链条。</p></div>
+          <div class="admin-tier"><div class="lvl">学有余力</div><p>利用估值实验开展多情景拓展推演。</p></div>
+        </div>
+      </div>
+    </section>
+
+    <div class="footer-note">iBank平台 · 投资银行学智慧课堂</div>
+  </div>
+
+  <!-- ===== 悬浮机器人助手（iBank 助手） ===== -->
+  <button class="float-btn" id="float-btn" aria-label="打开 iBank 助手" title="iBank 助手">
+    <svg viewBox="0 0 320 400" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="fBody" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#67e8f9"/><stop offset="1" stop-color="#6366f1"/></linearGradient>
+        <linearGradient id="fHead" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#232a4d"/><stop offset="1" stop-color="#11142e"/></linearGradient>
+      </defs>
+      <circle cx="160" cy="30" r="12" fill="#22d3ee"/>
+      <line x1="160" y1="80" x2="160" y2="44" stroke="#8b93b8" stroke-width="6" stroke-linecap="round"/>
+      <rect x="86" y="220" width="148" height="150" rx="30" fill="url(#fBody)"/>
+      <rect x="70" y="82" width="180" height="160" rx="26" fill="url(#fHead)" stroke="#3b4270" stroke-width="2"/>
+      <rect x="113" y="130" width="18" height="34" rx="9" fill="#a5f3fc"/>
+      <rect x="189" y="130" width="18" height="34" rx="9" fill="#a5f3fc"/>
+      <rect x="136" y="182" width="48" height="18" rx="9" fill="#a5f3fc"/>
+    </svg>
+  </button>
+
+  <div class="chat-panel" id="chat-panel">
+    <div class="chat-head">
+      <div class="mini-robot">
+        <svg viewBox="0 0 320 400" xmlns="http://www.w3.org/2000/svg">
+          <rect x="86" y="214" width="148" height="150" rx="30" fill="#67e8f9"/>
+          <rect x="70" y="62" width="180" height="160" rx="26" fill="#232a4d"/>
+          <rect x="113" y="115" width="18" height="34" rx="9" fill="#a5f3fc"/><rect x="189" y="115" width="18" height="34" rx="9" fill="#a5f3fc"/>
+        </svg>
+      </div>
+      <div><b>iBank 助手</b><span>智能学伴 · 在线</span></div>
+    </div>
+    <div class="chat-body" id="chat-body">
+      <div class="msg bot">你好，我是 iBank 助手 👋 可以问我美元、黄金、股票、美债等宏观话题，以及 IPO、并购、承销、估值、尽职调查等投行知识。</div>
+    </div>
+    <form class="chat-input" id="chat-form">
+      <input id="chat-input" type="text" placeholder="向 iBank 助手提问…" autocomplete="off" />
+      <button type="submit">发送</button>
+    </form>
+  </div>
+
+  <script>
+    // ===== 页面标签切换 =====
+    const tabs = document.querySelectorAll('.tab-btn');
+    const pages = document.querySelectorAll('.page');
+    tabs.forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        const target = btn.getAttribute('data-page');
+        tabs.forEach(function (b) { b.classList.remove('active'); });
+        pages.forEach(function (p) { p.classList.remove('active'); });
+        btn.classList.add('active');
+        document.getElementById(target).classList.add('active');
+        document.body.classList.toggle('light', target === 'p-admin');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      });
+    });
+
+    // ===== 悬浮助手：开合聊天面板 =====
+    const floatBtn = document.getElementById('float-btn');
+    const chatPanel = document.getElementById('chat-panel');
+    floatBtn.addEventListener('click', function () {
+      chatPanel.classList.toggle('open');
+    });
+
+    // ===== 案例库：手风琴展开 =====
+    document.querySelectorAll('.case-head').forEach(function (head) {
+      head.addEventListener('click', function () {
+        head.parentElement.classList.toggle('open');
+      });
+    });
+
+    // ===== iBank 助手：纯前端规则问答（关键词匹配） =====
+    // 想扩充知识：往 KNOWLEDGE 里加 { keys:[...], ans:'...' } 即可。
+    const KNOWLEDGE = [
+      { keys: ['美元','汇率','美联储','加息','降息','美元指数','usd','汇兑'], ans: '美元是全球最主要的储备货币与计价结算货币。美联储货币政策（加息/降息）是影响美元汇率的核心因素：加息通常推升美元、吸引资本回流，降息则相反。对投行而言，美元汇率影响跨境并购成本、外币债券发行与企业的汇兑风险管理。' },
+      { keys: ['黄金','金价','避险','gold'], ans: '黄金是典型的避险资产，常与美元、实际利率反向变动：美元走弱、实际利率下行时金价往往走强，通胀上行也会推高金价。从资产配置看，黄金与股债相关性较低，可起到分散风险的作用。' },
+      { keys: ['股票','股价','a股','股市','权益','二级市场'], ans: '股票是公司的所有权凭证。一级市场上，投行帮助企业通过 IPO、增发等发行股票融资；二级市场上投资者自由买卖。股价长期由企业盈利与成长预期决定，短期受情绪与资金面影响。' },
+      { keys: ['美债','美国国债','国债','收益率','十年期'], ans: '美国国债是全球金融市场的定价基准，其收益率常被视为「无风险利率」。债券价格与收益率反向变动：收益率上行则价格下跌。在估值中，美债收益率是折现率的重要参照，直接影响股票与债券的估值水平。' },
+      { keys: ['承销','包销','代销','簿记建档'], ans: '承销是投行核心业务：帮助企业发行证券并销售给投资者。包销是投行全额买下再卖出、承担未售出风险、发行人募资确定；代销是只代理销售、卖不完退给发行人、风险小但募资不确定。二者风险分担与费率不同。' },
+      { keys: ['ipo','上市','首次公开','新股','路演','询价'], ans: 'IPO（首次公开发行）是公司首次向公众发行股票。流程大致为：改制设立、上市辅导、申报受理、审核注册、发行定价、路演询价、上市交易。投行承担保荐与承销职能，负责尽调、辅导、估值定价与销售。' },
+      { keys: ['并购','收购','重组','m&a','合并'], ans: '并购（M&A）是投行重要业务，包括兼并与收购。投行提供标的尽调、估值定价、交易结构设计（现金/换股/混合）、融资安排与反垄断合规等顾问服务。并购核心在于估值合理与结构设计，平衡买卖双方利益。' },
+      { keys: ['估值','市盈率','市净率','市销率','折现','dcf','现金流','pe','pb','定价'], ans: '常见估值方法：①相对估值（市盈率 PE、市净率 PB、市销率 PS、EV/EBITDA），与可比公司比较；②绝对估值（现金流折现 DCF），预测未来现金流并折现。成长型公司常用 PE/PS，金融重资产类常用 PB，DCF 适用于现金流稳定的公司。' },
+      { keys: ['尽职调查','尽调','dd','调查'], ans: '尽职调查是投行在交易前对目标公司进行的全面核查，涵盖业务、财务、法律三大方面。目的是缓解信息不对称、发现风险、为估值与交易条款提供依据，是 IPO、并购等投行业务的必备环节。' },
+      { keys: ['投行','投资银行','保荐','券商'], ans: '投资银行主要开展证券承销保荐、并购重组顾问、财务顾问、资产证券化等业务，核心是「信息中介」与「定价中枢」。保荐人是企业上市的「第一责任人」，负责推荐上市并持续督导。' },
+      { keys: ['案例','案例库','星辰科技','蓝海集团','国泰城投','中远能源'], ans: '本课程案例库收录：①星辰科技科创板 IPO（承销保荐）②蓝海集团并购重组 ③国泰城投债券承销 ④中远能源港股上市。可切换到「案例库」页查看完整内容。' },
+      { keys: ['你好','您好','hi','hello','在吗','你是谁','谢谢','thanks'], ans: '你好，我是 iBank 助手 👋 可以问我美元、黄金、股票、美债等宏观话题，以及 IPO、并购、承销、估值、尽职调查等投行知识。' }
+    ];
+    const FALLBACK = '这个问题我暂时没收录。你可以换个关键词，或问我：美元 / 黄金 / 股票 / 美债 / IPO / 并购 / 承销 / 估值 / 尽职调查。也可以看「宏观市场」「案例库」和「股市模拟」页。';
+    function answer(q) {
+      const s = q.toLowerCase();
+      for (let i = 0; i < KNOWLEDGE.length; i++) {
+        if (KNOWLEDGE[i].keys.some(function (k) { return s.indexOf(k.toLowerCase()) !== -1; })) {
+          return KNOWLEDGE[i].ans;
+        }
+      }
+      return FALLBACK;
+    }
+
+    const chatForm = document.getElementById('chat-form');
+    const chatInput = document.getElementById('chat-input');
+    const chatBody = document.getElementById('chat-body');
+    function addMsg(text, who) {
+      const div = document.createElement('div');
+      div.className = 'msg ' + who;
+      div.textContent = text;
+      chatBody.appendChild(div);
+      chatBody.scrollTop = chatBody.scrollHeight;
+    }
+    chatForm.addEventListener('submit', function (e) {
+      e.preventDefault();
+      const q = chatInput.value.trim();
+      if (!q) return;
+      addMsg(q, 'user');
+      chatInput.value = '';
+      setTimeout(function () { addMsg(answer(q), 'bot'); }, 300);
+    });
+
+    // ===== 股市模拟（模拟数据） =====
+    (function () {
+      const STOCKS = [
+        { code: '688123', name: '星辰科技', base: 35.0 },
+        { code: '601234', name: '华信证券', base: 12.5 },
+        { code: '600036', name: '蓝海银行', base: 8.8 },
+        { code: '601857', name: '中远能源', base: 6.2 },
+        { code: '000858', name: '国泰消费', base: 22.0 }
+      ];
+      const START_CASH = 1000000;
+      const DAYS = 30;
+      let cash = START_CASH;
+      let holdings = {};
+      let history = {};
+      let selected = STOCKS[0].code;
+
+      function genHistory(s) {
+        let p = s.base * (0.9 + Math.random() * 0.2);
+        const arr = [];
+        for (let i = 0; i < DAYS; i++) { p = Math.max(0.1, p * (1 + (Math.random() - 0.5) * 0.05)); arr.push(p); }
+        return arr;
+      }
+      STOCKS.forEach(function (s) { history[s.code] = genHistory(s); });
+
+      function price(code) { const h = history[code]; return h[h.length - 1]; }
+      function prevClose(code) { const h = history[code]; return h.length >= 2 ? h[h.length - 2] : h[0]; }
+      function chg(code) { return (price(code) - prevClose(code)) / prevClose(code) * 100; }
+      function mv() {
+        let sum = 0;
+        Object.keys(holdings).forEach(function (c) { sum += holdings[c].qty * price(c); });
+        return sum;
+      }
+      function total() { return cash + mv(); }
+      function fmtWan(v) { return (v / 10000).toFixed(2); }
+
+      function renderStats() {
+        const t = total();
+        const pnl = (t - START_CASH) / START_CASH * 100;
+        document.getElementById('sim-cash').innerHTML = fmtWan(cash) + '<span class="unit">万</span>';
+        document.getElementById('sim-mv').innerHTML = fmtWan(mv()) + '<span class="unit">万</span>';
+        document.getElementById('sim-total').innerHTML = fmtWan(t) + '<span class="unit">万</span>';
+        const pnlEl = document.getElementById('sim-pnl');
+        const col = pnl >= 0 ? '#f87171' : '#34d399';
+        pnlEl.innerHTML = (pnl >= 0 ? '+' : '') + pnl.toFixed(2) + '%';
+        pnlEl.style.background = 'none';
+        pnlEl.style.color = col;
+        pnlEl.style.webkitTextFillColor = col;
+      }
+
+      function renderStocks() {
+        const box = document.getElementById('sim-stocks');
+        box.innerHTML = '';
+        STOCKS.forEach(function (s) {
+          const c = chg(s.code);
+          const cls = c > 0 ? 'up' : (c < 0 ? 'down' : 'flat');
+          const row = document.createElement('div');
+          row.className = 'stock-row';
+          row.innerHTML =
+            '<div class="stock-name">' + s.name + '<span class="stock-code">' + s.code + '</span></div>' +
+            '<div class="stock-price"><span class="p ' + cls + '">' + price(s.code).toFixed(2) + '</span>' +
+            '<div class="chg ' + cls + '">' + (c >= 0 ? '+' : '') + c.toFixed(2) + '%</div></div>' +
+            '<input class="trade-qty" id="q-' + s.code + '" type="number" value="100" min="100" step="100" />' +
+            '<button class="btn-buy" data-code="' + s.code + '">买入</button>' +
+            '<button class="btn-sell" data-code="' + s.code + '">卖出</button>';
+          row.querySelector('.stock-name').addEventListener('click', function () { select(s.code); });
+          row.querySelector('.btn-buy').addEventListener('click', function () { trade(s.code, 1); });
+          row.querySelector('.btn-sell').addEventListener('click', function () { trade(s.code, -1); });
+          box.appendChild(row);
+        });
+      }
+
+      function trade(code, dir) {
+        const q = parseInt(document.getElementById('q-' + code).value, 10) || 0;
+        if (q <= 0) { alert('请输入正数股数'); return; }
+        const p = price(code);
+        if (dir === 1) {
+          const cost = q * p;
+          if (cost > cash) { alert('可用资金不足'); return; }
+          if (!holdings[code]) holdings[code] = { qty: 0, avg: 0 };
+          const h = holdings[code];
+          h.avg = (h.avg * h.qty + cost) / (h.qty + q);
+          h.qty += q;
+          cash -= cost;
+        } else {
+          const h = holdings[code];
+          if (!h || h.qty < q) { alert('持仓不足'); return; }
+          cash += q * p;
+          h.qty -= q;
+          if (h.qty === 0) delete holdings[code];
+        }
+        renderStats(); renderStocks();
+      }
+
+      function select(code) { selected = code; renderChart(); }
+
+      function renderChart() {
+        const s = STOCKS.find(function (x) { return x.code === selected; });
+        document.getElementById('sim-chart-title').textContent = s.name + ' ' + s.code + ' · 近 ' + DAYS + ' 日走势';
+        const h = history[selected];
+        const svg = document.getElementById('sim-chart');
+        const W = 560, H = 220, pad = 20;
+        const min = Math.min.apply(null, h), max = Math.max.apply(null, h);
+        const span = (max - min) || 1;
+        const pts = h.map(function (v, i) {
+          const x = pad + i / (DAYS - 1) * (W - pad * 2);
+          const y = pad + (1 - (v - min) / span) * (H - pad * 2);
+          return x.toFixed(1) + ',' + y.toFixed(1);
+        }).join(' ');
+        const last = h[h.length - 1];
+        const color = last >= h[0] ? '#f87171' : '#34d399';
+        svg.innerHTML =
+          '<line x1="' + pad + '" y1="' + (H - pad) + '" x2="' + (W - pad) + '" y2="' + (H - pad) + '" stroke="#cbd5e1" stroke-width="2"/>' +
+          '<line x1="' + pad + '" y1="' + pad + '" x2="' + pad + '" y2="' + (H - pad) + '" stroke="#cbd5e1" stroke-width="2"/>' +
+          '<polyline points="' + pts + '" fill="none" stroke="' + color + '" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>' +
+          '<text x="' + (W - pad) + '" y="' + (pad + 6) + '" fill="' + color + '" font-size="13" text-anchor="end" font-weight="700">' + last.toFixed(2) + '</text>' +
+          '<text x="' + pad + '" y="' + (H - pad + 18) + '" fill="#64748b" font-size="11">' + h[0].toFixed(2) + '</text>';
+      }
+
+      function nextDay() {
+        STOCKS.forEach(function (s) {
+          const last = price(s.code);
+          history[s.code].push(Math.max(0.1, last * (1 + (Math.random() - 0.5) * 0.06)));
+          history[s.code].shift();
+        });
+        renderStats(); renderStocks(); renderChart();
+      }
+
+      function reset() {
+        cash = START_CASH; holdings = {}; history = {};
+        STOCKS.forEach(function (s) { history[s.code] = genHistory(s); });
+        renderStats(); renderStocks(); renderChart();
+      }
+
+      document.getElementById('sim-next').addEventListener('click', nextDay);
+      document.getElementById('sim-reset').addEventListener('click', reset);
+
+      renderStats(); renderStocks(); renderChart();
+    })();
+
+    // ===== 首页模块卡片：点击跳转 =====
+    document.querySelectorAll('.home-card').forEach(function (c) {
+      c.addEventListener('click', function () {
+        const t = c.getAttribute('data-page');
+        const btn = document.querySelector('.tab-btn[data-page="' + t + '"]');
+        if (btn) btn.click();
+      });
+    });
+
+    // ===== 智能答疑页 =====
+    (function () {
+      const qaBody = document.getElementById('qa-body');
+      const qaForm = document.getElementById('qa-form');
+      const qaInput = document.getElementById('qa-input');
+      function qaAdd(text, who) {
+        const div = document.createElement('div');
+        div.className = 'msg ' + who;
+        div.textContent = text;
+        qaBody.appendChild(div);
+        qaBody.scrollTop = qaBody.scrollHeight;
+      }
+      function qaAsk(q) {
+        qaAdd(q, 'user');
+        setTimeout(function () { qaAdd(answer(q), 'bot'); }, 300);
+      }
+      qaForm.addEventListener('submit', function (e) {
+        e.preventDefault();
+        const q = qaInput.value.trim();
+        if (!q) return;
+        qaInput.value = '';
+        qaAsk(q);
+      });
+      document.querySelectorAll('#qa-chips .chip').forEach(function (c) {
+        c.addEventListener('click', function () { qaAsk(c.textContent); });
+      });
+    })();
+
+    // ===== 习题训练 + 错题定位 =====
+    (function () {
+      const QUIZ = [
+        { q: '股票发行承销中，投行承担「包销」意味着什么？', opts: ['只代理销售，卖不完退回', '全额买下再卖出，承担未售出风险', '只负责定价不负责销售', '仅提供法律意见'], a: 1, kp: '承销业务' },
+        { q: '下列哪种估值方法属于「绝对估值法」？', opts: ['市盈率法 PE', '市净率法 PB', '现金流折现 DCF', '市销率法 PS'], a: 2, kp: '估值方法' },
+        { q: '债券价格与收益率的关系是？', opts: ['同向变动', '反向变动', '无关系', '固定不变'], a: 1, kp: '债券业务' },
+        { q: 'IPO 中保荐机构开展「尽职调查」的主要目的是？', opts: ['提高发行价', '缓解信息不对称、发现风险', '增加募资额', '缩短审核时间'], a: 1, kp: '尽职调查' },
+        { q: '美联储加息通常会导致美元？', opts: ['走强', '走弱', '不变', '先弱后强'], a: 0, kp: '宏观市场' },
+        { q: '黄金价格与实际利率通常是什么关系？', opts: ['同向', '反向', '无关', '成正比'], a: 1, kp: '宏观市场' }
+      ];
+      const wrongBook = [
+        { q: '市盈率法与市净率法分别适用于什么类型公司？', kp: '相对估值', ans: '成长型、盈利稳定的公司常用 PE；重资产、金融类公司常用 PB。', exp: '容易混淆 PE 与 PB 的适用场景，需结合公司资产结构与盈利特征判断。' },
+        { q: '包销与代销在风险分担上有何区别？', kp: '承销业务', ans: '包销由投行承担未售出风险；代销风险小但募资不确定。', exp: '抓住「风险由谁承担」这一关键，而非只记名词。' },
+        { q: '现金流折现 DCF 中，折现率上升会如何影响估值？', kp: '估值方法', ans: '折现率上升会降低未来现金流的现值，从而拉低估值。', exp: '折现率与估值反向变动，是 DCF 模型的核心逻辑。' }
+      ];
+      let cur = 0, correct = 0, answered = false;
+      const quizBox = document.getElementById('quiz-box');
+
+      function renderWrong() {
+        const list = document.getElementById('wrong-list');
+        list.innerHTML = '';
+        wrongBook.forEach(function (w) {
+          const div = document.createElement('div');
+          div.className = 'wrong-item';
+          div.innerHTML = '<div class="q">' + w.q + '</div><span class="tag">' + w.kp + '</span><div class="ans">✔ ' + w.ans + '</div><div class="exp">' + w.exp + '</div>';
+          list.appendChild(div);
+        });
+      }
+
+      function renderQuiz() {
+        if (cur >= QUIZ.length) {
+          quizBox.innerHTML = '<div class="quiz-score">练习完成！共 ' + QUIZ.length + ' 题，答对 <strong>' + correct + '</strong> 题。</div>' +
+            '<div class="quiz-actions"><button class="sim-btn primary" id="quiz-retry">重新练习</button></div>';
+          document.getElementById('quiz-retry').addEventListener('click', function () { cur = 0; correct = 0; answered = false; renderQuiz(); });
+          return;
+        }
+        const item = QUIZ[cur];
+        let html = '<div class="quiz-q"><strong>第 ' + (cur + 1) + ' / ' + QUIZ.length + ' 题</strong>　' + item.q + '</div><div class="quiz-opts">';
+        item.opts.forEach(function (o, i) { html += '<button class="quiz-opt" data-i="' + i + '">' + String.fromCharCode(65 + i) + '. ' + o + '</button>'; });
+        html += '</div><div class="quiz-score" id="quiz-feedback"></div><div class="quiz-actions"><button class="sim-btn primary" id="quiz-next" style="display:none;">下一题</button></div>';
+        quizBox.innerHTML = html;
+        answered = false;
+        quizBox.querySelectorAll('.quiz-opt').forEach(function (btn) {
+          btn.addEventListener('click', function () {
+            if (answered) return;
+            answered = true;
+            const i = parseInt(btn.getAttribute('data-i'), 10);
+            const fb = document.getElementById('quiz-feedback');
+            if (i === item.a) {
+              correct++;
+              btn.classList.add('correct');
+              fb.innerHTML = '✅ 回答正确';
+            } else {
+              btn.classList.add('wrong');
+              quizBox.querySelector('.quiz-opt[data-i="' + item.a + '"]').classList.add('correct');
+              fb.innerHTML = '❌ 回答错误，正确答案是 ' + String.fromCharCode(65 + item.a);
+              wrongBook.unshift({ q: item.q, kp: item.kp, ans: item.opts[item.a], exp: '本题正确答案为 ' + String.fromCharCode(65 + item.a) + '，请结合相关知识点复习。' });
+              renderWrong();
+            }
+            quizBox.querySelectorAll('.quiz-opt').forEach(function (b) { b.classList.add('disabled'); });
+            document.getElementById('quiz-next').style.display = 'inline-block';
+          });
+        });
+        document.getElementById('quiz-next').addEventListener('click', function () { cur++; renderQuiz(); });
+      }
+
+      renderQuiz();
+      renderWrong();
+    })();
+
+    // ===== 学情画像 =====
+    (function () {
+      const DIMS = [
+        { name: '承销实务', v: 78 }, { name: '估值方法', v: 71 }, { name: '并购重组', v: 82 },
+        { name: '债券业务', v: 65 }, { name: '宏观市场', v: 74 }, { name: '尽职调查', v: 69 }
+      ];
+      const svg = document.getElementById('radar');
+      const cx = 180, cy = 160, R = 105, n = DIMS.length;
+      function pt(i, r) { const ang = -Math.PI / 2 + i * 2 * Math.PI / n; return [cx + r * Math.cos(ang), cy + r * Math.sin(ang)]; }
+      let html = '';
+      [0.25, 0.5, 0.75, 1].forEach(function (f) {
+        let pts = '';
+        for (let i = 0; i < n; i++) { const p = pt(i, R * f); pts += p[0].toFixed(1) + ',' + p[1].toFixed(1) + ' '; }
+        html += '<polygon points="' + pts + '" fill="none" stroke="#2a3356" stroke-width="1"/>';
+      });
+      for (let i = 0; i < n; i++) { const p = pt(i, R); html += '<line x1="' + cx + '" y1="' + cy + '" x2="' + p[0].toFixed(1) + '" y2="' + p[1].toFixed(1) + '" stroke="#2a3356" stroke-width="1"/>'; }
+      let dp = '';
+      for (let i = 0; i < n; i++) { const p = pt(i, R * DIMS[i].v / 100); dp += p[0].toFixed(1) + ',' + p[1].toFixed(1) + ' '; }
+      html += '<polygon points="' + dp + '" fill="rgba(99,102,241,0.25)" stroke="#6366f1" stroke-width="2"/>';
+      for (let i = 0; i < n; i++) {
+        const p = pt(i, R + 26);
+        html += '<text x="' + p[0].toFixed(1) + '" y="' + p[1].toFixed(1) + '" fill="#64748b" font-size="12" text-anchor="middle" dominant-baseline="middle">' + DIMS[i].name + '</text>';
+      }
+      svg.innerHTML = html;
+      const bars = document.getElementById('profile-bars');
+      DIMS.forEach(function (d) {
+        const row = document.createElement('div');
+        row.className = 'profile-bar';
+        row.innerHTML = '<span class="name">' + d.name + '</span><span class="track"><span class="fill" style="width:' + d.v + '%"></span></span><span class="val">' + d.v + '</span>';
+        bars.appendChild(row);
+      });
+    })();
+
+    // ===== IPO 流程仿真 =====
+    (function () {
+      const STEPS = [
+        { t: '改制设立', d: '有限责任公司改制为股份有限公司，明确股权结构与治理架构，为后续申报奠定主体资格基础。' },
+        { t: '上市辅导', d: '保荐机构对企业进行规范辅导，完善财务、内控与信息披露制度，使其达到上市条件。' },
+        { t: '申报受理', d: '保荐机构编制招股说明书等申报材料，向交易所提交上市申请并获受理。' },
+        { t: '审核注册', d: '交易所审核、证监会注册，围绕财务、法律、业务等问题问询，企业与保荐机构答复。' },
+        { t: '发行定价', d: '确定估值方法与发行价区间，综合市盈率、市净率、现金流折现等给出定价。' },
+        { t: '路演询价', d: '向机构投资者路演推介，收集申购意愿与报价，确定最终发行价。' },
+        { t: '发行上市', d: '完成申购、配售与资金募集，股票挂牌上市交易。' }
+      ];
+      let si = 0;
+      const dots = document.getElementById('ipo-steps');
+      const title = document.getElementById('ipo-title');
+      const desc = document.getElementById('ipo-desc');
+      const prev = document.getElementById('ipo-prev');
+      const next = document.getElementById('ipo-next');
+      function render() {
+        dots.innerHTML = '';
+        STEPS.forEach(function (s, i) {
+          const d = document.createElement('div');
+          d.className = 'step-dot' + (i === si ? ' active' : (i < si ? ' done' : ''));
+          d.textContent = (i + 1) + '. ' + s.t;
+          dots.appendChild(d);
+        });
+        title.textContent = STEPS[si].t;
+        desc.textContent = STEPS[si].d;
+        prev.disabled = si === 0;
+        next.textContent = si === STEPS.length - 1 ? '完成上市' : '下一步';
+        next.disabled = false;
+      }
+      prev.addEventListener('click', function () { if (si > 0) { si--; render(); } });
+      next.addEventListener('click', function () {
+        if (si < STEPS.length - 1) { si++; render(); }
+        else { title.textContent = '🎉 上市完成'; desc.textContent = '你已完成从改制到上市的完整流程，掌握了 IPO 各环节的业务逻辑。'; next.disabled = true; }
+      });
+      render();
+    })();
+
+    // ===== 估值实验 =====
+    (function () {
+      const profit = document.getElementById('val-profit');
+      const gEl = document.getElementById('val-g');
+      const rEl = document.getElementById('val-r');
+      const peEl = document.getElementById('val-pe');
+      const result = document.getElementById('val-result');
+      function fmt(n) { return Math.round(n).toLocaleString('zh-CN'); }
+      function calc() {
+        const p = parseFloat(profit.value) || 0;
+        const g = (parseFloat(gEl.value) || 0) / 100;
+        const r = (parseFloat(rEl.value) || 0) / 100;
+        const pe = parseFloat(peEl.value) || 0;
+        const peVal = p * pe;
+        let dcfVal = 0, dcfNote = '';
+        if (r > g) { dcfVal = p * (1 + g) / (r - g); dcfNote = '（Gordon 模型，FCF≈净利润）'; }
+        else { dcfNote = '需满足折现率 r > 增长率 g，否则 DCF 无意义'; }
+        const higher = peVal > dcfVal ? 'PE 估值更高' : (dcfVal > peVal ? 'DCF 估值更高' : '两者接近');
+        result.innerHTML =
+          '<div class="val-item"><div class="m">市盈率估值（PE = ' + pe + 'x）</div><div class="v">' + fmt(peVal) + ' 万元</div><div class="note">净利润 × PE 倍数</div></div>' +
+          '<div class="val-item"><div class="m">现金流折现估值（DCF）</div><div class="v">' + fmt(dcfVal) + ' 万元</div><div class="note">g = ' + (g * 100) + '%，r = ' + (r * 100) + '% ' + dcfNote + '</div></div>' +
+          '<div class="val-item"><div class="m">对比</div><div class="v" style="font-size:16px;">' + higher + '</div><div class="note">调整 g、r 观察估值如何变化</div></div>';
+      }
+      [profit, gEl, rEl, peEl].forEach(function (el) { el.addEventListener('input', calc); });
+      calc();
+    })();
+  </script>
+</body>
+</html>
