@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>iBank平台 · AI 智能问答</title>
+<style>
+  :root {
+    --bg: #f6f7fb;
+    --card: #ffffff;
+    --border: #e5e9f0;
+    --text: #1a2233;
+    --muted: #5b6478;
+    --accent: #6366f1;
+    --cyan: #0891b2;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
+    background: var(--bg); color: var(--text); line-height: 1.7;
+    min-height: 100vh;
+  }
+  .wrap { max-width: 860px; margin: 0 auto; padding: 28px 20px 40px; }
+
+  /* ===== 上半部分：静态项目介绍（保底展示） ===== */
+  .hero { text-align: center; padding: 30px 20px 22px; }
+  .hero .logo { font-size: 34px; font-weight: 800;
+    background: linear-gradient(135deg, #0891b2, #6366f1);
+    -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .hero h1 { font-size: 22px; margin-top: 6px; }
+  .hero p { color: var(--muted); font-size: 14.5px; margin-top: 10px; max-width: 620px; margin-left: auto; margin-right: auto; }
+  .tags { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-top: 16px; }
+  .tag { font-size: 12.5px; color: var(--accent); background: rgba(99,102,241,0.1);
+    border: 1px solid rgba(99,102,241,0.25); padding: 4px 12px; border-radius: 999px; }
+
+  /* ===== 下半部分：AI 对话区 ===== */
+  .chat-card {
+    background: var(--card); border: 1px solid var(--border); border-radius: 18px;
+    box-shadow: 0 2px 12px rgba(16,24,40,0.06); overflow: hidden; margin-top: 20px;
+  }
+  .chat-head { padding: 14px 18px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 10px; }
+  .chat-head .dot { width: 10px; height: 10px; border-radius: 50%; background: #34d399; }
+  .chat-head b { font-size: 14.5px; }
+  .chat-head span { font-size: 12.5px; color: var(--muted); }
+  .chat-body { height: 420px; overflow-y: auto; padding: 18px; display: flex; flex-direction: column; gap: 12px; }
+  .msg { max-width: 82%; padding: 11px 14px; border-radius: 14px; font-size: 14px; line-height: 1.65; white-space: pre-wrap; word-break: break-word; }
+  .msg.bot { align-self: flex-start; background: #f1f3f9; color: var(--text); border-bottom-left-radius: 4px; }
+  .msg.user { align-self: flex-end; background: linear-gradient(135deg, #6366f1, #8b5cf6); color: #fff; border-bottom-right-radius: 4px; }
+  .msg .cursor { display: inline-block; width: 8px; height: 15px; background: var(--accent); vertical-align: text-bottom; animation: blink 0.9s steps(2) infinite; margin-left: 2px; }
+  @keyframes blink { 50% { opacity: 0; } }
+  .chat-input { display: flex; gap: 10px; padding: 14px; border-top: 1px solid var(--border); }
+  .chat-input input { flex: 1; height: 42px; padding: 0 14px; border-radius: 10px;
+    border: 1px solid var(--border); background: #fbfcfe; font-size: 14px; color: var(--text); outline: none; }
+  .chat-input input:focus { border-color: var(--accent); }
+  .chat-input button { height: 42px; padding: 0 20px; border: none; border-radius: 10px;
+    background: linear-gradient(135deg, #6366f1, #8b5cf6); color: #fff; font-size: 14px; font-weight: 600; cursor: pointer; }
+  .chat-input button:disabled { opacity: 0.5; cursor: not-allowed; }
+  .foot { text-align: center; color: #94a3b8; font-size: 12px; margin-top: 16px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- ===== 静态项目介绍 ===== -->
+  <header class="hero">
+    <div class="logo">iBank</div>
+    <h1>《投资银行学》智慧教学平台</h1>
+    <p>AI 导学答疑 · 实务习题 · 错题定位 · 学情画像 · IPO 仿真 · 估值实验 · 案例库 · 宏观市场 · 股市模拟，一站式投行实务训练。</p>
+    <div class="tags">
+      <span class="tag">IPO 承销保荐</span>
+      <span class="tag">并购重组</span>
+      <span class="tag">债券承销</span>
+      <span class="tag">企业估值</span>
+      <span class="tag">宏观市场</span>
+    </div>
+  </header>
+
+  <!-- ===== AI 对话区 ===== -->
+  <div class="chat-card">
+    <div class="chat-head">
+      <span class="dot"></span>
+      <div><b>iBank 助手</b><br/><span>基于智谱 GLM · 实时在线</span></div>
+    </div>
+    <div class="chat-body" id="chat-body">
+      <div class="msg bot">你好，我是 iBank 助手 👋 关于投资银行、IPO、并购、承销、估值，以及美元、黄金、股票、美债，都可以问我。</div>
+    </div>
+    <form class="chat-input" id="chat-form">
+      <input id="chat-input" type="text" placeholder="输入你的问题…" autocomplete="off" />
+      <button type="submit" id="send-btn">发送</button>
+    </form>
+  </div>
+
+  <p class="foot">iBank平台 · 投资银行学智慧教学</p>
+</div>
+
+<script>
+  // ============================================================
+  // ⬇️ 只需把这一行换成你的腾讯云 SCF 云函数公网地址
+  //    （形如 https://service-xxxx.gz.apigw.tencentcs.com/release/）
+  // ============================================================
+  const SCF_URL = 'https://1490473252-kur02r1gqf.ap-guangzhou.tencentscf.com';
+
+  const body = document.getElementById('chat-body');
+  const form = document.getElementById('chat-form');
+  const input = document.getElementById('chat-input');
+  const btn = document.getElementById('send-btn');
+  const history = [];   // 多轮对话历史 [{role, content}]
+
+  function addMsg(text, who) {
+    const div = document.createElement('div');
+    div.className = 'msg ' + who;
+    div.textContent = text;
+    body.appendChild(div);
+    body.scrollTop = body.scrollHeight;
+    return div;
+  }
+
+  // 后端不可用时的兜底提示
+  function showUnavailable() {
+    addMsg('AI问答功能正在迭代优化中，敬请期待', 'bot');
+  }
+
+  // 判断后端地址是否已配置
+  function backendReady() {
+    return SCF_URL && SCF_URL.indexOf('在这里填') === -1;
+  }
+
+  form.addEventListener('submit', async function (e) {
+    e.preventDefault();
+    const q = input.value.trim();
+    if (!q) return;
+    input.value = '';
+    addMsg(q, 'user');
+    history.push({ role: 'user', content: q });
+
+    // 未配置后端地址 → 显示兜底提示
+    if (!backendReady()) { showUnavailable(); return; }
+
+    const reply = addMsg('', 'bot');
+    const cursor = document.createElement('span');
+    cursor.className = 'cursor';
+    reply.appendChild(cursor);
+    btn.disabled = true;
+    let fullText = '';
+
+    try {
+      const resp = await fetch(SCF_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ messages: history })
+      });
+
+      if (!resp.ok) throw new Error('HTTP ' + resp.status);
+
+      // 读取 SSE 流，逐字渲染（打字机效果）
+      const reader = resp.body.getReader();
+      const decoder = new TextDecoder('utf-8');
+      let buffer = '';
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split('\n');
+        buffer = lines.pop();
+        for (const line of lines) {
+          const s = line.trim();
+          if (!s.startsWith('data:')) continue;
+          const dataStr = s.slice(5).trim();
+          if (dataStr === '[DONE]') continue;
+          try {
+            const obj = JSON.parse(dataStr);
+            if (obj.content) {
+              fullText += obj.content;
+              reply.firstChild.textContent = fullText;
+              reply.appendChild(cursor);   // 光标保持在末尾
+              body.scrollTop = body.scrollHeight;
+            }
+            if (obj.error) {
+              fullText += '（出错：' + obj.error + '）';
+              reply.firstChild.textContent = fullText;
+            }
+          } catch (err) { /* 忽略非 JSON 行 */ }
+        }
+      }
+
+      if (!fullText) { fullText = '（无返回内容）'; reply.firstChild.textContent = fullText; }
+      history.push({ role: 'assistant', content: fullText });
+    } catch (err) {
+      reply.firstChild.textContent = '';
+      reply.textContent = 'AI问答功能正在迭代优化中，敬请期待';
+    } finally {
+      cursor.remove();
+      btn.disabled = false;
+      body.scrollTop = body.scrollHeight;
+    }
+  });
+</script>
+</body>
+</html>
