@@ -142,6 +142,13 @@
     reply.appendChild(cursor);
     btn.disabled = true;
     let fullText = '';
+    // 把文字写进 reply（而不是光标），再让光标跟在文字后面
+    function render(t) {
+      fullText = t;
+      reply.textContent = fullText;
+      reply.appendChild(cursor);
+      body.scrollTop = body.scrollHeight;
+    }
 
     try {
       const resp = await fetch(SCF_URL, {
@@ -170,25 +177,17 @@
           if (dataStr === '[DONE]') continue;
           try {
             const obj = JSON.parse(dataStr);
-            if (obj.content) {
-              fullText += obj.content;
-              reply.firstChild.textContent = fullText;
-              reply.appendChild(cursor);   // 光标保持在末尾
-              body.scrollTop = body.scrollHeight;
-            }
-            if (obj.error) {
-              fullText += '（出错：' + obj.error + '）';
-              reply.firstChild.textContent = fullText;
-            }
+            if (obj.content) render(fullText + obj.content);
+            if (obj.error) render(fullText + '（出错：' + obj.error + '）');
           } catch (err) { /* 忽略非 JSON 行 */ }
         }
       }
 
-      if (!fullText) { fullText = '（无返回内容）'; reply.firstChild.textContent = fullText; }
+      if (!fullText) render('（无返回内容）');
       history.push({ role: 'assistant', content: fullText });
     } catch (err) {
-      reply.firstChild.textContent = '';
-      reply.textContent = 'AI问答功能正在迭代优化中，敬请期待';
+      fullText = 'AI问答功能正在迭代优化中，敬请期待';
+      reply.textContent = fullText;
     } finally {
       cursor.remove();
       btn.disabled = false;
