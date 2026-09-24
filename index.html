@@ -1083,23 +1083,68 @@
       return FALLBACK;
     }
 
+    // ===== 接入智谱 GLM 大模型（前端直连） =====
+    // ⚠️ 把下面这一行的 key 换成你自己的智谱 API Key（open.bigmodel.cn → 个人中心 → API Keys）
+    const GLM_API_KEY = '1c81b061bef24e1fb3a3b68f129fe015.VSyotEtfB1e6m4I9';
+    const GLM_MODEL = 'glm-4-flash';   // 免费模型；可换成 glm-4-plus / glm-4 等更强模型
+    const GLM_API_URL = 'https://open.bigmodel.cn/api/paas/v4/chat/completions';
+    const SYSTEM_PROMPT = '你是「iBank 助手」，是《投资银行学》智慧教学平台 iBank 的 AI 学伴。你的职责是帮助学生学习投资银行学实务，覆盖 IPO 承销保荐、并购重组、债券承销、企业估值、尽职调查、宏观市场（美元/黄金/股票/美债）等。回答要求：用简洁、准确、通俗的中文；结合投行实务适当举例；涉及具体案例时以本平台案例库为准（中芯国际科创板 IPO、美的集团收购库卡、中国中化公司债、阿里巴巴港股二次上市）；像一位耐心的助教，不啰嗦。';
+
+    async function callGLM(messages) {
+      const resp = await fetch(GLM_API_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + GLM_API_KEY },
+        body: JSON.stringify({ model: GLM_MODEL, messages: messages, temperature: 0.7 })
+      });
+      if (!resp.ok) {
+        const t = await resp.text();
+        throw new Error('HTTP ' + resp.status + ' ' + t.slice(0, 200));
+      }
+      const data = await resp.json();
+      const c = data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content;
+      if (!c) throw new Error('空响应');
+      return c.trim();
+    }
+
+    // 调用大模型；失败返回 null，由调用方回退到本地规则回答
+    async function llmReply(history) {
+      if (!GLM_API_KEY || GLM_API_KEY.indexOf('这里填') !== -1) return null;
+      try {
+        return await callGLM([{ role: 'system', content: SYSTEM_PROMPT }].concat(history));
+      } catch (e) {
+        return null;
+      }
+    }
+
     const chatForm = document.getElementById('chat-form');
     const chatInput = document.getElementById('chat-input');
     const chatBody = document.getElementById('chat-body');
+    const floatHistory = [];
     function addMsg(text, who) {
       const div = document.createElement('div');
       div.className = 'msg ' + who;
       div.textContent = text;
       chatBody.appendChild(div);
       chatBody.scrollTop = chatBody.scrollHeight;
+      return div;
     }
-    chatForm.addEventListener('submit', function (e) {
+    chatForm.addEventListener('submit', async function (e) {
       e.preventDefault();
       const q = chatInput.value.trim();
       if (!q) return;
       addMsg(q, 'user');
       chatInput.value = '';
-      setTimeout(function () { addMsg(answer(q), 'bot'); }, 300);
+      floatHistory.push({ role: 'user', content: q });
+      const loading = addMsg('正在思考…', 'bot');
+      const reply = await llmReply(floatHistory);
+      if (reply) {
+        loading.textContent = reply;
+        floatHistory.push({ role: 'assistant', content: reply });
+      } else {
+        const fb = answer(q);
+        loading.textContent = fb;
+        floatHistory.push({ role: 'assistant', content: fb });
+      }
     });
 
     // ===== 股市模拟（模拟数据） =====
@@ -1255,16 +1300,28 @@
       const qaBody = document.getElementById('qa-body');
       const qaForm = document.getElementById('qa-form');
       const qaInput = document.getElementById('qa-input');
+      const qaHistory = [];
       function qaAdd(text, who) {
         const div = document.createElement('div');
         div.className = 'msg ' + who;
         div.textContent = text;
         qaBody.appendChild(div);
         qaBody.scrollTop = qaBody.scrollHeight;
+        return div;
       }
-      function qaAsk(q) {
+      async function qaAsk(q) {
         qaAdd(q, 'user');
-        setTimeout(function () { qaAdd(answer(q), 'bot'); }, 300);
+        qaHistory.push({ role: 'user', content: q });
+        const loading = qaAdd('正在思考…', 'bot');
+        const reply = await llmReply(qaHistory);
+        if (reply) {
+          loading.textContent = reply;
+          qaHistory.push({ role: 'assistant', content: reply });
+        } else {
+          const fb = answer(q);
+          loading.textContent = fb;
+          qaHistory.push({ role: 'assistant', content: fb });
+        }
       }
       qaForm.addEventListener('submit', function (e) {
         e.preventDefault();
