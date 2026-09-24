@@ -1063,6 +1063,11 @@
       { keys: ['黄金','金价','避险','gold'], ans: '黄金是典型的避险资产，常与美元、实际利率反向变动：美元走弱、实际利率下行时金价往往走强，通胀上行也会推高金价。从资产配置看，黄金与股债相关性较低，可起到分散风险的作用。' },
       { keys: ['股票','股价','a股','股市','权益','二级市场'], ans: '股票是公司的所有权凭证。一级市场上，投行帮助企业通过 IPO、增发等发行股票融资；二级市场上投资者自由买卖。股价长期由企业盈利与成长预期决定，短期受情绪与资金面影响。' },
       { keys: ['美债','美国国债','国债','收益率','十年期'], ans: '美国国债是全球金融市场的定价基准，其收益率常被视为「无风险利率」。债券价格与收益率反向变动：收益率上行则价格下跌。在估值中，美债收益率是折现率的重要参照，直接影响股票与债券的估值水平。' },
+      { keys: ['熊猫债券','熊猫债'], ans: '熊猫债券（熊猫债）是指境外机构（外国政府、金融机构、跨国企业等）在中国境内债券市场发行的、以人民币计价的债券。它与"点心债"（在境外发行的人民币债券）相对应，是人民币国际化的重要体现。对投行而言，熊猫债承销涉及跨境发行主体的尽调、评级与人民币定价。' },
+      { keys: ['可转债','可转换债券','可转换'], ans: '可转债（可转换债券）兼具"债性"和"股性"：持有人可在约定条件下把债券转换为发行公司的股票。对发行人而言票面利率较低、融资成本低；对投资者而言有保底收益又能分享股价上涨。投行常负责可转债的发行设计与定价。' },
+      { keys: ['绿色债券','绿色债','绿色金融'], ans: '绿色债券是指募集资金专门投向绿色项目（清洁能源、节能环保、绿色交通等）的债券，需经第三方认证其"绿色"属性。近年来受政策鼓励，绿色债券在审核和融资成本上常有一定支持。' },
+      { keys: ['资产证券化','abs','资产支持证券'], ans: '资产证券化（ABS）是把缺乏流动性但能产生稳定现金流的资产（如信贷、应收账款、租金）打包，转化为可在市场流通的证券。投行在其中的核心工作是资产筛选、结构设计（分层增信）与发行承销。' },
+      { keys: ['信用评级','评级机构','aaa'], ans: '信用评级是评级机构对发行人偿债能力给出的等级评价（如 AAA、AA、BBB），直接影响债券的发行利率与投资者认可度。投行在债券发行前通常会协助发行人获得评级。' },
       { keys: ['承销','包销','代销','簿记建档'], ans: '承销是投行核心业务：帮助企业发行证券并销售给投资者。包销是投行全额买下再卖出、承担未售出风险、发行人募资确定；代销是只代理销售、卖不完退给发行人、风险小但募资不确定。二者风险分担与费率不同。' },
       { keys: ['ipo','上市','首次公开','新股','路演','询价'], ans: 'IPO（首次公开发行）是公司首次向公众发行股票。流程大致为：改制设立、上市辅导、申报受理、审核注册、发行定价、路演询价、上市交易。投行承担保荐与承销职能，负责尽调、辅导、估值定价与销售。' },
       { keys: ['并购','收购','重组','m&a','合并'], ans: '并购（M&A）是投行重要业务，包括兼并与收购。投行提供标的尽调、估值定价、交易结构设计（现金/换股/混合）、融资安排与反垄断合规等顾问服务。并购核心在于估值合理与结构设计，平衡买卖双方利益。' },
@@ -1083,36 +1088,38 @@
       return FALLBACK;
     }
 
-    // ===== 接入智谱 GLM 大模型（前端直连） =====
-    // ⚠️ 把下面这一行的 key 换成你自己的智谱 API Key（open.bigmodel.cn → 个人中心 → API Keys）
-    const GLM_API_KEY = '1c81b061bef24e1fb3a3b68f129fe015.VSyotEtfB1e6m4I9';
-    const GLM_MODEL = 'glm-4-flash';   // 免费模型；可换成 glm-4-plus / glm-4 等更强模型
-    const GLM_API_URL = 'https://open.bigmodel.cn/api/paas/v4/chat/completions';
-    const SYSTEM_PROMPT = '你是「iBank 助手」，是《投资银行学》智慧教学平台 iBank 的 AI 学伴。你的职责是帮助学生学习投资银行学实务，覆盖 IPO 承销保荐、并购重组、债券承销、企业估值、尽职调查、宏观市场（美元/黄金/股票/美债）等。回答要求：用简洁、准确、通俗的中文；结合投行实务适当举例；涉及具体案例时以本平台案例库为准（中芯国际科创板 IPO、美的集团收购库卡、中国中化公司债、阿里巴巴港股二次上市）；像一位耐心的助教，不啰嗦。';
+    // ===== 接入智谱大模型（走腾讯云 SCF 后端，SSE 流式） =====
+    // key 存在 SCF 后端的环境变量里，前端不写密钥，只写后端地址
+    const SCF_URL = 'https://1490473252-kur02r1gqf.ap-guangzhou.tencentscf.com';
 
-    async function callGLM(messages) {
-      const resp = await fetch(GLM_API_URL, {
+    // 调用 SCF，流式逐字返回；每收到一段文字就回调 onDelta
+    async function streamFromSCF(history, onDelta) {
+      const resp = await fetch(SCF_URL, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + GLM_API_KEY },
-        body: JSON.stringify({ model: GLM_MODEL, messages: messages, temperature: 0.7 })
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ messages: history })
       });
-      if (!resp.ok) {
-        const t = await resp.text();
-        throw new Error('HTTP ' + resp.status + ' ' + t.slice(0, 200));
-      }
-      const data = await resp.json();
-      const c = data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content;
-      if (!c) throw new Error('空响应');
-      return c.trim();
-    }
-
-    // 调用大模型；失败返回 null，由调用方回退到本地规则回答
-    async function llmReply(history) {
-      if (!GLM_API_KEY || GLM_API_KEY.indexOf('这里填') !== -1) return null;
-      try {
-        return await callGLM([{ role: 'system', content: SYSTEM_PROMPT }].concat(history));
-      } catch (e) {
-        return null;
+      if (!resp.ok) throw new Error('HTTP ' + resp.status);
+      const reader = resp.body.getReader();
+      const decoder = new TextDecoder('utf-8');
+      let buffer = '';
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split('\n');
+        buffer = lines.pop();
+        for (const line of lines) {
+          const s = line.trim();
+          if (!s.startsWith('data:')) continue;
+          const ds = s.slice(5).trim();
+          if (ds === '[DONE]') continue;
+          try {
+            const obj = JSON.parse(ds);
+            if (obj.content) onDelta(obj.content);
+            if (obj.error) onDelta('（出错：' + obj.error + '）');
+          } catch (e) { /* 跳过非 JSON 行 */ }
+        }
       }
     }
 
@@ -1135,14 +1142,19 @@
       addMsg(q, 'user');
       chatInput.value = '';
       floatHistory.push({ role: 'user', content: q });
-      const loading = addMsg('正在思考…', 'bot');
-      const reply = await llmReply(floatHistory);
-      if (reply) {
-        loading.textContent = reply;
-        floatHistory.push({ role: 'assistant', content: reply });
-      } else {
+      const replyDiv = addMsg('正在思考…', 'bot');
+      let fullText = '';
+      try {
+        await streamFromSCF(floatHistory, function (delta) {
+          fullText += delta;
+          replyDiv.textContent = fullText;
+          chatBody.scrollTop = chatBody.scrollHeight;
+        });
+        if (!fullText) { fullText = '（无返回内容）'; replyDiv.textContent = fullText; }
+        floatHistory.push({ role: 'assistant', content: fullText });
+      } catch (err) {
         const fb = answer(q);
-        loading.textContent = fb;
+        replyDiv.textContent = fb;
         floatHistory.push({ role: 'assistant', content: fb });
       }
     });
@@ -1312,14 +1324,19 @@
       async function qaAsk(q) {
         qaAdd(q, 'user');
         qaHistory.push({ role: 'user', content: q });
-        const loading = qaAdd('正在思考…', 'bot');
-        const reply = await llmReply(qaHistory);
-        if (reply) {
-          loading.textContent = reply;
-          qaHistory.push({ role: 'assistant', content: reply });
-        } else {
+        const replyDiv = qaAdd('正在思考…', 'bot');
+        let fullText = '';
+        try {
+          await streamFromSCF(qaHistory, function (delta) {
+            fullText += delta;
+            replyDiv.textContent = fullText;
+            qaBody.scrollTop = qaBody.scrollHeight;
+          });
+          if (!fullText) { fullText = '（无返回内容）'; replyDiv.textContent = fullText; }
+          qaHistory.push({ role: 'assistant', content: fullText });
+        } catch (err) {
           const fb = answer(q);
-          loading.textContent = fb;
+          replyDiv.textContent = fb;
           qaHistory.push({ role: 'assistant', content: fb });
         }
       }
