@@ -335,6 +335,17 @@
     .val-item .note { font-size: 12px; color: var(--dim); margin-top: 4px; }
     @media (max-width: 820px) { .profile-grid, .val-grid { grid-template-columns: 1fr; } }
 
+    /* ===== 课程思政 ===== */
+    .sz-table { width: 100%; border-collapse: collapse; }
+    .sz-table th, .sz-table td { border: 1px solid var(--panel-border); padding: 10px 14px; font-size: 14px; text-align: left; }
+    .sz-table th { background: rgba(99,102,241,0.08); color: #6366f1; font-weight: 600; }
+    .sz-table td { color: #3a4458; }
+
+    /* ===== 知识图谱 ===== */
+    .graph-wrap { background: #fbfcfe; border: 1px solid var(--panel-border); border-radius: 14px; padding: 10px; overflow-x: auto; }
+    .g-node { transition: opacity .15s; }
+    .g-node:hover { opacity: .78; }
+
     /* ===== 后台统计（浅色管理后台） ===== */
     body.light { background: #f4f6fa; }
     body.light .bg-blob { opacity: 0; }
@@ -409,6 +420,7 @@
       </div>
       <div class="nav-tabs" id="nav-tabs">
         <button class="tab-btn active" data-page="p-home">首页</button>
+        <button class="tab-btn" data-page="p-graph">知识图谱</button>
         <button class="tab-btn" data-page="p-qa">智能答疑</button>
         <button class="tab-btn" data-page="p-exercise">习题训练</button>
         <button class="tab-btn" data-page="p-wrong">错题定位</button>
@@ -418,6 +430,7 @@
         <button class="tab-btn" data-page="p-case">案例库</button>
         <button class="tab-btn" data-page="p-macro">宏观市场</button>
         <button class="tab-btn" data-page="p-sim">股市模拟</button>
+        <button class="tab-btn" data-page="p-sizheng">课程思政</button>
         <button class="tab-btn" data-page="p-admin">后台统计</button>
       </div>
     </nav>
@@ -434,6 +447,7 @@
       <div class="panel" style="margin-top:18px;">
         <div class="section-title"><span class="bar"></span>功能模块</div>
         <div class="home-grid">
+          <div class="home-card" data-page="p-graph"><div class="ico">🕸️</div><h4>知识图谱</h4><p>课程知识结构导览</p></div>
           <div class="home-card" data-page="p-qa"><div class="ico">💬</div><h4>智能答疑</h4><p>AI 学伴随问随答</p></div>
           <div class="home-card" data-page="p-exercise"><div class="ico">✍️</div><h4>习题训练</h4><p>实务习题即时反馈</p></div>
           <div class="home-card" data-page="p-wrong"><div class="ico">🎯</div><h4>错题定位</h4><p>薄弱知识点靶向补学</p></div>
@@ -443,7 +457,21 @@
           <div class="home-card" data-page="p-case"><div class="ico">📚</div><h4>案例库</h4><p>投行实务案例</p></div>
           <div class="home-card" data-page="p-macro"><div class="ico">🌐</div><h4>宏观市场</h4><p>美元·黄金·股票·美债</p></div>
           <div class="home-card" data-page="p-sim"><div class="ico">📈</div><h4>股市模拟</h4><p>虚拟盘实战交易</p></div>
+          <div class="home-card" data-page="p-sizheng"><div class="ico">🎓</div><h4>课程思政</h4><p>立德树人·价值引领</p></div>
           <div class="home-card" data-page="p-admin"><div class="ico">🗂️</div><h4>后台统计</h4><p>学情数据看板</p></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================================================================
+         知识图谱（课程知识结构）
+    ================================================================= -->
+    <section class="page" id="p-graph">
+      <div class="panel">
+        <div class="section-title"><span class="bar"></span>课程知识图谱</div>
+        <div class="section-sub">《投资银行学》知识结构总览，点击任意节点可跳转到对应功能模块。</div>
+        <div class="graph-wrap">
+          <svg id="graph" viewBox="0 0 1000 640" width="100%" role="img" aria-label="课程知识图谱"></svg>
         </div>
       </div>
     </section>
@@ -875,6 +903,42 @@
           <button class="sim-btn primary" id="sim-next">下一交易日</button>
           <button class="sim-btn ghost" id="sim-reset">重置模拟</button>
           <span class="hint">本模块为教学模拟，不构成投资建议。</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================================================================
+         课程思政（立德树人）
+    ================================================================= -->
+    <section class="page" id="p-sizheng">
+      <div class="panel">
+        <div class="section-title"><span class="bar"></span>课程思政 · 立德树人</div>
+        <div class="section-sub">把思政教育融入投行实务教学，培养「懂业务、守底线、有担当」的金融人才。</div>
+
+        <div class="cap-grid">
+          <div class="cap-card"><div class="ico">🇨🇳</div><h4>金融报国 · 服务实体经济</h4><p>投行核心使命是帮助企业融资、服务实体经济；注册制改革支持硬科技企业，助力科技自立自强。</p></div>
+          <div class="cap-card"><div class="ico">⚖️</div><h4>职业操守 · 诚信合规</h4><p>尽职调查勤勉尽责、信息披露真实准确；守住证券法红线，防范内幕交易与利益冲突。</p></div>
+          <div class="cap-card"><div class="ico">🛡️</div><h4>风险意识 · 金融安全</h4><p>防范债务风险与高杠杆并购风险，维护资本市场健康稳定。</p></div>
+          <div class="cap-card"><div class="ico">🌱</div><h4>社会责任 · 绿色金融</h4><p>绿色债券、ESG 与普惠金融，践行投行在共同富裕中的担当。</p></div>
+        </div>
+
+        <div class="section-title" style="margin-top:26px;"><span class="bar"></span>思政融入点</div>
+        <table class="sz-table">
+          <thead><tr><th>投行知识点</th><th>思政融入点</th></tr></thead>
+          <tbody>
+            <tr><td>承销保荐</td><td>诚信勤勉、如实披露</td></tr>
+            <tr><td>并购重组</td><td>反垄断、国家安全</td></tr>
+            <tr><td>债券承销</td><td>防范债务风险</td></tr>
+            <tr><td>企业估值</td><td>不作虚假估值、不误导投资者</td></tr>
+            <tr><td>宏观市场</td><td>理性投资、防范金融风险</td></tr>
+          </tbody>
+        </table>
+
+        <div class="section-title" style="margin-top:26px;"><span class="bar"></span>思政案例</div>
+        <div class="tier-grid">
+          <div class="tier-card"><div class="lvl" style="color:#059669;">正面 · 金融报国</div><p>某芯片制造企业 2020 年在科创板上市，募资规模创下板块纪录，借助资本市场融资支持国产芯片自主研发，体现「金融服务实体经济、助力科技自立自强」。</p></div>
+          <div class="tier-card"><div class="lvl" style="color:#e11d48;">反面 · 诚信合规</div><p>某医药上市公司财务造假、虚增货币资金数百亿元，为其提供服务的中介机构因未勤勉尽责被监管部门重罚，警示「诚信为本、勤勉尽责是投行的生命线」。</p></div>
+          <div class="tier-card"><div class="lvl" style="color:#e11d48;">反面 · 风险意识</div><p>某债券违约案中，承销商因未尽勤勉尽责义务被法院判决承担连带赔偿责任，警示「债券承销必须把好风险关」。</p></div>
         </div>
       </div>
     </section>
@@ -1519,6 +1583,45 @@
       }
       [profit, gEl, rEl, peEl].forEach(function (el) { el.addEventListener('input', calc); });
       calc();
+    })();
+
+    // ===== 课程知识图谱 =====
+    (function () {
+      const svg = document.getElementById('graph');
+      const CX = 500, CY = 320, R = 230;
+      const MODULES = [
+        { name: '证券承销保荐', subs: ['IPO 流程', '发行定价', '包销/代销'], target: 'p-case' },
+        { name: '并购重组', subs: ['交易结构', '估值定价', '反垄断合规'], target: 'p-case' },
+        { name: '债券承销', subs: ['公司债', '信用评级', '票面利率'], target: 'p-case' },
+        { name: '企业估值', subs: ['市盈率 PE', '现金流折现 DCF', '折现率'], target: 'p-valuation' },
+        { name: '尽职调查', subs: ['财务尽调', '法律尽调', '业务尽调'], target: 'p-qa' },
+        { name: '宏观市场', subs: ['美元', '黄金', '股票', '美债'], target: 'p-macro' },
+        { name: '投行概述', subs: ['投行职能', '业务范围', '信息中介'], target: 'p-qa' }
+      ];
+      let html = '<defs><linearGradient id="gGrad" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0891b2"/><stop offset="1" stop-color="#6366f1"/></linearGradient></defs>';
+      MODULES.forEach(function (m, i) {
+        const ang = -Math.PI / 2 + i * 2 * Math.PI / MODULES.length;
+        const x = CX + R * Math.cos(ang), y = CY + R * Math.sin(ang);
+        html += '<line x1="' + CX + '" y1="' + CY + '" x2="' + x.toFixed(0) + '" y2="' + y.toFixed(0) + '" stroke="#d4dae4" stroke-width="1.5"/>';
+      });
+      html += '<g class="g-node" data-page="p-home" style="cursor:pointer"><circle cx="' + CX + '" cy="' + CY + '" r="52" fill="url(#gGrad)"/><text x="' + CX + '" y="' + CY + '" fill="#fff" font-size="16" font-weight="700" text-anchor="middle" dominant-baseline="middle">投资银行学</text></g>';
+      MODULES.forEach(function (m, i) {
+        const ang = -Math.PI / 2 + i * 2 * Math.PI / MODULES.length;
+        const x = CX + R * Math.cos(ang), y = CY + R * Math.sin(ang);
+        html += '<g class="g-node" data-page="' + m.target + '" style="cursor:pointer">';
+        html += '<rect x="' + (x - 88) + '" y="' + (y - 46) + '" width="176" height="62" rx="12" fill="#fff" stroke="#c7d0dd" stroke-width="1.5"/>';
+        html += '<text x="' + x + '" y="' + (y - 12) + '" fill="#1a2233" font-size="15" font-weight="700" text-anchor="middle">' + m.name + '</text>';
+        html += '<text x="' + x + '" y="' + (y + 12) + '" fill="#8a94a8" font-size="11.5" text-anchor="middle">' + m.subs.join(' · ') + '</text>';
+        html += '</g>';
+      });
+      svg.innerHTML = html;
+      svg.querySelectorAll('.g-node').forEach(function (node) {
+        node.addEventListener('click', function () {
+          const t = node.getAttribute('data-page');
+          const btn = document.querySelector('.tab-btn[data-page="' + t + '"]');
+          if (btn) btn.click();
+        });
+      });
     })();
   </script>
 </body>
