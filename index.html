@@ -341,10 +341,22 @@
     .sz-table th { background: rgba(99,102,241,0.08); color: #6366f1; font-weight: 600; }
     .sz-table td { color: #3a4458; }
 
-    /* ===== 知识图谱 ===== */
-    .graph-wrap { background: #fbfcfe; border: 1px solid var(--panel-border); border-radius: 14px; padding: 10px; overflow-x: auto; }
-    .g-node { transition: opacity .15s; }
-    .g-node:hover { opacity: .78; }
+    /* ===== 知识图谱（知识树） ===== */
+    .ktree-root {
+      display: inline-block; padding: 14px 30px; border-radius: 16px;
+      background: linear-gradient(135deg, #0891b2, #6366f1); color: #fff;
+      font-size: 20px; font-weight: 700; text-align: center;
+    }
+    .ktree-root span { display: block; font-size: 13px; font-weight: 400; opacity: .85; margin-top: 2px; }
+    .ktree-list { margin-top: 22px; border-left: 3px solid #d4dae4; padding-left: 20px; }
+    .ktree-item { position: relative; padding: 14px 16px; margin-bottom: 12px; border: 1px solid var(--panel-border); border-radius: 12px; background: rgba(15,23,42,0.02); transition: .2s; }
+    .ktree-item:hover { border-color: var(--accent); background: rgba(99,102,241,0.04); }
+    .ktree-item::before { content: ""; position: absolute; left: -20px; top: 24px; width: 20px; height: 3px; background: #d4dae4; }
+    .ktree-title { font-size: 17px; font-weight: 700; color: #1a2233; margin-bottom: 8px; }
+    .ktree-no { display: inline-block; background: linear-gradient(135deg,#6366f1,#8b5cf6); color: #fff; font-size: 13px; padding: 2px 10px; border-radius: 999px; margin-right: 10px; }
+    .ktree-pt { font-size: 15px; color: #3a4458; line-height: 1.7; margin-top: 5px; }
+    .ktree-pt b { color: #6366f1; }
+    .ktree-pt.nan b { color: #e11d48; }
 
     /* ===== 后台统计（浅色管理后台） ===== */
     body.light { background: #f4f6fa; }
@@ -469,10 +481,8 @@
     <section class="page" id="p-graph">
       <div class="panel">
         <div class="section-title"><span class="bar"></span>课程知识图谱</div>
-        <div class="section-sub">《投资银行学》知识结构总览，点击任意节点可跳转到对应功能模块。</div>
-        <div class="graph-wrap">
-          <svg id="graph" viewBox="0 0 1000 640" width="100%" role="img" aria-label="课程知识图谱"></svg>
-        </div>
+        <div class="section-sub">按《投资银行学》课程 9 章框架，以知识树结构梳理各章重点与难点。点击任意章节可跳转到对应功能模块。</div>
+        <div id="ktree"></div>
       </div>
     </section>
 
@@ -1585,39 +1595,33 @@
       calc();
     })();
 
-    // ===== 课程知识图谱 =====
+    // ===== 课程知识图谱（知识树 · 9 章） =====
     (function () {
-      const svg = document.getElementById('graph');
-      const CX = 500, CY = 320, R = 230;
-      const MODULES = [
-        { name: '证券承销保荐', subs: ['IPO 流程', '发行定价', '包销/代销'], target: 'p-case' },
-        { name: '并购重组', subs: ['交易结构', '估值定价', '反垄断合规'], target: 'p-case' },
-        { name: '债券承销', subs: ['公司债', '信用评级', '票面利率'], target: 'p-case' },
-        { name: '企业估值', subs: ['市盈率 PE', '现金流折现 DCF', '折现率'], target: 'p-valuation' },
-        { name: '尽职调查', subs: ['财务尽调', '法律尽调', '业务尽调'], target: 'p-qa' },
-        { name: '宏观市场', subs: ['美元', '黄金', '股票', '美债'], target: 'p-macro' },
-        { name: '投行概述', subs: ['投行职能', '业务范围', '信息中介'], target: 'p-qa' }
+      const box = document.getElementById('ktree');
+      const CHAPTERS = [
+        { no: '第1章', title: '投资银行概述', target: 'p-qa', zhong: '投资银行的定义与业务范围；与商业银行的异同；承销、并购、证券交易等主要业务', nan: '投资银行功能的经济学解释（信息不对称、委托代理理论）' },
+        { no: '第2章', title: '企业融资方案设计', target: 'p-qa', zhong: '融资需求分析；股权融资与债权融资的权衡；融资方式选择', nan: '融资需求预测的方法（销售百分比法、回归分析法）' },
+        { no: '第3章', title: '股份有限公司与首次公开发行', target: 'p-ipo', zhong: '股份有限公司的设立；IPO 流程；股票发行方式与发行定价', nan: '股票发行定价方法（市盈率法、现金流折现、市场竞价）；借壳上市' },
+        { no: '第4章', title: '上市公司再融资', target: 'p-case', zhong: '增发、配股、优先股、可转换公司债券、可交换公司债券', nan: '可转债与可交换债的区别与定价；再融资的承销风险' },
+        { no: '第5章', title: '债券的发行与承销', target: 'p-case', zhong: '债券基础知识；国债、地方政府债、金融债、公司信用类债券的发行与承销', nan: '债券定价（票面利率的确定）；信用评级' },
+        { no: '第6章', title: '资产证券化', target: 'p-qa', zhong: '资产证券化的概念与交易结构；主要类型（MBS、ABS 等）', nan: '资产证券化的收益与风险分析；信用增级与分层结构' },
+        { no: '第7章', title: '公司并购', target: 'p-case', zhong: '并购的概念与类型；并购动因；一般操作程序；支付方式', nan: '杠杆收购（LBO）；反收购策略；要约收购' },
+        { no: '第8章', title: '投资银行的风险管理', target: 'p-sizheng', zhong: '投资银行的风险来源（市场、信用、操作、流动性风险）', nan: '风险管理的方法（VaR 等量化方法）' },
+        { no: '第9章', title: '投资银行的监管', target: 'p-sizheng', zhong: '监管的目标与原则；监管模式（集中型、自律型）', nan: '对商业银行与证券公司投行业务的差异化监管' }
       ];
-      let html = '<defs><linearGradient id="gGrad" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0891b2"/><stop offset="1" stop-color="#6366f1"/></linearGradient></defs>';
-      MODULES.forEach(function (m, i) {
-        const ang = -Math.PI / 2 + i * 2 * Math.PI / MODULES.length;
-        const x = CX + R * Math.cos(ang), y = CY + R * Math.sin(ang);
-        html += '<line x1="' + CX + '" y1="' + CY + '" x2="' + x.toFixed(0) + '" y2="' + y.toFixed(0) + '" stroke="#d4dae4" stroke-width="1.5"/>';
+      let html = '<div class="ktree-root">投资银行学<span>课程知识框架 · 9 章</span></div><div class="ktree-list">';
+      CHAPTERS.forEach(function (c) {
+        html += '<div class="ktree-item" data-page="' + c.target + '" style="cursor:pointer;">';
+        html += '<div class="ktree-title"><span class="ktree-no">' + c.no + '</span>' + c.title + '</div>';
+        html += '<div class="ktree-pt"><b>重点</b>　' + c.zhong + '</div>';
+        html += '<div class="ktree-pt nan"><b>难点</b>　' + c.nan + '</div>';
+        html += '</div>';
       });
-      html += '<g class="g-node" data-page="p-home" style="cursor:pointer"><circle cx="' + CX + '" cy="' + CY + '" r="52" fill="url(#gGrad)"/><text x="' + CX + '" y="' + CY + '" fill="#fff" font-size="16" font-weight="700" text-anchor="middle" dominant-baseline="middle">投资银行学</text></g>';
-      MODULES.forEach(function (m, i) {
-        const ang = -Math.PI / 2 + i * 2 * Math.PI / MODULES.length;
-        const x = CX + R * Math.cos(ang), y = CY + R * Math.sin(ang);
-        html += '<g class="g-node" data-page="' + m.target + '" style="cursor:pointer">';
-        html += '<rect x="' + (x - 88) + '" y="' + (y - 46) + '" width="176" height="62" rx="12" fill="#fff" stroke="#c7d0dd" stroke-width="1.5"/>';
-        html += '<text x="' + x + '" y="' + (y - 12) + '" fill="#1a2233" font-size="15" font-weight="700" text-anchor="middle">' + m.name + '</text>';
-        html += '<text x="' + x + '" y="' + (y + 12) + '" fill="#8a94a8" font-size="11.5" text-anchor="middle">' + m.subs.join(' · ') + '</text>';
-        html += '</g>';
-      });
-      svg.innerHTML = html;
-      svg.querySelectorAll('.g-node').forEach(function (node) {
-        node.addEventListener('click', function () {
-          const t = node.getAttribute('data-page');
+      html += '</div>';
+      box.innerHTML = html;
+      box.querySelectorAll('.ktree-item').forEach(function (n) {
+        n.addEventListener('click', function () {
+          const t = n.getAttribute('data-page');
           const btn = document.querySelector('.tab-btn[data-page="' + t + '"]');
           if (btn) btn.click();
         });
