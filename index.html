@@ -356,6 +356,16 @@
     .hidden { display: none !important; }
     #logout-btn { border: 1px solid var(--panel-border); background: transparent; color: var(--muted); height: 34px; padding: 0 12px; border-radius: 999px; font-size: 13px; cursor: pointer; white-space: nowrap; }
     #logout-btn:hover { color: var(--text); border-color: var(--accent); }
+    .login-close { position: absolute; top: 10px; right: 14px; width: 30px; height: 30px; border: none; background: transparent; font-size: 22px; color: var(--muted); cursor: pointer; line-height: 1; }
+    .login-close:hover { color: var(--text); }
+    .login-box { position: relative; }
+    .login-note { font-size: 12px; color: var(--dim); margin-top: 10px; line-height: 1.5; }
+    #nav-account { display: inline-flex; align-items: center; gap: 6px; }
+    #nav-class { height: 34px; padding: 0 8px; border-radius: 999px; border: 1px solid var(--panel-border); background: transparent; color: var(--muted); font-size: 13px; cursor: pointer; }
+    #nav-teacher { height: 34px; padding: 0 12px; border-radius: 999px; border: 1px solid var(--panel-border); background: transparent; color: var(--muted); font-size: 13px; cursor: pointer; white-space: nowrap; }
+    #nav-teacher:hover { color: var(--text); border-color: var(--accent); }
+    #login-top-btn { height: 34px; padding: 0 12px; border-radius: 999px; border: 1px solid var(--accent); background: transparent; color: var(--accent); font-size: 13px; cursor: pointer; white-space: nowrap; }
+    #login-top-btn:hover { background: var(--accent); color: #fff; }
 
     /* ===== 课程思政 ===== */
     .sz-table { width: 100%; border-collapse: collapse; }
@@ -426,8 +436,9 @@
 </head>
 <body>
   <!-- ===== 登录/注册遮罩 ===== -->
-  <div id="login-overlay">
+  <div id="login-overlay" class="hidden">
     <div class="login-box">
+      <button id="login-close" class="login-close">×</button>
       <div class="login-logo">iBank</div>
       <div class="login-sub">《投资银行学》智慧教学平台</div>
       <div class="login-tabs">
@@ -450,23 +461,15 @@
         <button class="lprimary" id="login-btn">登录</button>
       </div>
 
-      <!-- 注册面板 -->
+      <!-- 注册面板（统一格式：手机号 + 验证码） -->
       <div id="panel-register" class="hidden">
-        <div class="login-methods">
-          <button class="active" data-r="student">学生</button>
-          <button data-r="teacher">教师</button>
-        </div>
-        <div class="lfield" id="reg-student-fields">
-          <input id="reg-student-id" type="text" placeholder="学号" />
-          <select id="reg-class"><option>金融2303</option><option>金融2304</option></select>
-        </div>
-        <div class="lfield hidden" id="reg-teacher-field"><input id="reg-invite" type="text" placeholder="教师邀请码（TZYHX开头）" /></div>
         <div class="lfield"><input id="reg-phone" type="tel" placeholder="手机号" /></div>
         <div class="lfield">
           <input id="reg-sms-code" type="text" placeholder="短信验证码" />
           <button id="reg-sms-btn" type="button">获取验证码</button>
         </div>
         <button class="lprimary" id="register-btn">注册并登录</button>
+        <p class="login-note">注册后默认学生身份，班级可在登录后选择，教师请用「教师认证」。</p>
       </div>
 
       <div class="login-msg" id="login-msg"></div>
@@ -515,6 +518,11 @@
         <button class="tab-btn" data-page="p-sim">股市模拟</button>
         <button class="tab-btn" data-page="p-sizheng">课程思政</button>
         <button class="tab-btn" data-page="p-admin">后台统计</button>
+        <button id="login-top-btn">登录 / 注册</button>
+        <span id="nav-account" class="hidden">
+          <select id="nav-class"><option value="金融2303">金融2303</option><option value="金融2304">金融2304</option></select>
+          <button id="nav-teacher">教师认证</button>
+        </span>
         <button id="logout-btn" class="hidden">退出登录</button>
       </div>
     </nav>
@@ -1032,6 +1040,19 @@
       <div class="admin-head">
         <h2>数据后台 · 学情统计</h2>
         <p>iBank平台运行数据 · 2026 春季学期（金融 2303 / 2304）</p>
+      </div>
+
+      <!-- 实时注册数据（真实，从 CloudBase 读取） -->
+      <div class="admin-panel">
+        <h4>实时注册数据</h4>
+        <div class="sub">平台真实注册情况，实时读取数据库。</div>
+        <div class="admin-kpi-row">
+          <div class="admin-kpi"><div class="k">注册学生</div><div class="v" id="real-students">0</div></div>
+          <div class="admin-kpi"><div class="k">金融2303</div><div class="v" id="real-c1">0</div></div>
+          <div class="admin-kpi"><div class="k">金融2304</div><div class="v" id="real-c2">0</div></div>
+          <div class="admin-kpi"><div class="k">教师</div><div class="v" id="real-teachers">0</div></div>
+          <div class="admin-kpi"><div class="k">邀请码已用</div><div class="v" id="real-used">0</div></div>
+        </div>
       </div>
 
       <!-- 核心指标 -->
@@ -1715,6 +1736,11 @@
 
       const overlay = document.getElementById('login-overlay');
       const logoutBtn = document.getElementById('logout-btn');
+      const loginTopBtn = document.getElementById('login-top-btn');
+      const loginClose = document.getElementById('login-close');
+      const navAccount = document.getElementById('nav-account');
+      const navClass = document.getElementById('nav-class');
+      const navTeacher = document.getElementById('nav-teacher');
       const msgEl = document.getElementById('login-msg');
       let smsVerifyFn = null;   // 保存"待验证"的 verifyOtp 函数
 
@@ -1746,17 +1772,53 @@
 
       async function onLoggedIn() {
         overlay.classList.add('hidden');
+        loginTopBtn.classList.add('hidden');
         logoutBtn.classList.remove('hidden');
         const uid = await getUserId();
         const role = uid ? await fetchRole(uid) : 'student';
         applyRole(role);
+        navAccount.classList.remove('hidden');
+        navTeacher.style.display = (role === 'student') ? '' : 'none';
+        navClass.style.display = (role === 'student') ? '' : 'none';
         showMsg('', '');
+        if (role === 'teacher' || role === 'admin') loadRealStats();
       }
+
+      // 加载真实注册数据（教师/管理员看后台统计时用）
+      async function loadRealStats() {
+        try {
+          const { data: students } = await db.from('profiles').select('role').eq('role', 'student');
+          const { data: c1 } = await db.from('profiles').select('role').eq('class_name', '金融2303');
+          const { data: c2 } = await db.from('profiles').select('role').eq('class_name', '金融2304');
+          const { data: teachers } = await db.from('profiles').select('role').eq('role', 'teacher');
+          const { data: used } = await db.from('invite_codes').select('code').eq('used', true);
+          const set = function (id, v) { const el = document.getElementById(id); if (el) el.textContent = v; };
+          set('real-students', students ? students.length : 0);
+          set('real-c1', c1 ? c1.length : 0);
+          set('real-c2', c2 ? c2.length : 0);
+          set('real-teachers', teachers ? teachers.length : 0);
+          set('real-used', used ? used.length : 0);
+        } catch (e) {
+          console.log('加载实时数据失败', e);
+        }
+      }
+
+      // 点「后台统计」页时刷新实时数据
+      const adminTab = document.querySelector('.tab-btn[data-page="p-admin"]');
+      if (adminTab) adminTab.addEventListener('click', loadRealStats);
 
       async function checkSession() {
         const uid = await getUserId();
-        if (uid) await onLoggedIn();
-        else { overlay.classList.remove('hidden'); logoutBtn.classList.add('hidden'); }
+        if (uid) {
+          await onLoggedIn();
+        } else {
+          // 未登录：默认游客（学生权限），网页可见，右上角显示"登录/注册"
+          applyRole('student');
+          overlay.classList.add('hidden');
+          loginTopBtn.classList.remove('hidden');
+          logoutBtn.classList.add('hidden');
+          navAccount.classList.add('hidden');
+        }
       }
 
       logoutBtn.addEventListener('click', async function () {
@@ -1784,18 +1846,6 @@
           const m = b.getAttribute('data-m');
           document.getElementById('login-pwd-field').classList.toggle('hidden', m !== 'password');
           document.getElementById('login-sms-field').classList.toggle('hidden', m !== 'sms');
-          showMsg('', '');
-        });
-      });
-
-      // 注册身份：学生 / 教师
-      document.querySelectorAll('#panel-register .login-methods button').forEach(function (b) {
-        b.addEventListener('click', function () {
-          document.querySelectorAll('#panel-register .login-methods button').forEach(function (x) { x.classList.remove('active'); });
-          b.classList.add('active');
-          const r = b.getAttribute('data-r');
-          document.getElementById('reg-student-fields').classList.toggle('hidden', r !== 'student');
-          document.getElementById('reg-teacher-field').classList.toggle('hidden', r !== 'teacher');
           showMsg('', '');
         });
       });
@@ -1846,40 +1896,52 @@
         } catch (e) { showMsg('登录失败：' + e.message, 'err'); }
       });
 
-      // 注册
+      // 注册（统一：手机号 + 验证码，默认学生身份）
       document.getElementById('register-btn').addEventListener('click', async function () {
-        const isTeacher = !document.getElementById('reg-teacher-field').classList.contains('hidden');
-        const phone = document.getElementById('reg-phone').value.trim();
         const token = document.getElementById('reg-sms-code').value.trim();
         showMsg('', '');
         if (!smsVerifyFn) { showMsg('请先获取验证码', 'err'); return; }
         if (!token) { showMsg('请输入验证码', 'err'); return; }
-
-        if (isTeacher) {
-          const code = document.getElementById('reg-invite').value.trim();
-          if (!code) { showMsg('请输入教师邀请码', 'err'); return; }
-          const { data: cdata } = await db.from('invite_codes').select('code').eq('code', code).eq('used', false);
-          if (!cdata || cdata.length === 0) { showMsg('邀请码无效或已被使用', 'err'); return; }
-        }
-
         try {
           const { data, error } = await smsVerifyFn(token);
           if (error) { showMsg('注册失败：' + error.message, 'err'); return; }
           const uid = (data && data.user) ? data.user.id : await getUserId();
           if (uid) {
-            if (isTeacher) {
-              const code = document.getElementById('reg-invite').value.trim();
-              await db.from('invite_codes').update({ used: true }).eq('code', code);
-              await db.from('profiles').insert({ id: uid, role: 'teacher' });
-            } else {
-              const sid = document.getElementById('reg-student-id').value.trim();
-              const cls = document.getElementById('reg-class').value;
-              if (!sid) { showMsg('请填写学号', 'err'); return; }
-              await db.from('profiles').insert({ id: uid, role: 'student', student_id: sid, class_name: cls });
-            }
+            await db.from('profiles').insert({ id: uid, role: 'student' });
           }
           await onLoggedIn();
         } catch (e) { showMsg('注册失败：' + e.message, 'err'); }
+      });
+
+      // 打开/关闭登录弹窗
+      loginTopBtn.addEventListener('click', function () { overlay.classList.remove('hidden'); });
+      loginClose.addEventListener('click', function () { overlay.classList.add('hidden'); });
+
+      // 选班级（登录后，学生）
+      navClass.addEventListener('change', async function () {
+        const uid = await getUserId();
+        if (!uid) return;
+        try {
+          await db.from('profiles').update({ class_name: navClass.value }).eq('id', uid);
+          showMsg('班级已更新为 ' + navClass.value, 'ok');
+        } catch (e) { showMsg('更新失败：' + e.message, 'err'); }
+      });
+
+      // 教师认证（登录后，学生→教师，需邀请码）
+      navTeacher.addEventListener('click', async function () {
+        const code = prompt('请输入教师邀请码（TZYHX 开头）：');
+        if (!code) return;
+        const uid = await getUserId();
+        if (!uid) return;
+        try {
+          const c = code.trim();
+          const { data: cdata } = await db.from('invite_codes').select('code').eq('code', c).eq('used', false);
+          if (!cdata || cdata.length === 0) { alert('邀请码无效或已被使用'); return; }
+          await db.from('invite_codes').update({ used: true }).eq('code', c);
+          await db.from('profiles').update({ role: 'teacher' }).eq('id', uid);
+          alert('认证成功，已升级为教师！');
+          location.reload();
+        } catch (e) { alert('认证失败：' + e.message); }
       });
 
       checkSession();
