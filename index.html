@@ -431,6 +431,24 @@
     .admin-tier { border: 1px solid #eef2f7; border-radius: 12px; padding: 14px 16px; background: #fbfcfe; }
     .admin-tier .lvl { font-size: 12px; font-weight: 700; color: #2563eb; margin-bottom: 6px; }
     .admin-tier p { font-size: 12.5px; color: #64748b; line-height: 1.6; }
+    /* ===== 用户管理 ===== */
+    .um-toolbar { display: flex; gap: 10px; margin-bottom: 12px; }
+    .um-toolbar input { flex: 1; height: 38px; padding: 0 12px; border-radius: 10px; border: 1px solid #e5e9f0; background: #fbfcfe; font-size: 13.5px; color: #1a2233; outline: none; }
+    .um-toolbar input:focus { border-color: #6366f1; }
+    .um-toolbar button { height: 38px; padding: 0 16px; border-radius: 10px; border: none; background: #e8f0fe; color: #2563eb; font-size: 13px; cursor: pointer; }
+    .um-toolbar button:disabled { opacity: .5; cursor: not-allowed; }
+    .um-row { display: flex; align-items: center; gap: 10px; padding: 10px 4px; border-top: 1px solid #eef2f7; font-size: 13.5px; }
+    .um-row .um-name { font-weight: 600; color: #1a202c; min-width: 72px; }
+    .um-row .um-cls { color: #64748b; flex: 1; }
+    .um-badge { font-size: 11.5px; font-weight: 700; padding: 3px 10px; border-radius: 999px; }
+    .um-badge.teacher { background: #ede9fe; color: #6d28d9; }
+    .um-badge.student { background: #f1f5f9; color: #64748b; }
+    .um-act { height: 30px; padding: 0 12px; border-radius: 8px; border: 1px solid #e5e9f0; background: #fff; font-size: 12px; cursor: pointer; color: #2563eb; }
+    .um-act:hover { background: #eff6ff; }
+    .um-act.demote { color: #b45309; }
+    .um-act.demote:hover { background: #fffbeb; }
+    .um-act:disabled { opacity: .45; cursor: not-allowed; }
+    .um-empty { padding: 18px 4px; font-size: 13px; color: #94a3b8; text-align: center; }
 
     /* ===== 首页 Hero（左对齐 + 右侧 AI 答疑预览卡） ===== */
     .hero2 { display: grid; grid-template-columns: 1.05fr 0.95fr; gap: 34px; align-items: center; padding: 46px 40px; }
@@ -567,22 +585,28 @@
           <button id="login-sms-btn" type="button">获取验证码</button>
         </div>
         <button class="lprimary" id="login-btn">登录</button>
+        <p class="login-note">忘记密码？点上方「注册」，用手机验证码即可重设密码。</p>
       </div>
 
       <!-- 注册面板 -->
       <div id="panel-register" class="hidden">
-        <div class="login-methods">
-          <button class="active" data-r="student">学生</button>
-          <button data-r="teacher">教师</button>
+        <div class="lfield"><input id="reg-name" type="text" placeholder="姓名（必填）" /></div>
+        <div class="lfield">
+          <select id="reg-class">
+            <option value="">选择班级（也可注册后在顶部修改）</option>
+            <option value="金融2303">金融2303</option>
+            <option value="金融2304">金融2304</option>
+          </select>
         </div>
-        <div class="lfield hidden" id="reg-teacher-field"><input id="reg-invite" type="text" placeholder="教师邀请码（TZYHX开头）" /></div>
         <div class="lfield"><input id="reg-phone" type="tel" placeholder="手机号" /></div>
         <div class="lfield">
           <input id="reg-sms-code" type="text" placeholder="短信验证码" />
           <button id="reg-sms-btn" type="button">获取验证码</button>
         </div>
+        <div class="lfield"><input id="reg-password" type="password" placeholder="设置密码（8-32位，含字母和数字）" /></div>
+        <div class="lfield"><input id="reg-password2" type="password" placeholder="确认密码" /></div>
         <button class="lprimary" id="register-btn">注册并登录</button>
-        <p class="login-note">学生注册后登录即可选班级；教师选「教师」并填邀请码。</p>
+        <p class="login-note">注册即学生账号；教师身份由课程管理员在后台授予。忘记密码？重走一遍本流程即可用手机验证码重置密码。</p>
       </div>
 
       <div class="login-msg" id="login-msg"></div>
@@ -1160,8 +1184,18 @@
           <div class="admin-kpi"><div class="k">金融2303</div><div class="v" id="real-c1">0</div></div>
           <div class="admin-kpi"><div class="k">金融2304</div><div class="v" id="real-c2">0</div></div>
           <div class="admin-kpi"><div class="k">教师</div><div class="v" id="real-teachers">0</div></div>
-          <div class="admin-kpi"><div class="k">邀请码已用</div><div class="v" id="real-used">0</div></div>
+          <div class="admin-kpi"><div class="k">累计注册</div><div class="v" id="real-total">0</div></div>
         </div>
+      </div>
+
+      <div class="admin-panel" style="margin-top:16px;">
+        <h4>用户管理</h4>
+        <div class="sub">新老师入职流程：本人先正常注册 → 管理员在此点「设为教师」即可，无需邀请码、无需改数据库。</div>
+        <div class="um-toolbar">
+          <input id="um-search" type="text" placeholder="搜索姓名 / 班级 / 角色…" />
+          <button id="um-refresh" type="button">刷新</button>
+        </div>
+        <div id="um-list"><div class="um-empty">加载中…</div></div>
       </div>
 
       <div class="admin-kpi-row">
@@ -1904,10 +1938,15 @@
         catch (e) { return null; }
       }
 
-      async function fetchRole(uid) {
+      // 自愈：登录后发现 profiles 无记录（老账号/后台误删），自动补建学生行
+      async function ensureProfile(uid) {
         try {
-          const { data } = await db.from('profiles').select('role').eq('id', uid);
-          return data && data.length > 0 && data[0].role ? data[0].role : 'student';
+          const { data } = await db.from('profiles').select('id, role').eq('id', uid);
+          if (!data || data.length === 0) {
+            await db.from('profiles').insert({ id: uid, role: 'student', name: '', class_name: '' });
+            return 'student';
+          }
+          return data[0].role || 'student';
         } catch (e) { return 'student'; }
       }
 
@@ -1916,7 +1955,7 @@
         loginTopBtn.classList.add('hidden');
         logoutBtn.classList.remove('hidden');
         const uid = await getUserId();
-        const role = uid ? await fetchRole(uid) : 'student';
+        const role = uid ? await ensureProfile(uid) : 'student';
         applyRole(role);
         navAccount.classList.remove('hidden');
         navClass.style.display = (role === 'student') ? '' : 'none';
@@ -1926,19 +1965,72 @@
 
       async function loadRealStats() {
         try {
-          const { data: students } = await db.from('profiles').select('role').eq('role', 'student');
-          const { data: c1 } = await db.from('profiles').select('role').eq('class_name', '金融2303');
-          const { data: c2 } = await db.from('profiles').select('role').eq('class_name', '金融2304');
-          const { data: teachers } = await db.from('profiles').select('role').eq('role', 'teacher');
-          const { data: used } = await db.from('invite_codes').select('code').eq('used', true);
+          // 一次查询全量，客户端分组计数（比 5 次条件查询更快也更省）
+          const { data: rows } = await db.from('profiles').select('id, role, class_name, name');
+          const list = rows || [];
+          const count = function (fn) { return list.filter(fn).length; };
           const set = function (id, v) { const el = document.getElementById(id); if (el) el.textContent = v; };
-          set('real-students', students ? students.length : 0);
-          set('real-c1', c1 ? c1.length : 0);
-          set('real-c2', c2 ? c2.length : 0);
-          set('real-teachers', teachers ? teachers.length : 0);
-          set('real-used', used ? used.length : 0);
+          set('real-students', count(function (r) { return r.role === 'student'; }));
+          set('real-c1', count(function (r) { return r.class_name === '金融2303'; }));
+          set('real-c2', count(function (r) { return r.class_name === '金融2304'; }));
+          set('real-teachers', count(function (r) { return r.role === 'teacher' || r.role === 'admin'; }));
+          set('real-total', list.length);
+          renderUserList(list);
         } catch (e) { console.log('加载实时数据失败', e); }
       }
+
+      // ===== 用户管理 =====
+      let lastUserRows = [];
+      function esc(s) { return String(s || '').replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+
+      function renderUserList(rows) {
+        lastUserRows = rows || lastUserRows;
+        const box = document.getElementById('um-list');
+        if (!box) return;
+        const kw = (document.getElementById('um-search').value || '').trim().toLowerCase();
+        const isT = function (r) { return r.role === 'teacher' || r.role === 'admin'; };
+        let list = lastUserRows.slice().sort(function (a, b) {
+          if (isT(a) !== isT(b)) return isT(a) ? -1 : 1; // 教师排前
+          return String(a.name || '').localeCompare(String(b.name || ''), 'zh');
+        });
+        if (kw) {
+          list = list.filter(function (r) {
+            return String(r.name || '').toLowerCase().indexOf(kw) >= 0
+              || String(r.class_name || '').toLowerCase().indexOf(kw) >= 0
+              || String(r.role || '').toLowerCase().indexOf(kw) >= 0;
+          });
+        }
+        if (list.length === 0) { box.innerHTML = '<div class="um-empty">暂无匹配用户</div>'; return; }
+        box.innerHTML = list.map(function (r) {
+          const t = isT(r);
+          const nm = r.name ? esc(r.name) : '<span style="color:#94a3b8;">（未填姓名）</span>';
+          const cls = esc(r.class_name || '未选班级') + ' · ' + String(r.id || '').slice(-6);
+          return '<div class="um-row">'
+            + '<span class="um-name">' + nm + '</span>'
+            + '<span class="um-cls">' + cls + '</span>'
+            + '<span class="um-badge ' + (t ? 'teacher' : 'student') + '">' + (t ? '教师' : '学生') + '</span>'
+            + '<button class="um-act ' + (t ? 'demote' : '') + '" data-uid="' + esc(r.id) + '" data-role="' + (t ? 'student' : 'teacher') + '">'
+            + (t ? '收为学生' : '设为教师') + '</button>'
+            + '</div>';
+        }).join('');
+      }
+
+      document.getElementById('um-list').addEventListener('click', async function (e) {
+        const btn = e.target.closest('.um-act');
+        if (!btn || btn.disabled) return;
+        const uid = btn.getAttribute('data-uid');
+        const role = btn.getAttribute('data-role');
+        const who = (btn.parentElement.querySelector('.um-name') || {}).textContent || '该用户';
+        if (!confirm('确定将「' + who + '」' + (role === 'teacher' ? '设为教师' : '收为学生') + '吗？')) return;
+        btn.disabled = true;
+        try {
+          const { error } = await db.from('profiles').update({ role: role }).eq('id', uid);
+          if (error) { alert('操作失败：' + error.message); btn.disabled = false; return; }
+          await loadRealStats(); // 重新拉取并重渲染（KPI 同步刷新）
+        } catch (err) { alert('操作失败：' + err.message); btn.disabled = false; }
+      });
+      document.getElementById('um-refresh').addEventListener('click', loadRealStats);
+      document.getElementById('um-search').addEventListener('input', function () { renderUserList(lastUserRows); });
 
       const adminTab = document.querySelector('.tab-btn[data-page="p-admin"]');
       if (adminTab) adminTab.addEventListener('click', loadRealStats);
@@ -1983,16 +2075,6 @@
         });
       });
 
-      document.querySelectorAll('#panel-register .login-methods button').forEach(function (b) {
-        b.addEventListener('click', function () {
-          document.querySelectorAll('#panel-register .login-methods button').forEach(function (x) { x.classList.remove('active'); });
-          b.classList.add('active');
-          const r = b.getAttribute('data-r');
-          document.getElementById('reg-teacher-field').classList.toggle('hidden', r !== 'teacher');
-          showMsg('', '');
-        });
-      });
-
       document.getElementById('login-sms-btn').addEventListener('click', async function () {
         const phone = document.getElementById('login-phone').value.trim();
         if (!phone) { showMsg('请先输入手机号', 'err'); return; }
@@ -2010,7 +2092,8 @@
         if (!phone) { showMsg('请先输入手机号', 'err'); return; }
         this.disabled = true;
         try {
-          const { data, error } = await auth.signUp({ phone: phone, nickname: '用户' });
+          const nickname = document.getElementById('reg-name').value.trim() || '用户';
+          const { data, error } = await auth.signUp({ phone: phone, nickname: nickname });
           if (error) { showMsg('发送失败：' + error.message, 'err'); this.disabled = false; return; }
           smsVerifyFn = function (token) { return data.verifyOtp({ token: token }); };
           showMsg('验证码已发送', 'ok');
@@ -2037,42 +2120,43 @@
       });
 
       document.getElementById('register-btn').addEventListener('click', async function () {
-        const isTeacher = !document.getElementById('reg-teacher-field').classList.contains('hidden');
+        const name = document.getElementById('reg-name').value.trim();
+        const className = document.getElementById('reg-class').value;
         const token = document.getElementById('reg-sms-code').value.trim();
+        const pwd = document.getElementById('reg-password').value;
+        const pwd2 = document.getElementById('reg-password2').value;
         showMsg('', '');
+        // —— 前端校验 ——
+        if (!name) { showMsg('请填写姓名', 'err'); return; }
+        const pwdOk = pwd.length >= 8 && pwd.length <= 32 && /[a-zA-Z]/.test(pwd) && /\d/.test(pwd);
+        if (!pwdOk) { showMsg('密码需 8-32 位，且同时包含字母和数字', 'err'); return; }
+        if (pwd !== pwd2) { showMsg('两次输入的密码不一致', 'err'); return; }
         try {
-          // 已登录（验证码此前已验过）则跳过 verifyOtp，直接补全资料/校验邀请码
-          // —— 避免 OTP 被首次点击消耗后，修改邀请码再点注册时重验已作废的 OTP 导致死循环
+          // 已登录（验证码此前已验过）则跳过 verifyOtp，直接补全资料/重设密码
+          // —— 避免 OTP 被首次点击消耗后，修改资料再点注册时重验已作废的 OTP 导致死循环
           let uid = await getUserId();
           if (!uid) {
             if (!smsVerifyFn) { showMsg('请先获取验证码', 'err'); return; }
             if (!token) { showMsg('请输入验证码', 'err'); return; }
-            // 先验证验证码、完成注册（变成已登录用户）
             const { data, error } = await smsVerifyFn(token);
             if (error) { showMsg('注册失败：' + error.message, 'err'); return; }
             uid = (data && data.user) ? data.user.id : await getUserId();
             if (!uid) { showMsg('注册失败：未获取到用户信息', 'err'); return; }
           }
 
-          if (isTeacher) {
-            // 邀请码校验（此时已登录，才有权查数据库）
-            // 归一化：全角转半角、去空白、统一大写（防手机键盘自动首字母大写/全角输入导致匹配失败）
-            const code = document.getElementById('reg-invite').value
-              .replace(/[！-～]/g, function (c) { return String.fromCharCode(c.charCodeAt(0) - 0xFEE0); })
-              .replace(/\s/g, '').toUpperCase();
-            if (!code) { showMsg('请输入教师邀请码', 'err'); return; }
-            // 诊断：先裸查（不带筛选），一次 F12 即可区分「RLS 拦截」与「码值不匹配」
-            const probe = await db.from('invite_codes').select('code');
-            console.log('邀请码诊断-裸查询:', probe.data ? ('可查 ' + probe.data.length + ' 行') : 'null（被 RLS 拦截或表不存在）', probe.error ? probe.error.message : '无错误');
-            const { data: cdata, error } = await db.from('invite_codes').select('*').eq('code', code);
-            console.log('邀请码查询结果:', JSON.stringify(cdata), error ? error.message : '无错误');
-            if (error) { showMsg('邀请码校验出错：' + error.message, 'err'); return; }
-            if (!cdata || cdata.length === 0) { showMsg('邀请码无效，请核对后重试', 'err'); return; }
-            if (cdata[0].used === true) { showMsg('邀请码已被使用，请联系课程负责人', 'err'); return; }
-            await db.from('invite_codes').update({ used: true }).eq('code', code);
-            await db.from('profiles').upsert({ id: uid, role: 'teacher' }, { onConflict: 'id' });
+          // 设置密码（新注册=设密码；忘记密码重走流程=重置密码）
+          const sp = await auth.setPassword(pwd).catch(function (e) { return { error: e }; });
+          if (sp && sp.error) {
+            showMsg('密码设置失败：' + (sp.error.message || '未知错误') + '，请调整密码后重试', 'err');
+            return;
+          }
+
+          // 资料写入：已有记录只更新姓名/班级，绝不覆盖 role（防止教师被降级）
+          const { data: existing } = await db.from('profiles').select('id, role').eq('id', uid);
+          if (existing && existing.length > 0) {
+            await db.from('profiles').update({ name: name, class_name: className || '' }).eq('id', uid);
           } else {
-            await db.from('profiles').upsert({ id: uid, role: 'student' }, { onConflict: 'id' });
+            await db.from('profiles').insert({ id: uid, role: 'student', name: name, class_name: className || '' });
           }
           await onLoggedIn();
         } catch (e) { showMsg('注册失败：' + e.message, 'err'); }
