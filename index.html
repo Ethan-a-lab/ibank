@@ -461,15 +461,20 @@
         <button class="lprimary" id="login-btn">登录</button>
       </div>
 
-      <!-- 注册面板（统一格式：手机号 + 验证码） -->
+      <!-- 注册面板 -->
       <div id="panel-register" class="hidden">
+        <div class="login-methods">
+          <button class="active" data-r="student">学生</button>
+          <button data-r="teacher">教师</button>
+        </div>
+        <div class="lfield hidden" id="reg-teacher-field"><input id="reg-invite" type="text" placeholder="教师邀请码（TZYHX开头）" /></div>
         <div class="lfield"><input id="reg-phone" type="tel" placeholder="手机号" /></div>
         <div class="lfield">
           <input id="reg-sms-code" type="text" placeholder="短信验证码" />
           <button id="reg-sms-btn" type="button">获取验证码</button>
         </div>
         <button class="lprimary" id="register-btn">注册并登录</button>
-        <p class="login-note">注册后默认学生身份，班级可在登录后选择，教师请用「教师认证」。</p>
+        <p class="login-note">学生注册后登录即可选班级；教师选「教师」并填邀请码。</p>
       </div>
 
       <div class="login-msg" id="login-msg"></div>
@@ -521,7 +526,6 @@
         <button id="login-top-btn">登录 / 注册</button>
         <span id="nav-account" class="hidden">
           <select id="nav-class"><option value="金融2303">金融2303</option><option value="金融2304">金融2304</option></select>
-          <button id="nav-teacher">教师认证</button>
         </span>
         <button id="logout-btn" class="hidden">退出登录</button>
       </div>
@@ -1740,7 +1744,6 @@
       const loginClose = document.getElementById('login-close');
       const navAccount = document.getElementById('nav-account');
       const navClass = document.getElementById('nav-class');
-      const navTeacher = document.getElementById('nav-teacher');
       const msgEl = document.getElementById('login-msg');
       let smsVerifyFn = null;   // 保存"待验证"的 verifyOtp 函数
 
@@ -1778,7 +1781,6 @@
         const role = uid ? await fetchRole(uid) : 'student';
         applyRole(role);
         navAccount.classList.remove('hidden');
-        navTeacher.style.display = (role === 'student') ? '' : 'none';
         navClass.style.display = (role === 'student') ? '' : 'none';
         showMsg('', '');
         if (role === 'teacher' || role === 'admin') loadRealStats();
@@ -1850,6 +1852,17 @@
         });
       });
 
+      // 注册身份：学生 / 教师
+      document.querySelectorAll('#panel-register .login-methods button').forEach(function (b) {
+        b.addEventListener('click', function () {
+          document.querySelectorAll('#panel-register .login-methods button').forEach(function (x) { x.classList.remove('active'); });
+          b.classList.add('active');
+          const r = b.getAttribute('data-r');
+          document.getElementById('reg-teacher-field').classList.toggle('hidden', r !== 'teacher');
+          showMsg('', '');
+        });
+      });
+
       // 登录验证码
       document.getElementById('login-sms-btn').addEventListener('click', async function () {
         const phone = document.getElementById('login-phone').value.trim();
@@ -1896,18 +1909,33 @@
         } catch (e) { showMsg('登录失败：' + e.message, 'err'); }
       });
 
-      // 注册（统一：手机号 + 验证码，默认学生身份）
+      // 注册
       document.getElementById('register-btn').addEventListener('click', async function () {
+        const isTeacher = !document.getElementById('reg-teacher-field').classList.contains('hidden');
         const token = document.getElementById('reg-sms-code').value.trim();
         showMsg('', '');
         if (!smsVerifyFn) { showMsg('请先获取验证码', 'err'); return; }
         if (!token) { showMsg('请输入验证码', 'err'); return; }
+
+        if (isTeacher) {
+          const code = document.getElementById('reg-invite').value.trim();
+          if (!code) { showMsg('请输入教师邀请码', 'err'); return; }
+          const { data: cdata } = await db.from('invite_codes').select('code').eq('code', code).eq('used', false);
+          if (!cdata || cdata.length === 0) { showMsg('邀请码无效或已被使用', 'err'); return; }
+        }
+
         try {
           const { data, error } = await smsVerifyFn(token);
           if (error) { showMsg('注册失败：' + error.message, 'err'); return; }
           const uid = (data && data.user) ? data.user.id : await getUserId();
           if (uid) {
-            await db.from('profiles').insert({ id: uid, role: 'student' });
+            if (isTeacher) {
+              const code = document.getElementById('reg-invite').value.trim();
+              await db.from('invite_codes').update({ used: true }).eq('code', code);
+              await db.from('profiles').insert({ id: uid, role: 'teacher' });
+            } else {
+              await db.from('profiles').insert({ id: uid, role: 'student' });
+            }
           }
           await onLoggedIn();
         } catch (e) { showMsg('注册失败：' + e.message, 'err'); }
@@ -1925,23 +1953,6 @@
           await db.from('profiles').update({ class_name: navClass.value }).eq('id', uid);
           showMsg('班级已更新为 ' + navClass.value, 'ok');
         } catch (e) { showMsg('更新失败：' + e.message, 'err'); }
-      });
-
-      // 教师认证（登录后，学生→教师，需邀请码）
-      navTeacher.addEventListener('click', async function () {
-        const code = prompt('请输入教师邀请码（TZYHX 开头）：');
-        if (!code) return;
-        const uid = await getUserId();
-        if (!uid) return;
-        try {
-          const c = code.trim();
-          const { data: cdata } = await db.from('invite_codes').select('code').eq('code', c).eq('used', false);
-          if (!cdata || cdata.length === 0) { alert('邀请码无效或已被使用'); return; }
-          await db.from('invite_codes').update({ used: true }).eq('code', c);
-          await db.from('profiles').update({ role: 'teacher' }).eq('id', uid);
-          alert('认证成功，已升级为教师！');
-          location.reload();
-        } catch (e) { alert('认证失败：' + e.message); }
       });
 
       checkSession();
