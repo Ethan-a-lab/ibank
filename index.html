@@ -1927,6 +1927,18 @@
 
       function showMsg(t, type) { msgEl.textContent = t; msgEl.className = 'login-msg ' + (type || ''); }
 
+      // 发送成功后 60 秒倒计时，期间防重复点击，结束后自动恢复可重发
+      function startSmsCooldown(btn, secs) {
+        let n = secs || 60;
+        btn.disabled = true;
+        btn.textContent = n + 's 后重发';
+        const timer = setInterval(function () {
+          n--;
+          if (n <= 0) { clearInterval(timer); btn.disabled = false; btn.textContent = '获取验证码'; return; }
+          btn.textContent = n + 's 后重发';
+        }, 1000);
+      }
+
       function applyRole(role) {
         const isAdmin = role === 'teacher' || role === 'admin';
         const tab = document.querySelector('.tab-btn[data-page="p-admin"]');
@@ -2090,26 +2102,30 @@
       document.getElementById('login-sms-btn').addEventListener('click', async function () {
         const phone = document.getElementById('login-phone').value.trim();
         if (!phone) { showMsg('请先输入手机号', 'err'); return; }
-        this.disabled = true;
+        const btn = this;
+        btn.disabled = true;
         try {
           const { data, error } = await auth.signInWithOtp({ phone: phone });
-          if (error) { showMsg('发送失败：' + error.message, 'err'); this.disabled = false; return; }
+          if (error) { showMsg('发送失败：' + error.message, 'err'); btn.disabled = false; return; }
           smsVerifyFn = function (token) { return data.verifyOtp({ token: token }); };
-          showMsg('验证码已发送', 'ok');
-        } catch (e) { showMsg('发送失败：' + e.message, 'err'); this.disabled = false; }
+          showMsg('验证码已发送，请注意查收（含骚扰拦截箱）', 'ok');
+          startSmsCooldown(btn);
+        } catch (e) { showMsg('发送失败：' + e.message, 'err'); btn.disabled = false; }
       });
 
       document.getElementById('reg-sms-btn').addEventListener('click', async function () {
         const phone = document.getElementById('reg-phone').value.trim();
         if (!phone) { showMsg('请先输入手机号', 'err'); return; }
-        this.disabled = true;
+        const btn = this;
+        btn.disabled = true;
         try {
           const nickname = document.getElementById('reg-name').value.trim() || '用户';
           const { data, error } = await auth.signUp({ phone: phone, nickname: nickname });
-          if (error) { showMsg('发送失败：' + error.message, 'err'); this.disabled = false; return; }
+          if (error) { showMsg('发送失败：' + error.message, 'err'); btn.disabled = false; return; }
           smsVerifyFn = function (token) { return data.verifyOtp({ token: token }); };
-          showMsg('验证码已发送', 'ok');
-        } catch (e) { showMsg('发送失败：' + e.message, 'err'); this.disabled = false; }
+          showMsg('验证码已发送，请注意查收（含骚扰拦截箱）', 'ok');
+          startSmsCooldown(btn);
+        } catch (e) { showMsg('发送失败：' + e.message, 'err'); btn.disabled = false; }
       });
 
       document.getElementById('login-btn').addEventListener('click', async function () {
