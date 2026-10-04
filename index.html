@@ -1874,18 +1874,18 @@
             // 邀请码校验（此时已登录，才有权查数据库）
             const code = document.getElementById('reg-invite').value.trim();
             if (!code) { showMsg('请输入教师邀请码', 'err'); return; }
-            const { data: cdata, error } = await db.from('invite_codes').select('code, used').eq('code', code);
+            const { data: cdata, error } = await db.from('invite_codes').select('*').eq('code', code);
             console.log('邀请码查询结果:', JSON.stringify(cdata), error ? error.message : '无错误');
             if (!cdata || cdata.length === 0 || cdata[0].used === true) {
-              await db.from('profiles').insert({ id: uid, role: 'student' });
+              await db.from('profiles').upsert({ id: uid, role: 'student' }, { onConflict: 'id' });
               showMsg('邀请码无效，已按学生身份注册', 'err');
               await onLoggedIn();
               return;
             }
             await db.from('invite_codes').update({ used: true }).eq('code', code);
-            await db.from('profiles').insert({ id: uid, role: 'teacher' });
+            await db.from('profiles').upsert({ id: uid, role: 'teacher' }, { onConflict: 'id' });
           } else {
-            await db.from('profiles').insert({ id: uid, role: 'student' });
+            await db.from('profiles').upsert({ id: uid, role: 'student' }, { onConflict: 'id' });
           }
           await onLoggedIn();
         } catch (e) { showMsg('注册失败：' + e.message, 'err'); }
