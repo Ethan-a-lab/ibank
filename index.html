@@ -2117,13 +2117,15 @@
         const phone = document.getElementById('reg-phone').value.trim();
         if (!phone) { showMsg('请先输入手机号', 'err'); return; }
         pwdResetFn = null; // 重新获取验证码 = 放弃进行中的改密流程
+        recoveryScheduled = false;
         const btn = this;
         btn.disabled = true;
         try {
           const nickname = document.getElementById('reg-name').value.trim() || '用户';
           const { data, error } = await auth.signUp({ phone: phone, nickname: nickname });
-          if (error) { showMsg('发送失败：' + error.message, 'err'); btn.disabled = false; return; }
+          if (error) { showMsg('发送失败：' + errText(error), 'err'); btn.disabled = false; return; }
           smsVerifyFn = function (token) { return data.verifyOtp({ token: token }); };
+          smsSentAt = Date.now();
           showMsg('验证码已发送，请注意查收（含骚扰拦截箱）', 'ok');
           startSmsCooldown(btn);
         } catch (e) { showMsg('发送失败：' + e.message, 'err'); btn.disabled = false; }
@@ -2156,6 +2158,33 @@
       }
 
       let pwdResetFn = null; // 改密流程第二步的回调（resetPasswordForEmail 返回的 updateUser）
+      let smsSentAt = 0;   // 第一条验证码的发送时间（用于避开每分钟 1 条的频控）
+      let recoveryScheduled = false; // 改密短信是否已安排发送（防重复点击触发多次）
+
+      // 频控安全地发送改密短信：距上条短信不足 62 秒则自动等待到点再发
+      function scheduleRecovery(phone) {
+        if (recoveryScheduled) return;
+        recoveryScheduled = true;
+        const waitMs = Math.max(0, 62000 - (Date.now() - smsSentAt));
+        if (waitMs > 1000) {
+          showMsg('密码需通过改密短信设置。因每分钟限发 1 条，系统约 ' + Math.ceil(waitMs / 1000) + ' 秒后自动发送，请稍候勿关页面…', 'ok');
+        } else {
+          showMsg('正在发送改密验证码…', 'ok');
+        }
+        setTimeout(async function () {
+          // SDK 缺陷：发信时它内部格式化号码，调重置接口时却传原值，裸 11 位号会被服务端正则拒绝
+          // 这里预先格式化好喂给它（其 formatPhone 幂等：已是 "+86 xxx" 的原样返回，不会重复加前缀）
+          const rp = await auth.resetPasswordForEmail(/^\+/.test(phone) ? phone : '+86 ' + phone).catch(function (e) { return { error: e }; });
+          if (!rp || rp.error || !rp.data || !rp.data.updateUser) {
+            recoveryScheduled = false;
+            showMsg('改密验证码发送失败：' + errText(rp && rp.error) + '。请再点一次「注册并登录」重试', 'err');
+            return;
+          }
+          pwdResetFn = rp.data.updateUser;
+          smsSentAt = Date.now(); // 改密短信同样占用每分钟 1 条的频控配额，重试时需以它为基准等待
+          showMsg('改密验证码已发送！把它填入验证码框（替换原来的码），再点一次「注册并登录」', 'ok');
+        }, waitMs);
+      }
 
       document.getElementById('register-btn').addEventListener('click', async function () {
         const name = document.getElementById('reg-name').value.trim();
@@ -2178,7 +2207,13 @@
             // 改密第二步：用「找回密码」短信完成重置（SDK 内部重置密码并自动登录）
             if (!token) { showMsg('请输入最新收到的改密验证码', 'err'); return; }
             const rs = await pwdResetFn({ nonce: token, password: pwd }).catch(function (e) { return { error: e }; });
-            if (rs && rs.error) { showMsg('密码重置失败：' + errText(rs.error), 'err'); return; }
+            if (rs && rs.error) {
+              // 验证码在校验环节已被消耗，旧回调作废：清空状态，下次点击重新走一遍改密流程（自动发新码）
+              pwdResetFn = null;
+              recoveryScheduled = false;
+              showMsg('密码重置失败：' + errText(rs.error) + '。请再点一次「注册并登录」，系统会自动重新发送改密验证码', 'err');
+              return;
+            }
             pwdResetFn = null;
             uid = await getUserId();
             if (!uid) { showMsg('密码重置失败：未获取到登录态', 'err'); return; }
@@ -2196,13 +2231,7 @@
             // —— 两种情况都走官方找回密码流程（resetPasswordForEmail）补设
             const chk = await auth.signInWithPassword({ phone: phone, password: pwd }).catch(function (e) { return { error: e }; });
             if (chk && chk.error) {
-              const rp = await auth.resetPasswordForEmail(phone).catch(function (e) { return { error: e }; });
-              if (!rp || rp.error || !rp.data || !rp.data.updateUser) {
-                showMsg('发送改密验证码失败：' + errText(rp && rp.error), 'err');
-                return;
-              }
-              pwdResetFn = rp.data.updateUser;
-              showMsg('密码需通过改密短信设置：新的验证码已发送，填入后再点一次「注册并登录」', 'ok');
+              scheduleRecovery(phone);
               return;
             }
           }
