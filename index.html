@@ -1874,8 +1874,9 @@
             // 邀请码校验（此时已登录，才有权查数据库）
             const code = document.getElementById('reg-invite').value.trim();
             if (!code) { showMsg('请输入教师邀请码', 'err'); return; }
-            const { data: cdata } = await db.from('invite_codes').select('code').eq('code', code).eq('used', false);
-            if (!cdata || cdata.length === 0) {
+            const { data: cdata, error } = await db.from('invite_codes').select('code, used').eq('code', code);
+            console.log('邀请码查询结果:', JSON.stringify(cdata), error ? error.message : '无错误');
+            if (!cdata || cdata.length === 0 || cdata[0].used === true) {
               await db.from('profiles').insert({ id: uid, role: 'student' });
               showMsg('邀请码无效，已按学生身份注册', 'err');
               await onLoggedIn();
