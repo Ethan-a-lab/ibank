@@ -1863,24 +1863,28 @@
         showMsg('', '');
         if (!smsVerifyFn) { showMsg('请先获取验证码', 'err'); return; }
         if (!token) { showMsg('请输入验证码', 'err'); return; }
-        if (isTeacher) {
-          const code = document.getElementById('reg-invite').value.trim();
-          if (!code) { showMsg('请输入教师邀请码', 'err'); return; }
-          const { data: cdata } = await db.from('invite_codes').select('code').eq('code', code).eq('used', false);
-          if (!cdata || cdata.length === 0) { showMsg('邀请码无效或已被使用', 'err'); return; }
-        }
         try {
+          // 先验证验证码、完成注册（变成已登录用户）
           const { data, error } = await smsVerifyFn(token);
           if (error) { showMsg('注册失败：' + error.message, 'err'); return; }
           const uid = (data && data.user) ? data.user.id : await getUserId();
-          if (uid) {
-            if (isTeacher) {
-              const code = document.getElementById('reg-invite').value.trim();
-              await db.from('invite_codes').update({ used: true }).eq('code', code);
-              await db.from('profiles').insert({ id: uid, role: 'teacher' });
-            } else {
+          if (!uid) { showMsg('注册失败：未获取到用户信息', 'err'); return; }
+
+          if (isTeacher) {
+            // 邀请码校验（此时已登录，才有权查数据库）
+            const code = document.getElementById('reg-invite').value.trim();
+            if (!code) { showMsg('请输入教师邀请码', 'err'); return; }
+            const { data: cdata } = await db.from('invite_codes').select('code').eq('code', code).eq('used', false);
+            if (!cdata || cdata.length === 0) {
               await db.from('profiles').insert({ id: uid, role: 'student' });
+              showMsg('邀请码无效，已按学生身份注册', 'err');
+              await onLoggedIn();
+              return;
             }
+            await db.from('invite_codes').update({ used: true }).eq('code', code);
+            await db.from('profiles').insert({ id: uid, role: 'teacher' });
+          } else {
+            await db.from('profiles').insert({ id: uid, role: 'student' });
           }
           await onLoggedIn();
         } catch (e) { showMsg('注册失败：' + e.message, 'err'); }
