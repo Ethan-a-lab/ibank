@@ -1614,4 +1614,292 @@
         title.textContent = STEPS[si].t;
         desc.textContent = STEPS[si].d;
         prev.disabled = si === 0;
-        next.textContent = si ===
+        next.textContent = si === STEPS.length - 1 ? '完成上市' : '下一步';
+        next.disabled = false;
+      }
+      prev.addEventListener('click', function () { if (si > 0) { si--; render(); } });
+      next.addEventListener('click', function () {
+        if (si < STEPS.length - 1) { si++; render(); }
+        else { title.textContent = '🎉 上市完成'; desc.textContent = '你已完成从改制到上市的完整流程，掌握了 IPO 各环节的业务逻辑。'; next.disabled = true; }
+      });
+      render();
+    })();
+
+    // ===== 估值实验 =====
+    (function () {
+      const profit = document.getElementById('val-profit');
+      const gEl = document.getElementById('val-g');
+      const rEl = document.getElementById('val-r');
+      const peEl = document.getElementById('val-pe');
+      const result = document.getElementById('val-result');
+      function fmt(n) { return Math.round(n).toLocaleString('zh-CN'); }
+      function calc() {
+        const p = parseFloat(profit.value) || 0;
+        const g = (parseFloat(gEl.value) || 0) / 100;
+        const r = (parseFloat(rEl.value) || 0) / 100;
+        const pe = parseFloat(peEl.value) || 0;
+        const peVal = p * pe;
+        let dcfVal = 0, dcfNote = '';
+        if (r > g) { dcfVal = p * (1 + g) / (r - g); dcfNote = '（Gordon 模型，FCF≈净利润）'; }
+        else { dcfNote = '需满足折现率 r > 增长率 g，否则 DCF 无意义'; }
+        const higher = peVal > dcfVal ? 'PE 估值更高' : (dcfVal > peVal ? 'DCF 估值更高' : '两者接近');
+        result.innerHTML =
+          '<div class="val-item"><div class="m">市盈率估值（PE = ' + pe + 'x）</div><div class="v">' + fmt(peVal) + ' 万元</div><div class="note">净利润 × PE 倍数</div></div>' +
+          '<div class="val-item"><div class="m">现金流折现估值（DCF）</div><div class="v">' + fmt(dcfVal) + ' 万元</div><div class="note">g = ' + (g * 100) + '%，r = ' + (r * 100) + '% ' + dcfNote + '</div></div>' +
+          '<div class="val-item"><div class="m">对比</div><div class="v" style="font-size:16px;">' + higher + '</div><div class="note">调整 g、r 观察估值如何变化</div></div>';
+      }
+      [profit, gEl, rEl, peEl].forEach(function (el) { el.addEventListener('input', calc); });
+      calc();
+    })();
+
+    // ===== 课程知识图谱（知识树 · 9 章） =====
+    (function () {
+      const box = document.getElementById('ktree');
+      const CHAPTERS = [
+        { no: '第1章', title: '投资银行概述', target: 'p-qa', zhong: '投资银行的定义与业务范围；与商业银行的异同；承销、并购、证券交易等主要业务', nan: '投资银行功能的经济学解释（信息不对称、委托代理理论）' },
+        { no: '第2章', title: '企业融资方案设计', target: 'p-qa', zhong: '融资需求分析；股权融资与债权融资的权衡；融资方式选择', nan: '融资需求预测的方法（销售百分比法、回归分析法）' },
+        { no: '第3章', title: '股份有限公司与首次公开发行', target: 'p-ipo', zhong: '股份有限公司的设立；IPO 流程；股票发行方式与发行定价', nan: '股票发行定价方法（市盈率法、现金流折现、市场竞价）；借壳上市' },
+        { no: '第4章', title: '上市公司再融资', target: 'p-case', zhong: '增发、配股、优先股、可转换公司债券、可交换公司债券', nan: '可转债与可交换债的区别与定价；再融资的承销风险' },
+        { no: '第5章', title: '债券的发行与承销', target: 'p-case', zhong: '债券基础知识；国债、地方政府债、金融债、公司信用类债券的发行与承销', nan: '债券定价（票面利率的确定）；信用评级' },
+        { no: '第6章', title: '资产证券化', target: 'p-qa', zhong: '资产证券化的概念与交易结构；主要类型（MBS、ABS 等）', nan: '资产证券化的收益与风险分析；信用增级与分层结构' },
+        { no: '第7章', title: '公司并购', target: 'p-case', zhong: '并购的概念与类型；并购动因；一般操作程序；支付方式', nan: '杠杆收购（LBO）；反收购策略；要约收购' },
+        { no: '第8章', title: '投资银行的风险管理', target: 'p-sizheng', zhong: '投资银行的风险来源（市场、信用、操作、流动性风险）', nan: '风险管理的方法（VaR 等量化方法）' },
+        { no: '第9章', title: '投资银行的监管', target: 'p-sizheng', zhong: '监管的目标与原则；监管模式（集中型、自律型）', nan: '对商业银行与证券公司投行业务的差异化监管' }
+      ];
+      let html = '<div class="ktree-root">投资银行学<span>课程知识框架 · 9 章</span></div><div class="ktree-list">';
+      CHAPTERS.forEach(function (c) {
+        html += '<div class="ktree-item" data-page="' + c.target + '" style="cursor:pointer;">';
+        html += '<div class="ktree-title"><span class="ktree-no">' + c.no + '</span>' + c.title + '</div>';
+        html += '<div class="ktree-pt"><b>重点</b>　' + c.zhong + '</div>';
+        html += '<div class="ktree-pt nan"><b>难点</b>　' + c.nan + '</div>';
+        html += '</div>';
+      });
+      html += '</div>';
+      box.innerHTML = html;
+      box.querySelectorAll('.ktree-item').forEach(function (n) {
+        n.addEventListener('click', function () {
+          const t = n.getAttribute('data-page');
+          const btn = document.querySelector('.tab-btn[data-page="' + t + '"]');
+          if (btn) btn.click();
+        });
+      });
+    })();
+  </script>
+
+  <script>
+    // ===== 登录注册系统（CloudBase Auth v2） =====
+    (function () {
+      const app = cloudbase.init({
+        env: 'ibank-d5gq5pejl54eb2748',
+        region: 'ap-shanghai',
+        accessKey: 'eyJhbGciOiJSUzI1NiIsImtpZCI6IjRjNTAzMTA1LTJlOWItNDNiNC04ZjJiLWVlZGExOTAzMjVmZCJ9.eyJpc3MiOiJodHRwczovL2liYW5rLWQ1Z3E1cGVqbDU0ZWIyNzQ4LmFwLXNoYW5naGFpLnRjYi1hcGkudGVuY2VudGNsb3VkYXBpLmNvbSIsInN1YiI6ImFub24iLCJhdWQiOiJpYmFuay1kNWdxNXBlamw1NGViMjc0OCIsImV4cCI6NDA5NDc3MTY0NSwiaWF0IjoxNzkxMDg4NDQ1LCJub25jZSI6IjZJS1NFVDlWUXFpbXpqVzVNc0djQlEiLCJhdF9oYXNoIjoiNklLU0VUOVZRcWltempXNU1zR2NCUSIsIm5hbWUiOiJBbm9ueW1vdXMiLCJzY29wZSI6ImFub255bW91cyIsInByb2plY3RfaWQiOiJpYmFuay1kNWdxNXBlamw1NGViMjc0OCIsIm1ldGEiOnsicGxhdGZvcm0iOiJQdWJsaXNoYWJsZUtleSJ9LCJyb2xlIjoiYW5vbiIsImlzX2Fub255bW91cyI6dHJ1ZSwiYXBwX21ldGFkYXRhIjp7InByb3ZpZGVyIjoiYW5vbnltb3VzIiwicHJvdmlkZXJzIjpbImFub255bW91cyJdfSwidXNlcl9tZXRhZGF0YSI6eyJuYW1lIjoiQW5vbnltb3VzIn0sInVzZXJfdHlwZSI6IiIsImNsaWVudF90eXBlIjoiY2xpZW50X3VzZXIiLCJpc19zeXN0ZW1fYWRtaW4iOmZhbHNlfQ.V0BoXCLEhWRnvthNUSlBt3P6z-I4l90Kk6tH4rWx_kvxB2mNEU5iFVwfE-GbOeXl8fJzFvvzO0OGOlMj8O5vrJYfwKEbcyAEy5cTN5XZzicBP64P5OW0RiBKLcpAvs5uVxfMPVUb3lJAFuL6GwcR3vgiFYSmHdOStE-KOQ2YoXOiiHyx8iYcmMK6ahYupRhUtG-mXVWVivE-rnQyh83dnIxVfoZ37pBn9F3QYD7GBUV_YPlMwn2DpXw5fGXflX4K7SSP28ITrC30B45LwWzcIGQ-1yCq6B5wGAVciecT4ZiV6zWMBe-RQ95CATAedkXKXMzA0yZrmYX--6kHHEIxHQ',
+        auth: { detectSessionInUrl: true }
+      });
+      const auth = app.auth;
+      const db = app.rdb();
+
+      const overlay = document.getElementById('login-overlay');
+      const logoutBtn = document.getElementById('logout-btn');
+      const loginTopBtn = document.getElementById('login-top-btn');
+      const loginClose = document.getElementById('login-close');
+      const navAccount = document.getElementById('nav-account');
+      const navClass = document.getElementById('nav-class');
+      const msgEl = document.getElementById('login-msg');
+      let smsVerifyFn = null;
+
+      function showMsg(t, type) { msgEl.textContent = t; msgEl.className = 'login-msg ' + (type || ''); }
+
+      function applyRole(role) {
+        const isAdmin = role === 'teacher' || role === 'admin';
+        const tab = document.querySelector('.tab-btn[data-page="p-admin"]');
+        const card = document.querySelector('.home-card[data-page="p-admin"]');
+        if (tab) tab.style.display = isAdmin ? '' : 'none';
+        if (card) card.style.display = isAdmin ? '' : 'none';
+        if (!isAdmin && document.getElementById('p-admin').classList.contains('active')) {
+          document.querySelector('.tab-btn[data-page="p-home"]').click();
+        }
+      }
+
+      async function getUserId() {
+        try { const { data } = await auth.getSession(); return data && data.session && data.session.user ? data.session.user.id : null; }
+        catch (e) { return null; }
+      }
+
+      async function fetchRole(uid) {
+        try {
+          const { data } = await db.from('profiles').select('role').eq('id', uid);
+          return data && data.length > 0 && data[0].role ? data[0].role : 'student';
+        } catch (e) { return 'student'; }
+      }
+
+      async function onLoggedIn() {
+        overlay.classList.add('hidden');
+        loginTopBtn.classList.add('hidden');
+        logoutBtn.classList.remove('hidden');
+        const uid = await getUserId();
+        const role = uid ? await fetchRole(uid) : 'student';
+        applyRole(role);
+        navAccount.classList.remove('hidden');
+        navClass.style.display = (role === 'student') ? '' : 'none';
+        showMsg('', '');
+        if (role === 'teacher' || role === 'admin') loadRealStats();
+      }
+
+      async function loadRealStats() {
+        try {
+          const { data: students } = await db.from('profiles').select('role').eq('role', 'student');
+          const { data: c1 } = await db.from('profiles').select('role').eq('class_name', '金融2303');
+          const { data: c2 } = await db.from('profiles').select('role').eq('class_name', '金融2304');
+          const { data: teachers } = await db.from('profiles').select('role').eq('role', 'teacher');
+          const { data: used } = await db.from('invite_codes').select('code').eq('used', true);
+          const set = function (id, v) { const el = document.getElementById(id); if (el) el.textContent = v; };
+          set('real-students', students ? students.length : 0);
+          set('real-c1', c1 ? c1.length : 0);
+          set('real-c2', c2 ? c2.length : 0);
+          set('real-teachers', teachers ? teachers.length : 0);
+          set('real-used', used ? used.length : 0);
+        } catch (e) { console.log('加载实时数据失败', e); }
+      }
+
+      const adminTab = document.querySelector('.tab-btn[data-page="p-admin"]');
+      if (adminTab) adminTab.addEventListener('click', loadRealStats);
+
+      async function checkSession() {
+        const uid = await getUserId();
+        if (uid) {
+          await onLoggedIn();
+        } else {
+          applyRole('student');
+          overlay.classList.add('hidden');
+          loginTopBtn.classList.remove('hidden');
+          logoutBtn.classList.add('hidden');
+          navAccount.classList.add('hidden');
+        }
+      }
+
+      logoutBtn.addEventListener('click', async function () {
+        try { await auth.signOut(); } catch (e) {}
+        location.reload();
+      });
+
+      document.querySelectorAll('.login-tabs button').forEach(function (b) {
+        b.addEventListener('click', function () {
+          document.querySelectorAll('.login-tabs button').forEach(function (x) { x.classList.remove('active'); });
+          b.classList.add('active');
+          const m = b.getAttribute('data-mode');
+          document.getElementById('panel-login').classList.toggle('hidden', m !== 'login');
+          document.getElementById('panel-register').classList.toggle('hidden', m !== 'register');
+          showMsg('', '');
+        });
+      });
+
+      document.querySelectorAll('#panel-login .login-methods button').forEach(function (b) {
+        b.addEventListener('click', function () {
+          document.querySelectorAll('#panel-login .login-methods button').forEach(function (x) { x.classList.remove('active'); });
+          b.classList.add('active');
+          const m = b.getAttribute('data-m');
+          document.getElementById('login-pwd-field').classList.toggle('hidden', m !== 'password');
+          document.getElementById('login-sms-field').classList.toggle('hidden', m !== 'sms');
+          showMsg('', '');
+        });
+      });
+
+      document.querySelectorAll('#panel-register .login-methods button').forEach(function (b) {
+        b.addEventListener('click', function () {
+          document.querySelectorAll('#panel-register .login-methods button').forEach(function (x) { x.classList.remove('active'); });
+          b.classList.add('active');
+          const r = b.getAttribute('data-r');
+          document.getElementById('reg-teacher-field').classList.toggle('hidden', r !== 'teacher');
+          showMsg('', '');
+        });
+      });
+
+      document.getElementById('login-sms-btn').addEventListener('click', async function () {
+        const phone = document.getElementById('login-phone').value.trim();
+        if (!phone) { showMsg('请先输入手机号', 'err'); return; }
+        this.disabled = true;
+        try {
+          const { data, error } = await auth.signInWithOtp({ phone: phone });
+          if (error) { showMsg('发送失败：' + error.message, 'err'); this.disabled = false; return; }
+          smsVerifyFn = function (token) { return data.verifyOtp({ token: token }); };
+          showMsg('验证码已发送', 'ok');
+        } catch (e) { showMsg('发送失败：' + e.message, 'err'); this.disabled = false; }
+      });
+
+      document.getElementById('reg-sms-btn').addEventListener('click', async function () {
+        const phone = document.getElementById('reg-phone').value.trim();
+        if (!phone) { showMsg('请先输入手机号', 'err'); return; }
+        this.disabled = true;
+        try {
+          const { data, error } = await auth.signUp({ phone: phone, nickname: '用户' });
+          if (error) { showMsg('发送失败：' + error.message, 'err'); this.disabled = false; return; }
+          smsVerifyFn = function (token) { return data.verifyOtp({ token: token }); };
+          showMsg('验证码已发送', 'ok');
+        } catch (e) { showMsg('发送失败：' + e.message, 'err'); this.disabled = false; }
+      });
+
+      document.getElementById('login-btn').addEventListener('click', async function () {
+        const phone = document.getElementById('login-phone').value.trim();
+        const isSms = !document.getElementById('login-sms-field').classList.contains('hidden');
+        showMsg('', '');
+        try {
+          if (isSms) {
+            const token = document.getElementById('login-sms-code').value.trim();
+            if (!smsVerifyFn) { showMsg('请先获取验证码', 'err'); return; }
+            const { error } = await smsVerifyFn(token);
+            if (error) { showMsg('登录失败：' + error.message, 'err'); return; }
+          } else {
+            const password = document.getElementById('login-password').value;
+            const { error } = await auth.signInWithPassword({ phone: phone, password: password });
+            if (error) { showMsg('登录失败：' + error.message, 'err'); return; }
+          }
+          await onLoggedIn();
+        } catch (e) { showMsg('登录失败：' + e.message, 'err'); }
+      });
+
+      document.getElementById('register-btn').addEventListener('click', async function () {
+        const isTeacher = !document.getElementById('reg-teacher-field').classList.contains('hidden');
+        const token = document.getElementById('reg-sms-code').value.trim();
+        showMsg('', '');
+        if (!smsVerifyFn) { showMsg('请先获取验证码', 'err'); return; }
+        if (!token) { showMsg('请输入验证码', 'err'); return; }
+        if (isTeacher) {
+          const code = document.getElementById('reg-invite').value.trim();
+          if (!code) { showMsg('请输入教师邀请码', 'err'); return; }
+          const { data: cdata } = await db.from('invite_codes').select('code').eq('code', code).eq('used', false);
+          if (!cdata || cdata.length === 0) { showMsg('邀请码无效或已被使用', 'err'); return; }
+        }
+        try {
+          const { data, error } = await smsVerifyFn(token);
+          if (error) { showMsg('注册失败：' + error.message, 'err'); return; }
+          const uid = (data && data.user) ? data.user.id : await getUserId();
+          if (uid) {
+            if (isTeacher) {
+              const code = document.getElementById('reg-invite').value.trim();
+              await db.from('invite_codes').update({ used: true }).eq('code', code);
+              await db.from('profiles').insert({ id: uid, role: 'teacher' });
+            } else {
+              await db.from('profiles').insert({ id: uid, role: 'student' });
+            }
+          }
+          await onLoggedIn();
+        } catch (e) { showMsg('注册失败：' + e.message, 'err'); }
+      });
+
+      loginTopBtn.addEventListener('click', function () { overlay.classList.remove('hidden'); });
+      loginClose.addEventListener('click', function () { overlay.classList.add('hidden'); });
+
+      navClass.addEventListener('change', async function () {
+        const uid = await getUserId();
+        if (!uid) return;
+        try {
+          await db.from('profiles').update({ class_name: navClass.value }).eq('id', uid);
+          showMsg('班级已更新为 ' + navClass.value, 'ok');
+        } catch (e) { showMsg('更新失败：' + e.message, 'err'); }
+      });
+
+      checkSession();
+    })();
+  </script>
+</body>
+</html>
