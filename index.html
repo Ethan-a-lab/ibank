@@ -452,6 +452,8 @@
     .um-act.demote { color: #b45309; }
     .um-act.demote:hover { background: #fffbeb; }
     .um-act:disabled { opacity: .45; cursor: not-allowed; }
+    .um-me { font-size: 11px; font-weight: 700; color: #2563eb; background: #eff6ff; border-radius: 4px; padding: 1px 5px; margin-left: 4px; vertical-align: 1px; }
+    .um-mine-note { font-size: 12px; color: #94a3b8; padding-right: 8px; }
     .um-empty { padding: 18px 4px; font-size: 13px; color: #94a3b8; text-align: center; }
 
     /* ===== 首页 Hero（左对齐 + 右侧 AI 答疑预览卡） ===== */
@@ -1967,11 +1969,14 @@
         } catch (e) { return { role: 'student', name: '' }; }
       }
 
+      let currentUid = null; // 当前登录用户 uid：用户管理列表里用来识别"自己"，禁止对自己做角色操作
+
       async function onLoggedIn() {
         overlay.classList.add('hidden');
         loginTopBtn.classList.add('hidden');
         logoutBtn.classList.remove('hidden');
         const uid = await getUserId();
+        currentUid = uid;
         const prof = uid ? await ensureProfile(uid) : { role: 'student', name: '' };
         const role = prof.role;
         const isT = role === 'teacher' || role === 'admin';
@@ -2027,14 +2032,17 @@
         if (list.length === 0) { box.innerHTML = '<div class="um-empty">暂无匹配用户</div>'; return; }
         box.innerHTML = list.map(function (r) {
           const t = isT(r);
+          const mine = String(r.id) === String(currentUid); // 自己那一行：只展示，不给操作按钮，防止误把自己降级锁死
           const nm = r.name ? esc(r.name) : '<span style="color:#94a3b8;">（未填姓名）</span>';
           const cls = esc(r.class_name || '未选班级') + ' · ' + String(r.id || '').slice(-6);
           return '<div class="um-row">'
-            + '<span class="um-name">' + nm + '</span>'
+            + '<span class="um-name">' + nm + (mine ? '<span class="um-me">我</span>' : '') + '</span>'
             + '<span class="um-cls">' + cls + '</span>'
             + '<span class="um-badge ' + (t ? 'teacher' : 'student') + '">' + (t ? '教师' : '学生') + '</span>'
-            + '<button class="um-act ' + (t ? 'demote' : '') + '" data-uid="' + esc(r.id) + '" data-role="' + (t ? 'student' : 'teacher') + '">'
-            + (t ? '收为学生' : '设为教师') + '</button>'
+            + (mine
+                ? '<span class="um-mine-note">当前登录，不可操作</span>'
+                : '<button class="um-act ' + (t ? 'demote' : '') + '" data-uid="' + esc(r.id) + '" data-role="' + (t ? 'student' : 'teacher') + '">'
+                  + (t ? '收为学生' : '设为教师') + '</button>')
             + '</div>';
         }).join('');
       }
@@ -2044,6 +2052,7 @@
         if (!btn || btn.disabled) return;
         const uid = btn.getAttribute('data-uid');
         const role = btn.getAttribute('data-role');
+        if (String(uid) === String(currentUid)) { alert('不能修改自己的角色。如需调整，请由其他教师操作。'); return; }
         const who = (btn.parentElement.querySelector('.um-name') || {}).textContent || '该用户';
         if (!confirm('确定将「' + who + '」' + (role === 'teacher' ? '设为教师' : '收为学生') + '吗？')) return;
         btn.disabled = true;
