@@ -369,6 +369,10 @@
     .login-note { font-size: 12px; color: var(--dim); margin-top: 10px; line-height: 1.5; }
     #nav-account { display: inline-flex; align-items: center; gap: 6px; }
     #nav-class { height: 34px; padding: 0 8px; border-radius: 999px; border: 1px solid var(--panel-border); background: transparent; color: var(--muted); font-size: 13px; cursor: pointer; }
+    #nav-user { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; }
+    #nav-user-name { font-weight: 600; color: var(--text); }
+    #nav-user-role { font-style: normal; font-size: 11px; font-weight: 700; padding: 3px 9px; border-radius: 999px; background: rgba(148,163,184,.18); color: var(--muted); }
+    #nav-user-role.teacher { background: rgba(99,102,241,.18); color: #818cf8; }
     #nav-teacher { height: 34px; padding: 0 12px; border-radius: 999px; border: 1px solid var(--panel-border); background: transparent; color: var(--muted); font-size: 13px; cursor: pointer; white-space: nowrap; }
     #nav-teacher:hover { color: var(--text); border-color: var(--accent); }
     #login-top-btn { height: 34px; padding: 0 12px; border-radius: 999px; border: 1px solid var(--accent); background: transparent; color: var(--accent); font-size: 13px; cursor: pointer; white-space: nowrap; }
@@ -585,7 +589,7 @@
           <button id="login-sms-btn" type="button">获取验证码</button>
         </div>
         <button class="lprimary" id="login-btn">登录</button>
-        <p class="login-note">忘记密码？点上方「注册」，用手机验证码即可重设密码。</p>
+        <p class="login-note">师生同一登录入口，登录后系统按身份自动进入学生端 / 教师端。<br>忘记密码？点上方「注册」，用手机验证码即可重设密码。</p>
       </div>
 
       <!-- 注册面板 -->
@@ -657,6 +661,7 @@
         <button class="tab-btn" data-page="p-admin">后台统计</button>
         <button id="login-top-btn">登录 / 注册</button>
         <span id="nav-account" class="hidden">
+          <span id="nav-user"><b id="nav-user-name"></b><i id="nav-user-role"></i></span>
           <select id="nav-class"><option value="金融2303">金融2303</option><option value="金融2304">金融2304</option></select>
         </span>
         <button id="logout-btn" class="hidden">退出登录</button>
@@ -1941,13 +1946,13 @@
       // 自愈：登录后发现 profiles 无记录（老账号/后台误删），自动补建学生行
       async function ensureProfile(uid) {
         try {
-          const { data } = await db.from('profiles').select('id, role').eq('id', uid);
+          const { data } = await db.from('profiles').select('id, role, name').eq('id', uid);
           if (!data || data.length === 0) {
             await db.from('profiles').insert({ id: uid, role: 'student', name: '', class_name: '' });
-            return 'student';
+            return { role: 'student', name: '' };
           }
-          return data[0].role || 'student';
-        } catch (e) { return 'student'; }
+          return { role: data[0].role || 'student', name: data[0].name || '' };
+        } catch (e) { return { role: 'student', name: '' }; }
       }
 
       async function onLoggedIn() {
@@ -1955,12 +1960,19 @@
         loginTopBtn.classList.add('hidden');
         logoutBtn.classList.remove('hidden');
         const uid = await getUserId();
-        const role = uid ? await ensureProfile(uid) : 'student';
+        const prof = uid ? await ensureProfile(uid) : { role: 'student', name: '' };
+        const role = prof.role;
+        const isT = role === 'teacher' || role === 'admin';
         applyRole(role);
         navAccount.classList.remove('hidden');
+        // 导航栏身份标识：姓名 + 身份徽章（教师登录后一眼确认自己在教师端）
+        document.getElementById('nav-user-name').textContent = prof.name || (isT ? '老师' : '同学');
+        const roleEl = document.getElementById('nav-user-role');
+        roleEl.textContent = isT ? '教师' : '学生';
+        roleEl.className = isT ? 'teacher' : '';
         navClass.style.display = (role === 'student') ? '' : 'none';
         showMsg('', '');
-        if (role === 'teacher' || role === 'admin') loadRealStats();
+        if (isT) loadRealStats();
       }
 
       async function loadRealStats() {
