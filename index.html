@@ -18,7 +18,9 @@
       --accent3: #8b5cf6;
       --good: #22d3ee;
       --before: #94a3b8;
-      --radius: 20px;
+      --radius: 14px;
+      --shadow-sm: 0 2px 10px rgba(15, 23, 42, 0.05);
+      --shadow-md: 0 14px 40px rgba(15, 23, 42, 0.09);
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
     html { scroll-behavior: smooth; }
@@ -73,6 +75,7 @@
     .panel {
       background: var(--panel); border: 1px solid var(--panel-border);
       border-radius: var(--radius); backdrop-filter: blur(14px); padding: 26px;
+      box-shadow: var(--shadow-sm);
     }
     .section-title { display: flex; align-items: center; gap: 10px; font-size: 19px; font-weight: 700; margin-bottom: 4px; }
     .section-title .bar { width: 4px; height: 20px; border-radius: 2px; background: linear-gradient(180deg, #22d3ee, #6366f1); }
@@ -278,9 +281,9 @@
     @media (max-width: 820px) { .sim-grid { grid-template-columns: 1fr; } }
 
     /* ===== 首页模块卡片 ===== */
-    .home-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(168px, 1fr)); gap: 14px; }
-    .home-card { background: rgba(255,255,255,0.03); border: 1px solid var(--panel-border); border-radius: 14px; padding: 18px 16px; cursor: pointer; transition: 0.2s; }
-    .home-card:hover { transform: translateY(-3px); border-color: rgba(99,102,241,0.5); }
+    .home-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 14px; }
+    .home-card { background: rgba(255,255,255,0.03); border: 1px solid var(--panel-border); border-radius: 14px; padding: 20px 18px; cursor: pointer; transition: 0.2s; }
+    .home-card:hover { transform: translateY(-3px); border-color: rgba(99,102,241,0.5); box-shadow: var(--shadow-md); }
     .home-card .ico { width: 40px; height: 40px; border-radius: 11px; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg,#6366f1,#8b5cf6); font-size: 19px; margin-bottom: 10px; }
     .home-card h4 { font-size: 14.5px; }
     .home-card p { font-size: 12px; color: var(--muted); margin-top: 3px; }
@@ -429,11 +432,112 @@
     .admin-tier .lvl { font-size: 12px; font-weight: 700; color: #2563eb; margin-bottom: 6px; }
     .admin-tier p { font-size: 12.5px; color: #64748b; line-height: 1.6; }
 
+    /* ===== 首页 Hero（左对齐 + 右侧 AI 答疑预览卡） ===== */
+    .hero2 { display: grid; grid-template-columns: 1.05fr 0.95fr; gap: 34px; align-items: center; padding: 46px 40px; }
+    .eyebrow { display: inline-block; font-size: 12.5px; font-weight: 600; letter-spacing: 2px; color: #6366f1;
+      background: rgba(99,102,241,0.12); border: 1px solid rgba(99,102,241,0.3); padding: 5px 14px; border-radius: 999px; margin-bottom: 18px; }
+    .hero2 h1 { font-size: 40px; line-height: 1.22; letter-spacing: -0.5px; }
+    .hero2 h1 .grad { background: linear-gradient(135deg, #0891b2, #6366f1); -webkit-background-clip: text; background-clip: text; color: transparent; }
+    .hero2-desc { color: var(--muted); font-size: 15px; margin-top: 14px; max-width: 520px; line-height: 1.85; }
+    .hero2-actions { display: flex; gap: 12px; margin-top: 26px; flex-wrap: wrap; }
+    .hbtn { height: 44px; padding: 0 22px; border-radius: 11px; font-size: 14.5px; font-weight: 600; cursor: pointer; transition: 0.2s; border: 1px solid transparent; }
+    .hbtn.primary { background: linear-gradient(135deg, #6366f1, #8b5cf6); color: #fff; box-shadow: 0 6px 20px rgba(99,102,241,0.35); }
+    .hbtn.primary:hover { transform: translateY(-2px); box-shadow: 0 10px 26px rgba(99,102,241,0.45); }
+    .hbtn.ghost { background: transparent; color: var(--text); border-color: var(--panel-border); }
+    .hbtn.ghost:hover { border-color: var(--accent); color: var(--accent); }
+    .hero2-stats { display: flex; gap: 36px; margin-top: 34px; padding-top: 24px; border-top: 1px solid var(--panel-border); flex-wrap: wrap; }
+    .hero2-stats strong { display: block; font-size: 26px; font-weight: 800;
+      background: linear-gradient(135deg, #0891b2, #6366f1); -webkit-background-clip: text; background-clip: text; color: transparent; }
+    .hero2-stats span { font-size: 12.5px; color: var(--muted); }
+
+    /* Hero 右侧：AI 答疑预览卡 */
+    .preview-card { background: var(--panel-solid); border: 1px solid var(--panel-border); border-radius: 16px;
+      box-shadow: 0 18px 50px rgba(15,23,42,0.10); overflow: hidden; }
+    .pv-head { display: flex; align-items: center; gap: 10px; padding: 13px 16px; border-bottom: 1px solid var(--panel-border); background: rgba(99,102,241,0.05); }
+    .pv-dot { width: 9px; height: 9px; border-radius: 50%; background: #22c55e; box-shadow: 0 0 0 4px rgba(34,197,94,0.18); flex: 0 0 auto; }
+    .pv-head b { font-size: 14px; }
+    .pv-badge { margin-left: auto; font-size: 11.5px; color: #6366f1; background: rgba(99,102,241,0.12); padding: 3px 10px; border-radius: 999px; white-space: nowrap; }
+    .pv-body { padding: 16px; display: flex; flex-direction: column; gap: 9px; }
+    .pv-body .msg { max-width: 92%; }
+    .pv-cursor { display: inline-block; width: 8px; height: 15px; margin-left: 3px; vertical-align: -2px;
+      background: #6366f1; border-radius: 2px; animation: pvBlink 1s steps(2) infinite; }
+    @keyframes pvBlink { 50% { opacity: 0; } }
+    .pv-foot { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 12px 16px; border-top: 1px solid var(--panel-border); }
+    .pv-foot span { font-size: 12px; color: var(--dim); }
+    .pv-foot button { border: none; background: transparent; color: #6366f1; font-size: 13px; font-weight: 600; cursor: pointer; white-space: nowrap; }
+    .pv-foot button:hover { text-decoration: underline; }
+
+    /* 功能卡「进入 →」提示 */
+    .home-card .go { display: inline-block; margin-top: 10px; font-size: 12.5px; font-weight: 600; color: #6366f1;
+      opacity: 0; transform: translateX(-4px); transition: 0.2s; }
+    .home-card:hover .go { opacity: 1; transform: none; }
+
+    /* ===== CTA 横幅 ===== */
+    .cta-banner { margin-top: 22px; border-radius: 18px; padding: 40px 42px; display: flex; align-items: center;
+      justify-content: space-between; gap: 26px; flex-wrap: wrap;
+      background: linear-gradient(120deg, #17153a 0%, #2b2565 55%, #4c3bbd 100%); color: #fff;
+      box-shadow: 0 20px 50px rgba(30,27,75,0.35); }
+    .cta-eyebrow { font-size: 12px; letter-spacing: 2px; font-weight: 600; color: #a5b4fc; margin-bottom: 10px; }
+    .cta-banner h3 { font-size: 26px; line-height: 1.35; }
+    .cta-banner p { font-size: 13.5px; color: #c7cdf5; margin-top: 10px; max-width: 480px; }
+    .hbtn.cta { background: #fff; color: #3730a3; flex: 0 0 auto; }
+    .hbtn.cta:hover { transform: translateY(-2px); box-shadow: 0 10px 26px rgba(0,0,0,0.3); }
+
+    /* ===== 页脚 ===== */
+    .site-footer { margin-top: 46px; border-top: 1px solid var(--panel-border); padding: 34px 6px 22px;
+      display: grid; grid-template-columns: 1.4fr 1fr 1fr; gap: 30px; }
+    .site-footer .f-brand { font-size: 16px; font-weight: 700; }
+    .site-footer .f-desc { font-size: 12.5px; color: var(--muted); margin-top: 8px; line-height: 1.8; max-width: 340px; }
+    .site-footer h5 { font-size: 13px; color: var(--dim); font-weight: 600; letter-spacing: 1px; margin-bottom: 12px; }
+    .site-footer .f-link { display: block; font-size: 13px; color: var(--muted); background: none; border: none;
+      padding: 0; margin-bottom: 8px; cursor: pointer; text-align: left; }
+    .site-footer .f-link:hover { color: var(--accent); }
+    .site-footer .f-tech { font-size: 13px; color: var(--muted); line-height: 2; }
+    .footer-bar { margin-top: 26px; padding-top: 16px; border-top: 1px solid var(--panel-border); text-align: center; font-size: 12px; color: var(--dim); }
+
+    /* ===== 深色模式切换按钮 ===== */
+    #theme-toggle { width: 34px; height: 34px; border-radius: 999px; border: 1px solid var(--panel-border);
+      background: transparent; font-size: 15px; cursor: pointer; line-height: 1;
+      display: inline-flex; align-items: center; justify-content: center; flex: 0 0 auto; }
+    #theme-toggle:hover { border-color: var(--accent); }
+
+    /* ===== 深色模式（admin 页自带浅色体系，通过 body.light 豁免） ===== */
+    body.dark:not(.light) { --bg: #0d1020; --panel: rgba(24,28,50,0.88); --panel-border: rgba(148,163,184,0.16);
+      --panel-solid: #181c32; --text: #e7eaf3; --muted: #9aa4bb; --dim: #6e7690; background: var(--bg); }
+    body.dark:not(.light) .bg-blob { opacity: 0.22; }
+    body.dark:not(.light) .navbar { background: rgba(13,16,32,0.9); }
+    body.dark:not(.light) .tab-btn { color: #9aa4bb; }
+    body.dark:not(.light) .tab-btn:hover { color: #e7eaf3; background: rgba(255,255,255,0.07); }
+    body.dark:not(.light) .info-item, body.dark:not(.light) .kpi-card, body.dark:not(.light) .cap-card,
+    body.dark:not(.light) .tl-item, body.dark:not(.light) .innov-card, body.dark:not(.light) .chart-card,
+    body.dark:not(.light) .tier-card, body.dark:not(.light) .home-card, body.dark:not(.light) .quiz-opt,
+    body.dark:not(.light) .wrong-item, body.dark:not(.light) .case-item, body.dark:not(.light) .ktree-item,
+    body.dark:not(.light) .step-dot, body.dark:not(.light) .val-item, body.dark:not(.light) .q-list li { background: rgba(255,255,255,0.04); }
+    body.dark:not(.light) .text-slot { background: rgba(255,255,255,0.03); color: #c3c9da; }
+    body.dark:not(.light) .ktree-title { color: #e7eaf3; }
+    body.dark:not(.light) .ktree-pt { color: #c3c9da; }
+    body.dark:not(.light) .sz-table td { color: #c3c9da; }
+    body.dark:not(.light) .msg.bot { color: #d9deee; }
+    body.dark:not(.light) .chat-panel { background: #181c32; }
+    body.dark:not(.light) .chat-head { background: rgba(255,255,255,0.04); }
+    body.dark:not(.light) .chat-input input, body.dark:not(.light) .trade-qty, body.dark:not(.light) .val-field input { background: rgba(255,255,255,0.06); }
+    body.dark:not(.light) .preview-card { box-shadow: 0 18px 50px rgba(0,0,0,0.45); }
+    body.dark:not(.light) .login-box { background: #181c32; box-shadow: 0 20px 60px rgba(0,0,0,0.55); }
+    body.dark:not(.light) .login-tabs button, body.dark:not(.light) .login-methods button { background: rgba(255,255,255,0.05); }
+    body.dark:not(.light) .lfield input, body.dark:not(.light) .lfield select { background: rgba(255,255,255,0.05); color: #e7eaf3; }
+    body.dark:not(.light) .lfield button { background: rgba(99,102,241,0.18); color: #a5b4fc; }
+    body.dark:not(.light) .footer-bar { color: #565e75; }
+
     @media (max-width: 820px) {
       .navbar { flex-wrap: wrap; }
       .nav-tabs { margin-left: 0; justify-content: flex-start; overflow-x: auto; flex-wrap: nowrap; width: 100%; }
       .hero h1 { font-size: 25px; }
       .tab-btn { padding: 7px 11px; font-size: 13px; }
+      .hero2 { grid-template-columns: 1fr; padding: 30px 22px; gap: 26px; }
+      .hero2 h1 { font-size: 28px; }
+      .hero2-stats { gap: 22px; }
+      .cta-banner { padding: 28px 24px; }
+      .site-footer { grid-template-columns: 1fr; }
     }
   </style>
   <script src="https://static.cloudbase.net/cloudbase-js-sdk/latest/cloudbase.full.js"></script>
@@ -532,32 +636,67 @@
           <select id="nav-class"><option value="金融2303">金融2303</option><option value="金融2304">金融2304</option></select>
         </span>
         <button id="logout-btn" class="hidden">退出登录</button>
+        <button id="theme-toggle" title="切换深色模式" aria-label="切换深色模式">🌙</button>
       </div>
     </nav>
 
     <!-- ① 首页 -->
     <section class="page active" id="p-home">
-      <div class="hero panel">
-        <h1><span class="grad">iBank平台</span></h1>
-        <p>《投资银行学》智慧教学平台 · AI 导学答疑 · 实务习题 · 错题定位 · 学情画像 · IPO 仿真 · 估值实验，一站式投行实务训练。</p>
+      <div class="hero2 panel">
+        <div class="hero2-left">
+          <div class="eyebrow">AI × 投资银行学 × 教育</div>
+          <h1>让投资银行学<br><span class="grad">真正被理解</span></h1>
+          <p class="hero2-desc">iBank 将课程知识图谱、AI 答疑、智能题库、错题诊断、学情画像与 IPO/估值仿真实验融为一体，帮助你从「记住知识」走向「理解投行实务逻辑」。</p>
+          <div class="hero2-actions">
+            <button class="hbtn primary" data-goto="p-qa">开始与 AI 导师学习 →</button>
+            <button class="hbtn ghost" data-goto="p-graph">浏览知识图谱</button>
+          </div>
+          <div class="hero2-stats">
+            <div><strong>09</strong><span>章节知识体系</span></div>
+            <div><strong>12</strong><span>功能模块</span></div>
+            <div><strong>04</strong><span>真实投行案例</span></div>
+            <div><strong>∞</strong><span>AI 随问随答</span></div>
+          </div>
+        </div>
+        <div class="hero2-right">
+          <div class="preview-card">
+            <div class="pv-head"><span class="pv-dot"></span><b>iBank AI 导师</b><span class="pv-badge">知识库增强 · 流式作答</span></div>
+            <div class="pv-body">
+              <div class="msg bot">同学你好，我是 iBank AI 导师。投资银行学哪一部分想深入了解？</div>
+              <div class="msg user">IPO 定价的询价机制是怎么运作的？</div>
+              <div class="msg bot">询价分为初步询价与累计投标询价两个阶段。初步询价阶段，主承销商向询价对象（基金公司、证券公司等机构投资者）征询价格区间，再据此确定最终发行价格……<span class="pv-cursor"></span></div>
+            </div>
+            <div class="pv-foot"><span>基于课程知识库 RAG 检索增强</span><button data-goto="p-qa">进入答疑 →</button></div>
+          </div>
+        </div>
       </div>
 
-      <div class="panel" style="margin-top:18px;">
-        <div class="section-title"><span class="bar"></span>功能模块</div>
+      <div class="panel" style="margin-top:20px;">
+        <div class="section-title"><span class="bar"></span>一站式投行实务学习系统</div>
+        <div class="section-sub">12 个功能模块覆盖「学 · 练 · 诊 · 评 · 战」完整教学闭环，点击卡片直达。</div>
         <div class="home-grid">
-          <div class="home-card" data-page="p-graph"><div class="ico">🕸️</div><h4>知识图谱</h4><p>课程知识结构导览</p></div>
-          <div class="home-card" data-page="p-qa"><div class="ico">💬</div><h4>智能答疑</h4><p>AI 学伴随问随答</p></div>
-          <div class="home-card" data-page="p-exercise"><div class="ico">✍️</div><h4>习题训练</h4><p>实务习题即时反馈</p></div>
-          <div class="home-card" data-page="p-wrong"><div class="ico">🎯</div><h4>错题定位</h4><p>薄弱知识点靶向补学</p></div>
-          <div class="home-card" data-page="p-profile"><div class="ico">📊</div><h4>学情画像</h4><p>章节掌握一目了然</p></div>
-          <div class="home-card" data-page="p-ipo"><div class="ico">🏭</div><h4>IPO 仿真</h4><p>全流程上市推演</p></div>
-          <div class="home-card" data-page="p-valuation"><div class="ico">🧮</div><h4>估值实验</h4><p>参数可调估值测算</p></div>
-          <div class="home-card" data-page="p-case"><div class="ico">📚</div><h4>案例库</h4><p>投行实务案例</p></div>
-          <div class="home-card" data-page="p-macro"><div class="ico">🌐</div><h4>宏观市场</h4><p>美元·黄金·股票·美债</p></div>
-          <div class="home-card" data-page="p-sim"><div class="ico">📈</div><h4>股市模拟</h4><p>虚拟盘实战交易</p></div>
-          <div class="home-card" data-page="p-sizheng"><div class="ico">🎓</div><h4>课程思政</h4><p>立德树人·价值引领</p></div>
-          <div class="home-card" data-page="p-admin"><div class="ico">🗂️</div><h4>后台统计</h4><p>学情数据看板</p></div>
+          <div class="home-card" data-page="p-graph"><div class="ico">🕸️</div><h4>知识图谱</h4><p>9 章知识树梳理重点难点，结构化导览课程内容</p><span class="go">进入 →</span></div>
+          <div class="home-card" data-page="p-qa"><div class="ico">💬</div><h4>智能答疑</h4><p>智谱 GLM + 课程知识库，AI 学伴流式随问随答</p><span class="go">进入 →</span></div>
+          <div class="home-card" data-page="p-exercise"><div class="ico">✍️</div><h4>习题训练</h4><p>实务导向习题，即时判分与解析反馈</p><span class="go">进入 →</span></div>
+          <div class="home-card" data-page="p-wrong"><div class="ico">🎯</div><h4>错题定位</h4><p>错题自动归因，薄弱知识点靶向补学</p><span class="go">进入 →</span></div>
+          <div class="home-card" data-page="p-profile"><div class="ico">📊</div><h4>学情画像</h4><p>章节掌握度可视化，学习进度一目了然</p><span class="go">进入 →</span></div>
+          <div class="home-card" data-page="p-ipo"><div class="ico">🏭</div><h4>IPO 仿真</h4><p>从改制辅导到发行上市，全流程上市推演</p><span class="go">进入 →</span></div>
+          <div class="home-card" data-page="p-valuation"><div class="ico">🧮</div><h4>估值实验</h4><p>PE/PB/DCF 多方法参数可调估值测算</p><span class="go">进入 →</span></div>
+          <div class="home-card" data-page="p-case"><div class="ico">📚</div><h4>案例库</h4><p>真实投行实务案例，理论对照业务实战</p><span class="go">进入 →</span></div>
+          <div class="home-card" data-page="p-macro"><div class="ico">🌐</div><h4>宏观市场</h4><p>美元 · 黄金 · 股票 · 美债联动解读</p><span class="go">进入 →</span></div>
+          <div class="home-card" data-page="p-sim"><div class="ico">📈</div><h4>股市模拟</h4><p>虚拟盘实战交易，体验市场博弈</p><span class="go">进入 →</span></div>
+          <div class="home-card" data-page="p-sizheng"><div class="ico">🎓</div><h4>课程思政</h4><p>立德树人 · 金融强国价值引领</p><span class="go">进入 →</span></div>
+          <div class="home-card" data-page="p-admin"><div class="ico">🗂️</div><h4>后台统计</h4><p>班级学情数据看板（教师端）</p><span class="go">进入 →</span></div>
         </div>
+      </div>
+
+      <div class="cta-banner">
+        <div>
+          <div class="cta-eyebrow">IBANK 教学理念</div>
+          <h3>不只是告诉你答案，<br>而是告诉你为什么。</h3>
+          <p>每一次答疑、每一道习题、每一场仿真，都在训练投行人的专业判断力。</p>
+        </div>
+        <button class="hbtn cta" data-goto="p-qa">立即体验 AI 答疑</button>
       </div>
     </section>
 
@@ -1118,7 +1257,24 @@
       </div>
     </section>
 
-    <div class="footer-note">iBank平台 · 投资银行学智慧课堂</div>
+    <footer class="site-footer">
+      <div>
+        <div class="f-brand">iBank平台</div>
+        <p class="f-desc">《投资银行学》智慧教学平台：融合知识图谱、AI 答疑、智能题库与投行仿真实验，服务「智慧课程典型案例」建设。</p>
+      </div>
+      <div>
+        <h5>快速入口</h5>
+        <button class="f-link" data-goto="p-graph">知识图谱</button>
+        <button class="f-link" data-goto="p-qa">智能答疑</button>
+        <button class="f-link" data-goto="p-exercise">习题训练</button>
+        <button class="f-link" data-goto="p-ipo">IPO 仿真</button>
+      </div>
+      <div>
+        <h5>课程与技术</h5>
+        <div class="f-tech">《投资银行学》智慧课堂<br>腾讯云 CloudBase · 智谱 GLM · RAG 知识库<br>金融2303 / 金融2304 教学使用</div>
+      </div>
+    </footer>
+    <div class="footer-bar">© 2026 iBank平台 · 投资银行学智慧课堂 · 本站仅用于课程教学</div>
   </div>
 
   <!-- ===== 悬浮机器人助手 ===== -->
@@ -1159,6 +1315,29 @@
   </div>
 
   <script>
+    // ===== 深色模式切换（localStorage 持久化；admin 页由 body.light 豁免） =====
+    const themeToggle = document.getElementById('theme-toggle');
+    function applyTheme(t) {
+      document.body.classList.toggle('dark', t === 'dark');
+      if (themeToggle) themeToggle.textContent = (t === 'dark') ? '☀️' : '🌙';
+      try { localStorage.setItem('ibank-theme', t); } catch (e) {}
+    }
+    let savedTheme = 'light';
+    try { savedTheme = localStorage.getItem('ibank-theme') || 'light'; } catch (e) {}
+    applyTheme(savedTheme);
+    if (themeToggle) themeToggle.addEventListener('click', function () {
+      applyTheme(document.body.classList.contains('dark') ? 'light' : 'dark');
+    });
+
+    // ===== 页内跳转按钮（Hero / CTA / 页脚的 data-goto） =====
+    document.querySelectorAll('[data-goto]').forEach(function (b) {
+      b.addEventListener('click', function () {
+        const t = b.getAttribute('data-goto');
+        const btn = document.querySelector('.tab-btn[data-page="' + t + '"]');
+        if (btn) btn.click();
+      });
+    });
+
     // ===== 页面标签切换 =====
     const tabs = document.querySelectorAll('.tab-btn');
     const pages = document.querySelectorAll('.page');
@@ -1861,27 +2040,35 @@
         const isTeacher = !document.getElementById('reg-teacher-field').classList.contains('hidden');
         const token = document.getElementById('reg-sms-code').value.trim();
         showMsg('', '');
-        if (!smsVerifyFn) { showMsg('请先获取验证码', 'err'); return; }
-        if (!token) { showMsg('请输入验证码', 'err'); return; }
         try {
-          // 先验证验证码、完成注册（变成已登录用户）
-          const { data, error } = await smsVerifyFn(token);
-          if (error) { showMsg('注册失败：' + error.message, 'err'); return; }
-          const uid = (data && data.user) ? data.user.id : await getUserId();
-          if (!uid) { showMsg('注册失败：未获取到用户信息', 'err'); return; }
+          // 已登录（验证码此前已验过）则跳过 verifyOtp，直接补全资料/校验邀请码
+          // —— 避免 OTP 被首次点击消耗后，修改邀请码再点注册时重验已作废的 OTP 导致死循环
+          let uid = await getUserId();
+          if (!uid) {
+            if (!smsVerifyFn) { showMsg('请先获取验证码', 'err'); return; }
+            if (!token) { showMsg('请输入验证码', 'err'); return; }
+            // 先验证验证码、完成注册（变成已登录用户）
+            const { data, error } = await smsVerifyFn(token);
+            if (error) { showMsg('注册失败：' + error.message, 'err'); return; }
+            uid = (data && data.user) ? data.user.id : await getUserId();
+            if (!uid) { showMsg('注册失败：未获取到用户信息', 'err'); return; }
+          }
 
           if (isTeacher) {
             // 邀请码校验（此时已登录，才有权查数据库）
-            const code = document.getElementById('reg-invite').value.trim();
+            // 归一化：全角转半角、去空白、统一大写（防手机键盘自动首字母大写/全角输入导致匹配失败）
+            const code = document.getElementById('reg-invite').value
+              .replace(/[！-～]/g, function (c) { return String.fromCharCode(c.charCodeAt(0) - 0xFEE0); })
+              .replace(/\s/g, '').toUpperCase();
             if (!code) { showMsg('请输入教师邀请码', 'err'); return; }
+            // 诊断：先裸查（不带筛选），一次 F12 即可区分「RLS 拦截」与「码值不匹配」
+            const probe = await db.from('invite_codes').select('code');
+            console.log('邀请码诊断-裸查询:', probe.data ? ('可查 ' + probe.data.length + ' 行') : 'null（被 RLS 拦截或表不存在）', probe.error ? probe.error.message : '无错误');
             const { data: cdata, error } = await db.from('invite_codes').select('*').eq('code', code);
             console.log('邀请码查询结果:', JSON.stringify(cdata), error ? error.message : '无错误');
-            if (!cdata || cdata.length === 0 || cdata[0].used === true) {
-              await db.from('profiles').upsert({ id: uid, role: 'student' }, { onConflict: 'id' });
-              showMsg('邀请码无效，已按学生身份注册', 'err');
-              await onLoggedIn();
-              return;
-            }
+            if (error) { showMsg('邀请码校验出错：' + error.message, 'err'); return; }
+            if (!cdata || cdata.length === 0) { showMsg('邀请码无效，请核对后重试', 'err'); return; }
+            if (cdata[0].used === true) { showMsg('邀请码已被使用，请联系课程负责人', 'err'); return; }
             await db.from('invite_codes').update({ used: true }).eq('code', code);
             await db.from('profiles').upsert({ id: uid, role: 'teacher' }, { onConflict: 'id' });
           } else {
