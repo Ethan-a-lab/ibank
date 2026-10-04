@@ -2116,6 +2116,7 @@
       document.getElementById('reg-sms-btn').addEventListener('click', async function () {
         const phone = document.getElementById('reg-phone').value.trim();
         if (!phone) { showMsg('请先输入手机号', 'err'); return; }
+        pwdResetFn = null; // 重新获取验证码 = 放弃进行中的改密流程
         const btn = this;
         btn.disabled = true;
         try {
@@ -2147,36 +2148,63 @@
         } catch (e) { showMsg('登录失败：' + e.message, 'err'); }
       });
 
+      // 统一取错误文本（CloudBase 错误字段可能是 message / msg / error_description / code）
+      function errText(e) {
+        if (!e) return '未知错误';
+        const t = e.message || e.msg || e.error_description || e.error;
+        return t || JSON.stringify(e);
+      }
+
+      let pwdResetFn = null; // 改密流程第二步的回调（resetPasswordForEmail 返回的 updateUser）
+
       document.getElementById('register-btn').addEventListener('click', async function () {
         const name = document.getElementById('reg-name').value.trim();
         const className = document.getElementById('reg-class').value;
+        const phone = document.getElementById('reg-phone').value.trim();
         const token = document.getElementById('reg-sms-code').value.trim();
         const pwd = document.getElementById('reg-password').value;
         const pwd2 = document.getElementById('reg-password2').value;
         showMsg('', '');
         // —— 前端校验 ——
         if (!name) { showMsg('请填写姓名', 'err'); return; }
+        if (!phone) { showMsg('请输入手机号', 'err'); return; }
         const pwdOk = pwd.length >= 8 && pwd.length <= 32 && /[a-zA-Z]/.test(pwd) && /\d/.test(pwd);
         if (!pwdOk) { showMsg('密码需 8-32 位，且同时包含字母和数字', 'err'); return; }
         if (pwd !== pwd2) { showMsg('两次输入的密码不一致', 'err'); return; }
         try {
-          // 已登录（验证码此前已验过）则跳过 verifyOtp，直接补全资料/重设密码
-          // —— 避免 OTP 被首次点击消耗后，修改资料再点注册时重验已作废的 OTP 导致死循环
           let uid = await getUserId();
-          if (!uid) {
-            if (!smsVerifyFn) { showMsg('请先获取验证码', 'err'); return; }
-            if (!token) { showMsg('请输入验证码', 'err'); return; }
-            const { data, error } = await smsVerifyFn(token);
-            if (error) { showMsg('注册失败：' + error.message, 'err'); return; }
-            uid = (data && data.user) ? data.user.id : await getUserId();
-            if (!uid) { showMsg('注册失败：未获取到用户信息', 'err'); return; }
-          }
 
-          // 设置密码（新注册=设密码；忘记密码重走流程=重置密码）
-          const sp = await auth.setPassword(pwd).catch(function (e) { return { error: e }; });
-          if (sp && sp.error) {
-            showMsg('密码设置失败：' + (sp.error.message || '未知错误') + '，请调整密码后重试', 'err');
-            return;
+          if (pwdResetFn) {
+            // 改密第二步：用「找回密码」短信完成重置（SDK 内部重置密码并自动登录）
+            if (!token) { showMsg('请输入最新收到的改密验证码', 'err'); return; }
+            const rs = await pwdResetFn({ nonce: token, password: pwd }).catch(function (e) { return { error: e }; });
+            if (rs && rs.error) { showMsg('密码重置失败：' + errText(rs.error), 'err'); return; }
+            pwdResetFn = null;
+            uid = await getUserId();
+            if (!uid) { showMsg('密码重置失败：未获取到登录态', 'err'); return; }
+          } else {
+            if (!uid) {
+              // 已登录（验证码此前已验过）则跳过 verifyOtp，避免 OTP 被消耗后重验作废
+              if (!smsVerifyFn) { showMsg('请先获取验证码', 'err'); return; }
+              if (!token) { showMsg('请输入验证码', 'err'); return; }
+              const { data, error } = await smsVerifyFn(token);
+              if (error) { showMsg('注册失败：' + errText(error), 'err'); return; }
+              uid = (data && data.user) ? data.user.id : await getUserId();
+              if (!uid) { showMsg('注册失败：未获取到用户信息', 'err'); return; }
+            }
+            // 校验密码是否已生效：新账号从未设过密码、老账号短信登录都不会改密
+            // —— 两种情况都走官方找回密码流程（resetPasswordForEmail）补设
+            const chk = await auth.signInWithPassword({ phone: phone, password: pwd }).catch(function (e) { return { error: e }; });
+            if (chk && chk.error) {
+              const rp = await auth.resetPasswordForEmail(phone).catch(function (e) { return { error: e }; });
+              if (!rp || rp.error || !rp.data || !rp.data.updateUser) {
+                showMsg('发送改密验证码失败：' + errText(rp && rp.error), 'err');
+                return;
+              }
+              pwdResetFn = rp.data.updateUser;
+              showMsg('密码需通过改密短信设置：新的验证码已发送，填入后再点一次「注册并登录」', 'ok');
+              return;
+            }
           }
 
           // 资料写入：已有记录只更新姓名/班级，绝不覆盖 role（防止教师被降级）
@@ -2187,7 +2215,7 @@
             await db.from('profiles').insert({ id: uid, role: 'student', name: name, class_name: className || '' });
           }
           await onLoggedIn();
-        } catch (e) { showMsg('注册失败：' + e.message, 'err'); }
+        } catch (e) { showMsg('注册失败：' + errText(e), 'err'); }
       });
 
       loginTopBtn.addEventListener('click', function () { overlay.classList.remove('hidden'); });
