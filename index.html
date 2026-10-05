@@ -1518,11 +1518,13 @@
     });
 
     // ===== 页面标签切换 =====
+    window.__ibankIsAdmin = false; // 角色守卫初值：未登录/学生均不可进后台
     const tabs = document.querySelectorAll('.tab-btn');
     const pages = document.querySelectorAll('.page');
     tabs.forEach(function (btn) {
       btn.addEventListener('click', function () {
         const target = btn.getAttribute('data-page');
+        if (target === 'p-admin' && !window.__ibankIsAdmin) return; // 守卫：仅教师/管理员可进后台统计
         tabs.forEach(function (b) { b.classList.remove('active'); });
         pages.forEach(function (p) { p.classList.remove('active'); });
         btn.classList.add('active');
@@ -2144,6 +2146,7 @@
 
       function applyRole(role) {
         const isAdmin = role === 'teacher' || role === 'admin';
+        window.__ibankIsAdmin = isAdmin;
         const tab = document.querySelector('.tab-btn[data-page="p-admin"]');
         const card = document.querySelector('.home-card[data-page="p-admin"]');
         if (tab) tab.style.display = isAdmin ? '' : 'none';
