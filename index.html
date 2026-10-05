@@ -652,13 +652,14 @@
     .cx-nav:disabled { opacity: .32; cursor: default; }
     .cx-wd { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; margin-bottom: 6px; }
     .cx-wd span { text-align: center; font-size: 11px; color: var(--muted); }
-    .cx-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; }
-    .cx-cell { position: relative; aspect-ratio: 1 / 1; border-radius: 9px; display: flex; flex-direction: column; align-items: center; justify-content: center; user-select: none; transition: background .12s, color .12s, box-shadow .12s; }
+    .cx-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; touch-action: none; }
+    .cx-cell { position: relative; aspect-ratio: 1 / 1; border-radius: 9px; display: flex; flex-direction: column; align-items: center; justify-content: center; user-select: none; -webkit-user-select: none; transition: background .12s, color .12s, box-shadow .12s; }
     .cx-cell .cx-d { font-size: 13px; font-weight: 600; color: var(--text); line-height: 1.05; }
     .cx-cell .cx-n { font-size: 9.5px; font-weight: 700; color: #4f46e5; margin-top: 1px; height: 12px; line-height: 12px; }
     .cx-cell.out { opacity: .30; }
     .cx-cell.in { cursor: pointer; }
     .cx-cell.in:hover { background: rgba(99,102,241,.10); }
+    .cx-cell.in:active { background: rgba(99,102,241,.20); }
     .cx-cell.insel { background: rgba(99,102,241,.14); }
     .cx-cell.insel .cx-d { color: #4338ca; }
     .cx-cell.end { background: #4f46e5; box-shadow: 0 4px 12px rgba(79,70,229,.35); }
@@ -2835,7 +2836,7 @@
           const rd = await db.from('events').select('uid, type, chapter, qtype, module, correct, ts').order('ts', { ascending: false }).limit(6);
           var count = (rc && rc.count) || 0;
           var rows = ((rd && rd.data) || []).map(function (e) {
-            var d = e.ts ? new Date(e.ts).toLocaleString('zh-CN') : '—';
+            var d = e.ts ? new Date(toMs(e.ts)).toLocaleString('zh-CN') : '—';
             return '<div>· ' + esc(String(e.uid).slice(-8)) + ' · ' + esc(e.type || '') + (e.chapter ? (' · ' + esc(e.chapter)) : '') + (e.qtype ? (' · ' + esc(e.qtype)) : '') + (e.module ? (' · ' + esc(e.module)) : '') + ' · ' + d + '</div>';
           }).join('');
           box.innerHTML = '云端 events 表共 <b style="color:var(--text)">' + count + '</b> 条行为记录' + (rows ? '<div style="margin-top:6px;">最近 6 条：</div>' + rows : '');
@@ -2844,6 +2845,22 @@
         }
       }
       window.__ibankCheckEvents = checkEventsTable;
+
+      // 时间戳单位归一化：events.ts 约定为「毫秒」，但历史灌库数据可能是「秒」，
+      // 若按毫秒解析会得到 1970-01-21，导致月历/last 全部错位塌缩。此处统一换算成毫秒。
+      // 判据：< 1e11 视为秒（1e11 毫秒仅为 1973 年，任何真实业务时间戳都远大于它，不会误判）
+      function toMs(ts) {
+        var v = Number(ts);
+        if (!isFinite(v) || v <= 0) return 0;
+        return v < 1e11 ? v * 1000 : v;
+      }
+      // 就地归一化事件列表（幂等：已为毫秒的记录不受影响）
+      function normEvents(list) {
+        return (list || []).map(function (e) {
+          if (e && e.ts) e.ts = toMs(e.ts);
+          return e;
+        });
+      }
 
       async function loadEventStats() {
         const kpiRow = document.getElementById('ev-kpi-row');
@@ -2854,6 +2871,7 @@
         if (!cEl) return;
         if (OFFLINE) {
           let local = []; try { local = JSON.parse(localStorage.getItem('ibank_events_local') || '[]'); } catch (e) {}
+          local = normEvents(local);
           renderEventStats(splitByType(filterStatEvents(local)), kpiRow, cEl, tEl, mEl, wEl, '离线演示模式：显示本机累计事件，联网后同步云端');
           renderStudentDetail(local);
           return;
@@ -2874,10 +2892,10 @@
               return (r && r.data) || [];
             } catch (e) { return []; }
           };
-          const studyEvs = await evFetch('study');
-          const modEvs = await evFetch('module');
-          const loginEvs = await evFetch('login');
-          const quizEvs = await evFetch('quiz', 2000);
+          const studyEvs = normEvents(await evFetch('study'));
+          const modEvs = normEvents(await evFetch('module'));
+          const loginEvs = normEvents(await evFetch('login'));
+          const quizEvs = normEvents(await evFetch('quiz', 2000));
           const data = { study: studyEvs, module: modEvs, quiz: quizEvs, login: loginEvs, qa: [] };
           const list = studyEvs.concat(modEvs, loginEvs, quizEvs);
           if (list.length === 0) {
@@ -2922,12 +2940,13 @@
         const allUids = uniq(study.concat(quiz, mod, login).map(function (e) { return e.uid; }));
         const studyUids = uniq(study.map(function (e) { return e.uid; }));
         const now = Date.now(), WEEK = 7 * 86400000;
-        // 活跃以「登录/使用」事件为准，避免抽样导致去重人数失真
-        let maxTs = 0; login.forEach(function (e) { if (e.ts && e.ts > maxTs) maxTs = e.ts; });
-        if (!maxTs) study.concat(quiz, mod).forEach(function (e) { if (e.ts && e.ts > maxTs) maxTs = e.ts; });
+        // 活跃以「登录/使用」事件为准，避免抽样导致去重人数失真；若库里暂无 login 事件则回落到全部行为事件，
+        // 保证「活跃」相关的 KPI、折线与日历不会因单一类型缺失而整块空转。
+        const actSrc = login.length ? login : study.concat(quiz, mod);
+        let maxTs = 0; actSrc.forEach(function (e) { if (e.ts && e.ts > maxTs) maxTs = e.ts; });
         if (!maxTs) maxTs = now;
         // 「近一周活跃」以数据中最近的时间点为基准：课程为历史数据时也反映末周活跃，而非恒为 0
-        const weekUids = uniq(login.filter(function (e) { return e.ts && (maxTs - e.ts) <= WEEK; }).map(function (e) { return e.uid; }));
+        const weekUids = uniq(actSrc.filter(function (e) { return e.ts && (maxTs - e.ts) <= WEEK; }).map(function (e) { return e.uid; }));
         // KPI 数字优先取数据库全量 COUNT（抽样可能被接口行数上限截断），无计数时回落到抽样统计
         const K = counts || {};
         const num = function (v, fallback) { return (typeof v === 'number' && isFinite(v)) ? v : fallback; };
@@ -2963,12 +2982,11 @@
         mEl.innerHTML = modItems.length ? donutChart(modItems) : '<div class="um-empty">暂无模块使用记录</div>';
 
         // ④ 每周活跃人数：折线图 + 日历选择器（按登录事件统计活跃人数）
-        let minTs = Infinity; login.forEach(function (e) { if (e.ts && e.ts < minTs) minTs = e.ts; });
-        if (!isFinite(minTs)) { study.concat(quiz, mod).forEach(function (e) { if (e.ts && e.ts < minTs) minTs = e.ts; }); }
+        let minTs = Infinity; actSrc.forEach(function (e) { if (e.ts && e.ts < minTs) minTs = e.ts; });
         if (!isFinite(minTs)) minTs = now;
         // 按周去重活跃人数（默认视图）
         const wkMap = {};
-        login.forEach(function (e) { if (!e.ts) return; const idx = Math.floor((e.ts - minTs) / WEEK); wkMap[idx] = wkMap[idx] || {}; wkMap[idx][e.uid] = 1; });
+        actSrc.forEach(function (e) { if (!e.ts) return; const idx = Math.floor((e.ts - minTs) / WEEK); wkMap[idx] = wkMap[idx] || {}; wkMap[idx][e.uid] = 1; });
         const widx = Object.keys(wkMap).map(Number).sort(function (a, b) { return a - b; }).slice(-8);
         calData.minTs = minTs;
         calData.weekWeeks = widx;
@@ -2976,7 +2994,7 @@
         // 按天去重活跃人数（供月历着色与区间折线）
         const dayMap = {};
         let maxD = 0;
-        login.forEach(function (e) {
+        actSrc.forEach(function (e) {
           if (!e.ts) return;
           const d = Math.floor((e.ts - minTs) / 86400000);
           if (d < 0 || d > 400) return;
@@ -3008,7 +3026,8 @@
           if (rangeEl) rangeEl.innerHTML = '已选区间 <b>' + fmtDay(a) + ' – ' + fmtDay(b) + '</b> · 按天统计 ' + (b - a + 1) + ' 天';
         } else {
           items = calData.weekCounts.map(function (c, i) { return { label: 'W' + (calData.weekWeeks[i] + 1), pct: c, val: c + ' 人' }; });
-          if (rangeEl) rangeEl.innerHTML = '默认按周 · W1–W' + calData.weekWeeks.length;
+          if (rangeEl) rangeEl.innerHTML = '默认按周 · W1–W' + calData.weekWeeks.length
+            + (calData.maxD > 0 ? ' · 日历可选 ' + fmtDay(0) + ' – ' + fmtDay(calData.maxD) : '');
         }
         if (wEl) wEl.innerHTML = items.length ? lineChart(items) : '<div class="um-empty">暂无活跃记录</div>';
         if (calEl) calEl.innerHTML = calendarHeat();
@@ -3020,35 +3039,72 @@
         return (dt.getMonth() + 1) + '/' + dt.getDate();
       }
 
-      // 绑定月历交互：点击选单日、拖动圈选区间、点击箭头翻月、重置回按周
+      // 绑定月历交互：点击选单日、按住拖动圈选区间、点击箭头翻月、重置回按周
+      // 说明：每次圈选都会重绘月历 innerHTML，若在格子元素上监听 move 会因元素被替换而丢事件，
+      //       故改为「容器 pointerdown 起手 + document 级 pointermove/up + elementFromPoint 命中」，
+      //       这样拖动经过的格子始终能被正确识别（鼠标与触屏一致）。
       function bindCalendar() {
         const calEl = document.getElementById('ev-calendar');
         if (!calEl) return;
-        const pick = function (ev) {
-          let t = ev.target;
+        const pickAt = function (x, y) {
+          let t = (document.elementFromPoint && x != null) ? document.elementFromPoint(x, y) : null;
           if (t && t.closest) t = t.closest('[data-d]');
+          else if (t && t.parentNode && t.parentNode.getAttribute && t.parentNode.getAttribute('data-d') != null) t = t.parentNode;
           if (!t || !t.getAttribute) return -1;
           const v = t.getAttribute('data-d');
-          return v != null ? Number(v) : -1;
+          return (v != null && v !== '') ? Number(v) : -1;
         };
-        calEl.onmousedown = function (ev) {
-          const d = pick(ev); if (d < 0) return;
-          ev.preventDefault();
-          calData.selA = d; calData.selB = d; calData.dragging = true;
+        const move = function (ev) {
+          if (!calData.dragging) return;
+          const d = pickAt(ev.clientX, ev.clientY);
+          if (d < 0 || d === calData.selB) return;
+          if (ev.cancelable) ev.preventDefault();
+          calData.selB = d;
           renderWeekPanel();
         };
-        calEl.onmouseover = function (ev) {
+        const end = function () {
           if (!calData.dragging) return;
-          const d = pick(ev); if (d < 0 || d === calData.selB) return;
-          calData.selB = d; renderWeekPanel();
+          calData.dragging = false;
+          document.removeEventListener('pointermove', move);
+          document.removeEventListener('pointerup', end);
+          document.removeEventListener('pointercancel', end);
         };
+        const start = function (ev) {
+          // 翻月按钮交给 click 处理，避免误当作圈选
+          let nav = ev.target; if (nav && nav.closest) nav = nav.closest('[data-nav]');
+          if (nav) return;
+          const d = pickAt(ev.clientX, ev.clientY);
+          if (d < 0) return;
+          if (ev.cancelable) ev.preventDefault();
+          calData.selA = d; calData.selB = d; calData.dragging = true;
+          renderWeekPanel();
+          document.removeEventListener('pointermove', move);
+          document.removeEventListener('pointerup', end);
+          document.removeEventListener('pointercancel', end);
+          document.addEventListener('pointermove', move);
+          document.addEventListener('pointerup', end);
+          document.addEventListener('pointercancel', end);
+        };
+        // 指针事件优先（同时覆盖鼠标与触屏）；环境不支持时回落到 mouse 事件
+        if (window.PointerEvent) {
+          calEl.onpointerdown = start;
+        } else {
+          calEl.onmousedown = start;
+          calEl.onmouseover = function (ev) {
+            if (!calData.dragging) return;
+            const d = pickAt(ev.clientX, ev.clientY);
+            if (d < 0 || d === calData.selB) return;
+            calData.selB = d; renderWeekPanel();
+          };
+          calEl.onmouseup = end;
+        }
         calEl.onclick = function (ev) {
           let t = ev.target;
           if (t && t.closest) t = t.closest('[data-nav]');
           if (!t || !t.getAttribute) return;
           const dir = Number(t.getAttribute('data-nav'));
           if (!dir) return;
-          ev.preventDefault();
+          if (ev.cancelable) ev.preventDefault();
           calData.viewMonth = (calData.viewMonth || 0) + dir;
           renderWeekPanel();
         };
@@ -3260,6 +3316,7 @@
       function renderStudentDetail(list) {
         var box = document.getElementById('stu-detail');
         if (!box) return;
+        list = normEvents(list);   // 兜底：无论调用方给的是秒还是毫秒都能正确显示「最近时间」
         var byUid = {};
         (list || []).forEach(function (e) {
           if (!e.uid) return;
