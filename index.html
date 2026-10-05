@@ -1725,7 +1725,7 @@
         <div class="admin-panel"><h4>各章节平均掌握度</h4><div class="sub">按章统计完成学习的学生占比</div><div id="ev-chapter"></div></div>
         <div class="admin-panel"><h4>各题型平均正确率</h4><div class="sub">按题型统计答题正确率</div><div id="ev-qtype"></div></div>
         <div class="admin-panel"><h4>学习模块使用占比</h4><div class="sub">各功能模块被打开的频次占比</div><div id="ev-module"></div></div>
-        <div class="admin-panel"><h4>每周活跃人数</h4><div class="sub">按周统计活跃学生数；在下方月历中点选或拖动可圈选一段时间（可翻月），折线图将按天勾出该区间的活跃走势。</div><div id="ev-week"></div><div class="wk-pick"><div class="wk-hd"><span class="wk-range" id="ev-range">默认按周</span><button type="button" class="wk-reset" id="ev-cal-reset">重置</button></div><div id="ev-calendar"></div></div></div>
+        <div class="admin-panel"><h4>每周活跃人数</h4><div class="sub">按周统计活跃学生数（默认展示整个学期）；在下方月历中单击选中整周、按住拖动可圈选任意区间（可翻月），折线图会按天勾出该区间的活跃走势。</div><div id="ev-week"></div><div class="wk-pick"><div class="wk-hd"><span class="wk-range" id="ev-range">默认按周</span><button type="button" class="wk-reset" id="ev-cal-reset">重置</button></div><div id="ev-calendar"></div></div></div>
       </div>
 
       <div class="admin-panel" style="margin-top:16px;">
@@ -2987,7 +2987,11 @@
         // 按周去重活跃人数（默认视图）
         const wkMap = {};
         actSrc.forEach(function (e) { if (!e.ts) return; const idx = Math.floor((e.ts - minTs) / WEEK); wkMap[idx] = wkMap[idx] || {}; wkMap[idx][e.uid] = 1; });
-        const widx = Object.keys(wkMap).map(Number).sort(function (a, b) { return a - b; }).slice(-8);
+        // 默认视图按周展示「整个学期」的活跃走势；此前写死只取最后 8 周，长学期（如 9 月—次年 1 月）会被截断，
+        // 现改为取全部周次（上限 32 周，约一个学年，仅作极端保护）。
+        const MAX_WEEKS = 32;
+        const allWidx = Object.keys(wkMap).map(Number).sort(function (a, b) { return a - b; });
+        const widx = allWidx.length > MAX_WEEKS ? allWidx.slice(-MAX_WEEKS) : allWidx;
         calData.minTs = minTs;
         calData.weekWeeks = widx;
         calData.weekCounts = widx.map(function (idx) { return Object.keys(wkMap[idx]).length; });
@@ -3026,7 +3030,9 @@
           if (rangeEl) rangeEl.innerHTML = '已选区间 <b>' + fmtDay(a) + ' – ' + fmtDay(b) + '</b> · 按天统计 ' + (b - a + 1) + ' 天';
         } else {
           items = calData.weekCounts.map(function (c, i) { return { label: 'W' + (calData.weekWeeks[i] + 1), pct: c, val: c + ' 人' }; });
-          if (rangeEl) rangeEl.innerHTML = '默认按周 · W1–W' + calData.weekWeeks.length
+          const w0 = calData.weekWeeks.length ? calData.weekWeeks[0] + 1 : 1;
+          const wN = calData.weekWeeks.length ? calData.weekWeeks[calData.weekWeeks.length - 1] + 1 : 1;
+          if (rangeEl) rangeEl.innerHTML = '按周 · W' + w0 + '–W' + wN
             + (calData.maxD > 0 ? ' · 日历可选 ' + fmtDay(0) + ' – ' + fmtDay(calData.maxD) : '');
         }
         if (wEl) wEl.innerHTML = items.length ? lineChart(items) : '<div class="um-empty">暂无活跃记录</div>';
@@ -3039,7 +3045,7 @@
         return (dt.getMonth() + 1) + '/' + dt.getDate();
       }
 
-      // 绑定月历交互：点击选单日、按住拖动圈选区间、点击箭头翻月、重置回按周
+      // 绑定月历交互：单击选中整周、按住拖动圈选任意区间、点击箭头翻月、重置回按周
       // 说明：每次圈选都会重绘月历 innerHTML，若在格子元素上监听 move 会因元素被替换而丢事件，
       //       故改为「容器 pointerdown 起手 + document 级 pointermove/up + elementFromPoint 命中」，
       //       这样拖动经过的格子始终能被正确识别（鼠标与触屏一致）。
@@ -3054,17 +3060,35 @@
           const v = t.getAttribute('data-d');
           return (v != null && v !== '') ? Number(v) : -1;
         };
+        // 某日序号 → 它所在的「自然周」（周一~周日，按真实日期算），并夹在数据范围内。
+        // 用途：单击某天时展开为整周，避免折线图只剩一个孤立点（一个点不成曲线）。
+        const weekOf = function (d) {
+          if (!(d >= 0)) return null;
+          const wd = (new Date(calData.minTs + d * 86400000).getDay() + 6) % 7;   // 周一 = 0
+          const lastD = (calData.maxD != null) ? calData.maxD : d;
+          let a = d - wd, b = d - wd + 6;
+          if (a < 0) a = 0;
+          if (b > lastD) b = lastD;
+          if (b < a) b = a;
+          return { a: a, b: b };
+        };
         const move = function (ev) {
           if (!calData.dragging) return;
           const d = pickAt(ev.clientX, ev.clientY);
           if (d < 0 || d === calData.selB) return;
           if (ev.cancelable) ev.preventDefault();
           calData.selB = d;
+          calData.moved = true;      // 真的移动过 → 保留用户自己圈出的区间
           renderWeekPanel();
         };
         const end = function () {
           if (!calData.dragging) return;
           calData.dragging = false;
+          // 只按下、没移动过（即单击）→ 展开为该日所在整周，保证折线始终是一段区间而非单点
+          if (!calData.moved) {
+            const wk = weekOf(calData.selA);
+            if (wk) { calData.selA = wk.a; calData.selB = wk.b; renderWeekPanel(); }
+          }
           document.removeEventListener('pointermove', move);
           document.removeEventListener('pointerup', end);
           document.removeEventListener('pointercancel', end);
@@ -3076,7 +3100,12 @@
           const d = pickAt(ev.clientX, ev.clientY);
           if (d < 0) return;
           if (ev.cancelable) ev.preventDefault();
-          calData.selA = d; calData.selB = d; calData.dragging = true;
+          // 触屏有「隐式指针捕获」：若不显式把捕获改到容器上，pointerdown 里重绘月历会把被捕获的
+          // 格子元素移除，后续 pointermove 便收不到 → 表现为「拖不动、只选到一天」。
+          if (ev.pointerId != null && calEl.setPointerCapture) {
+            try { calEl.setPointerCapture(ev.pointerId); } catch (e) { }
+          }
+          calData.selA = d; calData.selB = d; calData.dragging = true; calData.moved = false;
           renderWeekPanel();
           document.removeEventListener('pointermove', move);
           document.removeEventListener('pointerup', end);
@@ -3188,15 +3217,17 @@
         const pts = items.map(function (i, idx) { return [px(idx), py(i.pct)]; });
         const poly = pts.map(function (p) { return p[0].toFixed(1) + ',' + p[1].toFixed(1); }).join(' ');
         const area = PL + ',' + (PT + ih) + ' ' + poly + ' ' + (W - PR) + ',' + (PT + ih);
-        const many = n > 12;                       // 点较多时省略逐点数值、稀疏 x 轴标签
+        // 周视图（整学期 16–22 周）保留逐点数值；按天长区间（几十上百点）才省略数值
+        const showVal = n <= 22;
         const dots = items.map(function (i, idx) {
-          const r = n > 20 ? 2.2 : 3.4;
+          const r = n > 22 ? 2.2 : 3.4;
           return '<circle cx="' + pts[idx][0].toFixed(1) + '" cy="' + pts[idx][1].toFixed(1) + '" r="' + r + '" fill="#4f46e5" stroke="#fff" stroke-width="1.4"></circle>'
-            + (many ? '' : '<text x="' + pts[idx][0].toFixed(1) + '" y="' + (pts[idx][1] - 9).toFixed(1) + '" text-anchor="middle" font-size="10.5" font-weight="700" fill="#4f46e5">' + i.pct + '</text>');
+            + (showVal ? '<text x="' + pts[idx][0].toFixed(1) + '" y="' + (pts[idx][1] - 9).toFixed(1) + '" text-anchor="middle" font-size="10.5" font-weight="700" fill="#4f46e5">' + i.pct + '</text>' : '');
         }).join('');
-        const lblStep = many ? Math.ceil(n / 8) : 1;
+        // 标签稀疏：≤12 个点全标；更多时约每 n/10 个标一次（末点必标）
+        const lblStep = n <= 12 ? 1 : Math.ceil(n / 10);
         const xlbl = items.map(function (i, idx) {
-          if (many && idx % lblStep !== 0 && idx !== n - 1) return '';
+          if (idx % lblStep !== 0 && idx !== n - 1) return '';
           return '<text x="' + px(idx).toFixed(1) + '" y="' + (H - 8) + '" text-anchor="middle" font-size="10.5" fill="#8892a6">' + esc(i.label) + '</text>';
         }).join('');
         return '<svg class="line-svg" viewBox="0 0 ' + W + ' ' + H + '" preserveAspectRatio="xMidYMid meet">'
