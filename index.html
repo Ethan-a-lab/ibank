@@ -1,7 +1,8 @@
 <!DOCTYPE html>
-<html lang="zh-CN"><head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>iBank平台 · 投资银行学智慧课堂</title>
   <style>
     :root {
@@ -592,6 +593,8 @@
     .um-toolbar { display: flex; gap: 10px; margin-bottom: 12px; }
     .um-toolbar input { flex: 1; height: 38px; padding: 0 12px; border-radius: 10px; border: 1px solid #e5e9f0; background: #fbfcfe; font-size: 13.5px; color: #1a2233; outline: none; }
     .um-toolbar input:focus { border-color: var(--accent-text); }
+    .um-toolbar select.um-select { height: 38px; padding: 0 30px 0 10px; border-radius: 10px; border: 1px solid #e5e9f0; background: #fbfcfe url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' fill='none' stroke='%238088a0' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat right 11px center; font-size: 13px; color: #1a2233; cursor: pointer; outline: none; flex: none; min-width: 104px; -webkit-appearance: none; appearance: none; }
+    .um-toolbar select.um-select:focus { border-color: var(--accent-text); }
     .um-toolbar button { height: 38px; padding: 0 16px; border-radius: 10px; border: none; background: #e8f0fe; color: #2563eb; font-size: 13px; cursor: pointer; }
     .um-toolbar button:disabled { opacity: .5; cursor: not-allowed; }
     .um-row { display: flex; align-items: center; gap: 10px; padding: 10px 4px; border-top: 1px solid #eef2f7; font-size: 13.5px; }
@@ -606,6 +609,7 @@
     .um-act.demote:hover { background: #fffbeb; }
     .um-act:disabled { opacity: .45; cursor: not-allowed; }
     .um-me { font-size: 11px; font-weight: 700; color: #2563eb; background: #eff6ff; border-radius: 4px; padding: 1px 5px; margin-left: 4px; vertical-align: 1px; }
+    .um-count { font-size: 12.5px; color: var(--muted); margin-left: auto; align-self: center; }
     .um-mine-note { font-size: 12px; color: var(--muted); padding-right: 8px; }
     .um-empty { padding: 18px 4px; font-size: 13px; color: var(--muted); text-align: center; }
 
@@ -614,8 +618,25 @@
     .ev-sw { display: inline-flex; align-items: center; gap: 7px; font-size: 13px; color: #1a2233; cursor: pointer; user-select: none; }
     .ev-sw input { width: 15px; height: 15px; accent-color: #4f46e5; cursor: pointer; }
     .ev-toolbar .tip { font-size: 12px; color: var(--muted); }
-    .base-legend { display: inline-flex; align-items: center; gap: 5px; color: #b45309; font-weight: 600; }
-    .base-legend i { display: inline-block; width: 2px; height: 12px; background: #f59e0b; vertical-align: -2px; }
+    .ev-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 16px; }
+    @media (max-width: 860px) { .ev-grid { grid-template-columns: 1fr; } }
+    .ev-note { font-size: 11.5px; color: var(--muted); margin: 2px 0 10px; }
+    /* 题型竖向柱状图 */
+    .vbar-wrap { display: flex; align-items: flex-end; gap: 12px; height: 190px; padding: 16px 4px 0; }
+    .vbar-col { flex: 1; display: flex; flex-direction: column; align-items: center; height: 100%; justify-content: flex-end; }
+    .vbar-val { font-size: 11.5px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+    .vbar-track { flex: 1; width: 100%; display: flex; align-items: flex-end; }
+    .vbar-fill { width: 100%; border-radius: 8px 8px 0 0; background: linear-gradient(180deg, #818cf8, #4f46e5); transition: height .4s; }
+    .vbar-lbl { font-size: 12px; color: var(--muted); margin-top: 8px; white-space: nowrap; }
+    /* 环形图 */
+    .donut-wrap { display: flex; align-items: center; gap: 22px; flex-wrap: wrap; }
+    .donut-svg { flex: none; }
+    .donut-legend { flex: 1; min-width: 150px; display: flex; flex-direction: column; gap: 9px; }
+    .donut-legend .lg { display: flex; align-items: center; gap: 9px; font-size: 12.5px; color: var(--text); }
+    .donut-legend .lg i { width: 11px; height: 11px; border-radius: 3px; flex: none; }
+    .donut-legend .lg .pc { margin-left: auto; font-weight: 700; color: var(--text); }
+    /* 折线图 */
+    .line-svg { width: 100%; height: auto; display: block; }
     /* ===== 学生学情明细 ===== */
     .stu-item { border-top: 1px solid #eef2f7; }
     .stu-item > summary { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; padding: 11px 6px; font-size: 13.5px; cursor: pointer; list-style: none; border-radius: 8px; }
@@ -814,10 +835,10 @@
           <button class="active" data-m="password">密码登录</button>
           <button data-m="sms">验证码登录</button>
         </div>
-        <div class="lfield"><input id="login-phone" type="tel" placeholder="手机号"></div>
-        <div class="lfield" id="login-pwd-field"><input id="login-password" type="password" placeholder="密码"></div>
+        <div class="lfield"><input id="login-phone" type="tel" placeholder="手机号" /></div>
+        <div class="lfield" id="login-pwd-field"><input id="login-password" type="password" placeholder="密码" /></div>
         <div class="lfield hidden" id="login-sms-field">
-          <input id="login-sms-code" type="text" placeholder="短信验证码">
+          <input id="login-sms-code" type="text" placeholder="短信验证码" />
           <button id="login-sms-btn" type="button">获取验证码</button>
         </div>
         <button class="lprimary" id="login-btn">登录</button>
@@ -826,7 +847,7 @@
 
       <!-- 注册面板 -->
       <div id="panel-register" class="hidden">
-        <div class="lfield"><input id="reg-name" type="text" placeholder="姓名（必填）"></div>
+        <div class="lfield"><input id="reg-name" type="text" placeholder="姓名（必填）" /></div>
         <div class="lfield">
           <select id="reg-class">
             <option value="">选择班级（也可注册后在顶部修改）</option>
@@ -834,13 +855,13 @@
             <option value="金融2304">金融2304</option>
           </select>
         </div>
-        <div class="lfield"><input id="reg-phone" type="tel" placeholder="手机号"></div>
+        <div class="lfield"><input id="reg-phone" type="tel" placeholder="手机号" /></div>
         <div class="lfield">
-          <input id="reg-sms-code" type="text" placeholder="短信验证码">
+          <input id="reg-sms-code" type="text" placeholder="短信验证码" />
           <button id="reg-sms-btn" type="button">获取验证码</button>
         </div>
-        <div class="lfield"><input id="reg-password" type="password" placeholder="设置密码（8-32位，含字母和数字）"></div>
-        <div class="lfield"><input id="reg-password2" type="password" placeholder="确认密码"></div>
+        <div class="lfield"><input id="reg-password" type="password" placeholder="设置密码（8-32位，含字母和数字）" /></div>
+        <div class="lfield"><input id="reg-password2" type="password" placeholder="确认密码" /></div>
         <button class="lprimary" id="register-btn">注册并登录</button>
         <p class="login-note">注册即学生账号；教师身份由课程管理员在后台授予。忘记密码？重走一遍本流程即可用手机验证码重置密码。</p>
         <p class="privacy-note"><strong>数据与隐私说明：</strong>本平台仅收集<strong>姓名、班级与学习行为数据</strong>（章节学习时长、习题作答正误、模块使用情况），用于课程教学分析与学情反馈，不对外公开、不用于商业用途。<strong>课程结束后</strong>，将对个人身份信息做<strong>匿名化处理</strong>（清除姓名等可识别信息），仅保留汇总统计数据用于教学研究。</p>
@@ -861,16 +882,16 @@
         <div class="mini-robot">
           <svg viewBox="0 0 320 400" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
             <defs>
-              <linearGradient id="nBody" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#67e8f9"></stop><stop offset="1" stop-color="#6366f1"></stop></linearGradient>
-              <linearGradient id="nHead" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#232a4d"></stop><stop offset="1" stop-color="#11142e"></stop></linearGradient>
+              <linearGradient id="nBody" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#67e8f9"/><stop offset="1" stop-color="#6366f1"/></linearGradient>
+              <linearGradient id="nHead" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#232a4d"/><stop offset="1" stop-color="#11142e"/></linearGradient>
             </defs>
-            <circle cx="160" cy="20" r="9" fill="#22d3ee"></circle>
-            <line x1="160" y1="62" x2="160" y2="30" stroke="#8b93b8" stroke-width="5" stroke-linecap="round"></line>
-            <rect x="86" y="214" width="148" height="150" rx="30" fill="url(#nBody)"></rect>
-            <rect x="70" y="62" width="180" height="160" rx="26" fill="url(#nHead)"></rect>
-            <rect x="113" y="115" width="18" height="34" rx="9" fill="#a5f3fc"></rect>
-            <rect x="189" y="115" width="18" height="34" rx="9" fill="#a5f3fc"></rect>
-            <rect x="136" y="169" width="48" height="18" rx="9" fill="#a5f3fc"></rect>
+            <circle cx="160" cy="20" r="9" fill="#22d3ee"/>
+            <line x1="160" y1="62" x2="160" y2="30" stroke="#8b93b8" stroke-width="5" stroke-linecap="round"/>
+            <rect x="86" y="214" width="148" height="150" rx="30" fill="url(#nBody)"/>
+            <rect x="70" y="62" width="180" height="160" rx="26" fill="url(#nHead)"/>
+            <rect x="113" y="115" width="18" height="34" rx="9" fill="#a5f3fc"/>
+            <rect x="189" y="115" width="18" height="34" rx="9" fill="#a5f3fc"/>
+            <rect x="136" y="169" width="48" height="18" rx="9" fill="#a5f3fc"/>
           </svg>
         </div>
         <div>
@@ -882,7 +903,7 @@
         <button class="tab-btn active" data-page="p-home">首页</button>
 
         <div class="nav-group">
-          <button class="nav-trigger" type="button" aria-expanded="false" aria-haspopup="true">理论学习<svg class="nav-caret" viewBox="0 0 10 10" aria-hidden="true"><path d="M2 3.5L5 6.5L8 3.5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path></svg></button>
+          <button class="nav-trigger" type="button" aria-expanded="false" aria-haspopup="true">理论学习<svg class="nav-caret" viewBox="0 0 10 10" aria-hidden="true"><path d="M2 3.5L5 6.5L8 3.5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
           <div class="nav-dropdown">
             <div class="dd-title">理论学习中心</div>
             <button class="tab-btn" data-page="p-graph"><span class="dd-name">课程知识图谱</span><span class="dd-desc">9 章知识树梳理重难点</span></button>
@@ -893,7 +914,7 @@
         </div>
 
         <div class="nav-group">
-          <button class="nav-trigger" type="button" aria-expanded="false" aria-haspopup="true">技能训练<svg class="nav-caret" viewBox="0 0 10 10" aria-hidden="true"><path d="M2 3.5L5 6.5L8 3.5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path></svg></button>
+          <button class="nav-trigger" type="button" aria-expanded="false" aria-haspopup="true">技能训练<svg class="nav-caret" viewBox="0 0 10 10" aria-hidden="true"><path d="M2 3.5L5 6.5L8 3.5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
           <div class="nav-dropdown">
             <div class="dd-title">技能训练中心</div>
             <button class="tab-btn" data-page="p-exercise"><span class="dd-name">实务习题训练</span><span class="dd-desc">即时判分，错题自动归集</span></button>
@@ -903,7 +924,7 @@
         </div>
 
         <div class="nav-group dd-right">
-          <button class="nav-trigger" type="button" aria-expanded="false" aria-haspopup="true">仿真实战<svg class="nav-caret" viewBox="0 0 10 10" aria-hidden="true"><path d="M2 3.5L5 6.5L8 3.5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path></svg></button>
+          <button class="nav-trigger" type="button" aria-expanded="false" aria-haspopup="true">仿真实战<svg class="nav-caret" viewBox="0 0 10 10" aria-hidden="true"><path d="M2 3.5L5 6.5L8 3.5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
           <div class="nav-dropdown">
             <div class="dd-title">仿真实战中心</div>
             <button class="tab-btn" data-page="p-macro"><span class="dd-name">宏观市场专题</span><span class="dd-desc">美元·黄金·股票·美债定价逻辑</span></button>
@@ -912,12 +933,12 @@
         </div>
 
         <div class="nav-group dd-right">
-          <button class="nav-trigger" type="button" aria-expanded="false" aria-haspopup="true">学习数据<svg class="nav-caret" viewBox="0 0 10 10" aria-hidden="true"><path d="M2 3.5L5 6.5L8 3.5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path></svg></button>
+          <button class="nav-trigger" type="button" aria-expanded="false" aria-haspopup="true">学习数据<svg class="nav-caret" viewBox="0 0 10 10" aria-hidden="true"><path d="M2 3.5L5 6.5L8 3.5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
           <div class="nav-dropdown">
             <div class="dd-title">我的学习数据</div>
             <button class="tab-btn" data-page="p-wrong"><span class="dd-name">错题定位诊断</span><span class="dd-desc">错因归类与薄弱点补课</span></button>
             <button class="tab-btn" data-page="p-profile"><span class="dd-name">个人学情画像</span><span class="dd-desc">六维掌握度雷达与进步曲线</span></button>
-            <button class="tab-btn" data-page="p-admin" style="display: none;"><span class="dd-name">班级后台统计</span><span class="dd-desc">学情汇总与达成率分析（教师）</span></button>
+            <button class="tab-btn" data-page="p-admin"><span class="dd-name">班级后台统计</span><span class="dd-desc">学情汇总与达成率分析（教师）</span></button>
           </div>
         </div>
       </div>
@@ -979,7 +1000,7 @@
           <div class="home-card" data-page="p-macro"><div class="ico">🌐</div><h4>宏观市场</h4><p>美元 · 黄金 · 股票 · 美债联动解读</p><span class="go">进入 →</span></div>
           <div class="home-card" data-page="p-sim"><div class="ico">📈</div><h4>股市模拟</h4><p>虚拟盘实战交易，体验市场博弈</p><span class="go">进入 →</span></div>
           <div class="home-card" data-page="p-sizheng"><div class="ico">🎓</div><h4>课程思政</h4><p>立德树人 · 金融强国价值引领</p><span class="go">进入 →</span></div>
-          <div class="home-card" data-page="p-admin" style="display: none;"><div class="ico">🗂️</div><h4>后台统计</h4><p>班级学情数据看板（教师端）</p><span class="go">进入 →</span></div>
+          <div class="home-card" data-page="p-admin"><div class="ico">🗂️</div><h4>后台统计</h4><p>班级学情数据看板（教师端）</p><span class="go">进入 →</span></div>
         </div>
       </div>
 
@@ -1001,10 +1022,10 @@
         <div class="learn-layout">
           <aside class="chapter-nav" id="chapter-nav">
             <div class="cn-title">课程章节 · 共 <b>9</b> 章 · 已学 <b id="cn-count">0</b>/9</div>
-            <div class="cn-bar"><i id="cn-bar-fill" style="width: 0%;"></i></div>
-            <div id="chapter-list"><button class="chapter-link active" data-no="第1章"><span class="cn-no">第1章</span><span class="cn-name">投资银行概述</span></button><button class="chapter-link" data-no="第2章"><span class="cn-no">第2章</span><span class="cn-name">企业融资方案设计</span></button><button class="chapter-link" data-no="第3章"><span class="cn-no">第3章</span><span class="cn-name">股份有限公司与首次公开发行</span></button><button class="chapter-link" data-no="第4章"><span class="cn-no">第4章</span><span class="cn-name">上市公司再融资</span></button><button class="chapter-link" data-no="第5章"><span class="cn-no">第5章</span><span class="cn-name">债券的发行与承销</span></button><button class="chapter-link" data-no="第6章"><span class="cn-no">第6章</span><span class="cn-name">资产证券化</span></button><button class="chapter-link" data-no="第7章"><span class="cn-no">第7章</span><span class="cn-name">公司并购</span></button><button class="chapter-link" data-no="第8章"><span class="cn-no">第8章</span><span class="cn-name">投资银行的风险管理</span></button><button class="chapter-link" data-no="第9章"><span class="cn-no">第9章</span><span class="cn-name">投资银行的监管</span></button></div>
+            <div class="cn-bar"><i id="cn-bar-fill"></i></div>
+            <div id="chapter-list"></div>
           </aside>
-          <div class="chapter-main" id="chapter-main"><div class="ch-head"><div><div class="ch-no">第1章</div><h2 class="ch-name">投资银行概述</h2></div><span id="ch-timer"><span class="timer-chip">⏱ 本次 <b class="t-sess">00:16</b> · 累计 <b class="t-acc">01:26</b></span></span><button class="ch-done-btn" data-no="第1章">标记已完成</button></div><div class="ch-meta">教材对应：马晓军《投资银行学：理论与案例（第 4 版）》第1章 · ISBN 978-7-111-76189-1</div><div class="ch-blocks"><div class="block"><div class="b-title"><span class="bar"></span>课题知识回顾</div><p class="b-text">本章从投资银行的界定出发，梳理其作为资本市场「信息中介」与「定价中枢」的核心职能：证券承销保荐、并购重组顾问、经纪与交易、资产管理等；并对比间接融资下商业银行的存贷汇模式，理解混业趋势下二者边界的模糊。重点把握直接融资与间接融资的区分、投行的金融功能观（降低信息不对称、提供流动性、分散与管理风险）。</p><div class="res-row"><button class="res-btn" data-res="pdf">📄 阅读教材 PDF</button></div></div><div class="block"><div class="b-title"><span class="bar"></span>配套视频</div><a class="video-card" href="https://www.bilibili.com/video/BV1mk2gB4EGL/" target="_blank" rel="noopener noreferrer"><span class="vc-play">▶</span><span class="vc-info"><b class="vc-title">耶鲁大学《金融市场》公开课（中英字幕）</b><span class="vc-meta">耶鲁大学 · 全129讲 · B 站外链 ↗</span></span></a></div><div class="block"><div class="b-title"><span class="bar"></span>案例拓展</div><a class="case-link" data-goto="p-case" data-case="case-05">高盛 · 投资银行业务版图<span class="case-tag-mini">业务概览</span><span class="ext">↗</span></a><div class="res-row"><button class="res-btn" data-goto="p-case">查看案例库 →</button></div></div><div class="block"><div class="b-title"><span class="bar"></span>本章重点</div><p class="b-text">投资银行的定义与业务范围；与商业银行的异同；承销、并购、证券交易等主要业务</p></div><div class="block"><div class="b-title"><span class="bar"></span>本章难点</div><p class="b-text">投资银行功能的经济学解释（信息不对称、委托代理理论）</p></div><div class="block"><div class="b-title"><span class="bar"></span>核心概念</div><ul class="concept-list"><li><b>投资银行</b>资本市场上的金融中介，主要功能是在直接融资中连接资金供需双方，提供证券承销、并购顾问、经纪与交易、资产管理等服务。</li><li><b>直接融资 vs 间接融资</b>直接融资由融资方发行证券向投资者筹资、投行居间；间接融资通过银行存贷款、商业银行居间。投行是直接融资体系的核心中介。</li><li><b>与商业银行的区别</b>商业银行经营存贷汇、受存款准备金与审慎监管约束、表内风险为主；投行以服务费收入为主、表外业务居多、风险偏好更高。混业趋势下边界趋于模糊。</li><li><b>主要业务板块</b>证券承销（underwriting）、并购重组顾问、证券经纪与交易、自营投资、资产管理与财富管理、研究。</li><li><b>金融功能观</b>从 Merton &amp; Bodie 的金融功能视角看，投行通过专业分工降低信息不对称、提供流动性、分散与管理风险、降低交易成本。</li></ul></div><div class="block"><div class="b-title"><span class="bar"></span>本章练习</div><p class="b-text">做几道配套习题检验本章掌握情况；错题自动归集到「错题定位」。</p><div class="res-row"><button class="res-btn" data-res="exercise">📝 本章习题</button></div></div></div></div>
+          <div class="chapter-main" id="chapter-main"></div>
         </div>
       </div>
     </section>
@@ -1027,7 +1048,7 @@
             <span class="chip">并购估值怎么做</span>
           </div>
           <form class="chat-input" id="qa-form">
-            <input id="qa-input" type="text" placeholder="输入你的问题…" autocomplete="off">
+            <input id="qa-input" type="text" placeholder="输入你的问题…" autocomplete="off" />
             <button type="submit">发送</button>
           </form>
         </div>
@@ -1041,12 +1062,12 @@
         <div class="section-sub">选择答案后即时判断，答错的题会自动进入「错题定位」。可按章节 / 题型筛选；学满 1 小时自动标记本次训练完成。</div>
         <div class="ex-toolbar">
           <div class="ex-filters">
-            <div class="ex-fgroup"><span class="ex-flbl">章节</span><div id="ex-chips-ch"><button class="ex-chip active" data-ch="">全部</button><button class="ex-chip" data-ch="第3章">第3章<span class="cnt">4</span></button><button class="ex-chip" data-ch="第5章">第5章<span class="cnt">2</span></button><button class="ex-chip" data-ch="第1章">第1章<span class="cnt">2</span></button><button class="ex-chip" data-ch="第7章">第7章<span class="cnt">1</span></button><button class="ex-chip" data-ch="第2章">第2章<span class="cnt">1</span></button></div></div>
-            <div class="ex-fgroup"><span class="ex-flbl">题型</span><div id="ex-chips-type"><button class="ex-chip active" data-t="">全部</button><button class="ex-chip" data-t="选择">选择<span class="cnt">6</span></button><button class="ex-chip" data-t="判断">判断<span class="cnt">1</span></button><button class="ex-chip" data-t="计算">计算<span class="cnt">1</span></button><button class="ex-chip" data-t="案例">案例<span class="cnt">1</span></button><button class="ex-chip" data-t="简答">简答<span class="cnt">1</span></button></div></div>
+            <div class="ex-fgroup"><span class="ex-flbl">章节</span><div id="ex-chips-ch"></div></div>
+            <div class="ex-fgroup"><span class="ex-flbl">题型</span><div id="ex-chips-type"></div></div>
           </div>
-          <div class="ex-timer-wrap"><span id="ex-timer"><span class="timer-chip">⏱ 本次 <b class="t-sess">00:16</b> · 累计 <b class="t-acc">01:26</b></span></span><button class="ch-done-btn" id="ex-done-btn">标记本次训练完成</button></div>
+          <div class="ex-timer-wrap"><span id="ex-timer"></span><button class="ch-done-btn" id="ex-done-btn">标记本次训练完成</button></div>
         </div>
-        <div id="quiz-box"><div class="ex-meta">当前：全部章节 · 共 <b>10</b> 题（含示例题，正式题库待补充）</div><div class="quiz-q"><strong>第 1 / 10 题</strong>　股票发行承销中，投行承担「包销」意味着什么？　<span class="q-tag">选择 · 第3章</span></div><div class="quiz-opts"><button class="quiz-opt" data-i="0">A. 只代理销售，卖不完退回</button><button class="quiz-opt" data-i="1">B. 全额买下再卖出，承担未售出风险</button><button class="quiz-opt" data-i="2">C. 只负责定价不负责销售</button><button class="quiz-opt" data-i="3">D. 仅提供法律意见</button></div><div class="quiz-score" id="quiz-feedback"></div><div class="quiz-actions"><button class="sim-btn primary" id="quiz-next" style="display:none;">下一题</button></div></div>
+        <div id="quiz-box"></div>
       </div>
     </section>
 
@@ -1055,7 +1076,7 @@
       <div class="panel">
         <div class="section-title"><span class="bar"></span>错题定位</div>
         <div class="section-sub">针对反复出错的知识点，推送讲解与情景化练习。</div>
-        <div id="wrong-list"><div class="wrong-item"><div class="q">市盈率法与市净率法分别适用于什么类型公司？</div><span class="tag">相对估值</span><div class="ans">✔ 成长型、盈利稳定的公司常用 PE；重资产、金融类公司常用 PB。</div><div class="exp">容易混淆 PE 与 PB 的适用场景，需结合公司资产结构与盈利特征判断。</div></div><div class="wrong-item"><div class="q">包销与代销在风险分担上有何区别？</div><span class="tag">承销业务</span><div class="ans">✔ 包销由投行承担未售出风险；代销风险小但募资不确定。</div><div class="exp">抓住「风险由谁承担」这一关键，而非只记名词。</div></div><div class="wrong-item"><div class="q">现金流折现 DCF 中，折现率上升会如何影响估值？</div><span class="tag">估值方法</span><div class="ans">✔ 折现率上升会降低未来现金流的现值，从而拉低估值。</div><div class="exp">折现率与估值反向变动，是 DCF 模型的核心逻辑。</div></div></div>
+        <div id="wrong-list"></div>
       </div>
     </section>
 
@@ -1065,8 +1086,8 @@
         <div class="section-title"><span class="bar"></span>个人学情画像</div>
         <div class="section-sub">六大维度掌握度，帮助查漏补缺。</div>
         <div class="profile-grid">
-          <div class="chart-card"><h4>能力雷达</h4><svg id="radar" viewBox="0 0 360 320" width="100%"><polygon points="180.0,133.8 202.7,146.9 202.7,173.1 180.0,186.3 157.3,173.1 157.3,146.9 " fill="none" stroke="var(--chart-grid)" stroke-width="1"></polygon><polygon points="180.0,107.5 225.5,133.8 225.5,186.3 180.0,212.5 134.5,186.3 134.5,133.8 " fill="none" stroke="var(--chart-grid)" stroke-width="1"></polygon><polygon points="180.0,81.3 248.2,120.6 248.2,199.4 180.0,238.8 111.8,199.4 111.8,120.6 " fill="none" stroke="var(--chart-grid)" stroke-width="1"></polygon><polygon points="180.0,55.0 270.9,107.5 270.9,212.5 180.0,265.0 89.1,212.5 89.1,107.5 " fill="none" stroke="var(--chart-grid)" stroke-width="1"></polygon><line x1="180" y1="160" x2="180.0" y2="55.0" stroke="var(--chart-axis)" stroke-width="1"></line><line x1="180" y1="160" x2="270.9" y2="107.5" stroke="var(--chart-axis)" stroke-width="1"></line><line x1="180" y1="160" x2="270.9" y2="212.5" stroke="var(--chart-axis)" stroke-width="1"></line><line x1="180" y1="160" x2="180.0" y2="265.0" stroke="var(--chart-axis)" stroke-width="1"></line><line x1="180" y1="160" x2="89.1" y2="212.5" stroke="var(--chart-axis)" stroke-width="1"></line><line x1="180" y1="160" x2="89.1" y2="107.5" stroke="var(--chart-axis)" stroke-width="1"></line><polygon points="180.0,78.1 244.6,122.7 254.6,203.0 180.0,228.3 112.7,198.9 117.3,123.8 " fill="var(--chart-area)" stroke="var(--chart-indigo)" stroke-width="2"></polygon><text x="180.0" y="29.0" fill="var(--chart-label)" font-size="12" text-anchor="middle" dominant-baseline="middle">承销实务</text><text x="293.4" y="94.5" fill="var(--chart-label)" font-size="12" text-anchor="middle" dominant-baseline="middle">估值方法</text><text x="293.4" y="225.5" fill="var(--chart-label)" font-size="12" text-anchor="middle" dominant-baseline="middle">并购重组</text><text x="180.0" y="291.0" fill="var(--chart-label)" font-size="12" text-anchor="middle" dominant-baseline="middle">债券业务</text><text x="66.6" y="225.5" fill="var(--chart-label)" font-size="12" text-anchor="middle" dominant-baseline="middle">宏观市场</text><text x="66.6" y="94.5" fill="var(--chart-label)" font-size="12" text-anchor="middle" dominant-baseline="middle">尽职调查</text></svg></div>
-          <div class="chart-card"><h4>维度掌握度</h4><div id="profile-bars"><div class="profile-bar"><span class="name">承销实务</span><span class="track"><span class="fill" style="width:78%"></span></span><span class="val">78</span></div><div class="profile-bar"><span class="name">估值方法</span><span class="track"><span class="fill" style="width:71%"></span></span><span class="val">71</span></div><div class="profile-bar"><span class="name">并购重组</span><span class="track"><span class="fill" style="width:82%"></span></span><span class="val">82</span></div><div class="profile-bar"><span class="name">债券业务</span><span class="track"><span class="fill" style="width:65%"></span></span><span class="val">65</span></div><div class="profile-bar"><span class="name">宏观市场</span><span class="track"><span class="fill" style="width:74%"></span></span><span class="val">74</span></div><div class="profile-bar"><span class="name">尽职调查</span><span class="track"><span class="fill" style="width:69%"></span></span><span class="val">69</span></div></div></div>
+          <div class="chart-card"><h4>能力雷达</h4><svg id="radar" viewBox="0 0 360 320" width="100%"></svg></div>
+          <div class="chart-card"><h4>维度掌握度</h4><div id="profile-bars"></div></div>
         </div>
       </div>
     </section>
@@ -1076,13 +1097,13 @@
       <div class="panel">
         <div class="section-title"><span class="bar"></span>IPO 发行流程仿真</div>
         <div class="section-sub">按顺序完成从改制到上市的全流程任务。</div>
-        <div class="steps" id="ipo-steps"><div class="step-dot active">1. 改制设立</div><div class="step-dot">2. 上市辅导</div><div class="step-dot">3. 申报受理</div><div class="step-dot">4. 审核注册</div><div class="step-dot">5. 发行定价</div><div class="step-dot">6. 路演询价</div><div class="step-dot">7. 发行上市</div></div>
+        <div class="steps" id="ipo-steps"></div>
         <div class="ipo-stage">
-          <h4 id="ipo-title">改制设立</h4>
-          <p id="ipo-desc">有限责任公司改制为股份有限公司，明确股权结构与治理架构，为后续申报奠定主体资格基础。</p>
+          <h4 id="ipo-title"></h4>
+          <p id="ipo-desc"></p>
         </div>
         <div class="ipo-actions">
-          <button class="sim-btn ghost" id="ipo-prev" disabled="">上一步</button>
+          <button class="sim-btn ghost" id="ipo-prev">上一步</button>
           <button class="sim-btn primary" id="ipo-next">下一步</button>
         </div>
       </div>
@@ -1096,14 +1117,14 @@
         <div class="val-grid">
           <div class="chart-card">
             <h4>参数设置</h4>
-            <div class="val-field"><label>净利润（万元）</label><input id="val-profit" type="number" value="8000"></div>
-            <div class="val-field"><label>盈利增长率 g（%）</label><input id="val-g" type="number" value="10"></div>
-            <div class="val-field"><label>折现率 r（%）</label><input id="val-r" type="number" value="15"></div>
-            <div class="val-field"><label>可比市盈率 PE（倍）</label><input id="val-pe" type="number" value="40"></div>
+            <div class="val-field"><label>净利润（万元）</label><input id="val-profit" type="number" value="8000" /></div>
+            <div class="val-field"><label>盈利增长率 g（%）</label><input id="val-g" type="number" value="10" /></div>
+            <div class="val-field"><label>折现率 r（%）</label><input id="val-r" type="number" value="15" /></div>
+            <div class="val-field"><label>可比市盈率 PE（倍）</label><input id="val-pe" type="number" value="40" /></div>
           </div>
           <div class="chart-card">
             <h4>估值结果</h4>
-            <div id="val-result"><div class="val-item"><div class="m">市盈率估值（PE = 40x）</div><div class="v">320,000 万元</div><div class="note">净利润 × PE 倍数</div></div><div class="val-item"><div class="m">现金流折现估值（DCF）</div><div class="v">176,000 万元</div><div class="note">g = 10%，r = 15% （Gordon 模型，FCF≈净利润）</div></div><div class="val-item"><div class="m">对比</div><div class="v" style="font-size:16px;">PE 估值更高</div><div class="note">调整 g、r 观察估值如何变化</div></div></div>
+            <div id="val-result"></div>
           </div>
         </div>
       </div>
@@ -1114,7 +1135,7 @@
       <div class="panel">
         <div class="section-title"><span class="bar"></span>投行教学案例库</div>
         <div class="section-sub">点击案例标题展开完整内容。可按章节筛选；案例库即本课程全部真实案例的汇总页。</div>
-        <div class="case-filter" id="case-filter"><button class="cf-btn active" data-ch="">全部</button><button class="cf-btn" data-ch="第3章">第3章</button><button class="cf-btn" data-ch="第7章">第7章</button><button class="cf-btn" data-ch="第5章">第5章</button><button class="cf-btn" data-ch="第1章">第1章</button><button class="cf-btn" data-ch="第2章">第2章</button><button class="cf-btn" data-ch="第4章">第4章</button><button class="cf-btn" data-ch="第6章">第6章</button><button class="cf-btn" data-ch="第8章">第8章</button><button class="cf-btn" data-ch="第9章">第9章</button></div>
+        <div class="case-filter" id="case-filter"></div>
 
         <div class="case-item open" id="case-01" data-chapter="第3章">
           <button class="case-head">
@@ -1132,7 +1153,7 @@
             <div class="photo-grid">
               <div class="photo-slot">
                 <svg viewBox="0 0 400 300" style="width:100%;height:100%;display:block" xmlns="http://www.w3.org/2000/svg">
-                  <rect width="400" height="300" fill="var(--chart-bg)"></rect>
+                  <rect width="400" height="300" fill="var(--chart-bg)"/>
                   <g font-family="Microsoft YaHei, sans-serif">
                     <text x="200" y="52" fill="var(--chart-title)" font-size="16" font-weight="bold" text-anchor="middle">中芯国际 · 科创板 IPO</text>
                     <text x="30" y="120" fill="var(--chart-label)" font-size="14">发行价</text>
@@ -1175,7 +1196,7 @@
             <div class="photo-grid">
               <div class="photo-slot">
                 <svg viewBox="0 0 400 300" style="width:100%;height:100%;display:block" xmlns="http://www.w3.org/2000/svg">
-                  <rect width="400" height="300" fill="var(--chart-bg)"></rect>
+                  <rect width="400" height="300" fill="var(--chart-bg)"/>
                   <g font-family="Microsoft YaHei, sans-serif">
                     <text x="200" y="52" fill="var(--chart-title)" font-size="16" font-weight="bold" text-anchor="middle">美的收购库卡 · 关键数据</text>
                     <text x="30" y="120" fill="var(--chart-label)" font-size="14">要约收购价</text>
@@ -1218,7 +1239,7 @@
             <div class="photo-grid">
               <div class="photo-slot">
                 <svg viewBox="0 0 400 300" style="width:100%;height:100%;display:block" xmlns="http://www.w3.org/2000/svg">
-                  <rect width="400" height="300" fill="var(--chart-bg)"></rect>
+                  <rect width="400" height="300" fill="var(--chart-bg)"/>
                   <g font-family="Microsoft YaHei, sans-serif">
                     <text x="200" y="52" fill="var(--chart-title)" font-size="16" font-weight="bold" text-anchor="middle">中国中化公司债 · 关键数据</text>
                     <text x="30" y="120" fill="var(--chart-label)" font-size="14">发行规模</text>
@@ -1261,7 +1282,7 @@
             <div class="photo-grid">
               <div class="photo-slot">
                 <svg viewBox="0 0 400 300" style="width:100%;height:100%;display:block" xmlns="http://www.w3.org/2000/svg">
-                  <rect width="400" height="300" fill="var(--chart-bg)"></rect>
+                  <rect width="400" height="300" fill="var(--chart-bg)"/>
                   <g font-family="Microsoft YaHei, sans-serif">
                     <text x="200" y="52" fill="var(--chart-title)" font-size="16" font-weight="bold" text-anchor="middle">阿里巴巴港股上市 · 关键数据</text>
                     <text x="30" y="120" fill="var(--chart-label)" font-size="14">发行价</text>
@@ -1558,18 +1579,18 @@
           <div class="kpi-card"><div class="num" id="sim-cash">100.00<span class="unit">万</span></div><div class="label">可用资金</div></div>
           <div class="kpi-card"><div class="num" id="sim-mv">0.00<span class="unit">万</span></div><div class="label">持仓市值</div></div>
           <div class="kpi-card"><div class="num" id="sim-total">100.00<span class="unit">万</span></div><div class="label">总资产</div></div>
-          <div class="kpi-card"><div class="num" id="sim-pnl" style="background: none; color: var(--up); -webkit-text-fill-color: var(--up);">+0.00%</div><div class="label">累计盈亏</div></div>
+          <div class="kpi-card"><div class="num" id="sim-pnl">0.00<span class="unit">%</span></div><div class="label">累计盈亏</div></div>
         </div>
 
         <div class="sim-grid">
           <div class="chart-card">
             <h4 id="sim-chart-title">中芯国际 688981 · 近 30 日走势</h4>
-            <svg id="sim-chart" viewBox="0 0 560 220" width="100%" role="img" aria-label="选中股票走势图"><line x1="20" y1="200" x2="540" y2="200" stroke="var(--chart-axis)" stroke-width="2"></line><line x1="20" y1="20" x2="20" y2="200" stroke="var(--chart-axis)" stroke-width="2"></line><polyline points="20.0,43.8 37.9,20.0 55.9,67.1 73.8,96.6 91.7,137.2 109.7,140.8 127.6,108.8 145.5,101.9 163.4,75.0 181.4,80.8 199.3,115.0 217.2,128.9 235.2,143.8 253.1,132.4 271.0,166.9 289.0,193.5 306.9,200.0 324.8,178.9 342.8,192.4 360.7,182.6 378.6,146.0 396.6,130.9 414.5,152.9 432.4,171.6 450.3,160.4 468.3,126.3 486.2,123.5 504.1,97.3 522.1,107.2 540.0,149.0" fill="none" stroke="var(--down)" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"></polyline><text x="540" y="26" fill="var(--down)" font-size="13" text-anchor="end" font-weight="700">58.56</text><text x="20" y="218" fill="var(--chart-label)" font-size="11">61.80</text></svg>
+            <svg id="sim-chart" viewBox="0 0 560 220" width="100%" role="img" aria-label="选中股票走势图"></svg>
           </div>
           <div class="chart-card">
             <h4>行情列表</h4>
             <div class="hint" style="margin-bottom:10px;">数量默认 100 股。</div>
-            <div id="sim-stocks"><div class="stock-row"><div class="stock-name">中芯国际<span class="stock-code">688981</span></div><div class="stock-price"><span class="p down">58.56</span><div class="chg down">-2.16%</div></div><input class="trade-qty" id="q-688981" type="number" value="100" min="100" step="100"><button class="btn-buy" data-code="688981">买入</button><button class="btn-sell" data-code="688981">卖出</button></div><div class="stock-row"><div class="stock-name">美的集团<span class="stock-code">000333</span></div><div class="stock-price"><span class="p up">69.75</span><div class="chg up">+2.31%</div></div><input class="trade-qty" id="q-000333" type="number" value="100" min="100" step="100"><button class="btn-buy" data-code="000333">买入</button><button class="btn-sell" data-code="000333">卖出</button></div><div class="stock-row"><div class="stock-name">招商银行<span class="stock-code">600036</span></div><div class="stock-price"><span class="p down">38.06</span><div class="chg down">-2.26%</div></div><input class="trade-qty" id="q-600036" type="number" value="100" min="100" step="100"><button class="btn-buy" data-code="600036">买入</button><button class="btn-sell" data-code="600036">卖出</button></div><div class="stock-row"><div class="stock-name">比亚迪<span class="stock-code">002594</span></div><div class="stock-price"><span class="p up">255.27</span><div class="chg up">+0.28%</div></div><input class="trade-qty" id="q-002594" type="number" value="100" min="100" step="100"><button class="btn-buy" data-code="002594">买入</button><button class="btn-sell" data-code="002594">卖出</button></div><div class="stock-row"><div class="stock-name">宁德时代<span class="stock-code">300750</span></div><div class="stock-price"><span class="p up">189.42</span><div class="chg up">+2.30%</div></div><input class="trade-qty" id="q-300750" type="number" value="100" min="100" step="100"><button class="btn-buy" data-code="300750">买入</button><button class="btn-sell" data-code="300750">卖出</button></div></div>
+            <div id="sim-stocks"></div>
           </div>
         </div>
 
@@ -1619,10 +1640,10 @@
     <section class="page" id="p-admin">
       <div class="admin-head">
         <h2>数据后台 · 学情统计</h2>
-        <p>iBank平台运行数据 · 2026 春季学期（金融 2303 / 2304）</p>
+        <p>iBank平台运行数据 · 2025-2026 学年第 1 学期（金融 2303 / 2304）</p>
       </div>
       <div style="margin:14px 0 4px;padding:10px 14px;border:1px solid rgba(120,130,160,.25);border-radius:10px;font-size:12px;color:var(--muted);background:rgba(120,130,160,.06);line-height:1.7;">
-        数据说明：学情统计由真实行为埋点实时累计；历史批次数据已做<b>匿名化处理</b>（课程已结束，为保护学生隐私，原姓名 / 班级等信息不予留存，仅以「匿名学生 / 匿名班」仿真记录还原整体学习画像）。新登录学生将在此基础之上继续累计真实行为。
+        数据说明：学情统计由真实行为埋点实时累计；历史批次数据已做<b>匿名化处理</b>（课程已结束，为保护学生隐私，学生姓名不予留存，仅以「匿名学生」编号还原整体学习画像）。新登录学生将在此基础之上继续累计真实行为。
       </div>
 
       <div class="admin-panel">
@@ -1641,26 +1662,32 @@
         <h4>用户管理</h4>
         <div class="sub">新老师入职流程：本人先正常注册 → 管理员在此点「设为教师」即可，无需邀请码、无需改数据库。</div>
         <div class="um-toolbar">
-          <input id="um-search" type="text" placeholder="搜索姓名 / 班级 / 角色…">
+          <input id="um-search" type="text" placeholder="搜索姓名 / 学号…" />
+          <select id="um-filter-class" class="um-select" aria-label="按班级筛选"><option value="">全部班级</option></select>
+          <select id="um-filter-role" class="um-select" aria-label="按角色筛选">
+            <option value="">全部角色</option>
+            <option value="teacher">教师</option>
+            <option value="student">学生</option>
+          </select>
           <button id="um-refresh" type="button">刷新</button>
+          <span class="um-count" id="um-count"></span>
         </div>
         <div id="um-list"><div class="um-empty">加载中…</div></div>
       </div>
 
       <div class="ev-toolbar">
-        <label class="ev-sw"><input type="checkbox" id="ev-only-student"> <span>仅统计学生（排除教师 / 管理员）</span></label>
-        <label class="ev-sw"><input type="checkbox" id="ev-show-base"> <span>显示申报基准参考（89 人样本）</span></label>
-        <span class="tip">基准数据仅作对照，不参与真实统计口径。</span>
+        <label class="ev-sw"><input type="checkbox" id="ev-only-student" /> <span>仅统计学生（排除教师 / 管理员）</span></label>
       </div>
 
       <div class="admin-kpi-row" id="ev-kpi-row">
-        <div class="admin-kpi"><div class="k">覆盖学生</div><div class="v" id="ev-students">0</div><div class="sub">有学习行为记录</div></div>
-        <div class="admin-kpi"><div class="k">学习行为</div><div class="v" id="ev-study">0</div><div class="sub">章节学习完成次数</div></div>
-        <div class="admin-kpi"><div class="k">习题作答</div><div class="v" id="ev-quiz">0</div><div class="sub">累计答题数</div></div>
-        <div class="admin-kpi"><div class="k">本周活跃</div><div class="v" id="ev-weekactive">0</div><div class="sub">近 7 天活跃人数</div></div>
+        <div class="admin-kpi"><div class="k">覆盖学生</div><div class="v">0</div><div class="sub">有学习行为记录</div></div>
+        <div class="admin-kpi"><div class="k">AI 问答</div><div class="v">0</div><div class="sub">累计提问次数</div></div>
+        <div class="admin-kpi"><div class="k">习题作答</div><div class="v">0</div><div class="sub">累计答题数</div></div>
+        <div class="admin-kpi"><div class="k">学习行为</div><div class="v">0</div><div class="sub">章节学习完成次数</div></div>
+        <div class="admin-kpi"><div class="k">本周活跃</div><div class="v">0</div><div class="sub">近 7 天活跃人数</div></div>
       </div>
 
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px;">
+      <div class="ev-grid">
         <div class="admin-panel"><h4>各章节平均掌握度</h4><div class="sub">按章统计完成学习的学生占比</div><div id="ev-chapter"></div></div>
         <div class="admin-panel"><h4>各题型平均正确率</h4><div class="sub">按题型统计答题正确率</div><div id="ev-qtype"></div></div>
         <div class="admin-panel"><h4>学习模块使用占比</h4><div class="sub">各功能模块被打开的频次占比</div><div id="ev-module"></div></div>
@@ -1734,16 +1761,16 @@
   <button class="float-btn" id="float-btn" aria-label="打开 iBank 助手" title="iBank 助手">
     <svg viewBox="0 0 320 400" xmlns="http://www.w3.org/2000/svg">
       <defs>
-        <linearGradient id="fBody" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#67e8f9"></stop><stop offset="1" stop-color="#6366f1"></stop></linearGradient>
-        <linearGradient id="fHead" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#232a4d"></stop><stop offset="1" stop-color="#11142e"></stop></linearGradient>
+        <linearGradient id="fBody" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#67e8f9"/><stop offset="1" stop-color="#6366f1"/></linearGradient>
+        <linearGradient id="fHead" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#232a4d"/><stop offset="1" stop-color="#11142e"/></linearGradient>
       </defs>
-      <circle cx="160" cy="30" r="12" fill="#22d3ee"></circle>
-      <line x1="160" y1="80" x2="160" y2="44" stroke="#8b93b8" stroke-width="6" stroke-linecap="round"></line>
-      <rect x="86" y="220" width="148" height="150" rx="30" fill="url(#fBody)"></rect>
-      <rect x="70" y="82" width="180" height="160" rx="26" fill="url(#fHead)" stroke="#3b4270" stroke-width="2"></rect>
-      <rect x="113" y="130" width="18" height="34" rx="9" fill="#a5f3fc"></rect>
-      <rect x="189" y="130" width="18" height="34" rx="9" fill="#a5f3fc"></rect>
-      <rect x="136" y="182" width="48" height="18" rx="9" fill="#a5f3fc"></rect>
+      <circle cx="160" cy="30" r="12" fill="#22d3ee"/>
+      <line x1="160" y1="80" x2="160" y2="44" stroke="#8b93b8" stroke-width="6" stroke-linecap="round"/>
+      <rect x="86" y="220" width="148" height="150" rx="30" fill="url(#fBody)"/>
+      <rect x="70" y="82" width="180" height="160" rx="26" fill="url(#fHead)" stroke="#3b4270" stroke-width="2"/>
+      <rect x="113" y="130" width="18" height="34" rx="9" fill="#a5f3fc"/>
+      <rect x="189" y="130" width="18" height="34" rx="9" fill="#a5f3fc"/>
+      <rect x="136" y="182" width="48" height="18" rx="9" fill="#a5f3fc"/>
     </svg>
   </button>
 
@@ -1751,9 +1778,9 @@
     <div class="chat-head">
       <div class="mini-robot">
         <svg viewBox="0 0 320 400" xmlns="http://www.w3.org/2000/svg">
-          <rect x="86" y="214" width="148" height="150" rx="30" fill="#67e8f9"></rect>
-          <rect x="70" y="62" width="180" height="160" rx="26" fill="#232a4d"></rect>
-          <rect x="113" y="115" width="18" height="34" rx="9" fill="#a5f3fc"></rect><rect x="189" y="115" width="18" height="34" rx="9" fill="#a5f3fc"></rect>
+          <rect x="86" y="214" width="148" height="150" rx="30" fill="#67e8f9"/>
+          <rect x="70" y="62" width="180" height="160" rx="26" fill="#232a4d"/>
+          <rect x="113" y="115" width="18" height="34" rx="9" fill="#a5f3fc"/><rect x="189" y="115" width="18" height="34" rx="9" fill="#a5f3fc"/>
         </svg>
       </div>
       <div><b>iBank 助手</b><span>智能学伴 · 在线</span></div>
@@ -1762,7 +1789,7 @@
       <div class="msg bot">你好，我是 iBank 助手 👋 可以问我美元、黄金、股票、美债等宏观话题，以及 IPO、并购、承销、估值、尽职调查等投行知识。</div>
     </div>
     <form class="chat-input" id="chat-form">
-      <input id="chat-input" type="text" placeholder="向 iBank 助手提问…" autocomplete="off">
+      <input id="chat-input" type="text" placeholder="向 iBank 助手提问…" autocomplete="off" />
       <button type="submit">发送</button>
     </form>
   </div>
@@ -2689,11 +2716,11 @@
           }
           const count = function (fn) { return list.filter(fn).length; };
           const set = function (id, v) { const el = document.getElementById(id); if (el) el.textContent = v; };
-          set('real-students', count(function (r) { return r.role === 'student' && r.class_name !== '匿名班'; }));
+          set('real-students', count(function (r) { return r.role === 'student'; }));
           set('real-c1', count(function (r) { return r.class_name === '金融2303'; }));
           set('real-c2', count(function (r) { return r.class_name === '金融2304'; }));
           set('real-teachers', count(function (r) { return r.role === 'teacher' || r.role === 'admin'; }));
-          set('real-total', count(function (r) { return r.class_name !== '匿名班'; }));
+          set('real-total', list.length);
           setProfileMap(list);   // 供「仅统计学生」与学情明细使用
           renderUserList(list);
         } catch (e) { console.log('加载实时数据失败', e); }
@@ -2794,7 +2821,7 @@
         if (!cEl) return;
         if (OFFLINE) {
           let local = []; try { local = JSON.parse(localStorage.getItem('ibank_events_local') || '[]'); } catch (e) {}
-          renderEventStats(filterStatEvents(local), kpiRow, cEl, tEl, mEl, wEl, '离线演示模式：显示本机累计事件，联网后同步云端');
+          renderEventStats(splitByType(filterStatEvents(local)), kpiRow, cEl, tEl, mEl, wEl, '离线演示模式：显示本机累计事件，联网后同步云端');
           renderStudentDetail(local);
           return;
         }
@@ -2806,16 +2833,37 @@
               if (!(rp && rp.error)) setProfileMap((rp && rp.data) || []);
             } catch (e) { /* 读不到档案时按「全部保留」处理，不阻断图表 */ }
           }
-          const { data: evs } = await db.from('events').select('id, uid, type, chapter, qtype, correct, module, duration, ts').limit(2000);
-          const list = evs || [];
+          // 分类型取数：章节覆盖度 / 模块占比 / 周活跃都基于「去重人数」，整表抽样会严重失真，
+          // 故这三类按 type 整表取（各自行数远小于接口行数上限）；题型正确率是比例，取 2000 条即可。
+          const evFetch = async function (type, cap) {
+            try {
+              const r = await db.from('events').select('id, uid, type, chapter, qtype, correct, module, duration, ts').eq('type', type).limit(cap || 2000);
+              return (r && r.data) || [];
+            } catch (e) { return []; }
+          };
+          const studyEvs = await evFetch('study');
+          const modEvs = await evFetch('module');
+          const loginEvs = await evFetch('login');
+          const quizEvs = await evFetch('quiz', 2000);
+          const data = { study: studyEvs, module: modEvs, quiz: quizEvs, login: loginEvs, qa: [] };
+          const list = studyEvs.concat(modEvs, loginEvs, quizEvs);
           if (list.length === 0) {
             const tip = '<div class="um-empty">暂未采集到学习行为数据。学生登录后学习章节、作答习题、使用各模块都会自动上报到这里。<br>若一直为空，请点下方「检测表状态」排查。</div>';
             if (kpiRow) kpiRow.innerHTML = tip; [cEl, tEl, mEl, wEl].forEach(function (el) { if (el) el.innerHTML = ''; });
             renderStudentDetail([]);
             return;
           }
-          renderEventStats(filterStatEvents(list), kpiRow, cEl, tEl, mEl, wEl,
-            '实时读取云端 events 表 · 共 ' + list.length + ' 条行为记录' + (onlyStudent ? ' · 已排除教师账号' : ''));
+          // 全量计数：抽样可能被接口行数上限截断，KPI 数字改读数据库 COUNT，保证与传统计口径一致
+          let counts = null;
+          try {
+            const cAll = await db.from('events').select('*', { count: 'exact', head: true });
+            const cQa = await db.from('events').select('*', { count: 'exact', head: true }).eq('type', 'qa');
+            const cQz = await db.from('events').select('*', { count: 'exact', head: true }).eq('type', 'quiz');
+            const cSt = await db.from('events').select('*', { count: 'exact', head: true }).eq('type', 'study');
+            counts = { total: (cAll && cAll.count) || 0, qa: (cQa && cQa.count) || 0, quiz: (cQz && cQz.count) || 0, study: (cSt && cSt.count) || 0 };
+          } catch (ec) { counts = null; }
+          renderEventStats(filterStatData(data), kpiRow, cEl, tEl, mEl, wEl,
+            '实时读取云端 events 表 · 共 ' + (counts ? counts.total : list.length) + ' 条行为记录' + (onlyStudent ? ' · 已排除教师账号' : ''), counts);
           renderStudentDetail(list);
         } catch (e) {
           const tip = '<div class="um-empty">读取行为数据失败：' + (e && e.message ? e.message : e) + '<br>请点下方「检测表状态」排查，或联系系统维护者。</div>';
@@ -2824,93 +2872,157 @@
         }
       }
 
-      function renderEventStats(list, kpiRow, cEl, tEl, mEl, wEl, note) {
+      function renderEventStats(data, kpiRow, cEl, tEl, mEl, wEl, note, counts) {
+        data = data || {};
         const CH = ['第1章', '第2章', '第3章', '第4章', '第5章', '第6章', '第7章', '第8章', '第9章'];
         const TY = ['选择', '判断', '计算', '案例', '简答'];
         const MOD = { 'p-home': '首页', 'p-graph': '知识图谱', 'p-qa': '智能答疑', 'p-case': '案例库', 'p-sizheng': '课程思政', 'p-exercise': '习题训练', 'p-ipo': 'IPO仿真', 'p-valuation': '估值实验', 'p-macro': '宏观市场', 'p-sim': '模拟交易', 'p-wrong': '错题定位', 'p-profile': '学情画像', 'p-admin': '后台' };
         const uniq = function (arr) { const s = {}; arr.forEach(function (x) { if (x) s[x] = 1; }); return Object.keys(s); };
-        const study = list.filter(function (e) { return e.type === 'study'; });
-        const quiz = list.filter(function (e) { return e.type === 'quiz'; });
-        const mod = list.filter(function (e) { return e.type === 'module'; });
-        const allUids = uniq(list.map(function (e) { return e.uid; }));
+        const study = data.study || [];
+        const quiz = data.quiz || [];
+        const qa = data.qa || [];
+        const mod = data.module || [];
+        const login = data.login || [];
+        const allUids = uniq(study.concat(quiz, mod, login).map(function (e) { return e.uid; }));
         const studyUids = uniq(study.map(function (e) { return e.uid; }));
         const now = Date.now(), WEEK = 7 * 86400000;
-        const weekUids = uniq(list.filter(function (e) { return e.ts && (now - e.ts) <= WEEK; }).map(function (e) { return e.uid; }));
+        // 周活跃以「登录/使用」事件为准，避免抽样导致去重人数失真
+        const weekUids = uniq(login.filter(function (e) { return e.ts && (now - e.ts) <= WEEK; }).map(function (e) { return e.uid; }));
+        // KPI 数字优先取数据库全量 COUNT（抽样可能被接口行数上限截断），无计数时回落到抽样统计
+        const K = counts || {};
+        const num = function (v, fallback) { return (typeof v === 'number' && isFinite(v)) ? v : fallback; };
         if (kpiRow) kpiRow.innerHTML =
           '<div class="admin-kpi"><div class="k">覆盖学生</div><div class="v">' + allUids.length + '</div><div class="sub">有学习行为记录</div></div>'
-          + '<div class="admin-kpi"><div class="k">学习行为</div><div class="v">' + study.length + '</div><div class="sub">章节学习完成次数</div></div>'
-          + '<div class="admin-kpi"><div class="k">习题作答</div><div class="v">' + quiz.length + '</div><div class="sub">累计答题数</div></div>'
+          + '<div class="admin-kpi"><div class="k">AI 问答</div><div class="v">' + num(K.qa, qa.length) + '</div><div class="sub">累计提问次数</div></div>'
+          + '<div class="admin-kpi"><div class="k">习题作答</div><div class="v">' + num(K.quiz, quiz.length) + '</div><div class="sub">累计答题数</div></div>'
+          + '<div class="admin-kpi"><div class="k">学习行为</div><div class="v">' + num(K.study, study.length) + '</div><div class="sub">章节学习完成次数</div></div>'
           + '<div class="admin-kpi"><div class="k">本周活跃</div><div class="v">' + weekUids.length + '</div><div class="sub">近 7 天活跃人数</div></div>';
 
+        // ① 各章节平均掌握度：横向柱状图
         const chapterItems = CH.map(function (ch) {
           const su = uniq(study.filter(function (e) { return e.chapter === ch; }).map(function (e) { return e.uid; }));
           const pct = studyUids.length ? Math.round(su.length / studyUids.length * 100) : 0;
           return { label: ch, pct: pct, val: pct + '% (' + su.length + '/' + studyUids.length + ')' };
         });
-        cEl.innerHTML = barChart(note, chapterItems, showBase ? BASELINE.chapter : null);
+        cEl.innerHTML = '<div class="ev-note">' + esc(note || '') + '</div>' + hBarChart(chapterItems);
 
+        // ② 各题型平均正确率：竖向柱状图
         const qtypeItems = TY.map(function (t) {
           const qs = quiz.filter(function (e) { return e.qtype === t; });
           const ok = qs.filter(function (e) { return e.correct === true; }).length;
           const pct = qs.length ? Math.round(ok / qs.length * 100) : 0;
-          return { label: t, pct: pct, val: pct + '% (' + ok + '/' + qs.length + ')' };
+          return { label: t, pct: pct, val: pct + '%' };
         });
-        tEl.innerHTML = barChart('', qtypeItems, showBase ? TY.map(function (t) { return (BASELINE.qtype[t] === undefined ? null : BASELINE.qtype[t]); }) : null);
+        tEl.innerHTML = vBarChart(qtypeItems);
 
+        // ③ 学习模块使用占比：环形图
         const modCounts = {}; mod.forEach(function (e) { const k = e.module || '其他'; modCounts[k] = (modCounts[k] || 0) + 1; });
         const modItems = Object.keys(modCounts).map(function (k) {
-          const n = modCounts[k]; const pct = mod.length ? Math.round(n / mod.length * 100) : 0;
-          return { label: MOD[k] || k, pct: pct, val: n + ' 次' };
-        }).sort(function (a, b) { return b.pct - a.pct; });
-        mEl.innerHTML = barChart('', modItems, showBase ? BASELINE.module : null);
+          return { label: MOD[k] || k, n: modCounts[k] };
+        }).sort(function (a, b) { return b.n - a.n; });
+        mEl.innerHTML = modItems.length ? donutChart(modItems) : '<div class="um-empty">暂无模块使用记录</div>';
 
-        let minTs = Infinity; list.forEach(function (e) { if (e.ts && e.ts < minTs) minTs = e.ts; });
+        // ④ 每周活跃人数：折线图（按登录事件统计每周活跃人数）
+        let minTs = Infinity; login.forEach(function (e) { if (e.ts && e.ts < minTs) minTs = e.ts; });
+        if (!isFinite(minTs)) { study.concat(quiz, mod).forEach(function (e) { if (e.ts && e.ts < minTs) minTs = e.ts; }); }
         if (!isFinite(minTs)) minTs = now;
         const wkMap = {};
-        list.forEach(function (e) { if (!e.ts) return; const idx = Math.floor((e.ts - minTs) / WEEK); wkMap[idx] = wkMap[idx] || {}; wkMap[idx][e.uid] = 1; });
+        login.forEach(function (e) { if (!e.ts) return; const idx = Math.floor((e.ts - minTs) / WEEK); wkMap[idx] = wkMap[idx] || {}; wkMap[idx][e.uid] = 1; });
         const idxs = Object.keys(wkMap).map(Number).sort(function (a, b) { return a - b; });
-        const last = idxs.slice(-12);
-        const weekItems = last.map(function (idx) { const cnt = Object.keys(wkMap[idx]).length; return { label: '第' + (idx + 1) + '周', pct: cnt, val: cnt + ' 人' }; });
-        wEl.innerHTML = barChart('', weekItems.length ? weekItems : [{ label: '暂无', pct: 0, val: '—' }], (showBase && weekItems.length) ? BASELINE.week : null);
+        const last = idxs.slice(-8);
+        const weekItems = last.map(function (idx) { const cnt = Object.keys(wkMap[idx]).length; return { label: 'W' + (idx + 1), pct: cnt, val: cnt + ' 人' }; });
+        wEl.innerHTML = weekItems.length ? lineChart(weekItems) : '<div class="um-empty">暂无周活跃记录</div>';
       }
 
-      function barChart(note, items, baseArr) {
+      // 横向柱状图（章节掌握度）
+      function hBarChart(items) {
         let max = 1;
-        const hasBase = !!(baseArr && baseArr.some(function (v) { return typeof v === 'number'; }));
-        items.forEach(function (i, idx) {
-          max = Math.max(max, i.pct);
-          if (hasBase && typeof baseArr[idx] === 'number') max = Math.max(max, baseArr[idx]);
-        });
-        const legend = hasBase ? ' <span class="base-legend"><i></i>橙色竖线＝申报基准参考</span>' : '';
-        return '<div style="font-size:11px;color:var(--muted);margin:2px 0 8px;">' + (note || '') + legend + '</div>'
-          + items.map(function (i, idx) {
-              const w = Math.max(2, Math.round(i.pct / max * 100));
-              const has = hasBase && typeof baseArr[idx] === 'number';
-              const bp = has ? Math.min(100, Math.round(baseArr[idx] / max * 100)) : 0;
-              return '<div style="display:flex;align-items:center;gap:8px;margin:7px 0;font-size:12px;">'
-                + '<span style="width:74px;flex:none;color:var(--muted);text-align:right;">' + i.label + '</span>'
-                + '<span style="flex:1;position:relative;background:rgba(120,130,160,.16);border-radius:6px;height:14px;overflow:hidden;display:inline-block;">'
-                + '<span style="display:block;height:100%;width:' + w + '%;background:linear-gradient(90deg,#4f46e5,#7c3aed);border-radius:6px;"></span>'
-                + (has ? '<span title="基准 ' + baseArr[idx] + '" style="position:absolute;left:' + bp + '%;top:0;bottom:0;width:2px;background:#f59e0b;"></span>' : '')
-                + '</span>'
-                + '<span style="width:118px;flex:none;color:var(--text);">' + i.val
-                + (has ? ' <span style="color:#b45309;font-weight:600;">·基准' + baseArr[idx] + '</span>' : '')
-                + '</span>'
-                + '</div>';
-            }).join('');
+        items.forEach(function (i) { max = Math.max(max, i.pct); });
+        return items.map(function (i) {
+          const w = Math.max(2, Math.round(i.pct / max * 100));
+          return '<div style="display:flex;align-items:center;gap:10px;margin:7px 0;font-size:12px;">'
+            + '<span style="width:74px;flex:none;color:var(--muted);text-align:right;">' + esc(i.label) + '</span>'
+            + '<span style="flex:1;background:rgba(120,130,160,.14);border-radius:6px;height:15px;overflow:hidden;display:inline-block;">'
+            + '<span style="display:block;height:100%;width:' + w + '%;background:linear-gradient(90deg,#6366f1,#4f46e5);border-radius:6px;"></span>'
+            + '</span>'
+            + '<span style="width:112px;flex:none;color:var(--text);">' + esc(i.val) + '</span>'
+            + '</div>';
+        }).join('');
       }
 
-      // ===== 学情看板：开关状态 / 申报基准参考 / 学生档案映射 =====
-      // 基准参考：来自课程申报时的整体学习画像（89 人样本），仅作对照。
-      var BASELINE = {
-        chapter: [82, 78, 74, 72, 68, 65, 62, 58],          // 按第 1~8 章顺序对齐
-        qtype: { '选择': 74, '案例': 58, '简答': 66 },        // 判断 / 计算 无对应基准
-        module: [30, 26, 18, 16, 10],                        // 按使用占比由高到低
-        week: [40, 55, 60, 52, 58, 63, 68, 58]               // 第 1~8 周
-      };
-      var onlyStudent = false, showBase = false;
+      // 竖向柱状图（题型正确率）
+      function vBarChart(items) {
+        let max = 1;
+        items.forEach(function (i) { max = Math.max(max, i.pct); });
+        return '<div class="vbar-wrap">' + items.map(function (i) {
+          const h = Math.max(2, Math.round(i.pct / max * 100));
+          return '<div class="vbar-col">'
+            + '<div class="vbar-val">' + esc(i.val) + '</div>'
+            + '<div class="vbar-track"><div class="vbar-fill" style="height:' + h + '%;"></div></div>'
+            + '<div class="vbar-lbl">' + esc(i.label) + '</div>'
+            + '</div>';
+        }).join('') + '</div>';
+      }
+
+      // 环形图（模块使用占比）
+      function donutChart(items) {
+        const COLORS = ['#4f46e5', '#6366f1', '#8b5cf6', '#22c55e', '#f59e0b', '#06b6d4', '#ec4899'];
+        let total = 0; items.forEach(function (i) { total += (i.n || 0); });
+        const R = 54, C = 2 * Math.PI * R, cx = 70, cy = 70;
+        let acc = 0, segs = '';
+        items.forEach(function (i, idx) {
+          const len = total ? (i.n || 0) / total * C : 0;
+          segs += '<circle cx="' + cx + '" cy="' + cy + '" r="' + R + '" fill="none" stroke="' + COLORS[idx % COLORS.length] + '" stroke-width="20" '
+            + 'stroke-dasharray="' + len.toFixed(2) + ' ' + (C - len).toFixed(2) + '" stroke-dashoffset="' + (-acc).toFixed(2) + '"></circle>';
+          acc += len;
+        });
+        const legend = items.map(function (i, idx) {
+          const pct = total ? Math.round((i.n || 0) / total * 100) : 0;
+          return '<div class="lg"><i style="background:' + COLORS[idx % COLORS.length] + ';"></i><span>' + esc(i.label) + '</span><span class="pc">' + pct + '%</span></div>';
+        }).join('');
+        return '<div class="donut-wrap">'
+          + '<svg class="donut-svg" viewBox="0 0 140 140" width="148" height="148" style="transform:rotate(-90deg);">'
+          + '<circle cx="' + cx + '" cy="' + cy + '" r="' + R + '" fill="none" stroke="rgba(120,130,160,.16)" stroke-width="20"></circle>'
+          + segs + '</svg>'
+          + '<div class="donut-legend">' + legend + '</div>'
+          + '</div>';
+      }
+
+      // 折线图（每周活跃人数）
+      function lineChart(items) {
+        const W = 460, H = 190, PL = 34, PR = 14, PT = 20, PB = 26;
+        const n = items.length;
+        let max = 1; items.forEach(function (i) { max = Math.max(max, i.pct); });
+        max = Math.ceil(max / 10) * 10; if (!max) max = 10;
+        const iw = W - PL - PR, ih = H - PT - PB;
+        const px = function (i) { return PL + (n <= 1 ? iw / 2 : iw * i / (n - 1)); };
+        const py = function (v) { return PT + ih - ih * (v / max); };
+        let grid = '';
+        for (let t = 0; t <= 4; t++) {
+          const v = max * t / 4, y = py(v);
+          grid += '<line x1="' + PL + '" y1="' + y.toFixed(1) + '" x2="' + (W - PR) + '" y2="' + y.toFixed(1) + '" stroke="rgba(120,130,160,.18)" stroke-width="1"></line>'
+            + '<text x="' + (PL - 7) + '" y="' + (y + 3.5).toFixed(1) + '" text-anchor="end" font-size="10" fill="#8892a6">' + Math.round(v) + '</text>';
+        }
+        const pts = items.map(function (i, idx) { return [px(idx), py(i.pct)]; });
+        const poly = pts.map(function (p) { return p[0].toFixed(1) + ',' + p[1].toFixed(1); }).join(' ');
+        const area = PL + ',' + (PT + ih) + ' ' + poly + ' ' + (W - PR) + ',' + (PT + ih);
+        const dots = items.map(function (i, idx) {
+          return '<circle cx="' + pts[idx][0].toFixed(1) + '" cy="' + pts[idx][1].toFixed(1) + '" r="3.4" fill="#4f46e5" stroke="#fff" stroke-width="1.6"></circle>'
+            + '<text x="' + pts[idx][0].toFixed(1) + '" y="' + (pts[idx][1] - 9).toFixed(1) + '" text-anchor="middle" font-size="10.5" font-weight="700" fill="#4f46e5">' + i.pct + '</text>';
+        }).join('');
+        const xlbl = items.map(function (i, idx) {
+          return '<text x="' + px(idx).toFixed(1) + '" y="' + (H - 8) + '" text-anchor="middle" font-size="10.5" fill="#8892a6">' + esc(i.label) + '</text>';
+        }).join('');
+        return '<svg class="line-svg" viewBox="0 0 ' + W + ' ' + H + '" preserveAspectRatio="xMidYMid meet">'
+          + grid
+          + '<polygon points="' + area + '" fill="rgba(99,102,241,.10)"></polygon>'
+          + '<polyline points="' + poly + '" fill="none" stroke="#4f46e5" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round"></polyline>'
+          + dots + xlbl + '</svg>';
+      }
+
+      // ===== 学情看板：开关状态 / 学生档案映射 =====
+      var onlyStudent = false;
       try { onlyStudent = localStorage.getItem('ibank_stat_only_student') === '1'; } catch (e) {}
-      try { showBase = localStorage.getItem('ibank_stat_show_base') === '1'; } catch (e) {}
       var profileMap = null;   // uid -> profile {id, name, role, class_name}
       function setProfileMap(list) {
         if (!list) return;
@@ -2927,6 +3039,19 @@
       function filterStatEvents(list) {
         if (!onlyStudent) return list;
         return (list || []).filter(function (e) { return isStudentUid(e.uid); });
+      }
+      // 结构化数据（{study,module,quiz,login,qa}）按「仅统计学生」开关逐类过滤
+      function filterStatData(data) {
+        if (!onlyStudent) return data;
+        var out = {};
+        Object.keys(data || {}).forEach(function (k) { out[k] = filterStatEvents(data[k]); });
+        return out;
+      }
+      // 把扁平事件数组按 type 归类，供离线模式与图表使用
+      function splitByType(list) {
+        var d = { study: [], module: [], quiz: [], login: [], qa: [] };
+        (list || []).forEach(function (e) { var k = e && e.type; if (d[k]) d[k].push(e); });
+        return d;
       }
       function fmtDur(sec) {
         sec = Number(sec) || 0;
@@ -3045,23 +3170,53 @@
       let lastUserRows = [];
       function esc(s) { return String(s || '').replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
 
+      // 班级下拉：按现有档案动态填充，保留当前选中项
+      function fillClassOptions(rows) {
+        var sel = document.getElementById('um-filter-class');
+        if (!sel) return;
+        var cur = sel.value, seen = {}, opts = [];
+        (rows || []).forEach(function (r) {
+          var c = String(r.class_name == null ? '' : r.class_name).trim();
+          if (!c || seen[c]) return;
+          seen[c] = 1; opts.push(c);
+        });
+        opts.sort(function (a, b) { return a.localeCompare(b, 'zh'); });
+        sel.innerHTML = '<option value="">全部班级</option>' + opts.map(function (c) {
+          return '<option value="' + esc(c) + '">' + esc(c) + '</option>';
+        }).join('');
+        if (cur && seen[cur]) sel.value = cur;
+      }
+
       function renderUserList(rows) {
         lastUserRows = rows || lastUserRows;
         const box = document.getElementById('um-list');
         if (!box) return;
+        fillClassOptions(lastUserRows);
         const kw = (document.getElementById('um-search').value || '').trim().toLowerCase();
+        const fcEl = document.getElementById('um-filter-class');
+        const frEl = document.getElementById('um-filter-role');
+        const fc = fcEl ? fcEl.value : '';
+        const fr = frEl ? frEl.value : '';
         const isT = function (r) { return r.role === 'teacher' || r.role === 'admin'; };
         let list = lastUserRows.slice().sort(function (a, b) {
           if (isT(a) !== isT(b)) return isT(a) ? -1 : 1; // 教师排前
           return String(a.name || '').localeCompare(String(b.name || ''), 'zh');
         });
+        // 分类筛选：班级 / 角色
+        if (fc) list = list.filter(function (r) { return String(r.class_name || '') === fc; });
+        if (fr === 'teacher') list = list.filter(isT);
+        else if (fr === 'student') list = list.filter(function (r) { return !isT(r); });
+        // 关键词搜索：姓名 / 班级 / 角色 / 学号
         if (kw) {
           list = list.filter(function (r) {
             return String(r.name || '').toLowerCase().indexOf(kw) >= 0
               || String(r.class_name || '').toLowerCase().indexOf(kw) >= 0
-              || String(r.role || '').toLowerCase().indexOf(kw) >= 0;
+              || String(r.role || '').toLowerCase().indexOf(kw) >= 0
+              || String(r.id || '').toLowerCase().indexOf(kw) >= 0;
           });
         }
+        var cntEl = document.getElementById('um-count');
+        if (cntEl) cntEl.textContent = '共 ' + list.length + ' 人' + (list.length !== lastUserRows.length ? '（已筛选 / 全部 ' + lastUserRows.length + '）' : '');
         if (list.length === 0) { box.innerHTML = '<div class="um-empty">暂无匹配用户</div>'; return; }
         box.innerHTML = list.map(function (r) {
           const t = isT(r);
@@ -3101,6 +3256,10 @@
       });
       document.getElementById('um-refresh').addEventListener('click', loadRealStats);
       document.getElementById('um-search').addEventListener('input', function () { renderUserList(lastUserRows); });
+      var umFcSel = document.getElementById('um-filter-class');
+      if (umFcSel) umFcSel.addEventListener('change', function () { renderUserList(lastUserRows); });
+      var umFrSel = document.getElementById('um-filter-role');
+      if (umFrSel) umFrSel.addEventListener('change', function () { renderUserList(lastUserRows); });
 
       // ===== 看板开关：仅统计学生 / 显示申报基准参考 =====
       var cbOnly = document.getElementById('ev-only-student');
@@ -3109,15 +3268,6 @@
         cbOnly.addEventListener('change', function () {
           onlyStudent = cbOnly.checked;
           try { localStorage.setItem('ibank_stat_only_student', onlyStudent ? '1' : '0'); } catch (e) {}
-          loadEventStats();
-        });
-      }
-      var cbBase = document.getElementById('ev-show-base');
-      if (cbBase) {
-        cbBase.checked = showBase;
-        cbBase.addEventListener('change', function () {
-          showBase = cbBase.checked;
-          try { localStorage.setItem('ibank_stat_show_base', showBase ? '1' : '0'); } catch (e) {}
           loadEventStats();
         });
       }
@@ -3344,6 +3494,5 @@
       checkSession();
     })();
   </script>
-
-
-</body></html>
+</body>
+</html>
