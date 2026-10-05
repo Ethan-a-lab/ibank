@@ -637,6 +637,20 @@
     .donut-legend .lg .pc { margin-left: auto; font-weight: 700; color: var(--text); }
     /* 折线图 */
     .line-svg { width: 100%; height: auto; display: block; }
+    /* 活跃日历热力图 */
+    .lv0 { background: rgba(120,130,160,.10); }
+    .lv1 { background: #e0e7ff; }
+    .lv2 { background: #c7d2fe; }
+    .lv3 { background: #a5b4fc; }
+    .lv4 { background: #6366f1; }
+    .lv5 { background: #4338ca; }
+    .cal-grid { display: grid; grid-template-columns: 24px repeat(8, 1fr); gap: 5px; max-width: 540px; align-items: center; }
+    .cal-wd { font-size: 10.5px; color: var(--muted); text-align: center; }
+    .cal-cell { aspect-ratio: 1 / 1; border-radius: 7px; display: flex; align-items: center; justify-content: center; font-size: 11.5px; font-weight: 700; color: #fff; }
+    .cal-cell.lv1 { color: #4338ca; }
+    .cal-cell.lv2 { color: #3730a3; }
+    .cal-legend { display: flex; align-items: center; gap: 5px; margin-top: 12px; font-size: 11px; color: var(--muted); max-width: 540px; justify-content: flex-end; }
+    .cal-legend i { width: 13px; height: 13px; border-radius: 4px; display: inline-block; }
     /* ===== 学生学情明细 ===== */
     .stu-item { border-top: 1px solid #eef2f7; }
     .stu-item > summary { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; padding: 11px 6px; font-size: 13.5px; cursor: pointer; list-style: none; border-radius: 8px; }
@@ -1684,7 +1698,7 @@
         <div class="admin-kpi"><div class="k">AI 问答</div><div class="v">0</div><div class="sub">累计提问次数</div></div>
         <div class="admin-kpi"><div class="k">习题作答</div><div class="v">0</div><div class="sub">累计答题数</div></div>
         <div class="admin-kpi"><div class="k">学习行为</div><div class="v">0</div><div class="sub">章节学习完成次数</div></div>
-        <div class="admin-kpi"><div class="k">本周活跃</div><div class="v">0</div><div class="sub">近 7 天活跃人数</div></div>
+        <div class="admin-kpi"><div class="k">近一周活跃</div><div class="v">0</div><div class="sub">数据最近 7 天活跃人数</div></div>
       </div>
 
       <div class="ev-grid">
@@ -1692,6 +1706,12 @@
         <div class="admin-panel"><h4>各题型平均正确率</h4><div class="sub">按题型统计答题正确率</div><div id="ev-qtype"></div></div>
         <div class="admin-panel"><h4>学习模块使用占比</h4><div class="sub">各功能模块被打开的频次占比</div><div id="ev-module"></div></div>
         <div class="admin-panel"><h4>每周活跃人数</h4><div class="sub">按周统计活跃学生数</div><div id="ev-week"></div></div>
+      </div>
+
+      <div class="admin-panel" style="margin-top:16px;">
+        <h4>学习活跃日历</h4>
+        <div class="sub">按日统计活跃学生数（颜色越深代表当日活跃学生越多），可直观看出学期内的活跃波动。</div>
+        <div id="ev-calendar"></div>
       </div>
 
       <div class="admin-panel" style="margin-top:16px;">
@@ -2242,7 +2262,7 @@
 
     // ===== 习题训练 + 错题定位（按章节 / 题型分类） =====
     (function () {
-      const TYPES = ['选择', '判断', '计算', '案例', '简答'];
+      const TYPES = ['名词解释', '选择', '简答', '案例'];
       const QUIZ = [
         { q: '股票发行承销中，投行承担「包销」意味着什么？', opts: ['只代理销售，卖不完退回', '全额买下再卖出，承担未售出风险', '只负责定价不负责销售', '仅提供法律意见'], a: 1, kp: '承销业务', chapter: '第3章', type: '选择' },
         { q: '下列哪种估值方法属于「绝对估值法」？', opts: ['市盈率法 PE', '市净率法 PB', '现金流折现 DCF', '市销率法 PS'], a: 2, kp: '估值方法', chapter: '第3章', type: '选择' },
@@ -2250,8 +2270,8 @@
         { q: 'IPO 中保荐机构开展「尽职调查」的主要目的是？', opts: ['提高发行价', '缓解信息不对称、发现风险', '增加募资额', '缩短审核时间'], a: 1, kp: '尽职调查', chapter: '第3章', type: '选择' },
         { q: '美联储加息通常会导致美元？', opts: ['走强', '走弱', '不变', '先弱后强'], a: 0, kp: '宏观市场', chapter: '第1章', type: '选择' },
         { q: '黄金价格与实际利率通常是什么关系？', opts: ['同向', '反向', '无关', '成正比'], a: 1, kp: '宏观市场', chapter: '第1章', type: '选择' },
-        { q: '包销与代销的风险承担主体相同。（判断题）', opts: ['正确', '错误'], a: 1, kp: '承销业务', chapter: '第3章', type: '判断', demo: true },
-        { q: '某债券面值 1000 元、票面利率 5%、剩余期限 3 年，若市场收益率为 4%，其理论价格约？（单选）', opts: ['约 1027 元', '约 1000 元', '约 973 元', '约 1050 元'], a: 0, kp: '债券定价', chapter: '第5章', type: '计算', demo: true },
+        { q: '请解释「包销」与「代销」的含义，并说明两者风险承担主体的区别。', opts: null, a: -1, kp: '承销业务', chapter: '第3章', type: '名词解释', demo: true, ans: '包销：投行按约定全额买下待发行证券再转售，未售出部分由投行自行承担；代销：投行仅代理销售，募集不足的风险由发行人承担。故包销的风险承担主体是投行，代销是发行人。' },
+        { q: '某债券面值 1000 元、票面利率 5%、剩余期限 3 年，若市场收益率为 4%，其理论价格约为多少？（计算）', opts: ['约 1027 元', '约 1000 元', '约 973 元', '约 1050 元'], a: 0, kp: '债券定价', chapter: '第5章', type: '案例', demo: true },
         { q: '某制造业企业拟纵向并购上下游供应商，作为投行顾问应优先开展？（单选）', opts: ['重新设计品牌', '对标的开展业务/财务/法律尽职调查', '直接敲定价格', '发布新闻稿'], a: 1, kp: '并购顾问', chapter: '第7章', type: '案例', demo: true },
         { q: '简述优序融资理论（Pecking Order）的核心观点。', opts: null, a: -1, kp: '融资理论', chapter: '第2章', type: '简答', demo: true, ans: '企业融资偏好顺序为：内部留存 → 债权 → 股权。因信息不对称，外部股权融资成本最高，故企业优先使用内部资金，其次举债，最后才增发股票。' }
       ];
@@ -2875,7 +2895,7 @@
       function renderEventStats(data, kpiRow, cEl, tEl, mEl, wEl, note, counts) {
         data = data || {};
         const CH = ['第1章', '第2章', '第3章', '第4章', '第5章', '第6章', '第7章', '第8章', '第9章'];
-        const TY = ['选择', '判断', '计算', '案例', '简答'];
+        const TY = ['名词解释', '选择', '简答', '案例'];
         const MOD = { 'p-home': '首页', 'p-graph': '知识图谱', 'p-qa': '智能答疑', 'p-case': '案例库', 'p-sizheng': '课程思政', 'p-exercise': '习题训练', 'p-ipo': 'IPO仿真', 'p-valuation': '估值实验', 'p-macro': '宏观市场', 'p-sim': '模拟交易', 'p-wrong': '错题定位', 'p-profile': '学情画像', 'p-admin': '后台' };
         const uniq = function (arr) { const s = {}; arr.forEach(function (x) { if (x) s[x] = 1; }); return Object.keys(s); };
         const study = data.study || [];
@@ -2886,8 +2906,12 @@
         const allUids = uniq(study.concat(quiz, mod, login).map(function (e) { return e.uid; }));
         const studyUids = uniq(study.map(function (e) { return e.uid; }));
         const now = Date.now(), WEEK = 7 * 86400000;
-        // 周活跃以「登录/使用」事件为准，避免抽样导致去重人数失真
-        const weekUids = uniq(login.filter(function (e) { return e.ts && (now - e.ts) <= WEEK; }).map(function (e) { return e.uid; }));
+        // 活跃以「登录/使用」事件为准，避免抽样导致去重人数失真
+        let maxTs = 0; login.forEach(function (e) { if (e.ts && e.ts > maxTs) maxTs = e.ts; });
+        if (!maxTs) study.concat(quiz, mod).forEach(function (e) { if (e.ts && e.ts > maxTs) maxTs = e.ts; });
+        if (!maxTs) maxTs = now;
+        // 「近一周活跃」以数据中最近的时间点为基准：课程为历史数据时也反映末周活跃，而非恒为 0
+        const weekUids = uniq(login.filter(function (e) { return e.ts && (maxTs - e.ts) <= WEEK; }).map(function (e) { return e.uid; }));
         // KPI 数字优先取数据库全量 COUNT（抽样可能被接口行数上限截断），无计数时回落到抽样统计
         const K = counts || {};
         const num = function (v, fallback) { return (typeof v === 'number' && isFinite(v)) ? v : fallback; };
@@ -2896,7 +2920,7 @@
           + '<div class="admin-kpi"><div class="k">AI 问答</div><div class="v">' + num(K.qa, qa.length) + '</div><div class="sub">累计提问次数</div></div>'
           + '<div class="admin-kpi"><div class="k">习题作答</div><div class="v">' + num(K.quiz, quiz.length) + '</div><div class="sub">累计答题数</div></div>'
           + '<div class="admin-kpi"><div class="k">学习行为</div><div class="v">' + num(K.study, study.length) + '</div><div class="sub">章节学习完成次数</div></div>'
-          + '<div class="admin-kpi"><div class="k">本周活跃</div><div class="v">' + weekUids.length + '</div><div class="sub">近 7 天活跃人数</div></div>';
+          + '<div class="admin-kpi"><div class="k">近一周活跃</div><div class="v">' + weekUids.length + '</div><div class="sub">数据最近 7 天活跃人数</div></div>';
 
         // ① 各章节平均掌握度：横向柱状图
         const chapterItems = CH.map(function (ch) {
@@ -2932,6 +2956,21 @@
         const last = idxs.slice(-8);
         const weekItems = last.map(function (idx) { const cnt = Object.keys(wkMap[idx]).length; return { label: 'W' + (idx + 1), pct: cnt, val: cnt + ' 人' }; });
         wEl.innerHTML = weekItems.length ? lineChart(weekItems) : '<div class="um-empty">暂无周活跃记录</div>';
+
+        // ⑤ 学习活跃日历：按天去重活跃人数（登录事件），呈现学期内的活跃波动
+        const calEl = document.getElementById('ev-calendar');
+        if (calEl) {
+          const dayMap = {};
+          login.forEach(function (e) {
+            if (!e.ts) return;
+            const d = Math.floor((e.ts - minTs) / 86400000);
+            if (d < 0 || d > 55) return;
+            dayMap[d] = dayMap[d] || {};
+            dayMap[d][e.uid] = 1;
+          });
+          const calItems = Object.keys(dayMap).map(function (d) { return { d: Number(d), n: Object.keys(dayMap[d]).length }; });
+          calEl.innerHTML = calItems.length ? calendarHeat(calItems) : '<div class="um-empty">暂无活跃日历数据</div>';
+        }
       }
 
       // 横向柱状图（章节掌握度）
@@ -3018,6 +3057,32 @@
           + '<polygon points="' + area + '" fill="rgba(99,102,241,.10)"></polygon>'
           + '<polyline points="' + poly + '" fill="none" stroke="#4f46e5" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round"></polyline>'
           + dots + xlbl + '</svg>';
+      }
+
+      // 活跃日历热力图（8 周 × 7 天，按天活跃人数着色；每列一周、每行一个周一至周日）
+      function calendarHeat(items) {
+        const WEEKS = 8, DAYS = 7, WD = ['一', '二', '三', '四', '五', '六', '日'];
+        const map = {};
+        (items || []).forEach(function (it) { map[it.d] = it.n; });
+        let max = 1; (items || []).forEach(function (it) { if (it.n > max) max = it.n; });
+        const lvl = function (n) {
+          if (!n) return 0;
+          const r = n / max;
+          if (r <= 0.2) return 1; if (r <= 0.4) return 2; if (r <= 0.6) return 3; if (r <= 0.8) return 4; return 5;
+        };
+        let cells = '<div class="cal-wd"></div>';
+        for (let w = 0; w < WEEKS; w++) cells += '<div class="cal-wd">W' + (w + 1) + '</div>';
+        for (let d = 0; d < DAYS; d++) {
+          cells += '<div class="cal-wd">' + WD[d] + '</div>';
+          for (let w = 0; w < WEEKS; w++) {
+            const idx = w * DAYS + d, n = map[idx] || 0;
+            cells += '<div class="cal-cell lv' + lvl(n) + '" title="第 ' + (w + 1) + ' 周 周' + WD[d] + ' · ' + n + ' 人活跃">' + (n || '') + '</div>';
+          }
+        }
+        const legend = '<div class="cal-legend"><span>活跃少</span>'
+          + [0, 1, 2, 3, 4, 5].map(function (L) { return '<i class="lv' + L + '"></i>'; }).join('')
+          + '<span>活跃多</span></div>';
+        return '<div class="cal-wrap"><div class="cal-grid">' + cells + '</div>' + legend + '</div>';
       }
 
       // ===== 学情看板：开关状态 / 学生档案映射 =====
