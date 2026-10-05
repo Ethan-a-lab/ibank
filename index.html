@@ -644,13 +644,21 @@
     .lv3 { background: #a5b4fc; }
     .lv4 { background: #6366f1; }
     .lv5 { background: #4338ca; }
-    .cal-grid { display: grid; grid-template-columns: 24px repeat(8, 1fr); gap: 5px; max-width: 540px; align-items: center; }
+    .cal-grid { display: grid; grid-template-columns: 22px repeat(8, 1fr); gap: 5px; align-items: center; }
     .cal-wd { font-size: 10.5px; color: var(--muted); text-align: center; }
-    .cal-cell { aspect-ratio: 1 / 1; border-radius: 7px; display: flex; align-items: center; justify-content: center; font-size: 11.5px; font-weight: 700; color: #fff; }
+    .cal-cell { aspect-ratio: 1 / 1; border-radius: 7px; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; color: #fff; cursor: pointer; user-select: none; transition: box-shadow .12s, transform .12s; }
+    .cal-cell:hover { transform: translateY(-1px); box-shadow: 0 2px 8px rgba(79,70,229,.28); }
     .cal-cell.lv1 { color: #4338ca; }
     .cal-cell.lv2 { color: #3730a3; }
-    .cal-legend { display: flex; align-items: center; gap: 5px; margin-top: 12px; font-size: 11px; color: var(--muted); max-width: 540px; justify-content: flex-end; }
+    .cal-cell.sel { box-shadow: 0 0 0 2px #4f46e5 inset; outline: 2px solid rgba(79,70,229,.4); outline-offset: 1px; }
+    .cal-legend { display: flex; align-items: center; gap: 5px; margin-top: 12px; font-size: 11px; color: var(--muted); justify-content: flex-end; }
     .cal-legend i { width: 13px; height: 13px; border-radius: 4px; display: inline-block; }
+    .wk-pick { margin-top: 14px; padding-top: 12px; border-top: 1px dashed rgba(120,130,160,.3); }
+    .wk-hd { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 9px; }
+    .wk-range { font-size: 11.5px; color: var(--muted); }
+    .wk-range b { color: var(--text); }
+    .wk-reset { font-size: 11px; color: #4f46e5; background: rgba(99,102,241,.10); border: 0; border-radius: 6px; padding: 3px 9px; cursor: pointer; }
+    .wk-reset:hover { background: rgba(99,102,241,.20); }
     /* ===== 学生学情明细 ===== */
     .stu-item { border-top: 1px solid #eef2f7; }
     .stu-item > summary { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; padding: 11px 6px; font-size: 13.5px; cursor: pointer; list-style: none; border-radius: 8px; }
@@ -1705,13 +1713,7 @@
         <div class="admin-panel"><h4>各章节平均掌握度</h4><div class="sub">按章统计完成学习的学生占比</div><div id="ev-chapter"></div></div>
         <div class="admin-panel"><h4>各题型平均正确率</h4><div class="sub">按题型统计答题正确率</div><div id="ev-qtype"></div></div>
         <div class="admin-panel"><h4>学习模块使用占比</h4><div class="sub">各功能模块被打开的频次占比</div><div id="ev-module"></div></div>
-        <div class="admin-panel"><h4>每周活跃人数</h4><div class="sub">按周统计活跃学生数</div><div id="ev-week"></div></div>
-      </div>
-
-      <div class="admin-panel" style="margin-top:16px;">
-        <h4>学习活跃日历</h4>
-        <div class="sub">按日统计活跃学生数（颜色越深代表当日活跃学生越多），可直观看出学期内的活跃波动。</div>
-        <div id="ev-calendar"></div>
+        <div class="admin-panel"><h4>每周活跃人数</h4><div class="sub">按周统计活跃学生数；点选或拖动下方日历可圈选一段时间，折线图将按天勾出该区间的活跃走势。</div><div id="ev-week"></div><div class="wk-pick"><div class="wk-hd"><span class="wk-range" id="ev-range">默认按周</span><button type="button" class="wk-reset" id="ev-cal-reset">重置</button></div><div id="ev-calendar"></div></div></div>
       </div>
 
       <div class="admin-panel" style="margin-top:16px;">
@@ -2892,6 +2894,9 @@
         }
       }
 
+      // 活跃日历交互状态（折线图 ↔ 日历联动）
+      var calData = { minTs: 0, dayMap: {}, weekWeeks: [], weekCounts: [], selA: -1, selB: -1, dragging: false };
+
       function renderEventStats(data, kpiRow, cEl, tEl, mEl, wEl, note, counts) {
         data = data || {};
         const CH = ['第1章', '第2章', '第3章', '第4章', '第5章', '第6章', '第7章', '第8章', '第9章'];
@@ -2946,31 +2951,85 @@
         }).sort(function (a, b) { return b.n - a.n; });
         mEl.innerHTML = modItems.length ? donutChart(modItems) : '<div class="um-empty">暂无模块使用记录</div>';
 
-        // ④ 每周活跃人数：折线图（按登录事件统计每周活跃人数）
+        // ④ 每周活跃人数：折线图 + 日历选择器（按登录事件统计活跃人数）
         let minTs = Infinity; login.forEach(function (e) { if (e.ts && e.ts < minTs) minTs = e.ts; });
         if (!isFinite(minTs)) { study.concat(quiz, mod).forEach(function (e) { if (e.ts && e.ts < minTs) minTs = e.ts; }); }
         if (!isFinite(minTs)) minTs = now;
+        // 按周去重活跃人数（默认视图）
         const wkMap = {};
         login.forEach(function (e) { if (!e.ts) return; const idx = Math.floor((e.ts - minTs) / WEEK); wkMap[idx] = wkMap[idx] || {}; wkMap[idx][e.uid] = 1; });
-        const idxs = Object.keys(wkMap).map(Number).sort(function (a, b) { return a - b; });
-        const last = idxs.slice(-8);
-        const weekItems = last.map(function (idx) { const cnt = Object.keys(wkMap[idx]).length; return { label: 'W' + (idx + 1), pct: cnt, val: cnt + ' 人' }; });
-        wEl.innerHTML = weekItems.length ? lineChart(weekItems) : '<div class="um-empty">暂无周活跃记录</div>';
+        const widx = Object.keys(wkMap).map(Number).sort(function (a, b) { return a - b; }).slice(-8);
+        calData.minTs = minTs;
+        calData.weekWeeks = widx;
+        calData.weekCounts = widx.map(function (idx) { return Object.keys(wkMap[idx]).length; });
+        // 按天去重活跃人数（供日历着色与区间折线）
+        const dayMap = {};
+        login.forEach(function (e) {
+          if (!e.ts) return;
+          const d = Math.floor((e.ts - minTs) / 86400000);
+          if (d < 0 || d > 55) return;
+          dayMap[d] = dayMap[d] || {};
+          dayMap[d][e.uid] = 1;
+        });
+        calData.dayMap = dayMap;
+        calData.selA = -1; calData.selB = -1;
+        renderWeekPanel();
+        bindCalendar();
+      }
 
-        // ⑤ 学习活跃日历：按天去重活跃人数（登录事件），呈现学期内的活跃波动
+      // 渲染「每周活跃人数」折线：无选择时按周（W1–W8）；选中日历区间后按天
+      function renderWeekPanel() {
+        const wEl = document.getElementById('ev-week');
         const calEl = document.getElementById('ev-calendar');
-        if (calEl) {
-          const dayMap = {};
-          login.forEach(function (e) {
-            if (!e.ts) return;
-            const d = Math.floor((e.ts - minTs) / 86400000);
-            if (d < 0 || d > 55) return;
-            dayMap[d] = dayMap[d] || {};
-            dayMap[d][e.uid] = 1;
-          });
-          const calItems = Object.keys(dayMap).map(function (d) { return { d: Number(d), n: Object.keys(dayMap[d]).length }; });
-          calEl.innerHTML = calItems.length ? calendarHeat(calItems) : '<div class="um-empty">暂无活跃日历数据</div>';
+        const rangeEl = document.getElementById('ev-range');
+        const hasSel = calData.selA >= 0 && calData.selB >= 0;
+        let items = [];
+        if (hasSel) {
+          const a = Math.min(calData.selA, calData.selB), b = Math.max(calData.selA, calData.selB);
+          for (let d = a; d <= b; d++) {
+            const cnt = calData.dayMap[d] ? Object.keys(calData.dayMap[d]).length : 0;
+            items.push({ label: fmtDay(d), pct: cnt, val: cnt + ' 人' });
+          }
+          if (rangeEl) rangeEl.innerHTML = '已选区间 <b>' + fmtDay(a) + ' – ' + fmtDay(b) + '</b> · 按天统计 ' + (b - a + 1) + ' 天';
+        } else {
+          items = calData.weekCounts.map(function (c, i) { return { label: 'W' + (calData.weekWeeks[i] + 1), pct: c, val: c + ' 人' }; });
+          if (rangeEl) rangeEl.innerHTML = '默认按周 · W1–W' + calData.weekWeeks.length;
         }
+        if (wEl) wEl.innerHTML = items.length ? lineChart(items) : '<div class="um-empty">暂无活跃记录</div>';
+        if (calEl) calEl.innerHTML = calendarHeat();
+      }
+
+      // 日序号 → M/D 标签
+      function fmtDay(d) {
+        const dt = new Date(calData.minTs + d * 86400000);
+        return (dt.getMonth() + 1) + '/' + dt.getDate();
+      }
+
+      // 绑定日历交互：点击选单日、拖动圈选区间、重置回按周
+      function bindCalendar() {
+        const calEl = document.getElementById('ev-calendar');
+        if (!calEl) return;
+        const pick = function (ev) {
+          const t = ev.target;
+          return (t && t.getAttribute && t.getAttribute('data-d') != null) ? Number(t.getAttribute('data-d')) : -1;
+        };
+        calEl.onmousedown = function (ev) {
+          const d = pick(ev); if (d < 0) return;
+          ev.preventDefault();
+          calData.selA = d; calData.selB = d; calData.dragging = true;
+          renderWeekPanel();
+        };
+        calEl.onmouseover = function (ev) {
+          if (!calData.dragging) return;
+          const d = pick(ev); if (d < 0 || d === calData.selB) return;
+          calData.selB = d; renderWeekPanel();
+        };
+        if (!bindCalendar._docBound) {
+          document.addEventListener('mouseup', function () { calData.dragging = false; });
+          bindCalendar._docBound = true;
+        }
+        const rst = document.getElementById('ev-cal-reset');
+        if (rst) rst.onclick = function () { calData.selA = -1; calData.selB = -1; renderWeekPanel(); };
       }
 
       // 横向柱状图（章节掌握度）
@@ -3045,11 +3104,15 @@
         const pts = items.map(function (i, idx) { return [px(idx), py(i.pct)]; });
         const poly = pts.map(function (p) { return p[0].toFixed(1) + ',' + p[1].toFixed(1); }).join(' ');
         const area = PL + ',' + (PT + ih) + ' ' + poly + ' ' + (W - PR) + ',' + (PT + ih);
+        const many = n > 12;                       // 点较多时省略逐点数值、稀疏 x 轴标签
         const dots = items.map(function (i, idx) {
-          return '<circle cx="' + pts[idx][0].toFixed(1) + '" cy="' + pts[idx][1].toFixed(1) + '" r="3.4" fill="#4f46e5" stroke="#fff" stroke-width="1.6"></circle>'
-            + '<text x="' + pts[idx][0].toFixed(1) + '" y="' + (pts[idx][1] - 9).toFixed(1) + '" text-anchor="middle" font-size="10.5" font-weight="700" fill="#4f46e5">' + i.pct + '</text>';
+          const r = n > 20 ? 2.2 : 3.4;
+          return '<circle cx="' + pts[idx][0].toFixed(1) + '" cy="' + pts[idx][1].toFixed(1) + '" r="' + r + '" fill="#4f46e5" stroke="#fff" stroke-width="1.4"></circle>'
+            + (many ? '' : '<text x="' + pts[idx][0].toFixed(1) + '" y="' + (pts[idx][1] - 9).toFixed(1) + '" text-anchor="middle" font-size="10.5" font-weight="700" fill="#4f46e5">' + i.pct + '</text>');
         }).join('');
+        const lblStep = many ? Math.ceil(n / 8) : 1;
         const xlbl = items.map(function (i, idx) {
+          if (many && idx % lblStep !== 0 && idx !== n - 1) return '';
           return '<text x="' + px(idx).toFixed(1) + '" y="' + (H - 8) + '" text-anchor="middle" font-size="10.5" fill="#8892a6">' + esc(i.label) + '</text>';
         }).join('');
         return '<svg class="line-svg" viewBox="0 0 ' + W + ' ' + H + '" preserveAspectRatio="xMidYMid meet">'
@@ -3059,24 +3122,28 @@
           + dots + xlbl + '</svg>';
       }
 
-      // 活跃日历热力图（8 周 × 7 天，按天活跃人数着色；每列一周、每行一个周一至周日）
-      function calendarHeat(items) {
+      // 活跃日历热力图（8 周 × 7 天，按天活跃人数着色；可点击/拖动圈选区间）
+      function calendarHeat() {
         const WEEKS = 8, DAYS = 7, WD = ['一', '二', '三', '四', '五', '六', '日'];
-        const map = {};
-        (items || []).forEach(function (it) { map[it.d] = it.n; });
-        let max = 1; (items || []).forEach(function (it) { if (it.n > max) max = it.n; });
+        const dayMap = calData.dayMap || {};
+        let max = 1;
+        Object.keys(dayMap).forEach(function (k) { const n = Object.keys(dayMap[k]).length; if (n > max) max = n; });
         const lvl = function (n) {
           if (!n) return 0;
           const r = n / max;
           if (r <= 0.2) return 1; if (r <= 0.4) return 2; if (r <= 0.6) return 3; if (r <= 0.8) return 4; return 5;
         };
+        const a = calData.selA >= 0 ? Math.min(calData.selA, calData.selB) : -1;
+        const b = calData.selB >= 0 ? Math.max(calData.selA, calData.selB) : -1;
         let cells = '<div class="cal-wd"></div>';
         for (let w = 0; w < WEEKS; w++) cells += '<div class="cal-wd">W' + (w + 1) + '</div>';
         for (let d = 0; d < DAYS; d++) {
           cells += '<div class="cal-wd">' + WD[d] + '</div>';
           for (let w = 0; w < WEEKS; w++) {
-            const idx = w * DAYS + d, n = map[idx] || 0;
-            cells += '<div class="cal-cell lv' + lvl(n) + '" title="第 ' + (w + 1) + ' 周 周' + WD[d] + ' · ' + n + ' 人活跃">' + (n || '') + '</div>';
+            const idx = w * DAYS + d;
+            const n = dayMap[idx] ? Object.keys(dayMap[idx]).length : 0;
+            const sel = (a >= 0 && idx >= a && idx <= b) ? ' sel' : '';
+            cells += '<div class="cal-cell lv' + lvl(n) + sel + '" data-d="' + idx + '" title="' + fmtDay(idx) + ' · ' + n + ' 人活跃">' + (n || '') + '</div>';
           }
         }
         const legend = '<div class="cal-legend"><span>活跃少</span>'
