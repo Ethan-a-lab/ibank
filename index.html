@@ -644,15 +644,26 @@
     .lv3 { background: #a5b4fc; }
     .lv4 { background: #6366f1; }
     .lv5 { background: #4338ca; }
-    .cal-grid { display: grid; grid-template-columns: 22px repeat(8, 1fr); gap: 5px; align-items: center; }
-    .cal-wd { font-size: 10.5px; color: var(--muted); text-align: center; }
-    .cal-cell { aspect-ratio: 1 / 1; border-radius: 7px; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; color: #fff; cursor: pointer; user-select: none; transition: box-shadow .12s, transform .12s; }
-    .cal-cell:hover { transform: translateY(-1px); box-shadow: 0 2px 8px rgba(79,70,229,.28); }
-    .cal-cell.lv1 { color: #4338ca; }
-    .cal-cell.lv2 { color: #3730a3; }
-    .cal-cell.sel { box-shadow: 0 0 0 2px #4f46e5 inset; outline: 2px solid rgba(79,70,229,.4); outline-offset: 1px; }
-    .cal-legend { display: flex; align-items: center; gap: 5px; margin-top: 12px; font-size: 11px; color: var(--muted); justify-content: flex-end; }
-    .cal-legend i { width: 13px; height: 13px; border-radius: 4px; display: inline-block; }
+    /* 月历选择器（传统日历样式：周一~周日横排、日期数字、选中填充） */
+    .cx-head { display: flex; align-items: center; justify-content: center; gap: 12px; margin: 2px 0 12px; }
+    .cx-title { font-size: 13.5px; font-weight: 700; color: var(--text); min-width: 106px; text-align: center; }
+    .cx-nav { width: 26px; height: 26px; border-radius: 8px; border: 1px solid rgba(120,130,160,.28); background: transparent; color: var(--muted); cursor: pointer; font-size: 15px; line-height: 1; display: inline-flex; align-items: center; justify-content: center; padding: 0; }
+    .cx-nav:hover:not(:disabled) { background: rgba(99,102,241,.10); color: #4f46e5; border-color: rgba(99,102,241,.42); }
+    .cx-nav:disabled { opacity: .32; cursor: default; }
+    .cx-wd { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; margin-bottom: 6px; }
+    .cx-wd span { text-align: center; font-size: 11px; color: var(--muted); }
+    .cx-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; }
+    .cx-cell { position: relative; aspect-ratio: 1 / 1; border-radius: 9px; display: flex; flex-direction: column; align-items: center; justify-content: center; user-select: none; transition: background .12s, color .12s, box-shadow .12s; }
+    .cx-cell .cx-d { font-size: 13px; font-weight: 600; color: var(--text); line-height: 1.05; }
+    .cx-cell .cx-n { font-size: 9.5px; font-weight: 700; color: #4f46e5; margin-top: 1px; height: 12px; line-height: 12px; }
+    .cx-cell.out { opacity: .30; }
+    .cx-cell.in { cursor: pointer; }
+    .cx-cell.in:hover { background: rgba(99,102,241,.10); }
+    .cx-cell.insel { background: rgba(99,102,241,.14); }
+    .cx-cell.insel .cx-d { color: #4338ca; }
+    .cx-cell.end { background: #4f46e5; box-shadow: 0 4px 12px rgba(79,70,229,.35); }
+    .cx-cell.end .cx-d { color: #fff; }
+    .cx-cell.end .cx-n { color: rgba(255,255,255,.88); }
     .wk-pick { margin-top: 14px; padding-top: 12px; border-top: 1px dashed rgba(120,130,160,.3); }
     .wk-hd { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 9px; }
     .wk-range { font-size: 11.5px; color: var(--muted); }
@@ -1713,7 +1724,7 @@
         <div class="admin-panel"><h4>各章节平均掌握度</h4><div class="sub">按章统计完成学习的学生占比</div><div id="ev-chapter"></div></div>
         <div class="admin-panel"><h4>各题型平均正确率</h4><div class="sub">按题型统计答题正确率</div><div id="ev-qtype"></div></div>
         <div class="admin-panel"><h4>学习模块使用占比</h4><div class="sub">各功能模块被打开的频次占比</div><div id="ev-module"></div></div>
-        <div class="admin-panel"><h4>每周活跃人数</h4><div class="sub">按周统计活跃学生数；点选或拖动下方日历可圈选一段时间，折线图将按天勾出该区间的活跃走势。</div><div id="ev-week"></div><div class="wk-pick"><div class="wk-hd"><span class="wk-range" id="ev-range">默认按周</span><button type="button" class="wk-reset" id="ev-cal-reset">重置</button></div><div id="ev-calendar"></div></div></div>
+        <div class="admin-panel"><h4>每周活跃人数</h4><div class="sub">按周统计活跃学生数；在下方月历中点选或拖动可圈选一段时间（可翻月），折线图将按天勾出该区间的活跃走势。</div><div id="ev-week"></div><div class="wk-pick"><div class="wk-hd"><span class="wk-range" id="ev-range">默认按周</span><button type="button" class="wk-reset" id="ev-cal-reset">重置</button></div><div id="ev-calendar"></div></div></div>
       </div>
 
       <div class="admin-panel" style="margin-top:16px;">
@@ -2962,16 +2973,20 @@
         calData.minTs = minTs;
         calData.weekWeeks = widx;
         calData.weekCounts = widx.map(function (idx) { return Object.keys(wkMap[idx]).length; });
-        // 按天去重活跃人数（供日历着色与区间折线）
+        // 按天去重活跃人数（供月历着色与区间折线）
         const dayMap = {};
+        let maxD = 0;
         login.forEach(function (e) {
           if (!e.ts) return;
           const d = Math.floor((e.ts - minTs) / 86400000);
-          if (d < 0 || d > 55) return;
+          if (d < 0 || d > 400) return;
           dayMap[d] = dayMap[d] || {};
           dayMap[d][e.uid] = 1;
+          if (d > maxD) maxD = d;
         });
         calData.dayMap = dayMap;
+        calData.maxD = maxD;
+        calData.viewMonth = 0;
         calData.selA = -1; calData.selB = -1;
         renderWeekPanel();
         bindCalendar();
@@ -3005,13 +3020,16 @@
         return (dt.getMonth() + 1) + '/' + dt.getDate();
       }
 
-      // 绑定日历交互：点击选单日、拖动圈选区间、重置回按周
+      // 绑定月历交互：点击选单日、拖动圈选区间、点击箭头翻月、重置回按周
       function bindCalendar() {
         const calEl = document.getElementById('ev-calendar');
         if (!calEl) return;
         const pick = function (ev) {
-          const t = ev.target;
-          return (t && t.getAttribute && t.getAttribute('data-d') != null) ? Number(t.getAttribute('data-d')) : -1;
+          let t = ev.target;
+          if (t && t.closest) t = t.closest('[data-d]');
+          if (!t || !t.getAttribute) return -1;
+          const v = t.getAttribute('data-d');
+          return v != null ? Number(v) : -1;
         };
         calEl.onmousedown = function (ev) {
           const d = pick(ev); if (d < 0) return;
@@ -3023,6 +3041,16 @@
           if (!calData.dragging) return;
           const d = pick(ev); if (d < 0 || d === calData.selB) return;
           calData.selB = d; renderWeekPanel();
+        };
+        calEl.onclick = function (ev) {
+          let t = ev.target;
+          if (t && t.closest) t = t.closest('[data-nav]');
+          if (!t || !t.getAttribute) return;
+          const dir = Number(t.getAttribute('data-nav'));
+          if (!dir) return;
+          ev.preventDefault();
+          calData.viewMonth = (calData.viewMonth || 0) + dir;
+          renderWeekPanel();
         };
         if (!bindCalendar._docBound) {
           document.addEventListener('mouseup', function () { calData.dragging = false; });
@@ -3122,34 +3150,59 @@
           + dots + xlbl + '</svg>';
       }
 
-      // 活跃日历热力图（8 周 × 7 天，按天活跃人数着色；可点击/拖动圈选区间）
+      // 月历选择器（传统日历样式：周一~周日横排、日期数字 + 当日活跃数；可翻月、点选/拖动圈选）
       function calendarHeat() {
-        const WEEKS = 8, DAYS = 7, WD = ['一', '二', '三', '四', '五', '六', '日'];
+        const WD = ['一', '二', '三', '四', '五', '六', '日'];
         const dayMap = calData.dayMap || {};
-        let max = 1;
-        Object.keys(dayMap).forEach(function (k) { const n = Object.keys(dayMap[k]).length; if (n > max) max = n; });
-        const lvl = function (n) {
-          if (!n) return 0;
-          const r = n / max;
-          if (r <= 0.2) return 1; if (r <= 0.4) return 2; if (r <= 0.6) return 3; if (r <= 0.8) return 4; return 5;
-        };
-        const a = calData.selA >= 0 ? Math.min(calData.selA, calData.selB) : -1;
-        const b = calData.selB >= 0 ? Math.max(calData.selA, calData.selB) : -1;
-        let cells = '<div class="cal-wd"></div>';
-        for (let w = 0; w < WEEKS; w++) cells += '<div class="cal-wd">W' + (w + 1) + '</div>';
-        for (let d = 0; d < DAYS; d++) {
-          cells += '<div class="cal-wd">' + WD[d] + '</div>';
-          for (let w = 0; w < WEEKS; w++) {
-            const idx = w * DAYS + d;
-            const n = dayMap[idx] ? Object.keys(dayMap[idx]).length : 0;
-            const sel = (a >= 0 && idx >= a && idx <= b) ? ' sel' : '';
-            cells += '<div class="cal-cell lv' + lvl(n) + sel + '" data-d="' + idx + '" title="' + fmtDay(idx) + ' · ' + n + ' 人活跃">' + (n || '') + '</div>';
-          }
+        const minTs = calData.minTs;
+        if (minTs == null) return '';
+        const maxD = calData.maxD != null ? calData.maxD : 0;
+        // 以「本地日期」为基准，保证与 fmtDay 的日序一致
+        const baseD = new Date(minTs);
+        const baseMid = new Date(baseD.getFullYear(), baseD.getMonth(), baseD.getDate()).getTime();
+        const dIndex = function (y, m, day) { return Math.round((new Date(y, m, day).getTime() - baseMid) / 86400000); };
+        // 覆盖 minTs 当月 ~ 数据末日当月的月份列表
+        const first = new Date(baseMid);
+        const last = new Date(baseMid + maxD * 86400000);
+        const months = [];
+        let y = first.getFullYear(), m = first.getMonth();
+        while (y < last.getFullYear() || (y === last.getFullYear() && m <= last.getMonth())) {
+          months.push({ y: y, m: m });
+          m++; if (m > 11) { m = 0; y++; }
         }
-        const legend = '<div class="cal-legend"><span>活跃少</span>'
-          + [0, 1, 2, 3, 4, 5].map(function (L) { return '<i class="lv' + L + '"></i>'; }).join('')
-          + '<span>活跃多</span></div>';
-        return '<div class="cal-wrap"><div class="cal-grid">' + cells + '</div>' + legend + '</div>';
+        if (!months.length) return '';
+        let vi = calData.viewMonth || 0;
+        if (vi < 0) vi = 0;
+        if (vi > months.length - 1) vi = months.length - 1;
+        calData.viewMonth = vi;
+        const mv = months[vi];
+        const a = (calData.selA >= 0 && calData.selB >= 0) ? Math.min(calData.selA, calData.selB) : -1;
+        const b = (calData.selA >= 0 && calData.selB >= 0) ? Math.max(calData.selA, calData.selB) : -1;
+
+        const dim = new Date(mv.y, mv.m + 1, 0).getDate();
+        const lead = (new Date(mv.y, mv.m, 1).getDay() + 6) % 7;   // 周一 = 0
+        const total = Math.ceil((lead + dim) / 7) * 7;
+        let cells = '';
+        for (let i = 0; i < total; i++) {
+          const day = i - lead + 1;
+          if (day < 1 || day > dim) { cells += '<div class="cx-cell out"></div>'; continue; }
+          const d = dIndex(mv.y, mv.m, day);
+          const inRange = d >= 0 && d <= maxD;
+          const n = (inRange && dayMap[d]) ? Object.keys(dayMap[d]).length : 0;
+          let cls = 'cx-cell ' + (inRange ? 'in' : 'out');
+          if (inRange && a >= 0 && d >= a && d <= b) { cls += ' insel'; if (d === a || d === b) cls += ' end'; }
+          const attr = inRange ? ' data-d="' + d + '"' : '';
+          const title = inRange ? (fmtDay(d) + ' · ' + n + ' 人活跃') : ((mv.m + 1) + '月' + day + '日 · 学期外');
+          cells += '<div class="' + cls + '"' + attr + ' title="' + title + '">'
+            + '<span class="cx-d">' + day + '</span><span class="cx-n">' + (n > 0 ? n : '') + '</span></div>';
+        }
+        const head = '<div class="cx-head">'
+          + '<button type="button" class="cx-nav" data-nav="-1"' + (vi <= 0 ? ' disabled' : '') + ' aria-label="上个月">‹</button>'
+          + '<span class="cx-title">' + mv.y + ' 年 ' + (mv.m + 1) + ' 月</span>'
+          + '<button type="button" class="cx-nav" data-nav="1"' + (vi >= months.length - 1 ? ' disabled' : '') + ' aria-label="下个月">›</button>'
+          + '</div>';
+        const wd = '<div class="cx-wd">' + WD.map(function (w) { return '<span>' + w + '</span>'; }).join('') + '</div>';
+        return '<div class="cx-wrap">' + head + wd + '<div class="cx-grid">' + cells + '</div></div>';
       }
 
       // ===== 学情看板：开关状态 / 学生档案映射 =====
