@@ -392,8 +392,8 @@
     .ev-live { font-size: 12.5px; font-weight: 700; padding: 6px 13px; border-radius: 999px; border: 1px solid #c7d2e8; color: #475569; background: #eef2f9; white-space: nowrap; }
     .ev-live:not(.off) { color: #0b7a43; border-color: rgba(11, 122, 67, 0.45); background: rgba(11, 122, 67, 0.1); }
     .ev-live.ping { animation: evLivePing 1.2s ease; }
-    body.dark .ev-live { color: #cbd5e1; background: rgba(148, 163, 184, 0.16); border-color: rgba(148, 163, 184, 0.35); }
-    body.dark .ev-live:not(.off) { color: #34d399; background: rgba(52, 211, 153, 0.12); border-color: rgba(52, 211, 153, 0.4); }
+    body.dark:not(.light) .ev-live { color: #cbd5e1; background: rgba(148, 163, 184, 0.16); border-color: rgba(148, 163, 184, 0.35); }
+    body.dark:not(.light) .ev-live:not(.off) { color: #34d399; background: rgba(52, 211, 153, 0.12); border-color: rgba(52, 211, 153, 0.4); }
     @keyframes evLivePing { 0% { box-shadow: 0 0 0 0 rgba(11, 122, 67, 0.45); } 100% { box-shadow: 0 0 0 9px rgba(11, 122, 67, 0); } }
     @media (max-width: 860px) {
       .learn-layout { grid-template-columns: 1fr; }
@@ -538,12 +538,78 @@
     .qn-legend .lg-dot { position: relative; background: var(--panel-solid); }
     .qn-legend .lg-dot::after { content: ""; position: absolute; top: 1px; right: 1px; width: 6px; height: 6px; border-radius: 50%; background: #6366f1; }
 
-    /* ===== 错题定位 ===== */
-    .wrong-item { border: 1px solid var(--panel-border); border-radius: 13px; padding: 14px 16px; margin-bottom: 12px; background: rgba(255,255,255,0.02); }
-    .wrong-item .q { font-size: 14px; line-height: 1.6; }
-    .wrong-item .tag { display: inline-block; font-size: 11.5px; color: var(--up); background: rgba(248,113,113,0.15); padding: 2px 9px; border-radius: 999px; margin: 8px 8px 0 0; }
-    .wrong-item .ans { font-size: 13px; color: var(--accent2); margin-top: 8px; }
-    .wrong-item .exp { font-size: 12.5px; color: var(--muted); margin-top: 4px; line-height: 1.6; }
+    /* ===== 错题定位诊断（v36 五要素） ===== */
+    .wd-kpi { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(140px, 100%), 1fr)); gap: 12px; margin-bottom: 16px; }
+    .wd-kpi .cell { border: 1px solid var(--panel-border); border-radius: 12px; padding: 14px 16px; background: rgba(255,255,255,0.03); }
+    .wd-kpi .cell .k { font-size: 12.5px; color: var(--muted); }
+    .wd-kpi .cell .v { font-size: 26px; font-weight: 700; line-height: 1.15; margin-top: 4px; color: var(--text); }
+    .wd-kpi .cell .v.red { color: var(--up); }
+    .wd-kpi .cell .v.green { color: var(--down); }
+    .wd-cols { display: grid; grid-template-columns: 1.3fr 1fr; gap: 16px; margin-bottom: 16px; }
+    .wd-card { border: 1px solid var(--panel-border); border-radius: 13px; padding: 15px 17px; background: rgba(255,255,255,0.02); }
+    .wd-card > .hd { font-size: 13.5px; color: var(--text); font-weight: 600; margin-bottom: 13px; }
+    .wd-heat-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; cursor: pointer; }
+    .wd-heat-row:hover .nm { color: var(--accent-text); }
+    .wd-heat-row .nm { width: 82px; flex: 0 0 auto; font-size: 12.5px; color: var(--muted); text-align: right; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .wd-heat-row .tk { flex: 1; height: 16px; background: rgba(255,255,255,0.06); border-radius: 8px; overflow: hidden; }
+    .wd-heat-row .tk i { display: block; height: 100%; border-radius: 8px; background: linear-gradient(90deg, #f87171, #ef4444); }
+    .wd-heat-row .vl { width: 32px; flex: 0 0 auto; font-size: 12.5px; color: var(--muted); }
+    .wd-seg { display: flex; height: 18px; border-radius: 9px; overflow: hidden; margin-bottom: 12px; }
+    .wd-seg i { display: block; height: 100%; }
+    .wd-legend { font-size: 12.5px; color: var(--muted); line-height: 1.9; }
+    .wd-legend span { display: inline-flex; align-items: center; gap: 6px; margin-right: 14px; }
+    .wd-legend em { width: 9px; height: 9px; border-radius: 2px; display: inline-block; font-style: normal; }
+    .wd-due { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; border: 1px solid rgba(99,102,241,0.35); background: rgba(99,102,241,0.08); border-radius: 12px; padding: 12px 16px; margin-bottom: 16px; }
+    .wd-due .tx { font-size: 12.5px; color: var(--text); line-height: 1.7; }
+    .wd-due .tx b { color: var(--accent-text); }
+    .wd-toolbar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 14px; }
+    .wd-chip { font-size: 12.5px; padding: 5px 12px; border-radius: 999px; border: 1px solid var(--panel-border); background: rgba(255,255,255,0.02); color: var(--muted); cursor: pointer; }
+    .wd-chip.active { border-color: var(--accent); color: var(--accent-text); background: rgba(99,102,241,0.12); font-weight: 600; }
+    .wd-btnsm { font-size: 12.5px; padding: 6px 13px; border-radius: 9px; border: 1px solid var(--accent); background: var(--accent-solid); color: #fff; cursor: pointer; }
+    .wd-btnsm.ghost { background: transparent; color: var(--accent-text); }
+    .wd-item { border: 1px solid var(--panel-border); border-radius: 13px; margin-bottom: 12px; background: rgba(255,255,255,0.02); overflow: hidden; }
+    .wd-item.mastered { opacity: 0.72; }
+    .wd-item .top { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; padding: 14px 16px 0; }
+    .wd-badge { font-size: 11.5px; padding: 2px 9px; border-radius: 999px; border: 1px solid var(--panel-border); color: var(--muted); }
+    .wd-badge.red { color: var(--up); border-color: rgba(248,113,113,0.45); background: rgba(248,113,113,0.12); }
+    .wd-badge.amber { color: #b45309; border-color: rgba(217,119,6,0.45); background: rgba(217,119,6,0.12); }
+    body.dark:not(.light) .wd-badge.amber { color: #fbbf24; }
+    .wd-badge.green { color: var(--down); border-color: rgba(52,211,153,0.45); background: rgba(52,211,153,0.12); }
+    .wd-badge.seed { color: var(--dim); border-style: dashed; }
+    .wd-item .st { margin-left: auto; font-size: 12px; color: var(--dim); white-space: nowrap; }
+    .wd-item .q { font-size: 14px; line-height: 1.6; padding: 10px 16px 0; }
+    .wd-item .q .no { color: var(--muted); font-weight: 600; margin-right: 6px; }
+    .wd-body { padding: 12px 16px 14px; }
+    .wd-cmp { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .wd-cmp .bx { border-radius: 11px; padding: 10px 12px; font-size: 12.5px; line-height: 1.65; }
+    .wd-cmp .bx .lb { font-weight: 600; margin-bottom: 4px; }
+    .wd-cmp .bad { border: 1px solid rgba(248,113,113,0.5); background: rgba(248,113,113,0.10); }
+    .wd-cmp .bad .lb { color: var(--up); }
+    .wd-cmp .ok { border: 1px solid rgba(52,211,153,0.5); background: rgba(52,211,153,0.10); }
+    .wd-cmp .ok .lb { color: var(--down); }
+    .wd-cmp .bx .ct { color: var(--muted); }
+    .wd-exp { font-size: 12.5px; color: var(--muted); line-height: 1.7; margin-top: 10px; }
+    .wd-exp b { color: var(--accent-text); font-weight: 600; }
+    .wd-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 13px; align-items: center; }
+    .wd-causesel { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin-top: 12px; padding-top: 12px; border-top: 1px dashed var(--panel-border); }
+    .wd-causesel .lb { font-size: 12px; color: var(--dim); margin-right: 2px; }
+    .wd-vari { margin-top: 13px; padding: 12px 14px; border-radius: 11px; border: 1px dashed var(--accent); background: rgba(99,102,241,0.06); }
+    .wd-vari .vh { font-size: 12.5px; color: var(--accent-text); font-weight: 600; margin-bottom: 10px; }
+    .wd-vari .vq { font-size: 13px; line-height: 1.6; margin-bottom: 9px; }
+    .wd-vari .vopt { display: block; width: 100%; text-align: left; font-size: 13px; padding: 9px 12px; margin-bottom: 7px; border-radius: 9px; border: 1px solid var(--panel-border); background: rgba(255,255,255,0.02); color: var(--text); cursor: pointer; }
+    .wd-vari .vopt:hover { border-color: var(--accent); }
+    .wd-vari .vopt.correct { border-color: var(--down); background: rgba(52,211,153,0.15); color: var(--down); }
+    .wd-vari .vopt.wrong { border-color: var(--up); background: rgba(248,113,113,0.15); color: var(--up); }
+    .wd-vari .vopt.disabled { pointer-events: none; }
+    .wd-vari .vfb { font-size: 12.5px; margin-top: 4px; line-height: 1.65; }
+    .wd-vari .vfb.ok { color: var(--down); }
+    .wd-vari .vfb.bad { color: var(--up); }
+    .wd-empty { font-size: 13px; color: var(--muted); line-height: 1.8; padding: 14px 0; }
+    @media (max-width: 860px) { .wd-cols { grid-template-columns: 1fr; } }
+    @media (max-width: 560px) { .wd-cmp { grid-template-columns: 1fr; } }
+    .ev-cause-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    .ev-cause-grid .ev-cause-h { font-size: 12.5px; color: var(--muted); margin-bottom: 10px; }
+    @media (max-width: 860px) { .ev-cause-grid { grid-template-columns: 1fr; } }
 
     /* ===== 学情画像 ===== */
     .profile-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
@@ -1334,12 +1400,12 @@
       </div>
     </section>
 
-    <!-- ④ 错题定位 -->
+    <!-- ④ 错题定位诊断 -->
     <section class="page" id="p-wrong">
       <div class="panel">
-        <div class="section-title"><span class="bar"></span>错题定位</div>
-        <div class="section-sub">针对反复出错的知识点，推送讲解与情景化练习。</div>
-        <div id="wrong-list"></div>
+        <div class="section-title"><span class="bar"></span>错题定位诊断</div>
+        <div class="section-sub">错因归类 → 薄弱知识点聚合 → 变式重练 → 间隔复习，把每一道错题变成「已掌握」。</div>
+        <div id="wrong-app"></div>
       </div>
     </section>
 
@@ -1986,6 +2052,15 @@
       </div>
 
       <div class="admin-panel" style="margin-top:16px;">
+        <h4>班级高频错因（错题聚合）</h4>
+        <div class="sub">按全班错题作答聚合的失分归因，供教师靶向讲评；学生端「错题定位诊断」中的个人错因标签与之对应。</div>
+        <div id="ev-cause"></div>
+        <div class="setup-actions" style="margin-top:10px;">
+          <button class="copy-sql-btn" id="cause-export-btn" type="button">⬇️ 导出班级高频错因（CSV）</button>
+        </div>
+      </div>
+
+      <div class="admin-panel" style="margin-top:16px;">
         <h4>学生学情明细</h4>
         <div class="sub">逐个学生查看章节完成数、累计学习时长、答题量与正确率、最近活跃时间（点击某行展开章节与题型明细）。</div>
         <div class="setup-actions" style="margin:0 0 10px;">
@@ -2121,6 +2196,7 @@
         pages.forEach(function (p) { p.classList.remove('active'); });
         btn.classList.add('active');
         document.getElementById(target).classList.add('active');
+        if (target === 'p-wrong' && window.renderWrong) window.renderWrong(); // 进入错题页即渲染/刷新账本（避免首次空白）
         document.body.classList.toggle('light', target === 'p-admin');
         if (target === 'p-admin') { if (window.__ibankAdminLive) window.__ibankAdminLive.start(); }
         else { if (window.__ibankAdminLive) window.__ibankAdminLive.stop(); }
@@ -2697,11 +2773,68 @@
       const seenSet = new Set();
       const draft = new Map();
       const picked = new Map();
-      const wrongBook = [
-        { q: '市盈率法与市净率法分别适用于什么类型公司？', kp: '相对估值', ans: '成长型、盈利稳定的公司常用 PE；重资产、金融类公司常用 PB。', exp: '容易混淆 PE 与 PB 的适用场景，需结合公司资产结构与盈利特征判断。' },
-        { q: '包销与代销在风险分担上有何区别？', kp: '承销业务', ans: '包销由投行承担未售出风险；代销风险小但募资不确定。', exp: '抓住「风险由谁承担」这一关键，而非只记名词。' },
-        { q: '现金流折现 DCF 中，折现率上升会如何影响估值？', kp: '估值方法', ans: '折现率上升会降低未来现金流的现值，从而拉低估值。', exp: '折现率与估值反向变动，是 DCF 模型的核心逻辑。' }
+      // ===== 错题定位诊断（v36）：本地持久化「错题账本」+ 五要素（概览/热力/错因/排程/重练） =====
+      var WB_KEY = 'ibank_wrongbook';
+      var SPACED = [1, 3, 7, 15];                  // 间隔重复：错后 1 → 3 → 7 → 15 天
+      var CAUSES = [
+        { name: '概念不清', color: '#ef4444' },
+        { name: '方法不会', color: '#f59e0b' },
+        { name: '粗心失误', color: '#3b82f6' },
+        { name: '审题偏差', color: '#94a3b8' }
       ];
+      var DAY = 86400000;
+      var WB = null;
+      var wbView = { kp: null, due: false };       // 当前筛选：知识点 / 仅今日待复习
+      var wbOpen = {};                             // 卡片展开态（qid → true）
+      var wbVari = {};                             // 变式重练态（qid → {q,picked,fb,fbOk}）
+      function wbKey(src) { return 'w|' + (src.chapter || '') + '|' + String(src.q || '').replace(/\s+/g, '').slice(0, 64); }
+      function mkItem(src, pickedArr) {
+        var isObj = !!src.opts;
+        return {
+          qid: wbKey(src), q: src.q, kp: src.kp || '', chapter: src.chapter || '', type: src.type || '',
+          opts: isObj ? src.opts : null, a: isObj ? (Array.isArray(src.a) ? src.a.slice() : src.a) : null, multi: !!src.multi,
+          aLab: isObj ? ansLabel(src) : '', aTxt: isObj ? ansText(src) : (src.ans || ''),
+          exp: src.exp || '', picked: pickedArr || null,
+          wrongCount: 1, firstTs: 0, lastTs: 0, cause: isObj ? '概念不清' : '方法不会',
+          status: 'todo', stage: 0, nextTs: 0, hist: [], isSeed: false
+        };
+      }
+      // 空账本时播种 8 条示例错题（覆盖 4 类错因），供演示；学生在训练中答错后自动归入真实错题并可一键清除示例。
+      function wbSeed() {
+        var demo = [
+          { chapter: '第1章', type: '名词解释', kp: '承销业务', cause: '概念不清', stage: 1, q: '包销与代销在风险分担上有何区别？', ans: '包销由投行承担未售出风险；代销风险小但募资不确定。', exp: '抓住「风险由谁承担」这一关键，而非只记名词。' },
+          { chapter: '第2章', type: '选择', kp: '相对估值', cause: '概念不清', stage: 0, q: '市盈率法与市净率法分别适用于什么类型公司？', ans: '成长型、盈利稳定的公司常用 PE；重资产、金融类公司常用 PB。', exp: '容易混淆 PE 与 PB 的适用场景，需结合公司资产结构与盈利特征判断。' },
+          { chapter: '第3章', type: '简答', kp: '发行制度', cause: '粗心失误', stage: 2, q: '注册制与核准制的核心区别是什么？', ans: '核准制由监管实质审核并作价值判断；注册制仅作形式审查，把价值判断交给市场。', exp: '区别的落点是审核主体与判断标准，不是「谁管」这么简单。' },
+          { chapter: '第4章', type: '选择', kp: '估值方法', cause: '方法不会', stage: 0, q: '现金流折现 DCF 中，折现率上升会如何影响估值？', ans: '折现率上升会降低未来现金流的现值，从而拉低估值。', exp: '折现率与估值反向变动，是 DCF 模型的核心逻辑。' },
+          { chapter: '第5章', type: '选择', kp: '债券定价', cause: '方法不会', stage: 1, q: '市场利率上升时，已发行固定利率债券的价格会怎样变化？', ans: '价格下跌；市场利率高于票面利率时债券折价交易。', exp: '债券价格与市场利率反向变动，久期越长越敏感。' },
+          { chapter: '第6章', type: '名词解释', kp: '资产证券化', cause: '概念不清', stage: 0, q: '资产证券化中 SPV（特殊目的载体）起什么作用？', ans: 'SPV 受让基础资产，实现破产隔离与真实出售，使证券化资产与原始权益人信用分离。', exp: 'SPV 的核心价值是「破产隔离」，而不是单纯走账。' },
+          { chapter: '第7章', type: '案例', kp: '并购估值', cause: '审题偏差', stage: 3, q: '判断并购协同效应时，最容易高估的是哪一类？', ans: '收入协同（交叉销售、渠道扩张）最易被高估；成本协同相对可测、更易实现。', exp: '收入协同比成本协同更难兑现，实务中常被高估。' },
+          { chapter: '第1章', type: '选择', kp: '承销业务', cause: '审题偏差', stage: 0, q: '超额配售选择权（绿鞋机制）的主要功能是什么？', ans: '稳定新股上市后一段时间的股价，抑制破发或过度波动。', exp: '绿鞋是稳定后市价格，不是给承销商加杠杆。' }
+        ];
+        var items = {}, now = Date.now();
+        demo.forEach(function (d, i) {
+          var it = mkItem(d, null);
+          it.isSeed = true; it.cause = d.cause; it.stage = d.stage;
+          it.firstTs = now - (d.stage + 2) * DAY - i * 3600000;
+          it.lastTs = now - (d.stage + 1) * DAY;
+          if (it.stage >= SPACED.length) { it.status = 'mastered'; it.nextTs = 0; }
+          else it.nextTs = it.lastTs + SPACED[it.stage] * DAY;
+          items[it.qid] = it;
+        });
+        return { v: 1, items: items };
+      }
+      function wbLoad() {
+        try {
+          var raw = JSON.parse(localStorage.getItem(WB_KEY) || 'null');
+          if (raw && raw.items && typeof raw.items === 'object' && Object.keys(raw.items).length) return raw;
+        } catch (e) {}
+        var seeded = wbSeed();
+        try { localStorage.setItem(WB_KEY, JSON.stringify(seeded)); } catch (e) {}
+        return seeded;
+      }
+      function wbSave() { try { localStorage.setItem(WB_KEY, JSON.stringify(WB)); } catch (e) {} }
+      function wbList() { return Object.keys(WB.items).map(function (k) { return WB.items[k]; }); }
+      function isDue(it) { return it.status !== 'mastered' && (it.nextTs || 0) <= Date.now(); }
       let curList = QUIZ.slice(), cur = 0, exCh = null, exType = null, listOpen = false;
       const quizBox = document.getElementById('quiz-box');
 
@@ -2714,30 +2847,224 @@
       function ansText(q) { return ansIndexes(q).map(function (i) { return String.fromCharCode(65 + i) + '. ' + q.opts[i]; }).join('　'); }
       function doneCount() { return curList.filter(function (q) { return ansStatus.has(q); }).length; }
       function okCount() { return curList.filter(function (q) { return ansStatus.get(q) === 'ok'; }).length; }
-      function trackAns(item, ok) { if (window.__ibankTrack) window.__ibankTrack('quiz', { chapter: item.chapter, qtype: item.type, correct: !!ok }); }
-
-      function renderWrong() {
-        const list = document.getElementById('wrong-list');
-        if (!list) return;
-        list.innerHTML = '';
-        if (!wrongBook.length) { list.innerHTML = '<div class="todo-note">暂无错题。答错或自评未掌握的题目会自动归集到这里。</div>'; return; }
-        wrongBook.forEach(function (w) {
-          const div = document.createElement('div');
-          div.className = 'wrong-item';
-          div.innerHTML = '<div class="q">' + esc(w.q) + '</div><span class="tag">' + esc(w.kp) + '</span><div class="ans">✔ ' + esc(w.ans) + '</div><div class="exp">' + esc(w.exp) + '</div>';
-          list.appendChild(div);
-        });
+      function trackAns(item, ok) {
+        if (!window.__ibankTrack) return;
+        var cause = null;
+        try { if (WB && WB.items) { var w = WB.items[wbKey(item)]; if (w) cause = w.cause; } } catch (e) {}
+        window.__ibankTrack('quiz', { chapter: item.chapter, qtype: item.type, correct: !!ok, kp: item.kp || null, cause: cause });
       }
-      function addWrong(item) {
-        const isObj = !!item.opts;
-        wrongBook.unshift({
-          q: item.q, kp: item.kp,
-          ans: isObj ? ansText(item) : (item.ans || ''),
-          exp: isObj
-            ? '正确答案为 ' + ansLabel(item) + '，请结合「' + item.kp + '」复习相关知识点。'
-            : '主观题无标准答案，请对照参考要点复习「' + item.kp + '」相关知识点。'
+
+      function wbCauseOf(it) {
+        for (var i = 0; i < CAUSES.length; i++) if (CAUSES[i].name === it.cause) return CAUSES[i];
+        return { name: it.cause || '未归类', color: '#94a3b8' };
+      }
+      function wbStateTxt(it, now) {
+        if (it.status === 'mastered') return '已掌握';
+        if (isDue(it)) return '今日待复习';
+        return '下次复习 ' + Math.max(1, Math.ceil((it.nextTs - now) / DAY)) + ' 天后';
+      }
+      function wbVariHtml(it) {
+        var st = wbVari[it.qid];
+        if (!st) return '';
+        var q = st.q, answered = st.picked != null;
+        var opts = q.opts.map(function (o, i) {
+          var cls = 'vopt';
+          if (answered) { cls += ' disabled'; if (i === q.a) cls += ' correct'; else if (i === st.picked) cls += ' wrong'; }
+          return '<button class="' + cls + '" data-act="vans" data-qid="' + esc(it.qid) + '" data-i="' + i + '">' + String.fromCharCode(65 + i) + '. ' + esc(o) + '</button>';
+        }).join('');
+        return '<div class="wd-vari"><div class="vh">变式重练 · 同知识点「' + esc(it.kp || '相关') + '」</div>'
+          + '<div class="vq">' + esc(q.q) + '</div>' + opts
+          + (answered
+            ? '<div class="vfb ' + (st.fbOk ? 'ok' : 'bad') + '">' + esc(st.fb) + '</div>'
+              + '<div class="wd-actions"><button class="wd-btnsm ghost" data-act="vari" data-qid="' + esc(it.qid) + '">再来一题</button>'
+              + '<button class="wd-btnsm ghost" data-act="vcollapse" data-qid="' + esc(it.qid) + '">收起重练</button></div>'
+            : '')
+          + '</div>';
+      }
+      function wbItemHtml(it, idx, now) {
+        var open = !!wbOpen[it.qid], c = wbCauseOf(it);
+        var chips = '<span class="wd-badge">' + esc(it.type || '题目') + '</span>'
+          + (it.kp ? '<span class="wd-badge">' + esc(it.kp) + '</span>' : '')
+          + (it.chapter ? '<span class="wd-badge">' + esc(it.chapter) + '</span>' : '')
+          + (it.wrongCount > 1 ? '<span class="wd-badge red">错 ' + it.wrongCount + ' 次</span>' : '')
+          + '<span class="wd-badge amber">错因：' + esc(c.name) + '</span>'
+          + (it.isSeed ? '<span class="wd-badge seed">示例</span>' : '')
+          + '<span class="st">' + esc(wbStateTxt(it, now)) + (it.stage ? ' · 已复习 ' + it.stage + ' 次' : '') + '</span>';
+        var body = '';
+        if (open) {
+          var myAns = (!it.opts) ? '（主观题，自评未掌握）'
+            : (it.picked && it.picked.length ? it.picked.map(function (pi) { return String.fromCharCode(65 + pi) + '. ' + (it.opts[pi] || ''); }).join('　') : '（未记录所选选项）');
+          var okAns = it.opts ? (it.aLab + '. ' + (it.aTxt || '')) : (it.aTxt || '（请对照参考要点复习）');
+          body = '<div class="wd-body">'
+            + '<div class="wd-cmp">'
+            + '<div class="bx bad"><div class="lb">我的答案</div><div class="ct">' + esc(myAns) + '</div></div>'
+            + '<div class="bx ok"><div class="lb">正确答案</div><div class="ct">' + esc(okAns) + '</div></div>'
+            + '</div>'
+            + (it.exp ? '<div class="wd-exp">解析：' + esc(it.exp) + '</div>' : '')
+            + '<div class="wd-actions">'
+            + '<button class="wd-btnsm" data-act="vari" data-qid="' + esc(it.qid) + '">再练一遍（变式题）</button>'
+            + (it.status === 'mastered'
+              ? '<button class="wd-btnsm ghost" data-act="unmaster" data-qid="' + esc(it.qid) + '">取消已掌握</button>'
+              : '<button class="wd-btnsm ghost" data-act="master" data-qid="' + esc(it.qid) + '">我已掌握</button>')
+            + '<button class="wd-btnsm ghost" data-act="del" data-qid="' + esc(it.qid) + '">移出错题本</button>'
+            + '</div>'
+            + '<div class="wd-causesel"><span class="lb">错因标签：</span>'
+            + CAUSES.map(function (x) { return '<button class="wd-chip' + (it.cause === x.name ? ' active' : '') + '" data-act="cause" data-qid="' + esc(it.qid) + '" data-cause="' + esc(x.name) + '">' + x.name + '</button>'; }).join('')
+            + '</div>'
+            + wbVariHtml(it)
+            + '</div>';
+        }
+        return '<div class="wd-item' + (it.status === 'mastered' ? ' mastered' : '') + '" data-qid="' + esc(it.qid) + '">'
+          + '<div class="top">' + chips + '</div>'
+          + '<div class="q" data-act="toggle" data-qid="' + esc(it.qid) + '" style="cursor:pointer"><span class="no">' + (idx + 1) + '</span>' + esc(it.q) + '</div>'
+          + body + '</div>';
+      }
+      function renderWrong() {
+        var app = document.getElementById('wrong-app');
+        if (!app) return;
+        WB = WB || wbLoad();
+        var all = wbList(), now = Date.now();
+        var total = all.length;
+        var mastered = all.filter(function (x) { return x.status === 'mastered'; }).length;
+        var due = all.filter(isDue).length;
+        var seedN = all.filter(function (x) { return x.isSeed; }).length;
+
+        var kpi = '<div class="wd-kpi">'
+          + '<div class="cell"><div class="k">错题总数</div><div class="v">' + total + '</div></div>'
+          + '<div class="cell"><div class="k">已掌握</div><div class="v green">' + mastered + '</div></div>'
+          + '<div class="cell"><div class="k">待复习</div><div class="v">' + (total - mastered) + '</div></div>'
+          + '<div class="cell"><div class="k">今日待复习</div><div class="v red">' + due + '</div></div>'
+          + '</div>';
+
+        var byKp = {};
+        all.forEach(function (it) { var k = it.kp || '未标注'; byKp[k] = (byKp[k] || 0) + 1; });
+        var kpArr = Object.keys(byKp).map(function (k) { return { k: k, n: byKp[k] }; }).sort(function (a, b) { return b.n - a.n; }).slice(0, 8);
+        var maxKp = kpArr.length ? kpArr[0].n : 1;
+        var heat = '<div class="wd-card"><div class="hd">薄弱知识点 · 错题数</div>'
+          + (kpArr.length ? kpArr.map(function (x) {
+            return '<div class="wd-heat-row" data-kp="' + esc(x.k) + '" title="点击筛选该知识点"><div class="nm">' + esc(x.k) + '</div>'
+              + '<div class="tk"><i style="width:' + Math.round(x.n / maxKp * 100) + '%"></i></div><div class="vl">' + x.n + '</div></div>';
+          }).join('') : '<div class="wd-empty">暂无错题，先去「实务习题训练」做几道吧。</div>')
+          + '</div>';
+
+        var byCause = {};
+        all.forEach(function (it) { var n = it.cause || '未归类'; byCause[n] = (byCause[n] || 0) + 1; });
+        var segs = '', legs = '';
+        CAUSES.forEach(function (c) {
+          var n = byCause[c.name] || 0;
+          if (n) segs += '<i style="width:' + (n / (total || 1) * 100).toFixed(1) + '%;background:' + c.color + '"></i>';
+          legs += '<span><em style="background:' + c.color + '"></em>' + c.name + ' ' + (total ? Math.round(n / total * 100) : 0) + '%</span>';
         });
+        var cause = '<div class="wd-card"><div class="hd">错因分布</div>'
+          + (total ? '<div class="wd-seg">' + segs + '</div>' : '')
+          + '<div class="wd-legend">' + legs + '</div></div>';
+
+        var sched = '<div class="wd-due"><div class="tx">今日待复习 <b>' + due + '</b> 题 &nbsp;·&nbsp; 间隔重复 <b>1 → 3 → 7 → 15</b> 天 &nbsp;·&nbsp; 每日上限 20 题'
+          + (seedN ? '<br><span style="color:var(--dim)">含 ' + seedN + ' 条示例错题（演示用），你在训练中答错后会自动归入真实错题。</span>' : '')
+          + '</div><div style="display:flex;gap:8px;flex-wrap:wrap;">'
+          + (due ? '<button class="wd-btnsm" data-act="review-all">开始复习（' + Math.min(due, 20) + '）</button>' : '<span class="wd-badge green">今日已复习完 ✓</span>')
+          + (seedN ? '<button class="wd-btnsm ghost" data-act="clear-seed">清除示例错题</button>' : '')
+          + '</div></div>';
+
+        var tb = '<div class="wd-toolbar">'
+          + '<button class="wd-chip' + (!wbView.kp && !wbView.due ? ' active' : '') + '" data-act="all">全部 ' + total + '</button>'
+          + '<button class="wd-chip' + (wbView.due ? ' active' : '') + '" data-act="due">今日待复习 ' + due + '</button>'
+          + (wbView.kp ? '<button class="wd-chip active" data-act="kpclear">知识点：' + esc(wbView.kp) + ' ✕</button>' : '')
+          + '<span style="flex:1"></span>'
+          + '<button class="wd-btnsm ghost" data-act="export">导出错题清单</button>'
+          + '</div>';
+
+        var list = all.slice();
+        if (wbView.kp) list = list.filter(function (it) { return (it.kp || '未标注') === wbView.kp; });
+        if (wbView.due) list = list.filter(isDue);
+        list.sort(function (a, b) {
+          var ma = a.status === 'mastered' ? 1 : 0, mb = b.status === 'mastered' ? 1 : 0;
+          if (ma !== mb) return ma - mb;
+          var ua = isDue(a) ? 0 : 1, ub = isDue(b) ? 0 : 1;
+          if (ua !== ub) return ua - ub;
+          return (b.wrongCount || 0) - (a.wrongCount || 0) || (b.lastTs || 0) - (a.lastTs || 0);
+        });
+        var listHtml = list.length ? list.map(function (it, i) { return wbItemHtml(it, i, now); }).join('') : '<div class="wd-empty">该筛选条件下暂无错题。</div>';
+
+        app.innerHTML = kpi + '<div class="wd-cols">' + heat + cause + '</div>' + sched + tb + listHtml;
+      }
+      function startVari(it) {
+        if (!it) return;
+        var pool = QUIZ.filter(function (q) { return q.opts && !isMulti(q) && wbKey(q) !== it.qid; });
+        var score = function (q) { var s = 0; if (q.kp && it.kp && q.kp === it.kp) s += 4; if (q.chapter === it.chapter) s += 2; if (q.type === it.type) s += 1; return s; };
+        pool.sort(function (a, b) { return score(b) - score(a); });
+        var pick = pool[0] || null;
+        if (pick && score(pick) < 4 && pool.length > 1) pick = pool[Math.floor(Math.random() * Math.min(pool.length, 6))];
+        if (!pick) { if (typeof ibankToast === 'function') ibankToast('题库中暂无可用变式题'); return; }
+        wbVari[it.qid] = { q: pick, picked: null, fb: '', fbOk: false };
+        wbOpen[it.qid] = true;
         renderWrong();
+      }
+      function answerVari(it, i) {
+        var st = it && wbVari[it.qid]; if (!st || st.picked != null) return;
+        var q = st.q, ok = (i === q.a), now = Date.now();
+        st.picked = i; st.fbOk = ok;
+        if (ok) {
+          it.stage = Math.min(it.stage + 1, SPACED.length);
+          it.hist.push(now);
+          if (it.stage >= SPACED.length) { it.status = 'mastered'; it.nextTs = 0; st.fb = '✓ 答对了！已连续答对 ' + SPACED.length + ' 次，标记为「已掌握」。'; }
+          else { it.nextTs = now + SPACED[it.stage] * DAY; st.fb = '✓ 答对了！复习阶段推进到第 ' + (it.stage + 1) + ' 级，' + SPACED[it.stage] + ' 天后再次复习。'; }
+        } else {
+          it.stage = 0; it.status = 'todo'; it.nextTs = now + SPACED[0] * DAY;
+          st.fb = '✗ 又答错了，正确答案是 ' + String.fromCharCode(65 + q.a) + '。复习阶段回到起点，1 天后重来。';
+        }
+        wbSave(); renderWrong();
+        if (window.__ibankTrack) window.__ibankTrack('quiz', { chapter: it.chapter, qtype: it.type, correct: ok, kp: it.kp, cause: it.cause, redo: 1 });
+      }
+      function addWrong(item, pickedArr) {
+        WB = WB || wbLoad();
+        var k = wbKey(item), it = WB.items[k], now = Date.now();
+        if (!it) { it = mkItem(item, pickedArr); it.firstTs = now; it.wrongCount = 0; WB.items[k] = it; }
+        if (pickedArr) it.picked = pickedArr.slice();
+        it.wrongCount++; it.lastTs = now; it.status = 'todo'; it.stage = 0; it.nextTs = now + SPACED[0] * DAY;
+        wbSave(); renderWrong();
+      }
+      // 事件委托：整个 #wrong-app 只挂一个 click 监听，规避 innerHTML 重绘丢监听（本项目历史踩坑）
+      (function () {
+        var app = document.getElementById('wrong-app');
+        if (!app) return;
+        app.addEventListener('click', function (e) {
+          var row = e.target.closest('[data-kp]');
+          if (row) { wbView.kp = row.getAttribute('data-kp'); wbView.due = false; renderWrong(); return; }
+          var t = e.target.closest('[data-act]');
+          if (!t) return;
+          var act = t.getAttribute('data-act'), qid = t.getAttribute('data-qid'), it = (qid && WB) ? WB.items[qid] : null;
+          if (act === 'toggle') { wbOpen[qid] = !wbOpen[qid]; renderWrong(); return; }
+          if (act === 'all') { wbView.kp = null; wbView.due = false; renderWrong(); return; }
+          if (act === 'due') { wbView.due = !wbView.due; wbView.kp = null; renderWrong(); return; }
+          if (act === 'kpclear') { wbView.kp = null; renderWrong(); return; }
+          if (act === 'review-all') { wbView.due = true; wbView.kp = null; renderWrong(); return; }
+          if (act === 'master') { if (it) { it.status = 'mastered'; it.nextTs = 0; it.hist.push(Date.now()); wbSave(); } renderWrong(); return; }
+          if (act === 'unmaster') { if (it) { it.status = 'todo'; it.stage = 0; it.nextTs = Date.now() + DAY; wbSave(); } renderWrong(); return; }
+          if (act === 'del') { if (it) { delete WB.items[qid]; delete wbVari[qid]; wbSave(); } renderWrong(); return; }
+          if (act === 'cause') { if (it) { it.cause = t.getAttribute('data-cause'); wbSave(); } renderWrong(); return; }
+          if (act === 'vari') { startVari(it); return; }
+          if (act === 'vcollapse') { delete wbVari[qid]; renderWrong(); return; }
+          if (act === 'vans') { answerVari(it, parseInt(t.getAttribute('data-i'), 10)); return; }
+          if (act === 'clear-seed') { Object.keys(WB.items).forEach(function (k2) { if (WB.items[k2].isSeed) delete WB.items[k2]; }); wbSave(); renderWrong(); return; }
+          if (act === 'export') { wbExport(); return; }
+        });
+      })();
+      function wbExport() {
+        var rows = [['题目', '知识点', '章节', '题型', '错误次数', '错因标签', '状态', '复习阶段', '下次复习']];
+        wbList().forEach(function (it) {
+          rows.push([it.q, it.kp, it.chapter, it.type, it.wrongCount, it.cause,
+            it.status === 'mastered' ? '已掌握' : '待复习', it.stage,
+            it.nextTs ? new Date(it.nextTs).toLocaleDateString('zh-CN') : '—']);
+        });
+        var csv = '\ufeff' + rows.map(function (r) { return r.map(function (c) { return '"' + String(c == null ? '' : c).replace(/"/g, '""') + '"'; }).join(','); }).join('\r\n');
+        try {
+          var blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+          var a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+          a.download = 'iBank错题清单_' + new Date().toISOString().slice(0, 10) + '.csv';
+          document.body.appendChild(a); a.click(); document.body.removeChild(a);
+          if (typeof ibankToast === 'function') ibankToast('已导出 ' + (rows.length - 1) + ' 条错题');
+        } catch (e) { if (typeof ibankToast === 'function') ibankToast('导出失败，请检查浏览器权限'); }
       }
 
       function buildChips() {
@@ -2963,6 +3290,10 @@
       ibankMakeTimer(document.getElementById('ex-timer'), 'ibank_exercise_time', 'ibank_exercise_auto', function () { try { localStorage.setItem('ibank_exercise_done', '1'); } catch (e) {} syncExDone(); ibankToast('实务习题训练已学满 1 小时，自动标记为完成 ✓'); });
 
       buildChips(); applyFilter(); renderWrong();
+      // v36：跨 IIFE 暴露错题账本核心给标签切换处理器（2258 块）与教师端聚合面板（登录 IIFE）
+      window.wbSeed = wbSeed; window.CAUSES = CAUSES; window.renderWrong = renderWrong;
+      // 只读测试钩子：返回某错题当前变式题的正确选项下标（供自动化验收确定性点击，不影响用户交互）
+      window.__wbVariA = function (qid) { var st = wbVari[qid]; return st ? st.q.a : -1; };
     })();
 
     // ===== 学情画像 =====
@@ -4335,6 +4666,7 @@
         calData.selA = -1; calData.selB = -1;
         renderWeekPanel();
         bindCalendar();
+        renderEvCause(false, data);
       }
 
       // 申报样板数据（与课程申报材料四块图完全一致）：后台仪表盘默认按此渲染，整学期 W1–W16，
@@ -4416,6 +4748,76 @@
         buildDesignCal();
         renderWeekPanel();
         bindCalendar();
+        renderEvCause(true, null);
+      }
+
+      // ===== 班级高频错因聚合（学生端「错题定位诊断」的教师端对应面板）=====
+      // 真实模式：从 events 表 quiz 事件聚合 kp/cause（v36 起埋点携带这两个字段）；
+      // 样板模式：用学生端同样的 8 条示例错题聚合，保证申报答辩场景下方有内容。
+      var evCauseUseMock = false;
+      var evCauseQuery = null;
+      function computeCauseAgg(useMock, data) {
+        var byCause = {}, byKp = {}, total = 0, have = false;
+        if (useMock) {
+          var seed = window.wbSeed().items;
+          Object.keys(seed).forEach(function (k) {
+            var it = seed[k];
+            if (it.status === 'mastered') return; // 已掌握不计入失分归因
+            total++; have = true;
+            var c = it.cause || '未归类'; byCause[c] = (byCause[c] || 0) + 1;
+            var kp = it.kp || '未标注'; byKp[kp] = (byKp[kp] || 0) + 1;
+          });
+        } else {
+          var quiz = (data && data.quiz) || [];
+          quiz.forEach(function (e) {
+            if (e.correct === true) return;
+            if (!e.kp && !e.cause) return; // 旧埋点缺标签则跳过，避免脏数据
+            have = true; total++;
+            var c = e.cause || '未归类'; byCause[c] = (byCause[c] || 0) + 1;
+            var kp = e.kp || '未标注'; byKp[kp] = (byKp[kp] || 0) + 1;
+          });
+        }
+        return { byCause: byCause, byKp: byKp, total: total, have: have };
+      }
+      function renderEvCause(useMock, data) {
+        var el = document.getElementById('ev-cause');
+        if (!el) return;
+        evCauseUseMock = useMock; evCauseQuery = useMock ? null : data;
+        var agg = computeCauseAgg(useMock, data);
+        if (!agg.have) {
+          el.innerHTML = '<div class="um-empty">暂无错因标签数据。学生端需在训练中答错并标记错因后，错题才会聚合到此处；可勾选上方「申报样板数据」预览演示效果。</div>';
+          return;
+        }
+        var segs = '', legs = '';
+        window.CAUSES.forEach(function (c) {
+          var n = agg.byCause[c.name] || 0;
+          if (n) segs += '<i style="width:' + (n / (agg.total || 1) * 100).toFixed(1) + '%;background:' + c.color + '"></i>';
+          legs += '<span><em style="background:' + c.color + '"></em>' + c.name + ' ' + (agg.total ? Math.round(n / agg.total * 100) : 0) + '%</span>';
+        });
+        var causeHtml = '<div class="admin-panel"><div class="ev-cause-h">班级高频错因 TOP</div>'
+          + '<div class="wd-seg">' + segs + '</div><div class="wd-legend">' + legs + '</div></div>';
+        var kpArr = Object.keys(agg.byKp).map(function (k) { return { k: k, n: agg.byKp[k] }; }).sort(function (a, b) { return b.n - a.n; }).slice(0, 8);
+        var maxKp = kpArr.length ? kpArr[0].n : 1;
+        var kpHtml = '<div class="admin-panel"><div class="ev-cause-h">高频薄弱知识点 TOP（按错题数）</div>'
+          + kpArr.map(function (x) {
+            return '<div class="wd-heat-row" title="' + esc(x.k) + '"><div class="nm">' + esc(x.k) + '</div><div class="tk"><i style="width:' + Math.round(x.n / maxKp * 100) + '%"></i></div><div class="vl">' + x.n + '</div></div>';
+          }).join('') + '</div>';
+        el.innerHTML = '<div class="ev-cause-grid">' + causeHtml + kpHtml + '</div>';
+      }
+      function causeExport() {
+        var agg = computeCauseAgg(evCauseUseMock, evCauseUseMock ? null : evCauseQuery);
+        if (!agg.have) { if (typeof ibankToast === 'function') ibankToast('暂无错因数据可导出'); return; }
+        var rows = [['失分归因 TOP', '错题数', '占比']];
+        window.CAUSES.forEach(function (c) {
+          var n = agg.byCause[c.name] || 0;
+          if (n) rows.push([c.name, n, (agg.total ? Math.round(n / agg.total * 100) : 0) + '%']);
+        });
+        var kpArr = Object.keys(agg.byKp).map(function (k) { return [k, agg.byKp[k]]; }).sort(function (a, b) { return b[1] - a[1]; }).slice(0, 8);
+        rows.push([]); rows.push(['高频薄弱知识点 TOP', '错题数', '占比']);
+        kpArr.forEach(function (r) { rows.push([r[0], r[1], (agg.total ? Math.round(r[1] / agg.total * 100) : 0) + '%']); });
+        var csv = '﻿' + rows.map(function (r) { return r.map(function (c) { return '"' + String(c == null ? '' : c).replace(/"/g, '""') + '"'; }).join(','); }).join('\r\n');
+        var a = document.createElement('a'); a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv); a.download = '班级高频错因_' + (evCauseUseMock ? '样板' : '实时') + '.csv';
+        document.body.appendChild(a); a.click(); document.body.removeChild(a);
       }
 
       // 渲染「每周活跃人数」折线：无选择时按周（W1–W8）；选中日历区间后按天
@@ -4958,6 +5360,8 @@
       }
       var stuExportBtn = document.getElementById('stu-export-btn');
       if (stuExportBtn) stuExportBtn.addEventListener('click', exportStuCsv);
+      var causeExportBtn = document.getElementById('cause-export-btn');
+      if (causeExportBtn) causeExportBtn.addEventListener('click', causeExport);
 
       const adminTab = document.querySelector('.tab-btn[data-page="p-admin"]');
       if (adminTab) adminTab.addEventListener('click', function () { loadRealStats(); loadEventStats(); });
