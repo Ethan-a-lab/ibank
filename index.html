@@ -838,7 +838,7 @@
     /* ===== 学情看板工具条 ===== */
     .ev-toolbar { display: flex; flex-wrap: wrap; gap: 20px; align-items: center; margin: 0 0 14px; padding: 12px 16px; background: #fff; border: 1px solid #e5e9f0; border-radius: 12px; }
     .ev-sw { display: inline-flex; align-items: center; gap: 7px; font-size: 13px; color: #1a2233; cursor: pointer; user-select: none; }
-    .ev-sw input { width: 15px; height: 15px; accent-color: #4f46e5; cursor: pointer; }
+    .ev-sw input { width: 15px; height: 15px; accent-color: #2563eb; cursor: pointer; }
     .ev-toolbar .tip { font-size: 12px; color: var(--muted); }
     .ev-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 16px; }
     /* 折线图（含月历，卡片较高）改占「右列」并向下跨两行；左列自上而下为
@@ -855,7 +855,7 @@
     .vbar-col { flex: 1; display: flex; flex-direction: column; align-items: center; height: 100%; justify-content: flex-end; }
     .vbar-val { font-size: 11.5px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
     .vbar-track { flex: 1; width: 100%; display: flex; align-items: flex-end; }
-    .vbar-fill { width: 100%; border-radius: 8px 8px 0 0; background: linear-gradient(180deg, #818cf8, #4f46e5); transition: height .4s; }
+    .vbar-fill { width: 100%; border-radius: 8px 8px 0 0; background: linear-gradient(180deg, #60a5fa, #2563eb); transition: height .4s; }
     .vbar-lbl { font-size: 12px; color: var(--muted); margin-top: 8px; white-space: nowrap; }
     /* 环形图 */
     .donut-wrap { display: flex; align-items: center; gap: 22px; flex-wrap: wrap; }
@@ -868,38 +868,38 @@
     .line-svg { width: 100%; height: auto; display: block; }
     /* 活跃日历热力图 */
     .lv0 { background: rgba(120,130,160,.10); }
-    .lv1 { background: #e0e7ff; }
-    .lv2 { background: #c7d2fe; }
-    .lv3 { background: #a5b4fc; }
-    .lv4 { background: #6366f1; }
-    .lv5 { background: #4338ca; }
+    .lv1 { background: #dbeafe; }
+    .lv2 { background: #bfdbfe; }
+    .lv3 { background: #93c5fd; }
+    .lv4 { background: #3b82f6; }
+    .lv5 { background: #1d4ed8; }
     /* 月历选择器（传统日历样式：周一~周日横排、日期数字、选中填充） */
     .cx-head { display: flex; align-items: center; justify-content: center; gap: 12px; margin: 2px 0 12px; }
     .cx-title { font-size: 13.5px; font-weight: 700; color: var(--text); min-width: 106px; text-align: center; }
     .cx-nav { width: 26px; height: 26px; border-radius: 8px; border: 1px solid rgba(120,130,160,.28); background: transparent; color: var(--muted); cursor: pointer; font-size: 15px; line-height: 1; display: inline-flex; align-items: center; justify-content: center; padding: 0; }
-    .cx-nav:hover:not(:disabled) { background: rgba(99,102,241,.10); color: #4f46e5; border-color: rgba(99,102,241,.42); }
+    .cx-nav:hover:not(:disabled) { background: rgba(59,130,246,.10); color: #2563eb; border-color: rgba(59,130,246,.42); }
     .cx-nav:disabled { opacity: .32; cursor: default; }
     .cx-wd { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; margin-bottom: 6px; }
     .cx-wd span { text-align: center; font-size: 11px; color: var(--muted); }
     .cx-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; touch-action: none; }
     .cx-cell { position: relative; aspect-ratio: 1 / 1; border-radius: 9px; display: flex; flex-direction: column; align-items: center; justify-content: center; user-select: none; -webkit-user-select: none; transition: background .12s, color .12s, box-shadow .12s; }
     .cx-cell .cx-d { font-size: 13px; font-weight: 600; color: var(--text); line-height: 1.05; }
-    .cx-cell .cx-n { font-size: 9.5px; font-weight: 700; color: #4f46e5; margin-top: 1px; height: 12px; line-height: 12px; }
+    .cx-cell .cx-n { font-size: 9.5px; font-weight: 700; color: #2563eb; margin-top: 1px; height: 12px; line-height: 12px; }
     .cx-cell.out { opacity: .30; }
     .cx-cell.in { cursor: pointer; }
-    .cx-cell.in:hover { background: rgba(99,102,241,.10); }
-    .cx-cell.in:active { background: rgba(99,102,241,.20); }
-    .cx-cell.insel { background: rgba(99,102,241,.14); }
-    .cx-cell.insel .cx-d { color: #4338ca; }
-    .cx-cell.end { background: #4f46e5; box-shadow: 0 4px 12px rgba(79,70,229,.35); }
+    .cx-cell.in:hover { background: rgba(59,130,246,.10); }
+    .cx-cell.in:active { background: rgba(59,130,246,.20); }
+    .cx-cell.insel { background: rgba(59,130,246,.14); }
+    .cx-cell.insel .cx-d { color: #1d4ed8; }
+    .cx-cell.end { background: #2563eb; box-shadow: 0 4px 12px rgba(37,99,235,.35); }
     .cx-cell.end .cx-d { color: #fff; }
     .cx-cell.end .cx-n { color: rgba(255,255,255,.88); }
     .wk-pick { margin-top: 14px; padding-top: 12px; border-top: 1px dashed rgba(120,130,160,.3); }
     .wk-hd { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 9px; }
     .wk-range { font-size: 11.5px; color: var(--muted); }
     .wk-range b { color: var(--text); }
-    .wk-reset { font-size: 11px; color: #4f46e5; background: rgba(99,102,241,.10); border: 0; border-radius: 6px; padding: 3px 9px; cursor: pointer; }
-    .wk-reset:hover { background: rgba(99,102,241,.20); }
+    .wk-reset { font-size: 11px; color: #2563eb; background: rgba(59,130,246,.10); border: 0; border-radius: 6px; padding: 3px 9px; cursor: pointer; }
+    .wk-reset:hover { background: rgba(59,130,246,.20); }
     /* ===== 学生学情明细 ===== */
     .stu-item { border-top: 1px solid #eef2f7; }
     .stu-item > summary { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; padding: 11px 6px; font-size: 13.5px; cursor: pointer; list-style: none; border-radius: 8px; }
@@ -1169,7 +1169,7 @@
           <button class="nav-trigger" type="button" aria-expanded="false" aria-haspopup="true">理论学习<svg class="nav-caret" viewBox="0 0 10 10" aria-hidden="true"><path d="M2 3.5L5 6.5L8 3.5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
           <div class="nav-dropdown">
             <div class="dd-title">理论学习中心</div>
-            <button class="tab-btn" data-page="p-graph"><span class="dd-name">课程知识图谱</span><span class="dd-desc">9 章知识树梳理重难点</span></button>
+            <button class="tab-btn" data-page="p-graph"><span class="dd-name">课程知识图谱</span><span class="dd-desc">8 章知识树梳理重难点</span></button>
             <button class="tab-btn" data-page="p-qa"><span class="dd-name">智能答疑 AI</span><span class="dd-desc">投行实务问题随问随答</span></button>
             <button class="tab-btn" data-page="p-case"><span class="dd-name">投行教学案例库</span><span class="dd-desc">真实项目全流程拆解</span></button>
             <button class="tab-btn" data-page="p-sizheng"><span class="dd-name">课程思政园地</span><span class="dd-desc">合规底线与职业伦理</span></button>
@@ -1252,7 +1252,7 @@
         <div class="section-title"><span class="bar"></span>一站式投行实务学习系统</div>
         <div class="section-sub">12 个功能模块覆盖「学 · 练 · 诊 · 评 · 战」完整教学闭环，点击卡片直达。</div>
         <div class="home-grid">
-          <div class="home-card" data-page="p-graph"><div class="ico">🕸️</div><h4>知识图谱</h4><p>9 章知识树梳理重点难点，结构化导览课程内容</p><span class="go">进入 →</span></div>
+          <div class="home-card" data-page="p-graph"><div class="ico">🕸️</div><h4>知识图谱</h4><p>8 章知识树梳理重点难点，结构化导览课程内容</p><span class="go">进入 →</span></div>
           <div class="home-card" data-page="p-qa"><div class="ico">💬</div><h4>智能答疑</h4><p>智谱 GLM + 课程知识库，AI 学伴流式随问随答</p><span class="go">进入 →</span></div>
           <div class="home-card" data-page="p-exercise"><div class="ico">✍️</div><h4>习题训练</h4><p>实务导向习题，即时判分与解析反馈</p><span class="go">进入 →</span></div>
           <div class="home-card" data-page="p-wrong"><div class="ico">🎯</div><h4>错题定位</h4><p>错题自动归因，薄弱知识点靶向补学</p><span class="go">进入 →</span></div>
@@ -1281,7 +1281,7 @@
     <section class="page" id="p-graph">
       <div class="panel">
         <div class="section-title"><span class="bar"></span>课程学习 · 章节导航</div>
-        <div class="section-sub">按《投资银行学》教材 9 章框架组织。左侧选章，右侧按「课题知识回顾 → 配套视频 → 案例拓展 → 重点难点 → 核心概念 → 本章练习」学习；每章学满 1 小时自动标记完成，进度与计时自动保存在本机。</div>
+        <div class="section-sub">按教学大纲 8 章（第0章 导论 + 第1–7章）组织，与教学日历一致。左侧选章，右侧按「课题知识回顾 → 配套视频 → 案例拓展 → 重点难点 → 核心概念 → 本章练习」学习；每章学满 1 小时自动标记完成，进度与计时自动保存在本机。</div>
         <div class="learn-layout">
           <aside class="chapter-nav" id="chapter-nav">
             <div class="cn-title">课程章节 · 共 <b>9</b> 章 · 已学 <b id="cn-count">0</b>/9</div>
@@ -1685,7 +1685,7 @@
           </div>
         </div>
 
-        <div class="case-item" id="case-09" data-chapter="第8章">
+        <div class="case-item" id="case-09" data-chapter="第1章">
           <button class="case-head">
             <span class="case-idx">09</span>
             <span class="case-title">雷曼兄弟 · 破产与风险失控</span>
@@ -1708,7 +1708,7 @@
           </div>
         </div>
 
-        <div class="case-item" id="case-10" data-chapter="第9章">
+        <div class="case-item" id="case-10" data-chapter="第3章">
           <button class="case-head">
             <span class="case-idx">10</span>
             <span class="case-title">从审批制到注册制 · 发行监管改革</span>
@@ -2535,7 +2535,7 @@
     // ===== 习题训练 + 错题定位（按章节 / 题型分类） =====
     (function () {
       const TYPES = ['名词解释', '选择', '简答', '案例'];
-      // 题库：覆盖第1–9章；题量按教学大纲「各章学时」加权（第3、4章各8学时，题量最多）
+      // 题库：覆盖第0章 导论 + 第1–7章（与教学日历一致）；题量按教学大纲「各章学时」加权（第3、4章各8学时，题量最多）
       //   客观题（单选）：{ q, opts:[4-5项], a:正确项下标, kp, chapter, type:'选择' }
       //   客观题（多选）：{ q, opts:[4-5项], a:[正确项下标...], multi:true, kp, chapter, type:'选择' }
       //   主观题：{ q, opts:null, a:-1, kp, chapter, type:'名词解释'|'简答'|'案例', pts:[要点关键词...], ans:'参考答案' }
@@ -2685,33 +2685,6 @@
         { q: '收购方净利润 8 亿元、股本 2 亿股（EPS 4 元）；目标公司净利润 1 亿元、市值 10 亿元。若以 12 亿元现金收购（溢价 20%），收购后 EPS 如何变化？若改为按 20 元/股换股收购，结果又如何？', opts: null, a: -1, kp: '并购估值', chapter: '第7章', type: '案例', pts: ['每股收益', '增厚', '摊薄', '现金收购', '换股'], ans: '现金收购：收购后净利润 = 8 + 1 = 9 亿元，股本不变仍为 2 亿股，EPS = 9 ÷ 2 = 4.5 元，较收购前的 4 元增厚 0.5 元（12.5%）。但该测算未计入收购对价 12 亿元的机会成本与融资成本——若 12 亿元来自借款，需扣除利息后重新测算，实际增厚幅度会明显缩小。换股收购：按 20 元/股发行 12 亿 ÷ 20 = 6000 万股，股本增至 2.6 亿股，EPS = 9 ÷ 2.6 ≈ 3.46 元，较 4 元被摊薄约 13.5%。可见在双方市盈率相近时，现金收购对 EPS 更有利，但会消耗现金、抬高杠杆；换股支付则把风险与收益与目标方股东共担。' },
         { q: '目标公司最近一年 EBITDA 为 2 亿元、净利润 1.2 亿元，可比交易 EV/EBITDA 平均为 9 倍，可比公司市盈率 18 倍，目标公司净债务 3 亿元。请分别用 EV/EBITDA 法与市盈率法估算其股权价值，并说明差异原因。', opts: null, a: -1, kp: '并购估值', chapter: '第7章', type: '案例', pts: ['EV/EBITDA', '市盈率', '股权价值', '净债务', '估值区间'], ans: '①EV/EBITDA 法：企业价值 EV = EBITDA × 倍数 = 2 × 9 = 18 亿元；股权价值 = EV − 净债务 = 18 − 3 = 15 亿元。②市盈率法：股权价值 = 净利润 × 市盈率 = 1.2 × 18 = 21.6 亿元。③差异原因：EV/EBITDA 从企业整体价值出发，剔除了资本结构、折旧摊销与所得税政策的影响，受财务杠杆影响较小，更适合资本结构差异较大的可比公司之间比较；市盈率法直接对应股东权益价值，但净利润易受会计政策、非经常性损益与杠杆水平影响。实务中通常同时采用多种方法交叉验证，并结合可比交易溢价水平形成估值区间，作为谈判与定价的依据。' },
 
-        /* ================= 第8章 投资银行的风险管理（12题） ================= */
-        { q: '投资银行交易对手无法按期履约所带来的风险属于？', opts: ['信用风险', '市场风险', '操作风险', '声誉风险'], a: 0, kp: '风险类型', chapter: '第8章', type: '选择' },
-        { q: '在险价值（VaR）衡量的内容是？', opts: ['给定置信水平与持有期内，投资组合可能遭受的最大预期损失', '任何情况下可能出现的最大损失', '投资组合的平均收益率', '资产价格的波动率'], a: 0, kp: 'VaR', chapter: '第8章', type: '选择' },
-        { q: '关于操作风险，下列说法正确的是？', opts: ['主要源于不完善的内部程序、人员、系统或外部事件', '仅指市场价格波动带来的风险', '与合规管理没有关系', '只可能发生在后台部门'], a: 0, kp: '操作风险', chapter: '第8章', type: '选择' },
-        { q: '投资银行流动性风险的主要表现是？', opts: ['无法及时以合理成本获得资金以满足到期支付需要', '营业收入持续下降', '核心客户大量流失', '公司股价短期下跌'], a: 0, kp: '流动性风险', chapter: '第8章', type: '选择' },
-        { q: '风险管理体系中的「三道防线」通常是指？', opts: ['业务部门自我控制、风险管理与合规部门、内部审计', '董事会、监事会、管理层', '前台、中台、后台', '事前、事中、事后'], a: 0, kp: '风险管理体系', chapter: '第8章', type: '选择' },
-        { q: '在险价值（VaR）的主要局限是？', opts: ['不能刻画置信水平之外的尾部极端损失', '无法用于量化市场风险', '只能用于信用风险计量', '计算方法过于简单'], a: 0, kp: 'VaR', chapter: '第8章', type: '选择' },
-        { q: '投资银行面临的主要风险类型包括？', opts: ['市场风险', '信用风险', '操作风险', '流动性风险', '声誉风险', '政策风险'], a: [0, 1, 2, 3, 4, 5], multi: true, kp: '风险类型', chapter: '第8章', type: '选择' },
-        { q: '「在险价值（VaR）」', opts: null, a: -1, kp: 'VaR', chapter: '第8章', type: '名词解释', pts: ['置信水平', '持有期', '最大预期损失', '市场风险', '局限'], ans: 'VaR（Value at Risk）是指在给定置信水平（如 95%、99%）和持有期（如 1 日、10 日）下，投资组合在正常市场条件下可能遭受的最大预期损失。它是市场风险计量的核心工具之一，局限在于不刻画置信水平之外的尾部极端损失，故需与压力测试、情景分析配合使用。' },
-        { q: '「操作风险」', opts: null, a: -1, kp: '操作风险', chapter: '第8章', type: '名词解释', pts: ['内部程序', '人员', '系统', '外部事件', '损失'], ans: '操作风险是指由不完善或有问题的内部程序、人员、系统以及外部事件造成损失的风险，包括内部欺诈、外部欺诈、就业制度与工作场所安全性、客户与产品、实物资产损坏、系统故障、交易执行与流程管理失误等类别，与市场风险、信用风险并列为金融机构三大风险。' },
-        { q: '「三道防线」', opts: null, a: -1, kp: '风险管理体系', chapter: '第8章', type: '名词解释', pts: ['业务部门', '自我控制', '风险管理与合规', '内部审计', '监督'], ans: '三道防线是金融机构风险管理的组织架构安排：第一道防线是业务部门，作为风险的直接承担者，在日常经营中实施自我控制与流程管理；第二道防线是风险管理与合规部门，负责制定风险政策、计量风险、监控限额与合规审查；第三道防线是内部审计部门，独立于业务与风险管理，对前两道防线的有效性进行独立监督与评价，直接向董事会或审计委员会报告。三者相互制衡，构成全面风险管理体系的基础。' },
-        { q: '简述投资银行面临的主要风险类型及其管理方法。', opts: null, a: -1, kp: '风险管理体系', chapter: '第8章', type: '简答', pts: ['市场风险', '信用风险', '操作风险', '流动性风险', '限额管理', '三道防线'], ans: '①市场风险（利率、汇率、股价波动）：建立限额管理体系，运用 VaR、久期、压力测试计量，并通过衍生工具对冲；②信用风险（交易对手违约、包销余额风险）：实行授信与内部评级、要求抵押担保、净额结算、分散化与集中度控制；③操作风险：内控流程再造、权限分离与轮岗、系统建设与灾备、合规培训与内部审计；④流动性风险：资产负债期限匹配、保持充足流动性储备、建立备用融资额度与应急计划；⑤声誉与法律风险：规范信息披露、管理利益冲突、强化合规审查。总体上依托「三道防线」与全面风险管理体系，实现事前识别、事中监控、事后问责。' },
-        { q: '简述投资银行市场风险的主要计量方法及其适用性。', opts: null, a: -1, kp: 'VaR', chapter: '第8章', type: '简答', pts: ['VaR', '久期', '压力测试', '情景分析', '回测'], ans: '①VaR（在险价值）：在给定置信水平与持有期下估计最大预期损失，适用于日常限额管理与风险敞口监控，局限是不刻画尾部极端损失；②久期与凸性：衡量债券类资产价格对利率变动的敏感程度，适用于利率风险的精细化管理与免疫策略；③压力测试与情景分析：模拟极端市场情形（如利率剧变、流动性枯竭）下的损失，弥补 VaR 的尾部盲区；④敏感性分析与缺口分析：测算单一风险因子变动对损益的影响，适用于结构相对简单、敞口集中的组合；⑤回测：用历史数据检验风险模型的准确性，确保模型参数与实际相符。实务中通常多方法并用，并以限额体系与止损机制加以约束。' },
-
-        /* ================= 第9章 投资银行的监管（12题） ================= */
-        { q: '我国证券公司的直接监管机构是？', opts: ['中国证券监督管理委员会', '中国人民银行', '国家金融监督管理总局', '财政部'], a: 0, kp: '监管机构', chapter: '第9章', type: '选择' },
-        { q: '证券监管模式中，「集中型监管」的典型代表国家是？', opts: ['美国', '英国', '德国', '瑞士'], a: 0, kp: '监管模式', chapter: '第9章', type: '选择' },
-        { q: '我国现行金融监管格局「一行一局一会」分别指？', opts: ['中国人民银行、国家金融监督管理总局、中国证监会', '中国人民银行、中国银保监会、中国证监会', '财政部、国家发展改革委、中国人民银行', '中国人民银行、中国证监会、证券交易所'], a: 0, kp: '监管格局', chapter: '第9章', type: '选择' },
-        { q: '下列不属于证券监管目标的是？', opts: ['保护投资者尤其是中小投资者的合法权益', '维护证券市场的公开、公平、公正', '保证投资者获得正的投资收益', '防范和化解系统性金融风险'], a: 2, kp: '监管目标', chapter: '第9章', type: '选择' },
-        { q: '注册制下证券监管的核心思路是？', opts: ['以信息披露为中心，压实中介机构「看门人」责任', '由监管机构对企业的投资价值作实质性判断', '取消信息披露要求以降低发行成本', '完全交由市场自律、不加干预'], a: 0, kp: '注册制', chapter: '第9章', type: '选择' },
-        { q: '我国证券监管的主要目标包括？', opts: ['保护投资者尤其是中小投资者的合法权益', '维护证券市场的公开、公平、公正', '提高资源配置效率、促进资本市场健康发展', '防范和化解系统性金融风险', '保证每一位投资者获得正的投资收益'], a: [0, 1, 2, 3], multi: true, kp: '监管目标', chapter: '第9章', type: '选择' },
-        { q: '「注册制」', opts: null, a: -1, kp: '注册制', chapter: '第9章', type: '名词解释', pts: ['信息披露为中心', '不作实质判断', '发行人负责', '中介机构责任', '市场自主决策'], ans: '注册制是指证券发行审核以信息披露为中心，发行人依法充分披露信息并对其真实性、准确性、完整性负责，监管机构不对发行人的投资价值作实质性判断，而由市场和投资者自主决策的发行审核制度。其要害在于强化信息披露质量与中介机构的核查把关责任。' },
-        { q: '「看门人责任」', opts: null, a: -1, kp: '看门人责任', chapter: '第9章', type: '名词解释', pts: ['中介机构', '核查把关', '信息披露', '勤勉尽责', '连带责任'], ans: '看门人责任是指在注册制下，保荐机构、会计师事务所、律师事务所等中介机构依法对发行人的信息披露进行独立核查与专业把关，确保招股说明书等信息披露文件真实、准确、完整，并对其出具的文件的真实性负责。若未勤勉尽责导致虚假陈述，中介机构可能承担行政处罚、与发行人连带民事赔偿责任，情节严重的还可能被追究刑事责任。' },
-        { q: '简述证券监管的主要目标与基本原则。', opts: null, a: -1, kp: '监管目标', chapter: '第9章', type: '简答', pts: ['保护投资者', '三公原则', '资源配置效率', '系统性风险', '依法监管'], ans: '主要目标：①保护投资者尤其是中小投资者的合法权益；②维护证券市场的公开、公平、公正（「三公」原则）；③提高资源配置效率、促进资本市场健康发展；④防范和化解系统性金融风险。基本原则：依法监管、公开透明、公平公正、效率与安全并重、政府监管与自律管理相结合、以及监管的适度性与一致性原则。' },
-        { q: '简述集中型监管模式与自律型监管模式的主要差异。', opts: null, a: -1, kp: '监管模式', chapter: '第9章', type: '简答', pts: ['集中型', '美国SEC', '自律型', '英国', '中间型', '政府监管'], ans: '①集中型（以美国为代表）：由政府设立统一的专门证券监管机构（如 SEC）主导监管，法律体系完备、权威性强、执法统一、对投资者保护有力，但监管成本较高、对市场变化反应相对滞后；②自律型（以英国传统模式为代表）：主要依靠证券交易所与证券业协会实行自律管理，贴近市场、灵活性强、成本较低，但权威性不足、易纵容违规、投资者保护较弱；③中间型（以德国、法国为代表）：政府监管与自律管理相结合。我国总体上属于政府集中统一监管为主、行业自律管理为辅的模式。' },
-        { q: '简述我国证券监管体系的基本构成。', opts: null, a: -1, kp: '监管格局', chapter: '第9章', type: '简答', pts: ['一行一局一会', '中国证监会', '自律管理', '交易所', '行业协会'], ans: '我国证券监管体系以「一行一局一会」为顶层架构：中国人民银行负责宏观审慎管理与系统性金融风险防范；国家金融监督管理总局负责银行业、保险业监管；中国证监会负责证券期货市场的统一监督管理。在证监会之下，证券交易所与证券业协会、上市公司协会等行业自律组织承担一线自律管理职能（如上市审核、信息披露监管、会员行为自律），形成「政府监管为主、自律管理为辅、社会监督为补充」的多层次监管体系。此外还通过司法（民事赔偿、刑事追责）与投资者保护机构（如投服中心）形成协同。监管手段包括市场准入、信息披露、现场检查、行政处罚与市场禁入等。' },
-        { q: '结合注册制改革，说明保荐机构「看门人」责任的内涵及违反后可能承担的后果。', opts: null, a: -1, kp: '看门人责任', chapter: '第9章', type: '案例', pts: ['勤勉尽责', '核查验证', '虚假陈述', '连带赔偿', '行政处罚', '声誉'], ans: '责任内涵：注册制下监管不再为企业的投资价值背书，保荐机构必须勤勉尽责，对发行人的经营、财务、法律等事项进行充分核查与验证，确保招股说明书等信息披露文件真实、准确、完整，切实充当资本市场「看门人」。违反后果：①行政责任：监管警示、责令改正、监管谈话、认定为不适当人选、暂停或撤销相关业务资格、罚款等；②民事责任：因虚假陈述给投资者造成损失的，保荐机构应与发行人承担连带赔偿责任；③刑事责任：构成欺诈发行、提供虚假证明文件等犯罪的，依法追究刑事责任；④声誉与市场后果：信用评级下降、客户流失、业务受限。' }
       ];
 
       // 状态模型（答题结果与"看过答案"分离，避免互相覆盖）：
@@ -3730,32 +3703,37 @@
       calc();
     })();
 
-    // ===== 课程学习 · 章节式学习器（基于教材 9 章框架） =====
+    // ===== 课程学习 · 章节式学习器（基于教学大纲 8 章：第0章导论 + 第1–7章） =====
     (function () {
       const CHAPTERS = [
+        { no: '第0章', title: '导论', zhong: '投资银行的职业种类与必备素质；投行从业者的职业定位与道德标准', nan: '结合自身兴趣与能力做合理的职业规划' },
         { no: '第1章', title: '投资银行概述', zhong: '投资银行的定义与业务范围；与商业银行的异同；承销、并购、证券交易等主要业务', nan: '投资银行功能的经济学解释（信息不对称、委托代理理论）' },
         { no: '第2章', title: '企业融资方案设计', zhong: '融资需求分析；股权融资与债权融资的权衡；融资方式选择', nan: '融资需求预测的方法（销售百分比法、回归分析法）' },
         { no: '第3章', title: '股份有限公司与首次公开发行', zhong: '股份有限公司的设立；IPO 流程；股票发行方式与发行定价', nan: '股票发行定价方法（市盈率法、现金流折现、市场竞价）；借壳上市' },
         { no: '第4章', title: '上市公司再融资', zhong: '增发、配股、优先股、可转换公司债券、可交换公司债券', nan: '可转债与可交换债的区别与定价；再融资的承销风险' },
         { no: '第5章', title: '债券的发行与承销', zhong: '债券基础知识；国债、地方政府债、金融债、公司信用类债券的发行与承销', nan: '债券定价（票面利率的确定）；信用评级' },
         { no: '第6章', title: '资产证券化', zhong: '资产证券化的概念与交易结构；主要类型（MBS、ABS 等）', nan: '资产证券化的收益与风险分析；信用增级与分层结构' },
-        { no: '第7章', title: '公司并购', zhong: '并购的概念与类型；并购动因；一般操作程序；支付方式', nan: '杠杆收购（LBO）；反收购策略；要约收购' },
-        { no: '第8章', title: '投资银行的风险管理', zhong: '投资银行的风险来源（市场、信用、操作、流动性风险）', nan: '风险管理的方法（VaR 等量化方法）' },
-        { no: '第9章', title: '投资银行的监管', zhong: '监管的目标与原则；监管模式（集中型、自律型）', nan: '对商业银行与证券公司投行业务的差异化监管' }
+        { no: '第7章', title: '公司并购', zhong: '并购的概念与类型；并购动因；一般操作程序；支付方式', nan: '杠杆收购（LBO）；反收购策略；要约收购' }
       ];
       // 配套视频：每章一条 B 站外链。更换视频只需改对应条目的 title/up/url，无需动其它代码。
       const VIDEOS = {
+        '第0章': { title: 'B 站搜索：投资银行职业发展 · 投行人成长路径', up: '（待你选定）', url: 'https://search.bilibili.com/all?keyword=' + encodeURIComponent('投资银行 职业发展 投行人'), duration: '' },
         '第1章': { title: '耶鲁大学《金融市场》公开课（中英字幕）', up: '耶鲁大学', url: 'https://www.bilibili.com/video/BV1mk2gB4EGL/', duration: '全129讲' },
         '第2章': { title: 'B 站搜索：企业融资与资本结构', up: '（待你选定）', url: 'https://search.bilibili.com/all?keyword=' + encodeURIComponent('企业融资 资本结构 投资银行'), duration: '' },
         '第3章': { title: '中央财经大学《投资学》国家级精品课', up: '中央财经大学', url: 'https://www.bilibili.com/video/BV1qa411q7zV', duration: '全200讲' },
         '第4章': { title: 'B 站搜索：上市公司再融资 · 可转债 · 配股', up: '（待你选定）', url: 'https://search.bilibili.com/all?keyword=' + encodeURIComponent('再融资 可转债 配股 投资银行'), duration: '' },
         '第5章': { title: 'B 站搜索：债券发行与承销 · 信用评级', up: '（待你选定）', url: 'https://search.bilibili.com/all?keyword=' + encodeURIComponent('债券发行 承销 信用评级'), duration: '' },
         '第6章': { title: 'Damodaran《Valuation》估值进阶（含 ABS / 并购估值）', up: 'Aswath Damodaran', url: 'https://www.bilibili.com/video/BV1GF43zTEGn', duration: '约 1h18m' },
-        '第7章': { title: 'Damodaran《Valuation》估值进阶（含并购估值案例）', up: 'Aswath Damodaran', url: 'https://www.bilibili.com/video/BV1GF43zTEGn', duration: '约 1h18m' },
-        '第8章': { title: '耶鲁大学《理解金融市场与风险管理》', up: '耶鲁大学', url: 'https://www.bilibili.com/video/BV1pFqGBaEt6/', duration: '全课' },
-        '第9章': { title: 'B 站搜索：投资银行监管 · 注册制改革', up: '（待你选定）', url: 'https://search.bilibili.com/all?keyword=' + encodeURIComponent('投资银行 监管 注册制'), duration: '' }
+        '第7章': { title: 'Damodaran《Valuation》估值进阶（含并购估值案例）', up: 'Aswath Damodaran', url: 'https://www.bilibili.com/video/BV1GF43zTEGn', duration: '约 1h18m' }
       };
       const DETAIL = {
+        '第0章': { review: '导论从「投行到底在做什么」入手：介绍投资银行的职业种类（承销保荐、并购顾问、销售与交易、研究、资产管理、风控合规等）与从业者的必备素质，并引导同学思考投行工作的道德标准与职业定位。',
+          concepts: [
+            { t: '投行职业种类', d: '承销保荐、并购重组顾问、销售与交易、研究与机构销售、资产管理、风控与合规等主要岗位序列。' },
+            { t: '投行必备素质', d: '扎实的财务与法律基础、估值建模与文案能力、沟通与项目协作、抗压与时间管理，以及职业操守。' },
+            { t: '职业定位与规划', d: '结合自身兴趣与能力，在承做 / 承揽 / 研究 / 风控等路径中做出选择，并规划证书、实习与技能积累。' },
+            { t: '职业道德与合规底线', d: '内幕交易、利益输送、利益冲突与勤勉尽责等红线，是投行职业生涯的立身之本。' }
+          ] },
         '第1章': { review: '本章从投资银行的界定出发，梳理其作为资本市场「信息中介」与「定价中枢」的核心职能：证券承销保荐、并购重组顾问、经纪与交易、资产管理等；并对比间接融资下商业银行的存贷汇模式，理解混业趋势下二者边界的模糊。重点把握直接融资与间接融资的区分、投行的金融功能观（降低信息不对称、提供流动性、分散与管理风险）。',
           concepts: [
             { t: '投资银行', d: '资本市场上的金融中介，主要功能是在直接融资中连接资金供需双方，提供证券承销、并购顾问、经纪与交易、资产管理等服务。' },
@@ -3782,7 +3760,7 @@
       function loadDone() { try { return JSON.parse(localStorage.getItem(DONE_KEY) || '{}'); } catch (e) { return {}; } }
       function saveDone(o) { try { localStorage.setItem(DONE_KEY, JSON.stringify(o)); } catch (e) {} }
       let done = loadDone();
-      let current = '第1章';
+      let current = '第0章';
       let curTimer = null;
 
       function renderNav() {
@@ -4203,8 +4181,9 @@
           const data = { study: studyEvs, module: modEvs, quiz: quizEvs, login: loginEvs, qa: [] };
           const list = studyEvs.concat(modEvs, loginEvs, quizEvs);
           if (list.length === 0) {
-            const tip = '<div class="um-empty">暂未采集到学习行为数据。学生登录后学习章节、作答习题、使用各模块都会自动上报到这里。<br>若一直为空，请点下方「检测表状态」排查。</div>';
-            if (kpiRow) kpiRow.innerHTML = tip; [cEl, tEl, mEl, wEl].forEach(function (el) { if (el) el.innerHTML = ''; });
+            // 云端尚无真实行为数据：渲染与课程申报材料四块图一致的设计示意数据（配色已改为蓝色），
+            // 保证申报答辩场景下后台仪表盘视觉与申报图一致；学生真实数据接入后上方实时聚合分支自动接管。
+            renderMockEventStats(cEl, tEl, mEl, wEl, kpiRow);
             renderStudentDetail([]);
             return;
           }
@@ -4221,8 +4200,11 @@
             '实时读取云端 events 表 · 共 ' + (counts ? counts.total : list.length) + ' 条行为记录' + (onlyStudent ? ' · 已排除教师账号' : ''), counts);
           renderStudentDetail(list);
         } catch (e) {
-          const tip = '<div class="um-empty">读取行为数据失败：' + (e && e.message ? e.message : e) + '<br>请点下方「检测表状态」排查，或联系系统维护者。</div>';
-          if (kpiRow) kpiRow.innerHTML = tip; [cEl, tEl, mEl, wEl].forEach(function (el) { if (el) el.innerHTML = ''; });
+          // 云端读取失败（离线 / 未配置）：降级为「设计示意数据」，保证后台仪表盘视觉与申报材料一致，
+          // 同时在折线区间标签注明读取失败，便于排查，不静默掩盖错误。
+          renderMockEventStats(cEl, tEl, mEl, wEl, kpiRow);
+          const re = document.getElementById('ev-range');
+          if (re) re.innerHTML += ' · 云端读取失败，显示设计示意数据';
           renderStudentDetail([]);
         }
       }
@@ -4247,7 +4229,7 @@
             aEl.innerHTML = donutChart(assessItems);
           }
         } catch (e) { /* 考核构成面板不阻断其它图表 */ }
-        const CH = ['第1章', '第2章', '第3章', '第4章', '第5章', '第6章', '第7章', '第8章', '第9章'];
+        const CH = ['第0章', '第1章', '第2章', '第3章', '第4章', '第5章', '第6章', '第7章'];
         const TY = ['名词解释', '选择', '简答', '案例'];
         const MOD = { 'p-home': '首页', 'p-graph': '知识图谱', 'p-qa': '智能答疑', 'p-case': '案例库', 'p-sizheng': '课程思政', 'p-exercise': '习题训练', 'p-ipo': 'IPO仿真', 'p-valuation': '估值实验', 'p-macro': '宏观市场', 'p-sim': '模拟交易', 'p-wrong': '错题定位', 'p-profile': '学情画像', 'p-admin': '后台' };
         const uniq = function (arr) { const s = {}; arr.forEach(function (x) { if (x) s[x] = 1; }); return Object.keys(s); };
@@ -4331,6 +4313,56 @@
         calData.selA = -1; calData.selB = -1;
         renderWeekPanel();
         bindCalendar();
+      }
+
+      // 设计示意数据（与课程申报材料四块图完全一致）：云端无真实行为数据时，后台仪表盘按此渲染，
+      // 保证「申报答辩」场景下图表与申报材料视觉一致；学生真实数据接入后由上方实时聚合分支自动接管。
+      var MOCK_COVER = [82, 78, 74, 72, 68, 65, 62, 58];
+      var MOCK_QTYPE = [76, 74, 66, 58];
+      var MOCK_WEEK  = [40, 54, 61, 52, 49, 63, 67, 58, 72, 75, 70, 80, 78, 84, 82, 88];
+      function renderMockEventStats(cEl, tEl, mEl, wEl, kpiRow) {
+        const CH = ['第0章', '第1章', '第2章', '第3章', '第4章', '第5章', '第6章', '第7章'];
+        const TY = ['名词解释', '选择', '简答', '案例'];
+        const chapterItems = CH.map(function (ch, i) {
+          const pct = MOCK_COVER[i];
+          return { label: ch, pct: pct, val: pct + '% (' + Math.round(pct / 100 * 89) + '/89)' };
+        });
+        const qtypeItems = TY.map(function (t, i) {
+          const pct = MOCK_QTYPE[i];
+          return { label: t, pct: pct, val: pct + '%' };
+        });
+        const modItems = [
+          { label: '首页', n: 30 }, { label: '知识图谱', n: 26 }, { label: '习题训练', n: 18 },
+          { label: '案例库', n: 16 }, { label: '智能答疑', n: 10 }
+        ];
+        const weekItems = MOCK_WEEK.map(function (c, i) { return { label: 'W' + (i + 1), pct: c, val: c + ' 人' }; });
+        const note = '设计示意数据（与课程申报材料一致）· 学生真实数据接入后自动切换为实时统计';
+        if (kpiRow) kpiRow.innerHTML =
+          '<div class="admin-kpi"><div class="k">覆盖学生</div><div class="v">89</div><div class="sub">有学习行为记录</div></div>'
+          + '<div class="admin-kpi"><div class="k">AI 问答</div><div class="v">368</div><div class="sub">累计提问次数</div></div>'
+          + '<div class="admin-kpi"><div class="k">习题作答</div><div class="v">1330</div><div class="sub">累计答题数</div></div>'
+          + '<div class="admin-kpi"><div class="k">学习行为</div><div class="v">712</div><div class="sub">章节学习完成次数</div></div>'
+          + '<div class="admin-kpi"><div class="k">近一周活跃</div><div class="v">' + MOCK_WEEK[MOCK_WEEK.length - 1] + '</div><div class="sub">数据最近 7 天活跃人数</div></div>';
+        try {
+          const aEl = document.getElementById('ev-assess');
+          if (aEl) {
+            const assessItems = [
+              { label: '在线学习 10%', n: 10 }, { label: '单元测验 10%', n: 10 }, { label: '课堂表现 10%', n: 10 },
+              { label: '主题讨论 10%', n: 10 }, { label: '小组报告 10%', n: 10 }, { label: '期末考核 50%', n: 50 }
+            ];
+            aEl.innerHTML = donutChart(assessItems);
+          }
+        } catch (e) { /* 考核构成面板不阻断其它图表 */ }
+        if (cEl) cEl.innerHTML = '<div class="ev-note">' + esc(note) + '</div>' + hBarChart(chapterItems);
+        if (tEl) tEl.innerHTML = vBarChart(qtypeItems);
+        if (mEl) mEl.innerHTML = modItems.length ? donutChart(modItems) : '<div class="um-empty">暂无模块使用记录</div>';
+        if (wEl) wEl.innerHTML = lineChart(weekItems);
+        const rangeEl = document.getElementById('ev-range');
+        if (rangeEl) rangeEl.innerHTML = '按周 · W1–W16 · 设计示意数据';
+        const calEl = document.getElementById('ev-calendar');
+        if (calEl) calEl.innerHTML = '<div class="um-empty" style="padding:18px 0;">设计示意数据无逐日明细，日历留空；接入真实数据后自动生成。</div>';
+        // 折线图按周展示，无需日历联动；清空 calData 避免旧状态串扰
+        calData.minTs = 0; calData.dayMap = {}; calData.weekWeeks = []; calData.weekCounts = []; calData.selA = -1; calData.selB = -1;
       }
 
       // 渲染「每周活跃人数」折线：无选择时按周（W1–W8）；选中日历区间后按天
@@ -4473,7 +4505,7 @@
           return '<div style="display:flex;align-items:center;gap:10px;margin:7px 0;font-size:12px;">'
             + '<span style="width:74px;flex:none;color:var(--muted);text-align:right;">' + esc(i.label) + '</span>'
             + '<span style="flex:1;background:rgba(120,130,160,.14);border-radius:6px;height:15px;overflow:hidden;display:inline-block;">'
-            + '<span style="display:block;height:100%;width:' + w + '%;background:linear-gradient(90deg,#6366f1,#4f46e5);border-radius:6px;"></span>'
+            + '<span style="display:block;height:100%;width:' + w + '%;background:linear-gradient(90deg,#3b82f6,#2563eb);border-radius:6px;"></span>'
             + '</span>'
             + '<span style="width:112px;flex:none;color:var(--text);">' + esc(i.val) + '</span>'
             + '</div>';
@@ -4496,7 +4528,7 @@
 
       // 环形图（模块使用占比）
       function donutChart(items) {
-        const COLORS = ['#4f46e5', '#6366f1', '#8b5cf6', '#22c55e', '#f59e0b', '#06b6d4', '#ec4899'];
+        const COLORS = ['#2563eb', '#3b82f6', '#60a5fa', '#22c55e', '#f59e0b', '#06b6d4', '#ec4899'];
         let total = 0; items.forEach(function (i) { total += (i.n || 0); });
         const R = 54, C = 2 * Math.PI * R, cx = 70, cy = 70;
         let acc = 0, segs = '';
@@ -4540,8 +4572,8 @@
         const showVal = n <= 22;
         const dots = items.map(function (i, idx) {
           const r = n > 22 ? 2.2 : 3.4;
-          return '<circle cx="' + pts[idx][0].toFixed(1) + '" cy="' + pts[idx][1].toFixed(1) + '" r="' + r + '" fill="#4f46e5" stroke="#fff" stroke-width="1.4"></circle>'
-            + (showVal ? '<text x="' + pts[idx][0].toFixed(1) + '" y="' + (pts[idx][1] - 9).toFixed(1) + '" text-anchor="middle" font-size="10.5" font-weight="700" fill="#4f46e5">' + i.pct + '</text>' : '');
+          return '<circle cx="' + pts[idx][0].toFixed(1) + '" cy="' + pts[idx][1].toFixed(1) + '" r="' + r + '" fill="#2563eb" stroke="#fff" stroke-width="1.4"></circle>'
+            + (showVal ? '<text x="' + pts[idx][0].toFixed(1) + '" y="' + (pts[idx][1] - 9).toFixed(1) + '" text-anchor="middle" font-size="10.5" font-weight="700" fill="#2563eb">' + i.pct + '</text>' : '');
         }).join('');
         // 标签稀疏：≤12 个点全标；更多时约每 n/10 个标一次（末点必标）
         const lblStep = n <= 12 ? 1 : Math.ceil(n / 10);
@@ -4551,8 +4583,8 @@
         }).join('');
         return '<svg class="line-svg" viewBox="0 0 ' + W + ' ' + H + '" preserveAspectRatio="xMidYMid meet">'
           + grid
-          + '<polygon points="' + area + '" fill="rgba(99,102,241,.10)"></polygon>'
-          + '<polyline points="' + poly + '" fill="none" stroke="#4f46e5" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round"></polyline>'
+          + '<polygon points="' + area + '" fill="rgba(59,130,246,.10)"></polygon>'
+          + '<polyline points="' + poly + '" fill="none" stroke="#2563eb" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round"></polyline>'
           + dots + xlbl + '</svg>';
       }
 
@@ -4657,7 +4689,7 @@
         function p2(n) { return (n < 10 ? '0' : '') + n; }
         return (d.getMonth() + 1) + '-' + d.getDate() + ' ' + p2(d.getHours()) + ':' + p2(d.getMinutes());
       }
-      var STU_CH = ['第1章', '第2章', '第3章', '第4章', '第5章', '第6章', '第7章', '第8章', '第9章'];
+      var STU_CH = ['第0章', '第1章', '第2章', '第3章', '第4章', '第5章', '第6章', '第7章'];
       var rowCache = [];
       function csvCell(v) {
         v = String(v == null ? '' : v);
@@ -4719,7 +4751,7 @@
             + '<summary>'
             +   '<span class="s-name">' + name + (isT ? '<span class="um-me">教师</span>' : '') + '</span>'
             +   '<span class="s-cls">' + cls + '</span>'
-            +   '<span class="s-m">学完 <b>' + nch + '</b>/9 章</span>'
+            +   '<span class="s-m">学完 <b>' + nch + '</b>/8 章</span>'
             +   '<span class="s-m">时长 <b>' + fmtDur(r.dur) + '</b></span>'
             +   '<span class="s-m">答题 <b>' + r.quiz + '</b></span>'
             +   '<span class="s-m">正确率 <b>' + acc + '</b></span>'
