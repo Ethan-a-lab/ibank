@@ -388,6 +388,13 @@
     .ev-status { font-size: 12.5px; font-weight: 700; padding: 6px 13px; border-radius: 999px; border: 1px solid var(--panel-border); color: var(--dim); }
     .ev-status.ok { color: #0f9d58; border-color: rgba(15, 157, 88, 0.45); background: rgba(15, 157, 88, 0.1); }
     .ev-status.bad { color: #d93025; border-color: rgba(217, 48, 37, 0.45); background: rgba(217, 48, 37, 0.08); }
+    .admin-head .ah-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+    .ev-live { font-size: 12.5px; font-weight: 700; padding: 6px 13px; border-radius: 999px; border: 1px solid #c7d2e8; color: #475569; background: #eef2f9; white-space: nowrap; }
+    .ev-live:not(.off) { color: #0b7a43; border-color: rgba(11, 122, 67, 0.45); background: rgba(11, 122, 67, 0.1); }
+    .ev-live.ping { animation: evLivePing 1.2s ease; }
+    body.dark .ev-live { color: #cbd5e1; background: rgba(148, 163, 184, 0.16); border-color: rgba(148, 163, 184, 0.35); }
+    body.dark .ev-live:not(.off) { color: #34d399; background: rgba(52, 211, 153, 0.12); border-color: rgba(52, 211, 153, 0.4); }
+    @keyframes evLivePing { 0% { box-shadow: 0 0 0 0 rgba(11, 122, 67, 0.45); } 100% { box-shadow: 0 0 0 9px rgba(11, 122, 67, 0); } }
     @media (max-width: 860px) {
       .learn-layout { grid-template-columns: 1fr; }
       .chapter-nav { position: static; max-height: none; display: flex; gap: 8px; overflow-x: auto; padding: 10px; }
@@ -684,6 +691,30 @@
     .val-item .m { font-size: 12.5px; color: var(--muted); }
     .val-item .v { font-size: 22px; font-weight: 800; margin-top: 2px; }
     .val-item .note { font-size: 12px; color: var(--dim); margin-top: 4px; }
+    .val-field { flex-wrap: wrap; }
+    .val-field label { display: flex; align-items: center; gap: 8px; }
+    .val-out { font-weight: 700; color: var(--text); background: rgba(99,102,241,.14); border-radius: 6px; padding: 1px 9px; font-size: 13px; }
+    .val-field input[type=range] { width: 100%; max-width: 220px; accent-color: #6366f1; cursor: pointer; }
+    .val-scenarios { display: flex; align-items: center; gap: 8px; margin: 8px 0 2px; flex-wrap: wrap; }
+    .val-scenarios > span { font-size: 13px; color: var(--muted); }
+    .val-scenarios button { height: 30px; padding: 0 14px; border-radius: 9px; border: 1px solid var(--panel-border); background: transparent; color: var(--text); font-size: 13px; cursor: pointer; transition: .15s; }
+    .val-scenarios button:hover { border-color: rgba(99,102,241,.5); }
+    .val-scenarios button.on { background: linear-gradient(135deg,#4f46e5,#7c3aed); color: #fff; border-color: transparent; font-weight: 700; }
+    .val-cards { display: grid; grid-template-columns: 1fr; gap: 10px; margin-bottom: 4px; }
+    .val-item.bad { border-color: rgba(239,68,68,.42); }
+    .val-item.bad .v { font-size: 16px; color: #b91c1c; }
+    .val-suggest { font-size: 13px; line-height: 1.7; color: var(--text); background: rgba(99,102,241,.08); border: 1px solid rgba(99,102,241,.25); border-radius: 12px; padding: 12px 14px; margin: 10px 0 2px; }
+    .val-suggest b { color: #4f46e5; }
+    body.dark .val-suggest b { color: #c7d2fe; }
+    .val-wide { margin-top: 16px; }
+    .val-field-chart, .val-heat { overflow-x: auto; }
+    .heat { display: inline-block; min-width: 100%; }
+    .heat-row { display: flex; align-items: stretch; }
+    .hc { min-width: 58px; height: 34px; display: flex; align-items: center; justify-content: center; font-size: 11.5px; font-weight: 700; border: 1px solid var(--panel-border); margin: 2px; border-radius: 7px; }
+    .hc.hl { color: var(--muted); background: rgba(120,130,160,.10); }
+    .hc.na { color: var(--muted); }
+    body.dark:not(.light) .val-ff-line { stroke: #f87171; }
+    body.dark:not(.light) .val-ff-txt { fill: #f87171; }
     @media (max-width: 820px) { .profile-grid, .val-grid { grid-template-columns: 1fr; } }
 
     /* ===== 登录/注册 ===== */
@@ -781,8 +812,8 @@
     .admin-tier .lvl { font-size: 12px; font-weight: 700; color: #2563eb; margin-bottom: 6px; }
     .admin-tier p { font-size: 12.5px; color: var(--muted); line-height: 1.6; }
     /* ===== 用户管理 ===== */
-    .um-toolbar { display: flex; gap: 10px; margin-bottom: 12px; }
-    .um-toolbar input { flex: 1; height: 38px; padding: 0 12px; border-radius: 10px; border: 1px solid #e5e9f0; background: #fbfcfe; font-size: 13.5px; color: #1a2233; outline: none; }
+    .um-toolbar { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 12px; }
+    .um-toolbar input { flex: 1 1 160px; min-width: 0; height: 38px; padding: 0 12px; border-radius: 10px; border: 1px solid #e5e9f0; background: #fbfcfe; font-size: 13.5px; color: #1a2233; outline: none; }
     .um-toolbar input:focus { border-color: var(--accent-text); }
     .um-toolbar select.um-select { height: 38px; padding: 0 30px 0 10px; border-radius: 10px; border: 1px solid #e5e9f0; background: #fbfcfe url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' fill='none' stroke='%238088a0' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat right 11px center; font-size: 13px; color: #1a2233; cursor: pointer; outline: none; flex: none; min-width: 104px; -webkit-appearance: none; appearance: none; }
     .um-toolbar select.um-select:focus { border-color: var(--accent-text); }
@@ -810,7 +841,14 @@
     .ev-sw input { width: 15px; height: 15px; accent-color: #4f46e5; cursor: pointer; }
     .ev-toolbar .tip { font-size: 12px; color: var(--muted); }
     .ev-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 16px; }
-    @media (max-width: 860px) { .ev-grid { grid-template-columns: 1fr; } }
+    /* 折线图（含月历，卡片较高）改占「右列」并向下跨两行；左列自上而下为
+       「学习模块使用占比」「考核构成」。这样右列高度 ≈ 左列两张卡片之和，版式上下对齐、
+       右下角不再留空。窄屏回落为单列，按 DOM 顺序自然堆叠。 */
+    .ev-grid > .ev-right { grid-column: 2; grid-row: 2 / span 2; }
+    @media (max-width: 860px) {
+      .ev-grid { grid-template-columns: 1fr; }
+      .ev-grid > .ev-right { grid-column: auto; grid-row: auto; }
+    }
     .ev-note { font-size: 11.5px; color: var(--muted); margin: 2px 0 10px; }
     /* 题型竖向柱状图 */
     .vbar-wrap { display: flex; align-items: flex-end; gap: 12px; height: 190px; padding: 16px 4px 0; }
@@ -1345,19 +1383,33 @@
     <section class="page" id="p-valuation">
       <div class="panel">
         <div class="section-title"><span class="bar"></span>企业估值实操实验</div>
-        <div class="section-sub">调整参数，观察市盈率法与现金流折现法的估值变化。</div>
+        <div class="section-sub">拖动滑块调整假设、切换情景，用市盈率法、可比公司法与现金流折现（DCF）三种方法交叉验证估值区间，并用敏感性热力图检验假设的稳健性。</div>
         <div class="val-grid">
           <div class="chart-card">
             <h4>参数设置</h4>
-            <div class="val-field"><label>净利润（万元）</label><input id="val-profit" type="number" value="8000" /></div>
-            <div class="val-field"><label>盈利增长率 g（%）</label><input id="val-g" type="number" value="10" /></div>
-            <div class="val-field"><label>折现率 r（%）</label><input id="val-r" type="number" value="15" /></div>
-            <div class="val-field"><label>可比市盈率 PE（倍）</label><input id="val-pe" type="number" value="40" /></div>
+            <div class="note">拖动滑块调整假设，估值实时联动；点情景按钮一键切换悲观 / 中性 / 乐观三套假设。</div>
+            <div class="val-field"><label>净利润（万元）<span class="val-out" id="vo-profit">8000</span></label><input id="val-profit" type="range" min="1000" max="20000" step="100" value="8000" /></div>
+            <div class="val-field"><label>盈利增长率 g（%）<span class="val-out" id="vo-g">10</span></label><input id="val-g" type="range" min="-5" max="30" step="0.5" value="10" /></div>
+            <div class="val-field"><label>折现率 r（%）<span class="val-out" id="vo-r">15</span></label><input id="val-r" type="range" min="5" max="30" step="0.5" value="15" /></div>
+            <div class="val-field"><label>市盈率 PE（倍）<span class="val-out" id="vo-pe">40</span></label><input id="val-pe" type="range" min="10" max="80" step="1" value="40" /></div>
+            <div class="val-field"><label>总股本（万股）<span class="val-out" id="vo-shares">10000</span></label><input id="val-shares" type="range" min="1000" max="50000" step="500" value="10000" /></div>
+            <div class="val-scenarios"><span>情景</span><button type="button" data-sc="pess">悲观</button><button type="button" data-sc="base" class="on">中性</button><button type="button" data-sc="opt">乐观</button></div>
           </div>
           <div class="chart-card">
             <h4>估值结果</h4>
+            <div class="note">三种方法交叉验证，区间重叠越多、估值确定性越高。</div>
             <div id="val-result"></div>
           </div>
+        </div>
+        <div class="chart-card val-wide">
+          <h4>足球场图 · 估值区间</h4>
+          <div class="note">每条横杠为一种方法的估值区间（下限 → 上限），红虚线为三法交叉验证中枢；横轴为股权价值（万元）。</div>
+          <div class="val-field-chart" id="val-field-chart"></div>
+        </div>
+        <div class="chart-card val-wide">
+          <h4>双因素敏感性热力图 · DCF</h4>
+          <div class="note">横轴折现率 r、纵轴增长率 g，格内为该组合下的每股估值（元）；颜色越红估值越高，r ≤ g 的格子无意义（—）。</div>
+          <div class="val-heat" id="val-heat"></div>
         </div>
       </div>
     </section>
@@ -1871,8 +1923,13 @@
     <!-- ⑪ 后台统计 -->
     <section class="page" id="p-admin">
       <div class="admin-head">
-        <h2>数据后台 · 学情统计</h2>
-        <p>iBank平台运行数据 · 2025-2026 学年第 1 学期（金融 2303 / 2304）</p>
+        <div class="ah-row">
+          <div>
+            <h2>数据后台 · 学情统计</h2>
+            <p>iBank平台运行数据 · 2025-2026 学年第 1 学期（金融 2303 / 2304）</p>
+          </div>
+          <span class="ev-live off" id="ev-live" title="后台看板每 20 秒自动检测数据变化并刷新">○ 实时已暂停</span>
+        </div>
       </div>
       <div style="margin:14px 0 4px;padding:10px 14px;border:1px solid rgba(120,130,160,.25);border-radius:10px;font-size:12px;color:var(--muted);background:rgba(120,130,160,.06);line-height:1.7;">
         数据说明：学情统计由真实行为埋点实时累计；历史批次数据已做<b>匿名化处理</b>（课程已结束，为保护学生隐私，学生姓名不予留存，仅以「匿名学生」编号还原整体学习画像）。新登录学生将在此基础之上继续累计真实行为。
@@ -1924,7 +1981,7 @@
         <div class="admin-panel"><h4>各题型平均正确率</h4><div class="sub">按题型统计答题正确率</div><div id="ev-qtype"></div></div>
         <div class="admin-panel"><h4>学习模块使用占比</h4><div class="sub">各功能模块被打开的频次占比</div><div id="ev-module"></div></div>
         <div class="admin-panel"><h4>考核构成（教学大纲）</h4><div class="sub">过程性考核 50% · 期末考核 50%（各过程项各 10%）</div><div id="ev-assess"></div></div>
-        <div class="admin-panel"><h4>每周活跃人数</h4><div class="sub">按周统计活跃学生数（默认展示整个学期）；在下方月历中单击选中整周、按住拖动可圈选任意区间（可翻月），折线图会按天勾出该区间的活跃走势。</div><div id="ev-week"></div><div class="wk-pick"><div class="wk-hd"><span class="wk-range" id="ev-range">默认按周</span><button type="button" class="wk-reset" id="ev-cal-reset">重置</button></div><div id="ev-calendar"></div></div></div>
+        <div class="admin-panel ev-right"><h4>每周活跃人数</h4><div class="sub">按周统计活跃学生数（默认展示整个学期）；在下方月历中单击选中整周、按住拖动可圈选任意区间（可翻月），折线图会按天勾出该区间的活跃走势。</div><div id="ev-week"></div><div class="wk-pick"><div class="wk-hd"><span class="wk-range" id="ev-range">默认按周</span><button type="button" class="wk-reset" id="ev-cal-reset">重置</button></div><div id="ev-calendar"></div></div></div>
       </div>
 
       <div class="admin-panel" style="margin-top:16px;">
@@ -2064,6 +2121,8 @@
         btn.classList.add('active');
         document.getElementById(target).classList.add('active');
         document.body.classList.toggle('light', target === 'p-admin');
+        if (target === 'p-admin') { if (window.__ibankAdminLive) window.__ibankAdminLive.start(); }
+        else { if (window.__ibankAdminLive) window.__ibankAdminLive.stop(); }
         if (window.__ibankTrack) window.__ibankTrack('module', { module: target });
         window.scrollTo({ top: 0, behavior: 'smooth' });
       });
@@ -3544,30 +3603,130 @@
       renderAll();
     })();
 
-    // ===== 估值实验 =====
+    // ===== 估值实验（完整版：滑块 + 情景 + 三方法 + 足球场 + 敏感性热力图） =====
     (function () {
-      const profit = document.getElementById('val-profit');
-      const gEl = document.getElementById('val-g');
-      const rEl = document.getElementById('val-r');
-      const peEl = document.getElementById('val-pe');
+      const ids = ['profit', 'g', 'r', 'pe', 'shares'];
+      const els = {}; ids.forEach(function (k) { els[k] = document.getElementById('val-' + k); });
+      const outs = {}; ids.forEach(function (k) { outs[k] = document.getElementById('vo-' + k); });
       const result = document.getElementById('val-result');
+      const fieldEl = document.getElementById('val-field-chart');
+      const heatEl = document.getElementById('val-heat');
       function fmt(n) { return Math.round(n).toLocaleString('zh-CN'); }
-      function calc() {
-        const p = parseFloat(profit.value) || 0;
-        const g = (parseFloat(gEl.value) || 0) / 100;
-        const r = (parseFloat(rEl.value) || 0) / 100;
-        const pe = parseFloat(peEl.value) || 0;
-        const peVal = p * pe;
-        let dcfVal = 0, dcfNote = '';
-        if (r > g) { dcfVal = p * (1 + g) / (r - g); dcfNote = '（Gordon 模型，FCF≈净利润）'; }
-        else { dcfNote = '需满足折现率 r > 增长率 g，否则 DCF 无意义'; }
-        const higher = peVal > dcfVal ? 'PE 估值更高' : (dcfVal > peVal ? 'DCF 估值更高' : '两者接近');
-        result.innerHTML =
-          '<div class="val-item"><div class="m">市盈率估值（PE = ' + pe + 'x）</div><div class="v">' + fmt(peVal) + ' 万元</div><div class="note">净利润 × PE 倍数</div></div>' +
-          '<div class="val-item"><div class="m">现金流折现估值（DCF）</div><div class="v">' + fmt(dcfVal) + ' 万元</div><div class="note">g = ' + (g * 100) + '%，r = ' + (r * 100) + '% ' + dcfNote + '</div></div>' +
-          '<div class="val-item"><div class="m">对比</div><div class="v" style="font-size:16px;">' + higher + '</div><div class="note">调整 g、r 观察估值如何变化</div></div>';
+      function lum(rgb) { const m = rgb.match(/\d+/g).map(Number); return 0.2126 * m[0] + 0.7152 * m[1] + 0.0722 * m[2]; }
+      function heatColor(t) { // t∈[0,1]：蓝(低)→红(高)
+        const r = Math.round(37 + (220 - 37) * t), g = Math.round(99 + (38 - 99) * t), b = Math.round(235 + (38 - 235) * t);
+        return 'rgb(' + r + ',' + g + ',' + b + ')';
       }
-      [profit, gEl, rEl, peEl].forEach(function (el) { el.addEventListener('input', calc); });
+
+      function calc() {
+        const p = +els.profit.value, g = +els.g.value / 100, r = +els.r.value / 100, pe = +els.pe.value, sh = +els.shares.value;
+        ids.forEach(function (k) { outs[k].textContent = els[k].value; });
+        const peLo = p * pe * 0.85, peHi = p * pe * 1.15, peMid = (peLo + peHi) / 2;
+        const cLo = p * pe * 0.80, cHi = p * pe * 1.20, cMid = (cLo + cHi) / 2;
+        const dcfDef = r > g;
+        const dcfAt = function (gg, rr) { return rr > gg ? p * (1 + gg) / (rr - gg) : null; };
+        const dLo = dcfAt(g - 0.02, r + 0.02), dHi = dcfAt(g + 0.02, r - 0.02), dMid = dcfDef ? p * (1 + g) / (r - g) : null;
+        const methods = [
+          { name: '市盈率法', lo: peLo, hi: peHi, mid: peMid },
+          { name: '可比公司法', lo: cLo, hi: cHi, mid: cMid },
+          { name: '现金流折现 DCF', lo: dLo, hi: dHi, mid: dMid, def: dcfDef }
+        ];
+        let html = '<div class="val-cards">';
+        methods.forEach(function (m) {
+          if (m.mid == null) { html += '<div class="val-item bad"><div class="m">' + m.name + '</div><div class="v">无意义</div><div class="note">需 r &gt; g，当前 r≤g，DCF 不成立</div></div>'; return; }
+          html += '<div class="val-item"><div class="m">' + m.name + '</div><div class="v">' + fmt(m.mid) + ' 万元</div><div class="note">区间 ' + fmt(m.lo) + ' ~ ' + fmt(m.hi) + ' 万元 · 每股 ' + (m.mid / sh).toFixed(2) + ' 元</div></div>';
+        });
+        html += '</div>';
+        const valid = methods.filter(function (m) { return m.mid != null; });
+        if (valid.length) {
+          const mids = valid.map(function (m) { return m.mid; });
+          const chord = mids.reduce(function (a, b) { return a + b; }, 0) / mids.length;
+          const ps = chord / sh;
+          html += '<div class="val-suggest">三法交叉验证中枢 <b>' + fmt(chord) + ' 万元</b>（每股 <b>' + ps.toFixed(2) + ' 元</b>）' + (valid.length < 3 ? '；DCF 因 r≤g 未纳入' : '') + '。三种方法区间重叠越多、估值确定性越高；分歧大时优先核查 g、r 与可比 PE 假设。</div>';
+        }
+        result.innerHTML = html;
+        fieldEl.innerHTML = footballField(methods, sh);
+        heatEl.innerHTML = heatMap(p, g, r, sh);
+      }
+
+      // 足球场图：每种方法一条横杠（下限→上限），红虚线标建议中枢
+      function footballField(methods, sh) {
+        const defs = methods.filter(function (m) { return m.lo != null && m.hi != null; });
+        if (!defs.length) return '<div class="um-empty">当前参数下三种方法均不成立（需 r&gt;g），无法绘制估值区间。</div>';
+        const allLo = defs.map(function (m) { return m.lo; });
+        const allHi = methods.filter(function (m) { return m.hi != null; }).map(function (m) { return m.hi; });
+        let lo = Math.min.apply(null, allLo), hi = Math.max.apply(null, allHi);
+        const useLog = lo > 0 && (hi / lo) > 6; // 跨度大时用对数刻度，避免相对估值被 DCF 极宽区间压扁
+        let a, b;
+        if (useLog) { const kl = Math.log(lo), kh = Math.log(hi), pd = (kh - kl) * 0.12; a = kl - pd; b = kh + pd; }
+        else { const pd = (hi - lo) * 0.14 || 1; a = lo - pd; b = hi + pd; }
+        const W = 560, H = 178, L = 112, R = W - 18, pw = R - L;
+        const X = useLog ? function (v) { return L + (Math.log(v) - a) / (b - a) * pw; } : function (v) { return L + (v - a) / (b - a) * pw; };
+        const dLo = useLog ? Math.exp(a) : a, dHi = useLog ? Math.exp(b) : b;
+        const validMids = methods.filter(function (m) { return m.mid != null; }).map(function (m) { return m.mid; });
+        const chord = validMids.length ? validMids.reduce(function (x, y) { return x + y; }, 0) / validMids.length : null;
+        let s = '<svg viewBox="0 0 ' + W + ' ' + H + '" width="100%" style="display:block">';
+        s += '<line x1="' + L + '" y1="150" x2="' + R + '" y2="150" stroke="var(--panel-border)"/>';
+        methods.forEach(function (m, i) {
+          const y = 24 + i * 40;
+          if (m.lo == null || m.hi == null) { s += '<text x="6" y="' + (y + 4) + '" fill="var(--muted)" font-size="11.5">' + m.name + '：r≤g 无意义</text>'; return; }
+          const x1 = Math.max(L, X(m.lo)), x2 = Math.min(R, X(m.hi));
+          const fill = i === 2 ? '#4f46e5' : '#15803d';
+          s += '<text x="6" y="' + (y - 7) + '" fill="var(--text)" font-size="12" font-weight="700">' + m.name + '</text>';
+          s += '<rect x="' + x1 + '" y="' + y + '" width="' + Math.max(3, x2 - x1) + '" height="15" rx="7.5" fill="' + fill + '" opacity="0.9"/>';
+          s += '<text x="' + ((x1 + x2) / 2) + '" y="' + (y + 11) + '" fill="#fff" font-size="10" text-anchor="middle" font-weight="700">' + (m.mid / sh).toFixed(2) + ' 元</text>';
+        });
+        if (chord != null) {
+          const cx = X(chord);
+          s += '<line class="val-ff-line" x1="' + cx + '" y1="12" x2="' + cx + '" y2="150" stroke="#b91c1c" stroke-width="2" stroke-dasharray="4 3"/>';
+          s += '<text class="val-ff-txt" x="' + cx + '" y="9" fill="#b91c1c" font-size="10.5" text-anchor="middle" font-weight="700">中枢 ' + (chord / sh).toFixed(2) + ' 元</text>';
+        }
+        // 轴刻度（万元）+ 刻度类型说明
+        s += '<text x="' + L + '" y="' + (H - 4) + '" fill="var(--muted)" font-size="10">' + fmt(dLo) + '</text>';
+        s += '<text x="' + R + '" y="' + (H - 4) + '" fill="var(--muted)" font-size="10" text-anchor="end">' + fmt(dHi) + '</text>';
+        if (useLog) s += '<text x="' + R + '" y="14" fill="var(--muted)" font-size="10" text-anchor="end">对数刻度</text>';
+        s += '</svg>';
+        return s;
+      }
+
+      // 双因素敏感性热力图（DCF）：横轴 r、纵轴 g，格内为每股估值
+      function heatMap(p, g, r, sh) {
+        const gs = [], rs = [];
+        for (let i = 0; i < 7; i++) { gs.push(g + (i - 3) * 0.02); rs.push(r + (i - 3) * 0.02); }
+        let vals = [];
+        gs.forEach(function (gg) { rs.forEach(function (rr) { if (rr > gg) vals.push(p * (1 + gg) / (rr - gg)); }); });
+        const lo = Math.min.apply(null, vals), hi = Math.max.apply(null, vals);
+        let s = '<div class="heat"><div class="heat-row heat-head"><div class="hc hl">g ＼ r</div>' + rs.map(function (rr) { return '<div class="hc hl">r=' + (rr * 100).toFixed(0) + '%</div>'; }).join('') + '</div>';
+        gs.forEach(function (gg) {
+          let row = '<div class="heat-row"><div class="hc hl">g=' + (gg * 100).toFixed(0) + '%</div>';
+          rs.forEach(function (rr) {
+            if (rr <= gg) { row += '<div class="hc na">—</div>'; }
+            else {
+              const v = p * (1 + gg) / (rr - gg);
+              const t = (v - lo) / (hi - lo || 1);
+              const bg = heatColor(t);
+              const txt = lum(bg) > 150 ? '#1f2937' : '#fff';
+              row += '<div class="hc" style="background:' + bg + ';color:' + txt + '">' + (v / sh).toFixed(2) + '</div>';
+            }
+          });
+          s += row + '</div>';
+        });
+        s += '</div>';
+        return s;
+      }
+
+      // 情景按钮：一键套用三套假设
+      const SCN = { pess: { profit: 6500, g: 6, r: 18, pe: 30 }, base: { profit: 8000, g: 10, r: 15, pe: 40 }, opt: { profit: 9500, g: 14, r: 12, pe: 50 } };
+      document.querySelectorAll('.val-scenarios button').forEach(function (b) {
+        b.addEventListener('click', function () {
+          const sc = SCN[b.dataset.sc]; if (!sc) return;
+          els.profit.value = sc.profit; els.g.value = sc.g; els.r.value = sc.r; els.pe.value = sc.pe;
+          document.querySelectorAll('.val-scenarios button').forEach(function (x) { x.classList.remove('on'); });
+          b.classList.add('on');
+          calc();
+        });
+      });
+      ids.forEach(function (k) { els[k].addEventListener('input', function () { document.querySelectorAll('.val-scenarios button').forEach(function (x) { x.classList.remove('on'); }); calc(); }); });
       calc();
     })();
 
@@ -3940,6 +4099,56 @@
         }
       }
       window.__ibankCheckEvents = checkEventsTable;
+
+      // ===== 后台看板实时刷新（变更检测轮询） =====
+      // 设计：进入 p-admin 且页面可见时，每 20 秒发 1 条 events 计数 + 1 条 profiles 计数查询；
+      // 仅当总数发生变化，才触发完整 loadEventStats()+loadRealStats() 重载（避免每次拉全表，省云端额度）。
+      // 切走页面 / 标签隐藏自动暂停；离线模式直接每 20 秒重读本机 localStorage。
+      var adminLiveTimer = null;
+      var adminLastEv = -1, adminLastProf = -1;
+      var evLiveEl = document.getElementById('ev-live');
+      function adminOpen() {
+        if (!window.__ibankIsAdmin) return false;
+        var p = document.getElementById('p-admin');
+        return !!(p && p.classList.contains('active'));
+      }
+      function adminStamp(changed) {
+        if (!evLiveEl) return;
+        var t = new Date().toLocaleTimeString('zh-CN', { hour12: false });
+        if (OFFLINE) { evLiveEl.className = 'ev-live off'; evLiveEl.textContent = '○ 离线 · 仅本机 · ' + t; return; }
+        evLiveEl.className = 'ev-live' + (changed ? ' ping' : '');
+        evLiveEl.textContent = '● 实时 · 更新于 ' + t;
+      }
+      async function adminPoll() {
+        if (!adminOpen()) return;
+        if (OFFLINE) { loadEventStats(); loadRealStats(); adminStamp(false); return; }
+        try {
+          const ce = await db.from('events').select('*', { count: 'exact', head: true });
+          const cp = await db.from('profiles').select('*', { count: 'exact', head: true });
+          const evN = (ce && ce.count) || 0, profN = (cp && cp.count) || 0;
+          const changed = (evN !== adminLastEv) || (profN !== adminLastProf);
+          adminLastEv = evN; adminLastProf = profN;
+          if (changed) { loadEventStats(); loadRealStats(); }
+          adminStamp(changed);
+        } catch (e) { adminStamp(false); }
+      }
+      function adminStartLive() {
+        adminStopLive();
+        if (!adminOpen()) return;
+        adminLastEv = -1; adminLastProf = -1;
+        adminPoll();
+        adminLiveTimer = setInterval(function () {
+          if (document.visibilityState === 'visible') adminPoll();
+        }, 20000);
+      }
+      function adminStopLive() {
+        if (adminLiveTimer) { clearInterval(adminLiveTimer); adminLiveTimer = null; }
+        if (evLiveEl) { evLiveEl.className = 'ev-live off'; evLiveEl.textContent = '○ 实时已暂停'; }
+      }
+      document.addEventListener('visibilitychange', function () {
+        if (document.visibilityState === 'visible' && adminOpen()) adminPoll();
+      });
+      window.__ibankAdminLive = { start: adminStartLive, stop: adminStopLive };
 
       // 时间戳单位归一化：events.ts 约定为「毫秒」，但历史灌库数据可能是「秒」，
       // 若按毫秒解析会得到 1970-01-21，导致月历/last 全部错位塌缩。此处统一换算成毫秒。
