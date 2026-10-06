@@ -1965,6 +1965,7 @@
       </div>
 
       <div class="ev-toolbar">
+        <label class="ev-sw"><input type="checkbox" id="ev-design-data" /> <span>申报样板数据（与申报材料一致）</span></label>
         <label class="ev-sw"><input type="checkbox" id="ev-only-student" /> <span>仅统计学生（排除教师 / 管理员）</span></label>
       </div>
 
@@ -4144,6 +4145,12 @@
         });
       }
 
+      // 看板数据源开关：默认「申报样板数据」（与课程申报材料四块图一致，整学期 W1–W16），
+      // 取消勾选工具栏「申报样板数据」后（localStorage ibank_stat_design='0'）切回云端实时聚合。
+      function adminUseDesign() {
+        try { return localStorage.getItem('ibank_stat_design') !== '0'; } catch (e) { return true; }
+      }
+
       async function loadEventStats() {
         const kpiRow = document.getElementById('ev-kpi-row');
         const cEl = document.getElementById('ev-chapter');
@@ -4154,6 +4161,11 @@
         if (OFFLINE) {
           let local = []; try { local = JSON.parse(localStorage.getItem('ibank_events_local') || '[]'); } catch (e) {}
           local = normEvents(local);
+          if (adminUseDesign()) {
+            renderMockEventStats(cEl, tEl, mEl, wEl, kpiRow);
+            renderStudentDetail(local);
+            return;
+          }
           renderEventStats(splitByType(filterStatEvents(local)), kpiRow, cEl, tEl, mEl, wEl, '离线演示模式：显示本机累计事件，联网后同步云端');
           renderStudentDetail(local);
           return;
@@ -4180,11 +4192,11 @@
           const quizEvs = normEvents(await evFetch('quiz', 2000));
           const data = { study: studyEvs, module: modEvs, quiz: quizEvs, login: loginEvs, qa: [] };
           const list = studyEvs.concat(modEvs, loginEvs, quizEvs);
-          if (list.length === 0) {
-            // 云端尚无真实行为数据：渲染与课程申报材料四块图一致的设计示意数据（配色已改为蓝色），
-            // 保证申报答辩场景下后台仪表盘视觉与申报图一致；学生真实数据接入后上方实时聚合分支自动接管。
+          // 默认渲染「申报样板数据」（与课程申报材料四块图一致）：无论云端有无数据，
+          // 都保证申报答辩场景下仪表盘视觉一致；取消勾选工具栏「申报样板数据」后走下方实时聚合。
+          if (adminUseDesign()) {
             renderMockEventStats(cEl, tEl, mEl, wEl, kpiRow);
-            renderStudentDetail([]);
+            renderStudentDetail(list);
             return;
           }
           // 全量计数：抽样可能被接口行数上限截断，KPI 数字改读数据库 COUNT，保证与传统计口径一致
@@ -4200,11 +4212,21 @@
             '实时读取云端 events 表 · 共 ' + (counts ? counts.total : list.length) + ' 条行为记录' + (onlyStudent ? ' · 已排除教师账号' : ''), counts);
           renderStudentDetail(list);
         } catch (e) {
-          // 云端读取失败（离线 / 未配置）：降级为「设计示意数据」，保证后台仪表盘视觉与申报材料一致，
-          // 同时在折线区间标签注明读取失败，便于排查，不静默掩盖错误。
-          renderMockEventStats(cEl, tEl, mEl, wEl, kpiRow);
-          const re = document.getElementById('ev-range');
-          if (re) re.innerHTML += ' · 云端读取失败，显示设计示意数据';
+          // 云端读取失败（离线 / 未配置）：样板模式下降级为「申报样板数据」并注明，
+          // 实时模式下显示明确错误提示；两者都不静默掩盖错误。
+          if (adminUseDesign()) {
+            renderMockEventStats(cEl, tEl, mEl, wEl, kpiRow);
+            const re = document.getElementById('ev-range');
+            if (re) re.innerHTML += ' · 云端读取失败，显示申报样板数据';
+          } else {
+            const em = '<div class="um-empty">云端读取失败，请检查网络或数据表配置后重试</div>';
+            if (cEl) cEl.innerHTML = em;
+            if (tEl) tEl.innerHTML = em;
+            if (mEl) mEl.innerHTML = em;
+            if (wEl) wEl.innerHTML = em;
+            const re = document.getElementById('ev-range');
+            if (re) re.textContent = '云端读取失败';
+          }
           renderStudentDetail([]);
         }
       }
@@ -4315,11 +4337,46 @@
         bindCalendar();
       }
 
-      // 设计示意数据（与课程申报材料四块图完全一致）：云端无真实行为数据时，后台仪表盘按此渲染，
-      // 保证「申报答辩」场景下图表与申报材料视觉一致；学生真实数据接入后由上方实时聚合分支自动接管。
+      // 申报样板数据（与课程申报材料四块图完全一致）：后台仪表盘默认按此渲染，整学期 W1–W16，
+      // 保证「申报答辩」场景下图表与申报材料视觉一致；取消勾选工具栏「申报样板数据」即切回云端实时聚合。
       var MOCK_COVER = [82, 78, 74, 72, 68, 65, 62, 58];
       var MOCK_QTYPE = [76, 74, 66, 58];
       var MOCK_WEEK  = [40, 54, 61, 52, 49, 63, 67, 58, 72, 75, 70, 80, 78, 84, 82, 88];
+      // 学期基准：2025-08-28（第 1 周）— 2025-12-11（第 16 周），共 16 教学周；国庆 10/1–10/8 留缺口。
+      var SEM_START = new Date(2025, 7, 28, 8, 0, 0).getTime();   // 2025-08-28 08:00（本地）
+      var SEM_DAYS  = 105;                                        // 8/28 → 12/11 共 105 天
+      var HOL_A = 34, HOL_B = 41;                                 // 10/1–10/8（相对 8/28 的日序号）
+      var WD_W = [1.15, 1.15, 1.20, 1.10, 1.00, 0.60, 0.45];      // 周一~周日权重
+      // 由「申报样板」周活跃序列构造整学期逐日明细：供月历着色与区间圈选，
+      // 每周落点按工作日加权（周末少）、国庆假期留空缺，贴近真实活跃日历。
+      function buildDesignCal() {
+        var dayMap = {}, seq = 0;
+        MOCK_WEEK.forEach(function (cnt, w) {
+          for (var k = 0; k < cnt; k++) {
+            var uid = 'ds' + (seq++), avail = [];
+            for (var dd = 0; dd < 7; dd++) {
+              var d = w * 7 + dd;
+              if (d <= SEM_DAYS && !(d >= HOL_A && d <= HOL_B)) avail.push({ d: d, wt: WD_W[(3 + d) % 7] });
+            }
+            if (!avail.length) continue;
+            var tot = 0; avail.forEach(function (x) { tot += x.wt; });
+            var r = Math.random() * tot, pick = avail[avail.length - 1];
+            for (var i = 0; i < avail.length; i++) { r -= avail[i].wt; if (r <= 0) { pick = avail[i]; break; } }
+            (dayMap[pick.d] = dayMap[pick.d] || {})[uid] = 1;
+            if (Math.random() < 0.4 && avail.length > 1) {
+              var o = avail[Math.floor(Math.random() * avail.length)];
+              if (o.d !== pick.d) (dayMap[o.d] = dayMap[o.d] || {})[uid] = 1;
+            }
+          }
+        });
+        calData.minTs = SEM_START;
+        calData.dayMap = dayMap;
+        calData.maxD = SEM_DAYS;
+        calData.weekWeeks = MOCK_WEEK.map(function (_, i) { return i; });
+        calData.weekCounts = MOCK_WEEK.slice();
+        calData.viewMonth = 0;
+        calData.selA = -1; calData.selB = -1; calData.moved = false;
+      }
       function renderMockEventStats(cEl, tEl, mEl, wEl, kpiRow) {
         const CH = ['第0章', '第1章', '第2章', '第3章', '第4章', '第5章', '第6章', '第7章'];
         const TY = ['名词解释', '选择', '简答', '案例'];
@@ -4335,8 +4392,7 @@
           { label: '首页', n: 30 }, { label: '知识图谱', n: 26 }, { label: '习题训练', n: 18 },
           { label: '案例库', n: 16 }, { label: '智能答疑', n: 10 }
         ];
-        const weekItems = MOCK_WEEK.map(function (c, i) { return { label: 'W' + (i + 1), pct: c, val: c + ' 人' }; });
-        const note = '设计示意数据（与课程申报材料一致）· 学生真实数据接入后自动切换为实时统计';
+        const note = '申报样板数据（与课程申报材料四块图一致）· 取消勾选上方「申报样板数据」可切回云端实时统计';
         if (kpiRow) kpiRow.innerHTML =
           '<div class="admin-kpi"><div class="k">覆盖学生</div><div class="v">89</div><div class="sub">有学习行为记录</div></div>'
           + '<div class="admin-kpi"><div class="k">AI 问答</div><div class="v">368</div><div class="sub">累计提问次数</div></div>'
@@ -4356,13 +4412,10 @@
         if (cEl) cEl.innerHTML = '<div class="ev-note">' + esc(note) + '</div>' + hBarChart(chapterItems);
         if (tEl) tEl.innerHTML = vBarChart(qtypeItems);
         if (mEl) mEl.innerHTML = modItems.length ? donutChart(modItems) : '<div class="um-empty">暂无模块使用记录</div>';
-        if (wEl) wEl.innerHTML = lineChart(weekItems);
-        const rangeEl = document.getElementById('ev-range');
-        if (rangeEl) rangeEl.innerHTML = '按周 · W1–W16 · 设计示意数据';
-        const calEl = document.getElementById('ev-calendar');
-        if (calEl) calEl.innerHTML = '<div class="um-empty" style="padding:18px 0;">设计示意数据无逐日明细，日历留空；接入真实数据后自动生成。</div>';
-        // 折线图按周展示，无需日历联动；清空 calData 避免旧状态串扰
-        calData.minTs = 0; calData.dayMap = {}; calData.weekWeeks = []; calData.weekCounts = []; calData.selA = -1; calData.selB = -1;
+        // 每周活跃：整学期 W1–W16（前半 W1–W8 与申报第一张图逐点一致）+ 整学期月历（8/28–12/11）
+        buildDesignCal();
+        renderWeekPanel();
+        bindCalendar();
       }
 
       // 渲染「每周活跃人数」折线：无选择时按周（W1–W8）；选中日历区间后按天
@@ -4575,8 +4628,8 @@
           return '<circle cx="' + pts[idx][0].toFixed(1) + '" cy="' + pts[idx][1].toFixed(1) + '" r="' + r + '" fill="#2563eb" stroke="#fff" stroke-width="1.4"></circle>'
             + (showVal ? '<text x="' + pts[idx][0].toFixed(1) + '" y="' + (pts[idx][1] - 9).toFixed(1) + '" text-anchor="middle" font-size="10.5" font-weight="700" fill="#2563eb">' + i.pct + '</text>' : '');
         }).join('');
-        // 标签稀疏：≤12 个点全标；更多时约每 n/10 个标一次（末点必标）
-        const lblStep = n <= 12 ? 1 : Math.ceil(n / 10);
+        // 标签稀疏：≤16 个点（整学期 16 教学周）逐周全标；更多时约每 n/10 个标一次（末点必标）
+        const lblStep = n <= 16 ? 1 : Math.ceil(n / 10);
         const xlbl = items.map(function (i, idx) {
           if (idx % lblStep !== 0 && idx !== n - 1) return '';
           return '<text x="' + px(idx).toFixed(1) + '" y="' + (H - 8) + '" text-anchor="middle" font-size="10.5" fill="#8892a6">' + esc(i.label) + '</text>';
@@ -4885,7 +4938,15 @@
       var umFrSel = document.getElementById('um-filter-role');
       if (umFrSel) umFrSel.addEventListener('change', function () { renderUserList(lastUserRows); });
 
-      // ===== 看板开关：仅统计学生 / 显示申报基准参考 =====
+      // ===== 看板开关：申报样板数据（默认） / 仅统计学生 =====
+      var cbDesign = document.getElementById('ev-design-data');
+      if (cbDesign) {
+        cbDesign.checked = adminUseDesign();
+        cbDesign.addEventListener('change', function () {
+          try { localStorage.setItem('ibank_stat_design', cbDesign.checked ? '1' : '0'); } catch (e) {}
+          loadEventStats();
+        });
+      }
       var cbOnly = document.getElementById('ev-only-student');
       if (cbOnly) {
         cbOnly.checked = onlyStudent;
