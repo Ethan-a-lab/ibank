@@ -416,6 +416,11 @@
     .case-filter .cf-btn:hover { border-color: rgba(99,102,241,0.5); color: var(--text); }
     .case-filter .cf-btn.active { background: linear-gradient(135deg,#4f46e5,#7c3aed); color: #fff; border-color: transparent; }
     .ex-toolbar { display: flex; flex-wrap: wrap; gap: 14px; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+    .ex-filters { flex: 1 1 100%; min-width: 0; display: flex; flex-direction: column; gap: 10px; }
+    .ex-fgroup { display: flex; align-items: center; gap: 8px; min-width: 0; flex-wrap: wrap; }
+    .ex-flbl { flex: 0 0 auto; font-size: 12.5px; color: var(--dim); }
+    #ex-chips-ch, #ex-chips-type { display: flex; flex-wrap: wrap; gap: 8px; min-width: 0; flex: 1 1 auto; }
+    .ex-timer-wrap { flex: 1 1 100%; min-width: 0; display: flex; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: flex-end; }
     .ex-filters { display: flex; flex-wrap: wrap; gap: 16px; flex: 1 1 320px; }
     .ex-fgroup { display: flex; flex-wrap: wrap; gap: 7px; align-items: center; }
     .ex-fgroup .ex-flbl { font-size: 12px; color: var(--dim); margin-right: 2px; }
@@ -501,6 +506,30 @@
     .quiz-opt.disabled { pointer-events: none; }
     .quiz-score { margin-top: 14px; font-size: 14px; }
     .quiz-actions { margin-top: 14px; display: flex; gap: 10px; }
+    /* —— 主观题作答框与要点对照 —— */
+    .sub-ans-wrap { margin: 2px 0 12px; }
+    .sub-ans-wrap textarea { width: 100%; min-height: 116px; resize: vertical; padding: 12px 14px; border-radius: 11px; border: 1px solid var(--panel-border); background: rgba(255,255,255,0.03); color: var(--text); font-size: 14px; line-height: 1.75; font-family: inherit; outline: none; box-sizing: border-box; }
+    .sub-ans-wrap textarea:focus { border-color: var(--accent); }
+    .sub-ans-wrap textarea::placeholder { color: var(--dim); }
+    .sub-tip { font-size: 12px; color: var(--dim); margin-top: 6px; line-height: 1.6; }
+    .sub-tip b { color: var(--accent-text); font-weight: 600; }
+    .pts-hit { margin-top: 12px; border: 1px solid var(--panel-border); border-radius: 12px; padding: 12px 14px; background: rgba(99,102,241,0.05); }
+    .pts-hit .hd { font-size: 13px; color: var(--text); margin-bottom: 9px; }
+    .pts-list { display: flex; flex-wrap: wrap; gap: 7px; }
+    .pts-list .pt { font-size: 12.5px; padding: 4px 10px; border-radius: 999px; border: 1px solid var(--panel-border); color: var(--dim); white-space: nowrap; }
+    .pts-list .pt.hit { color: var(--down); border-color: rgba(4,120,87,0.5); background: rgba(4,120,87,0.1); font-weight: 600; }
+    .self-assess { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-top: 13px; font-size: 13px; color: var(--muted); }
+    /* —— 多选题 —— */
+    .quiz-opt.multi::before { content: "□"; display: inline-block; margin-right: 9px; color: var(--dim); font-size: 15px; }
+    .quiz-opt.multi.on { border-color: var(--accent); background: rgba(99,102,241,0.1); }
+    .quiz-opt.multi.on::before { content: "☑"; color: var(--accent-text); }
+    .quiz-opt.multi.correct::before { color: var(--down); }
+    .quiz-opt.multi.wrong::before { color: var(--up); }
+    /* —— 答题卡：看过答案的紫点角标（叠加，不覆盖答对/答错主色） —— */
+    .qn-btn { position: relative; }
+    .qn-btn.seen-dot::after { content: ""; position: absolute; top: 3px; right: 3px; width: 6px; height: 6px; border-radius: 50%; background: #6366f1; box-shadow: 0 0 0 1.5px var(--panel-solid); }
+    .qn-legend .lg-dot { position: relative; background: var(--panel-solid); }
+    .qn-legend .lg-dot::after { content: ""; position: absolute; top: 1px; right: 1px; width: 6px; height: 6px; border-radius: 50%; background: #6366f1; }
 
     /* ===== 错题定位 ===== */
     .wrong-item { border: 1px solid var(--panel-border); border-radius: 13px; padding: 14px 16px; margin-bottom: 12px; background: rgba(255,255,255,0.02); }
@@ -526,6 +555,124 @@
     .ipo-stage h4 { font-size: 17px; margin-bottom: 10px; }
     .ipo-stage p { font-size: 14px; color: var(--muted); line-height: 1.8; }
     .ipo-actions { display: flex; gap: 10px; margin-top: 16px; }
+    /* ===== 科创板 IPO 定价配售仿真 ===== */
+    .ipo-wrap { display: grid; grid-template-columns: 222px 1fr 264px; gap: 18px; align-items: start; }
+    .ipo-nav { display: flex; flex-direction: column; gap: 8px; }
+    .ipo-nav .st { display: flex; align-items: center; gap: 9px; padding: 10px 12px; border-radius: 11px; background: rgba(255,255,255,0.04); border: 1px solid var(--panel-border); font-size: 13px; color: var(--muted); cursor: pointer; transition: .2s; }
+    .ipo-nav .st .no { width: 22px; height: 22px; flex: none; border-radius: 50%; display: grid; place-items: center; font-size: 12px; font-weight: 700; background: rgba(255,255,255,0.07); color: var(--muted); }
+    .ipo-nav .st.active { color: #fff; border-color: transparent; background: linear-gradient(135deg, #4f46e5, #7c3aed); }
+    .ipo-nav .st.active .no { background: rgba(255,255,255,0.25); color: #fff; }
+    .ipo-nav .st.done { color: var(--accent2); border-color: rgba(34,211,238,0.4); }
+    .ipo-nav .st.done .no { background: rgba(34,211,238,0.18); color: var(--accent2); }
+    .ipo-nav .st .sc { margin-left: auto; font-size: 11px; font-weight: 700; opacity: .9; }
+    .ipo-nav .st .sc.ok { color: #22c55e; } .ipo-nav .st .sc.bad { color: #ef4444; }
+    .ipo-main { min-width: 0; }
+    .ipo-co { display: flex; flex-wrap: wrap; gap: 8px 18px; padding: 12px 14px; border-radius: 12px; background: rgba(79,70,229,0.08); border: 1px solid rgba(99,102,241,0.3); margin-bottom: 14px; font-size: 12.5px; }
+    .ipo-co .ci { display: flex; flex-direction: column; gap: 2px; }
+    .ipo-co .ci .k { color: var(--muted); font-size: 11px; } .ipo-co .ci .v { color: var(--text); font-weight: 700; font-size: 13.5px; }
+    .ipo-stage { min-height: 220px; }
+    .ipo-stage h4 { font-size: 17px; margin-bottom: 8px; }
+    .ipo-stage .lead { font-size: 13.5px; color: var(--muted); line-height: 1.85; margin-bottom: 12px; }
+    .ipo-data { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px,1fr)); gap: 10px; margin: 12px 0; }
+    .ipo-data .dx { padding: 10px 12px; border-radius: 10px; background: rgba(255,255,255,0.04); border: 1px solid var(--panel-border); }
+    .ipo-data .dx .k { font-size: 11px; color: var(--muted); } .ipo-data .dx .v { font-size: 15px; font-weight: 700; color: var(--text); margin-top: 3px; }
+    .ipo-hist { margin: 12px 0; }
+    .ipo-hist .bar { display: flex; align-items: flex-end; gap: 3px; height: 84px; padding: 6px; border-radius: 10px; background: rgba(255,255,255,0.04); border: 1px solid var(--panel-border); overflow: hidden; }
+    .ipo-hist .bar i { flex: 1; background: linear-gradient(180deg,#818cf8,#4f46e5); border-radius: 3px 3px 0 0; min-height: 2px; }
+    .ipo-dec { margin: 12px 0; display: flex; flex-direction: column; gap: 10px; }
+    .ipo-dec .row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+    .ipo-dec label { font-size: 13px; color: var(--text); font-weight: 600; }
+    .ipo-dec input[type=number] { width: 130px; height: 38px; padding: 0 12px; border-radius: 9px; background: rgba(255,255,255,0.06); border: 1px solid var(--panel-border); color: var(--text); font-size: 14px; }
+    .ipo-dec .opt { display: flex; gap: 8px; flex-wrap: wrap; }
+    .ipo-dec .opt button { padding: 9px 14px; border-radius: 9px; border: 1px solid var(--panel-border); background: rgba(255,255,255,0.05); color: var(--text); font-size: 13px; cursor: pointer; font-weight: 600; }
+    .ipo-dec .opt button.on { background: linear-gradient(135deg,#4f46e5,#7c3aed); color: #fff; border-color: transparent; }
+    .ipo-fb { margin-top: 12px; padding: 12px 14px; border-radius: 11px; font-size: 13.5px; line-height: 1.8; display: none; }
+    .ipo-fb.show { display: block; }
+    .ipo-fb.ok { background: rgba(34,197,94,0.12); border: 1px solid rgba(34,197,94,0.4); color: #bbf7d0; }
+    .ipo-fb.bad { background: rgba(239,68,68,0.12); border: 1px solid rgba(239,68,68,0.4); color: #fecaca; }
+    .ipo-fb .tt { font-weight: 700; margin-bottom: 4px; display: block; }
+    .ipo-fb .ans { color: var(--text); margin-top: 6px; padding-top: 6px; border-top: 1px dashed var(--panel-border); }
+    .ipo-foot { display: flex; gap: 10px; margin-top: 16px; }
+    .sim-btn.warn { background: rgba(245,158,11,0.16); color: #fbbf24; border: 1px solid rgba(245,158,11,0.4); }
+    body:not(.dark) .sim-btn.warn { color: #b45309; border-color: rgba(180,83,9,0.45); background: rgba(245,158,11,0.12); }
+    .ipo-side { display: flex; flex-direction: column; gap: 14px; }
+    .ipo-score { padding: 14px; border-radius: 12px; background: rgba(255,255,255,0.04); border: 1px solid var(--panel-border); }
+    .ipo-score .big { font-size: 30px; font-weight: 800; color: var(--accent2); }
+    .ipo-score .bar2 { height: 8px; border-radius: 6px; background: rgba(255,255,255,0.08); overflow: hidden; margin: 8px 0; }
+    .ipo-score .bar2 i { display: block; height: 100%; background: linear-gradient(90deg,#22c55e,#4f46e5); }
+    .ipo-score .sm { font-size: 11.5px; color: var(--muted); }
+    .ipo-log { padding: 12px 14px; border-radius: 12px; background: rgba(255,255,255,0.04); border: 1px solid var(--panel-border); font-size: 12.5px; max-height: 320px; overflow: auto; }
+    .ipo-log .lg { display: flex; gap: 8px; padding: 6px 0; border-bottom: 1px dashed var(--panel-border); }
+    .ipo-log .lg:last-child { border-bottom: none; }
+    .ipo-log .lg .dot { width: 8px; height: 8px; border-radius: 50%; margin-top: 5px; flex: none; }
+    .ipo-log .lg .dot.ok { background: #22c55e; } .ipo-log .lg .dot.bad { background: #ef4444; } .ipo-log .lg .dot.info { background: #64748b; }
+    .ipo-log .lg .tx { color: var(--muted); line-height: 1.6; } .ipo-log .lg .tx b { color: var(--text); }
+    .ipo-report { margin-top: 14px; padding: 14px; border-radius: 12px; background: rgba(34,211,238,0.07); border: 1px solid rgba(34,211,238,0.3); }
+    .ipo-report h5 { font-size: 15px; margin-bottom: 10px; color: var(--accent2); }
+    .ipo-report table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+    .ipo-report td { padding: 6px 8px; border-bottom: 1px solid var(--panel-border); color: var(--muted); }
+    .ipo-report td.v { color: var(--text); font-weight: 700; text-align: right; }
+    /* --- v32：分档判分 / 逐项解析 / 定价体检 / 明细表 --- */
+    .ipo-tbl-wrap { overflow-x: auto; }
+    .ipo-tbl { width: 100%; border-collapse: collapse; font-size: 12.5px; margin: 10px 0; }
+    .ipo-tbl th { text-align: left; padding: 7px 9px; color: var(--muted); font-weight: 600; border-bottom: 1px solid var(--panel-border); }
+    .ipo-tbl td { padding: 7px 9px; border-bottom: 1px solid var(--panel-border); color: var(--text); }
+    .ipo-tbl td.hi { color: var(--accent2); font-weight: 700; }
+    .ipo-tr-head { font-size: 12px; color: var(--muted); line-height: 1.75; margin: 8px 0; }
+    .ipo-tr-head b { color: var(--text); }
+    .ipo-dec .opt button.correct { background: rgba(34,197,94,0.20); border-color: rgba(34,197,94,0.6); color: #bbf7d0; }
+    .ipo-dec .opt button.wrong { background: rgba(239,68,68,0.18); border-color: rgba(239,68,68,0.55); color: #fecaca; }
+    .ipo-dec .opt button:disabled { cursor: default; }
+    body:not(.dark) .ipo-dec .opt button.correct { color: #15803d; }
+    body:not(.dark) .ipo-dec .opt button.wrong { color: #b91c1c; }
+    .opt-why { margin: 8px 0 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 6px; }
+    .opt-why li { font-size: 12.5px; line-height: 1.75; color: var(--muted); padding-left: 18px; position: relative; }
+    .opt-why li::before { position: absolute; left: 0; top: 0; font-weight: 700; }
+    .opt-why li.y::before { content: "✓"; color: #22c55e; }
+    .opt-why li.n::before { content: "✗"; color: #ef4444; }
+    /* 响应式：窄屏三栏堆叠为单栏，避免固定列（222+264+间距）把页面撑出横向滚动 */
+    @media (max-width: 900px) {
+      .ipo-wrap { grid-template-columns: 1fr; gap: 14px; }
+      .ipo-nav { flex-direction: row; flex-wrap: wrap; }
+      .ipo-nav .st { flex: 1 1 auto; }
+      #p-ipo { overflow-x: hidden; }
+    }
+    .opt-why li b { color: var(--text); }
+    .ipo-health { margin: 10px 0; padding: 12px 14px; border-radius: 11px; background: rgba(34,211,238,0.07); border: 1px solid rgba(34,211,238,0.28); }
+    .ipo-health .hd { display: flex; align-items: center; gap: 8px; font-size: 12.5px; font-weight: 700; color: var(--accent2); margin-bottom: 9px; }
+    .ipo-health .chip { margin-left: auto; font-size: 11px; padding: 2px 9px; border-radius: 20px; font-weight: 700; }
+    .ipo-health .chip.g { background: rgba(34,197,94,0.20); color: #22c55e; }
+    .ipo-health .chip.w { background: rgba(245,158,11,0.20); color: #f59e0b; }
+    .ipo-health .chip.r { background: rgba(239,68,68,0.20); color: #ef4444; }
+    body:not(.dark) .ipo-health .chip.g { color: #15803d; }
+    body:not(.dark) .ipo-health .chip.w { color: #b45309; }
+    body:not(.dark) .ipo-health .chip.r { color: #b91c1c; }
+    .ipo-health .hg { display: grid; grid-template-columns: repeat(auto-fit, minmax(118px,1fr)); gap: 9px; }
+    .ipo-health .hg .hx .k { font-size: 11px; color: var(--muted); }
+    .ipo-health .hg .hx .v { font-size: 14px; font-weight: 700; color: var(--text); margin-top: 2px; }
+    .ipo-health .hint { font-size: 12px; color: var(--muted); line-height: 1.75; margin-top: 9px; }
+    body:not(.dark) .ipo-fb.ok { color: #15803d; }
+    body:not(.dark) .ipo-fb.bad { color: #b91c1c; }
+    body:not(.dark) .ipo-nav .st .sc.ok { color: #15803d; }
+    body:not(.dark) .ipo-nav .st .sc.bad { color: #b91c1c; }
+    /* 当前步高亮为紫色渐变底，其上分数徽标须用浅色（否则深绿/深红文字对比度不足） */
+    .ipo-nav .st.active .sc.ok { color: #dcfce7; }
+    .ipo-nav .st.active .sc.bad { color: #fee2e2; }
+    body:not(.dark) .ipo-nav .st.active .sc.ok { color: #dcfce7; }
+    body:not(.dark) .ipo-nav .st.active .sc.bad { color: #fee2e2; }
+    .rp-head { display: flex; align-items: center; gap: 16px; margin-bottom: 12px; flex-wrap: wrap; }
+    .rp-head .rp-big { font-size: 34px; font-weight: 800; color: var(--accent2); line-height: 1; }
+    .rp-head .rp-big span { font-size: 13px; color: var(--muted); font-weight: 600; }
+    .rp-head .rp-txt { font-size: 12.5px; color: var(--muted); line-height: 1.75; }
+    .rp-head .rp-txt b { color: var(--text); }
+    .ipo-report h6 { font-size: 13px; margin: 15px 0 4px; color: var(--text); }
+    .rp-sug { margin: 6px 0 0; padding: 0; list-style: none; }
+    .rp-sug li { font-size: 12.5px; color: var(--muted); line-height: 1.8; padding-left: 15px; position: relative; }
+    .rp-sug li::before { content: "·"; position: absolute; left: 3px; color: var(--accent2); font-weight: 700; }
+    .rp-sug li b { color: var(--text); }
+    .tries { font-size: 11.5px; color: var(--muted); }
+    .ipo-stage h4 span { font-weight: 600; }
+    @media (max-width: 980px) { .ipo-wrap { grid-template-columns: 1fr; } .ipo-nav { flex-direction: row; flex-wrap: wrap; } .ipo-nav .st { flex: 1 1 140px; } }
 
     /* ===== 估值实验 ===== */
     .val-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
@@ -996,7 +1143,7 @@
           <div class="nav-dropdown">
             <div class="dd-title">技能训练中心</div>
             <button class="tab-btn" data-page="p-exercise"><span class="dd-name">实务习题训练</span><span class="dd-desc">即时判分，错题自动归集</span></button>
-            <button class="tab-btn" data-page="p-ipo"><span class="dd-name">IPO 发行流程仿真</span><span class="dd-desc">从改制到上市七步推演</span></button>
+            <button class="tab-btn" data-page="p-ipo"><span class="dd-name">IPO 定价配售仿真</span><span class="dd-desc">科创板询价、定价与配售全流程</span></button>
             <button class="tab-btn" data-page="p-valuation"><span class="dd-name">企业估值实验</span><span class="dd-desc">市盈率法与现金流折现联动</span></button>
           </div>
         </div>
@@ -1072,7 +1219,7 @@
           <div class="home-card" data-page="p-exercise"><div class="ico">✍️</div><h4>习题训练</h4><p>实务导向习题，即时判分与解析反馈</p><span class="go">进入 →</span></div>
           <div class="home-card" data-page="p-wrong"><div class="ico">🎯</div><h4>错题定位</h4><p>错题自动归因，薄弱知识点靶向补学</p><span class="go">进入 →</span></div>
           <div class="home-card" data-page="p-profile"><div class="ico">📊</div><h4>学情画像</h4><p>章节掌握度可视化，学习进度一目了然</p><span class="go">进入 →</span></div>
-          <div class="home-card" data-page="p-ipo"><div class="ico">🏭</div><h4>IPO 仿真</h4><p>从改制辅导到发行上市，全流程上市推演</p><span class="go">进入 →</span></div>
+          <div class="home-card" data-page="p-ipo"><div class="ico">🏭</div><h4>IPO 定价配售</h4><p>科创板询价、定价与配售全流程实战</p><span class="go">进入 →</span></div>
           <div class="home-card" data-page="p-valuation"><div class="ico">🧮</div><h4>估值实验</h4><p>PE/PB/DCF 多方法参数可调估值测算</p><span class="go">进入 →</span></div>
           <div class="home-card" data-page="p-case"><div class="ico">📚</div><h4>案例库</h4><p>真实投行实务案例，理论对照业务实战</p><span class="go">进入 →</span></div>
           <div class="home-card" data-page="p-macro"><div class="ico">🌐</div><h4>宏观市场</h4><p>美元 · 黄金 · 股票 · 美债联动解读</p><span class="go">进入 →</span></div>
@@ -1137,7 +1284,7 @@
     <section class="page" id="p-exercise">
       <div class="panel">
         <div class="section-title"><span class="bar"></span>实务习题训练</div>
-        <div class="section-sub">题库覆盖第 1–9 章共 107 题（名词解释 / 选择 / 简答 / 案例），题量按各章学时加权。选择答案后即时判断，答错的题自动进入「错题定位」；上方答题卡与题目一览可随时跳转到任意一题。</div>
+        <div class="section-sub">题库覆盖第 1–9 章共 157 题（名词解释 / 选择（含多选）/ 简答 / 案例），题量按各章学时加权。选择题与多选题提交后即时判分；名词解释、简答、案例提供作答框，提交后可对照参考要点、按关键词覆盖情况自行评定掌握程度。答错或自评未掌握的题自动进入「错题定位」；上方答题卡（含「看过答案」紫点标记）与题目一览可随时跳转到任意一题。</div>
         <div class="ex-toolbar">
           <div class="ex-filters">
             <div class="ex-fgroup"><span class="ex-flbl">章节</span><div id="ex-chips-ch"></div></div>
@@ -1170,19 +1317,26 @@
       </div>
     </section>
 
-    <!-- ⑥ IPO 发行流程仿真 -->
+    <!-- ⑥ 科创板 IPO 定价配售仿真 -->
     <section class="page" id="p-ipo">
       <div class="panel">
-        <div class="section-title"><span class="bar"></span>IPO 发行流程仿真</div>
-        <div class="section-sub">按顺序完成从改制到上市的全流程任务。</div>
-        <div class="steps" id="ipo-steps"></div>
-        <div class="ipo-stage">
-          <h4 id="ipo-title"></h4>
-          <p id="ipo-desc"></p>
-        </div>
-        <div class="ipo-actions">
-          <button class="sim-btn ghost" id="ipo-prev">上一步</button>
-          <button class="sim-btn primary" id="ipo-next">下一步</button>
+        <div class="section-title"><span class="bar"></span>科创板 IPO 定价配售仿真</div>
+        <div class="section-sub">你担任主承销商，依据科创板询价配售规则完成定价与配售全流程，每步自动判分并计入后台。</div>
+        <div class="ipo-wrap">
+          <aside class="ipo-nav" id="ipo-steps"></aside>
+          <div class="ipo-main">
+            <div class="ipo-co" id="ipo-co"></div>
+            <div class="ipo-stage" id="ipo-stage"></div>
+            <div class="ipo-foot">
+              <button class="sim-btn ghost" id="ipo-prev">上一步</button>
+              <button class="sim-btn primary" id="ipo-next">下一步</button>
+              <button class="sim-btn warn" id="ipo-restart">重置仿真</button>
+            </div>
+          </div>
+          <aside class="ipo-side">
+            <div class="ipo-score" id="ipo-score"></div>
+            <div class="ipo-log" id="ipo-log"></div>
+          </aside>
         </div>
       </div>
     </section>
@@ -1801,7 +1955,7 @@
           <div class="admin-cap"><div class="ico">✍️</div><h5>实务习题训练</h5><p>配套实务习题，系统留存作答记录。</p></div>
           <div class="admin-cap"><div class="ico">🎯</div><h5>错题定位分析</h5><p>识别薄弱知识点，推送讲解与情景练习。</p></div>
           <div class="admin-cap"><div class="ico">📊</div><h5>个人学情画像</h5><p>汇聚多维数据，生成章节掌握画像。</p></div>
-          <div class="admin-cap"><div class="ico">🏭</div><h5>IPO 发行流程仿真</h5><p>模拟改制到发行全流程项目任务。</p></div>
+          <div class="admin-cap"><div class="ico">🏭</div><h5>IPO 定价配售仿真</h5><p>科创板询价定价与网下配售全流程。</p></div>
           <div class="admin-cap"><div class="ico">🧮</div><h5>企业估值实操实验</h5><p>调整参数观察估值变动并归因分析。</p></div>
         </div>
       </div>
@@ -1826,7 +1980,7 @@
         <button class="f-link" data-goto="p-graph">知识图谱</button>
         <button class="f-link" data-goto="p-qa">智能答疑</button>
         <button class="f-link" data-goto="p-exercise">习题训练</button>
-        <button class="f-link" data-goto="p-ipo">IPO 仿真</button>
+        <button class="f-link" data-goto="p-ipo">IPO 定价配售</button>
       </div>
       <div>
         <h5>课程与技术</h5>
@@ -2323,11 +2477,12 @@
     (function () {
       const TYPES = ['名词解释', '选择', '简答', '案例'];
       // 题库：覆盖第1–9章；题量按教学大纲「各章学时」加权（第3、4章各8学时，题量最多）
-      //   客观题：{ q, opts:[4项], a:正确项下标, kp, chapter, type:'选择' }
-      //   主观题：{ q, opts:null, a:-1, kp, chapter, type:'名词解释'|'简答'|'案例', ans:'参考答案' }
+      //   客观题（单选）：{ q, opts:[4-5项], a:正确项下标, kp, chapter, type:'选择' }
+      //   客观题（多选）：{ q, opts:[4-5项], a:[正确项下标...], multi:true, kp, chapter, type:'选择' }
+      //   主观题：{ q, opts:null, a:-1, kp, chapter, type:'名词解释'|'简答'|'案例', pts:[要点关键词...], ans:'参考答案' }
       const QUIZ = [
-        /* ================= 第1章 投资银行概述 ================= */
-        { q: '下列关于投资银行与商业银行区别的说法，正确的是？', opts: ['投资银行主要经营存贷款业务', '商业银行主要经营证券承销业务', '投资银行主要服务于资本市场，商业银行主要服务于货币市场', '两者的监管机构完全相同'], a: 2, kp: '投行与商行区别', chapter: '第1章', type: '选择' },
+        /* ================= 第1章 投资银行概述（14题） ================= */
+        { q: '下列关于投资银行与商业银行区别的说法，正确的是？', opts: ['投资银行主要经营存贷款业务', '商业银行主要经营证券承销业务', '投资银行主要服务于资本市场，商业银行主要服务于货币市场', '两者的监管机构完全相同', '两者都不受金融监管'], a: 2, kp: '投行与商行区别', chapter: '第1章', type: '选择' },
         { q: '我国投资银行最主要的存在形式是？', opts: ['独立的私人投资银行', '证券公司', '商业银行内设投行部', '财务公司'], a: 1, kp: '投行存在形式', chapter: '第1章', type: '选择' },
         { q: '投资银行最传统、最本源的核心业务是？', opts: ['证券承销', '资产管理', '证券投资咨询', '做市交易'], a: 0, kp: '投行主要业务', chapter: '第1章', type: '选择' },
         { q: '下列属于投资银行「卖方业务」（为发行人服务）的是？', opts: ['证券承销', '证券经纪', '资产管理', '投资顾问'], a: 0, kp: '投行主要业务', chapter: '第1章', type: '选择' },
@@ -2336,26 +2491,35 @@
         { q: '我国证券公司的日常监管机构是？', opts: ['中国人民银行', '中国证监会', '国家金融监督管理总局', '财政部'], a: 1, kp: '投行监管', chapter: '第1章', type: '选择' },
         { q: '「一行一局一会」中的「一局」指的是？', opts: ['国家外汇管理局', '国家金融监督管理总局', '国家税务总局', '国务院国资委'], a: 1, kp: '投行监管', chapter: '第1章', type: '选择' },
         { q: '投资银行在资本市场中主要发挥的核心中介功能是？', opts: ['为资金盈余方与需求方提供期限转换与信用转换', '创造货币供给', '承担最后贷款人职责', '办理国际结算'], a: 0, kp: '投行经济功能', chapter: '第1章', type: '选择' },
-        { q: '投资银行', opts: null, a: -1, kp: '投行概念', chapter: '第1章', type: '名词解释', ans: '投资银行是主要从事证券发行与承销、证券交易经纪、企业并购重组、资产管理、财务顾问等资本市场业务的非银行金融机构，是资本市场上连接资金供求双方的核心中介，与商业银行同属金融中介但业务领域不同。' },
-        { q: '证券承销', opts: null, a: -1, kp: '证券承销', chapter: '第1章', type: '名词解释', ans: '证券承销是指投资银行接受证券发行人委托，依照协议代为向社会投资者销售其发行证券的行为。按风险承担方式可分为代销（不承担发行风险）与包销（承担未售出部分风险）。' },
-        { q: '简述投资银行与商业银行的主要区别。', opts: null, a: -1, kp: '投行与商行区别', chapter: '第1章', type: '简答', ans: '①业务领域：投行主营资本市场业务（承销、经纪、并购、资管），商业银行主营货币市场业务（存贷款、结算）；②资金来源：投行不得吸收公众存款，主要依靠自有资本与短期融资，商业银行以存款为主要负债；③服务功能：投行服务直接融资，商业银行服务间接融资；④监管要求：资本充足率、流动性、风险准备等监管指标不同，投行更强调信息隔离与合规；⑤风险特征：投行市场风险与操作风险突出，商业银行信用风险与流动性风险突出。' },
-        { q: '简述投资银行的主要组织形式及其优缺点。', opts: null, a: -1, kp: '组织形式', chapter: '第1章', type: '简答', ans: '①合伙制：普通合伙人承担无限责任，出资人有限、规模受制约，但激励直接、决策灵活、声誉约束强；②有限责任公司制：股东以出资额为限承担有限责任，但存在公司税与股东税的双重征税问题；③股份有限公司制：可通过资本市场融资、规模易于扩张、治理相对规范，但决策链条长、易出现内部人控制；④金融控股集团：业务协同、范围经济显著，但存在风险传染、利益冲突与监管空白等问题，需以信息隔离墙与并表监管加以约束。' },
-        { q: '某券商在为某上市公司提供并购财务顾问服务的同时，其自营账户持有并交易该公司股票。这属于什么问题？应采取哪些管理措施？', opts: null, a: -1, kp: '利益冲突', chapter: '第1章', type: '案例', ans: '属于典型的利益冲突与内幕信息风险。管理措施：①建立并严格执行信息隔离墙（Chinese Wall），将投行部门与研究、自营部门在物理、人员、信息系统上隔离；②建立限制清单/观察清单，对涉密项目相关人员实施交易限制；③严禁利用内幕信息从事交易或建议他人交易；④合规部门事前审查与事后监控，异常交易实时报告；⑤按规定进行信息披露与利益冲突声明；⑥对违规人员追究内部纪律与法律责任。' },
+        { q: '下列关于投资银行与商业银行资金来源与风险特征的比较，正确的有？', opts: ['投资银行不得吸收公众存款', '商业银行以存款为主要负债来源', '投资银行市场风险与操作风险较为突出', '商业银行信用风险与流动性风险较为突出', '投资银行以吸收存款为主要资金来源'], a: [0, 1, 2, 3], multi: true, kp: '投行与商行区别', chapter: '第1章', type: '选择' },
+        { q: '投资银行', opts: null, a: -1, kp: '投行概念', chapter: '第1章', type: '名词解释', pts: ['资本市场', '非银行金融机构', '证券发行与承销', '资金供求', '中介'], ans: '投资银行是主要从事证券发行与承销、证券交易经纪、企业并购重组、资产管理、财务顾问等资本市场业务的非银行金融机构，是资本市场上连接资金供求双方的核心中介，与商业银行同属金融中介但业务领域不同。' },
+        { q: '证券承销', opts: null, a: -1, kp: '证券承销', chapter: '第1章', type: '名词解释', pts: ['代销', '包销', '发行风险', '代为销售'], ans: '证券承销是指投资银行接受证券发行人委托，依照协议代为向社会投资者销售其发行证券的行为。按风险承担方式可分为代销（不承担发行风险）与包销（承担未售出部分风险）。' },
+        { q: '简述投资银行与商业银行的主要区别。', opts: null, a: -1, kp: '投行与商行区别', chapter: '第1章', type: '简答', pts: ['业务领域', '资金来源', '直接融资', '间接融资', '监管', '风险特征'], ans: '①业务领域：投行主营资本市场业务（承销、经纪、并购、资管），商业银行主营货币市场业务（存贷款、结算）；②资金来源：投行不得吸收公众存款，主要依靠自有资本与短期融资，商业银行以存款为主要负债；③服务功能：投行服务直接融资，商业银行服务间接融资；④监管要求：资本充足率、流动性、风险准备等监管指标不同，投行更强调信息隔离与合规；⑤风险特征：投行市场风险与操作风险突出，商业银行信用风险与流动性风险突出。' },
+        { q: '简述投资银行的主要组织形式及其优缺点。', opts: null, a: -1, kp: '组织形式', chapter: '第1章', type: '简答', pts: ['合伙制', '有限责任', '股份', '无限责任', '双重征税', '金融控股'], ans: '①合伙制：普通合伙人承担无限责任，出资人有限、规模受制约，但激励直接、决策灵活、声誉约束强；②有限责任公司制：股东以出资额为限承担有限责任，但存在公司税与股东税的双重征税问题；③股份有限公司制：可通过资本市场融资、规模易于扩张、治理相对规范，但决策链条长、易出现内部人控制；④金融控股集团：业务协同、范围经济显著，但存在风险传染、利益冲突与监管空白等问题，需以信息隔离墙与并表监管加以约束。' },
+        { q: '某券商在为某上市公司提供并购财务顾问服务的同时，其自营账户持有并交易该公司股票。这属于什么问题？应采取哪些管理措施？', opts: null, a: -1, kp: '利益冲突', chapter: '第1章', type: '案例', pts: ['信息隔离墙', '限制清单', '内幕信息', '合规审查', '利益冲突', '信息披露'], ans: '属于典型的利益冲突与内幕信息风险。管理措施：①建立并严格执行信息隔离墙（Chinese Wall），将投行部门与研究、自营部门在物理、人员、信息系统上隔离；②建立限制清单/观察清单，对涉密项目相关人员实施交易限制；③严禁利用内幕信息从事交易或建议他人交易；④合规部门事前审查与事后监控，异常交易实时报告；⑤按规定进行信息披露与利益冲突声明；⑥对违规人员追究内部纪律与法律责任。' },
 
-        /* ================= 第2章 企业融资方案设计 ================= */
+        /* ================= 第2章 企业融资方案设计（18题） ================= */
         { q: '销售百分比法预测融资需求的核心假设是？', opts: ['资产负债项目随销售收入同比例变动', '市场利率固定不变', '企业资产规模保持不变', '净利润全部留存'], a: 0, kp: '融资需求预测', chapter: '第2章', type: '选择' },
         { q: '内部融资的主要来源是？', opts: ['留存收益与折旧', '银行贷款', '增发股票', '发行债券'], a: 0, kp: '内部融资', chapter: '第2章', type: '选择' },
         { q: '按照优序融资理论，企业融资方式的首选是？', opts: ['公开增发股票', '发行公司债券', '内部留存收益', '银行短期借款'], a: 2, kp: '优序融资理论', chapter: '第2章', type: '选择' },
         { q: '下列融资方式中，会直接稀释原有股东控制权的是？', opts: ['发行公司债券', '公开增发新股', '银行长期借款', '融资租赁'], a: 1, kp: '控制权稀释', chapter: '第2章', type: '选择' },
         { q: '债务融资相对于股权融资的核心优势是？', opts: ['没有还本付息压力', '利息可税前扣除，具有税盾效应', '不增加财务风险', '无须对外信息披露'], a: 1, kp: '融资方式比较', chapter: '第2章', type: '选择' },
         { q: '企业处于满负荷运转状态时，销售增长所需的资产增加应？', opts: ['全部由内部留存解决', '按同比例追加资产，形成外部融资需求', '无须追加资产', '全部由折旧提供'], a: 1, kp: '外部融资需求', chapter: '第2章', type: '选择' },
-        { q: '「融资需求预测」', opts: null, a: -1, kp: '融资需求预测', chapter: '第2章', type: '名词解释', ans: '融资需求预测是指企业依据未来经营计划与销售增长目标，测算所需资金总量及其结构（内部可提供量与外部缺口）的过程，常用方法包括销售百分比法、回归分析法与资金习性法，是制定融资方案的前提。' },
-        { q: '「优序融资理论」', opts: null, a: -1, kp: '优序融资理论', chapter: '第2章', type: '名词解释', ans: '优序融资理论由迈尔斯（Myers）提出，认为在信息不对称条件下，企业的融资偏好顺序为「内部留存收益 → 债务融资 → 股权融资」。因为外部股权融资向市场传递股价被高估的负面信号，且发行成本最高，故企业管理者会优先使用内部资金，其次举债，最后才增发股票。' },
-        { q: '简述企业选择融资方式时应考虑的主要因素。', opts: null, a: -1, kp: '融资方式选择', chapter: '第2章', type: '简答', ans: '①资金需求规模与期限结构匹配；②融资成本（利息、股息、发行费用、税盾效应）；③对控制权的影响（是否稀释股权、是否引入新股东）；④财务风险与偿债能力（资产负债率、利息保障倍数、现金流覆盖倍数）；⑤企业与资本市场之间的信息不对称程度及当前股价水平；⑥宏观与政策环境（利率走势、信贷政策、注册制下的再融资条件、行业景气度）。' },
-        { q: '简述权益融资与债务融资的要点差异。', opts: null, a: -1, kp: '融资方式比较', chapter: '第2章', type: '简答', ans: '权益融资（IPO、增发、配股）：无须还本付息、降低财务风险、改善资产负债结构，但会稀释原有股东控制权、股息不可税前扣除、发行成本较高且可能传递负面信号。债务融资（借款、债券）：具有税盾效应、不稀释控制权、融资成本相对较低，但须按期付息还本、增加财务风险与偿债压力、可能触发财务困境成本。实务中应权衡成本—风险—控制权三者关系，优化资本结构。' },
-        { q: '某制造企业销售净利率 8%、股利支付率 40%，预计销售收入增长 25%，资产与负债均随销售同比例变动。若仅依靠内部留存，能否满足扩张需要？请说明测算思路。', opts: null, a: -1, kp: '外部融资需求', chapter: '第2章', type: '案例', ans: '仅靠内部留存难以完全满足。留存比率=1−40%=60%。销售增长 25% 需要资产同比例增加 25%，而内部留存收益的增加幅度取决于销售净利率与留存比率（本例约为 8%×60%=4.8% 的销售增长支撑能力），小于 25% 的资产扩张需求，故存在外部融资缺口。测算思路：外部融资需求 EFN = 预计资产增加额（基期资产×销售增长率）− 预计负债自然增加额（基期负债×销售增长率）− 预计留存收益增加额（预计销售收入×销售净利率×留存比率）。缺口可通过债务融资（优先）或股权融资（其次）弥补，并需评估资产负债率上升带来的财务风险。' },
+        { q: '关于认股权证（warrant），下列说法正确的是？', opts: ['持有人有权在约定期间按约定价格认购公司新股', '持有人可获得固定利息', '认股权证属于纯债务融资工具', '行使时不会增加公司股本'], a: 0, kp: '认股权证', chapter: '第2章', type: '选择' },
+        { q: '融资租赁相较于银行借款的主要特点是？', opts: ['兼具融资与融物功能，租期长且通常不可随意解约', '租金可随时调整', '不构成企业的负债', '无须支付任何费用'], a: 0, kp: '融资租赁', chapter: '第2章', type: '选择' },
+        { q: '关于留存收益（内部股权）融资，下列说法正确的是？', opts: ['其机会成本相当于股东要求的必要报酬率', '完全没有成本', '必须支付固定股息', '会稀释控制权'], a: 0, kp: '内部融资', chapter: '第2章', type: '选择' },
+        { q: '企业提高资产负债率可能带来的主要后果是？', opts: ['财务杠杆收益增大，但财务风险与破产成本同步上升', '财务风险下降', '利息支出减少', '股东控制权被稀释'], a: 0, kp: '资本结构', chapter: '第2章', type: '选择' },
+        { q: '企业进行融资方案设计时，通常需要权衡的核心关系包括？', opts: ['融资成本与融资风险', '控制权稀释程度', '资本结构与企业价值', '融资期限与资产期限的匹配', '承销商的品牌知名度'], a: [0, 1, 2, 3], multi: true, kp: '融资方式选择', chapter: '第2章', type: '选择' },
+        { q: '「融资需求预测」', opts: null, a: -1, kp: '融资需求预测', chapter: '第2章', type: '名词解释', pts: ['销售增长', '资金总量', '外部融资缺口', '销售百分比法'], ans: '融资需求预测是指企业依据未来经营计划与销售增长目标，测算所需资金总量及其结构（内部可提供量与外部缺口）的过程，常用方法包括销售百分比法、回归分析法与资金习性法，是制定融资方案的前提。' },
+        { q: '「优序融资理论」', opts: null, a: -1, kp: '优序融资理论', chapter: '第2章', type: '名词解释', pts: ['信息不对称', '内部留存收益', '债务融资', '股权融资', '负面信号'], ans: '优序融资理论由迈尔斯（Myers）提出，认为在信息不对称条件下，企业的融资偏好顺序为「内部留存收益 → 债务融资 → 股权融资」。因为外部股权融资向市场传递股价被高估的负面信号，且发行成本最高，故企业管理者会优先使用内部资金，其次举债，最后才增发股票。' },
+        { q: '「销售百分比法」', opts: null, a: -1, kp: '融资需求预测', chapter: '第2章', type: '名词解释', pts: ['销售收入', '同比例变动', '外部融资需求', '留存收益'], ans: '销售百分比法是以预计销售收入为基础，假设资产负债表中的经营性资产与经营性负债随销售收入同比例变动，据此测算预计资产增加额、负债自然增加额与留存收益增加额，进而倒推出外部融资需求（EFN）的方法。其优点是简便直观，局限是假设资产周转率与销售净利率保持不变。' },
+        { q: '简述企业选择融资方式时应考虑的主要因素。', opts: null, a: -1, kp: '融资方式选择', chapter: '第2章', type: '简答', pts: ['资金需求', '融资成本', '控制权', '财务风险', '信息不对称', '政策环境'], ans: '①资金需求规模与期限结构匹配；②融资成本（利息、股息、发行费用、税盾效应）；③对控制权的影响（是否稀释股权、是否引入新股东）；④财务风险与偿债能力（资产负债率、利息保障倍数、现金流覆盖倍数）；⑤企业与资本市场之间的信息不对称程度及当前股价水平；⑥宏观与政策环境（利率走势、信贷政策、注册制下的再融资条件、行业景气度）。' },
+        { q: '简述权益融资与债务融资的要点差异。', opts: null, a: -1, kp: '融资方式比较', chapter: '第2章', type: '简答', pts: ['还本付息', '税盾', '稀释控制权', '财务风险', '融资成本'], ans: '权益融资（IPO、增发、配股）：无须还本付息、降低财务风险、改善资产负债结构，但会稀释原有股东控制权、股息不可税前扣除、发行成本较高且可能传递负面信号。债务融资（借款、债券）：具有税盾效应、不稀释控制权、融资成本相对较低，但须按期付息还本、增加财务风险与偿债压力、可能触发财务困境成本。实务中应权衡成本—风险—控制权三者关系，优化资本结构。' },
+        { q: '简述内部融资与外部融资的主要区别。', opts: null, a: -1, kp: '内部融资', chapter: '第2章', type: '简答', pts: ['留存收益', '折旧', '融资成本', '控制权', '信息披露'], ans: '①来源不同：内部融资来自企业自身的留存收益与折旧等内部积累；外部融资来自银行贷款、发行债券、增发股票等外部资金。②成本不同：内部融资无须支付发行费用与承销费，成本相对较低，但存在股东要求必要报酬率的机会成本。③对控制权影响：内部融资不稀释股权、不改变控制权结构；外部股权融资会稀释原股东持股比例。④信息与约束：外部融资通常需履行信息披露义务，并受债权人或监管条款约束（如募集资金用途、财务指标限制）。⑤规模与速度：内部融资规模受企业盈利能力限制，外部融资可快速募集较大规模资金。' },
+        { q: '某制造企业销售净利率 8%、股利支付率 40%，预计销售收入增长 25%，资产与负债均随销售同比例变动。若仅依靠内部留存，能否满足扩张需要？请说明测算思路。', opts: null, a: -1, kp: '外部融资需求', chapter: '第2章', type: '案例', pts: ['留存比率', '资产同比例增加', '外部融资需求', '资产负债率', '财务风险'], ans: '仅靠内部留存难以完全满足。留存比率=1−40%=60%。销售增长 25% 需要资产同比例增加 25%，而内部留存收益的增加幅度取决于销售净利率与留存比率（本例约为 8%×60%=4.8% 的销售增长支撑能力），小于 25% 的资产扩张需求，故存在外部融资缺口。测算思路：外部融资需求 EFN = 预计资产增加额（基期资产×销售增长率）− 预计负债自然增加额（基期负债×销售增长率）− 预计留存收益增加额（预计销售收入×销售净利率×留存比率）。缺口可通过债务融资（优先）或股权融资（其次）弥补，并需评估资产负债率上升带来的财务风险。' },
+        { q: '某企业现有资产负债率 65%，拟投资 5 亿元新项目，方案 A 为全部银行借款（利率 5%），方案 B 为增发股票。该项目预计年息税前利润 1.2 亿元，企业所得税率 25%。请从财务风险与股东回报角度分析两种方案的利弊。', opts: null, a: -1, kp: '资本结构', chapter: '第2章', type: '案例', pts: ['利息', '税盾', '摊薄', '财务风险', '资产负债率', '混合融资'], ans: '方案A（全借款）：年利息 = 5 × 5% = 0.25 亿元，税后利润 =（1.2 − 0.25）×（1 − 25%）= 0.7125 亿元，全部归原股东，原有股东回报被增厚（财务杠杆的正向作用）；但资产负债率将升至约 70% 以上，财务风险与再融资压力显著上升，若项目收益不达预期，利息负担可能吞噬利润甚至引发流动性危机。方案B（增发股票）：无固定利息负担、财务风险低，但会摊薄原股东持股比例与每股收益，并可能向市场传递股价被高估的负面信号。建议：在项目现金流稳定、可覆盖本息的前提下，优先采用适度债务融资以利用税盾效应；同时控制杠杆水平，可考虑「部分借款 + 部分股权」的混合方案，兼顾税盾收益与财务安全。' },
 
-        /* ================= 第3章 股份有限公司与首次公开发行 ================= */
+        /* ================= 第3章 股份有限公司与首次公开发行（24题） ================= */
         { q: '我国股票发行目前实行的审核（注册）制度是？', opts: ['行政审批制', '核准制', '注册制', '备案登记制'], a: 2, kp: '发行制度', chapter: '第3章', type: '选择' },
         { q: '市盈率法确定股票发行价的基本公式是？', opts: ['发行价 = 每股收益 × 可比市盈率', '发行价 = 每股净资产 × 市净率', '发行价 = 未来现金流折现值', '发行价 = 每股收入 × 市销率'], a: 0, kp: '发行定价', chapter: '第3章', type: '选择' },
         { q: '关于 IPO 折价（underpricing）现象，下列说法正确的是？', opts: ['发行人让渡部分利益，中签投资者获得正的初始收益', '说明本次发行失败', '与信息不对称无关', '折价幅度越高对发行人越有利'], a: 0, kp: 'IPO折价', chapter: '第3章', type: '选择' },
@@ -2364,14 +2528,22 @@
         { q: '借壳上市相较于首次公开发行的主要特点是？', opts: ['审核环节相对较少、上市周期较短，但需支付壳资源成本并承担整合风险', '无须达到任何上市标准', '无法实现融资功能', '不会稀释任何股东的控制权'], a: 0, kp: '借壳上市', chapter: '第3章', type: '选择' },
         { q: 'IPO 中「绿鞋机制」（超额配售选择权）的主要作用是？', opts: ['稳定上市后一段时期内的股价波动', '提高承销费率', '延长股份锁定期', '降低发行市盈率'], a: 0, kp: '绿鞋机制', chapter: '第3章', type: '选择' },
         { q: '股份公司公开发行股票并上市，通常不需要满足的财务条件是？', opts: ['最近三年净利润为正且累计达到一定规模', '发行后股本总额符合规定要求', '最近三年营业收入累计达到一定规模', '必须连续三年分红且不低于净利润的50%'], a: 3, kp: '上市条件', chapter: '第3章', type: '选择' },
-        { q: '「首次公开发行（IPO）」', opts: null, a: -1, kp: 'IPO', chapter: '第3章', type: '名词解释', ans: '首次公开发行（Initial Public Offering）是指股份有限公司首次向社会公众公开发行股票并在证券交易所申请上市交易的行为，是企业进入资本市场进行直接融资、实现股权社会化与规范化运作的关键环节。' },
-        { q: '「借壳上市」', opts: null, a: -1, kp: '借壳上市', chapter: '第3章', type: '名词解释', ans: '借壳上市是指非上市公司通过收购已上市公司（壳公司）的控制权，再由壳公司反向收购自身资产与业务，从而绕过 IPO 实现间接上市的方式。其特点是周期相对较短，但需支付壳资源成本，并面临整合与合规风险。' },
-        { q: '「IPO 折价」', opts: null, a: -1, kp: 'IPO折价', chapter: '第3章', type: '名词解释', ans: 'IPO 折价（underpricing）是指新股发行定价普遍低于上市首日市场价格的現象，使中签投资者获得正的初始收益。主要解释包括：信息不对称导致的「赢家诅咒」、承销商为降低销售风险而压低定价、以及向投资者让渡利益以换取询价配合等。' },
-        { q: '简述首次公开发行的主要流程。', opts: null, a: -1, kp: 'IPO流程', chapter: '第3章', type: '简答', ans: '①改制设立股份公司并规范运作；②聘请保荐机构、会计师事务所、律师事务所等中介机构并开展尽职调查；③制作招股说明书等申报文件并提交申请；④证券交易所审核、中国证监会注册；⑤路演推介、询价与定价；⑥发行承销（网下向机构配售、网上向社会公众发行，可设超额配售选择权）；⑦刊登上市公告书并挂牌交易；⑧上市后持续督导与信息披露。' },
-        { q: '简述股票发行定价的主要方法及其适用范围。', opts: null, a: -1, kp: '发行定价', chapter: '第3章', type: '简答', ans: '①市盈率法：发行价=每股收益×可比市盈率，适用于盈利稳定、可比公司较多的企业；②市净率法：适用于银行、保险等重资产或金融类企业；③现金流折现法（DCF）：绝对估值法，适用于现金流可预测、增长稳定的企业；④可比公司/可比交易法：横向比较定价，适用于行业可比样本充分的情形；⑤累计投标询价（市场竞价）法：由机构投资者询价形成价格，市场化程度最高，是我国现行主流方式。定价还需考虑公司基本面、行业景气、市场情绪与发行规模。' },
-        { q: '某公司发行前总股本 8000 万股，拟公开发行 2000 万股，最近一年净利润 6000 万元，同业可比公司平均市盈率为 25 倍。按市盈率法定价，其发行价与预计募集资金约为多少？', opts: null, a: -1, kp: '发行定价', chapter: '第3章', type: '案例', ans: '发行后总股本 = 8000 + 2000 = 10000 万股；摊薄每股收益 = 6000 ÷ 10000 = 0.60 元/股；发行价 = 0.60 × 25 = 15 元/股；预计募集资金 ≈ 2000 万股 × 15 元/股 = 3 亿元（未扣除承销保荐费等发行费用）。实务中还需参照询价结果、行业平均估值与二级市场行情进行调整。' },
-
-        /* ================= 第4章 上市公司再融资 ================= */
+        { q: '招股说明书在法律性质上属于？', opts: ['要约邀请', '要约', '承诺', '正式合同'], a: 0, kp: '信息披露', chapter: '第3章', type: '选择' },
+        { q: '关于我国科创板、创业板对未盈利企业上市的安排，正确的是？', opts: ['设置多元上市标准，允许符合条件的企业在未盈利状态下上市', '完全不允许未盈利企业上市', '是否盈利由发行人自行声明决定', '由承销商担保发行人盈利'], a: 0, kp: '上市条件', chapter: '第3章', type: '选择' },
+        { q: '绿鞋机制中，承销商超额发售股份的数量通常不超过本次发行数量的？', opts: ['15%', '30%', '50%', '没有上限'], a: 0, kp: '绿鞋机制', chapter: '第3章', type: '选择' },
+        { q: '注册制下的股票发行审核，具有下列哪些特点？', opts: ['以信息披露为中心', '监管机构不对投资价值作实质性判断', '中介机构承担核查把关的看门人责任', '发行人需充分披露信息并对真实性负责', '审核通过即代表监管机构保证其投资价值'], a: [0, 1, 2, 3], multi: true, kp: '发行制度', chapter: '第3章', type: '选择' },
+        { q: 'IPO 过程中，投资银行（保荐承销机构）的主要工作包括？', opts: ['改制辅导与规范运作', '开展尽职调查', '承销保荐与发行定价', '上市后持续督导', '代替发行人作出日常经营决策'], a: [0, 1, 2, 3], multi: true, kp: 'IPO流程', chapter: '第3章', type: '选择' },
+        { q: '首次公开发行中，可能影响发行定价的因素包括？', opts: ['公司盈利水平与每股收益', '同行业可比公司市盈率', '行业景气度与市场情绪', '发行规模与募集资金用途', '承销商办公地址'], a: [0, 1, 2, 3], multi: true, kp: '发行定价', chapter: '第3章', type: '选择' },
+        { q: '「首次公开发行（IPO）」', opts: null, a: -1, kp: 'IPO', chapter: '第3章', type: '名词解释', pts: ['首次', '社会公众', '公开发行股票', '证券交易所', '直接融资'], ans: '首次公开发行（Initial Public Offering）是指股份有限公司首次向社会公众公开发行股票并在证券交易所申请上市交易的行为，是企业进入资本市场进行直接融资、实现股权社会化与规范化运作的关键环节。' },
+        { q: '「借壳上市」', opts: null, a: -1, kp: '借壳上市', chapter: '第3章', type: '名词解释', pts: ['收购控制权', '壳公司', '反向收购', '间接上市', '壳资源'], ans: '借壳上市是指非上市公司通过收购已上市公司（壳公司）的控制权，再由壳公司反向收购自身资产与业务，从而绕过 IPO 实现间接上市的方式。其特点是周期相对较短，但需支付壳资源成本，并面临整合与合规风险。' },
+        { q: '「IPO 折价」', opts: null, a: -1, kp: 'IPO折价', chapter: '第3章', type: '名词解释', pts: ['发行定价', '低于', '首日价格', '初始收益', '信息不对称'], ans: 'IPO 折价（underpricing）是指新股发行定价普遍低于上市首日市场价格的現象，使中签投资者获得正的初始收益。主要解释包括：信息不对称导致的「赢家诅咒」、承销商为降低销售风险而压低定价、以及向投资者让渡利益以换取询价配合等。' },
+        { q: '「尽职调查」', opts: null, a: -1, kp: '尽职调查', chapter: '第3章', type: '名词解释', pts: ['核查验证', '信息披露', '真实准确完整', '中介机构', '风险揭示'], ans: '尽职调查（Due Diligence）是指保荐机构、会计师、律师等中介机构在证券发行前，对发行人的经营、财务、法律、税务等各方面情况进行全面核查与验证的过程。其目的是揭示风险、保证信息披露真实准确完整，缓解发行人与投资者之间的信息不对称，是注册制下中介机构履行「看门人」责任的基础。' },
+        { q: '「询价制度」', opts: null, a: -1, kp: '发行定价', chapter: '第3章', type: '名词解释', pts: ['机构投资者', '累计投标', '发行价格', '配售'], ans: '询价制度是指在股票发行定价中，向符合条件的机构投资者进行初步询价与累计投标询价，根据其报价与申购数量确定发行价格与配售结果的定价机制。它是我国现行市场化定价的主流方式，能够反映机构投资者对公司价值的判断，减少发行人与投资者之间的信息不对称。' },
+        { q: '简述首次公开发行的主要流程。', opts: null, a: -1, kp: 'IPO流程', chapter: '第3章', type: '简答', pts: ['改制', '尽职调查', '申报', '审核注册', '路演与定价', '发行承销', '上市'], ans: '①改制设立股份公司并规范运作；②聘请保荐机构、会计师事务所、律师事务所等中介机构并开展尽职调查；③制作招股说明书等申报文件并提交申请；④证券交易所审核、中国证监会注册；⑤路演推介、询价与定价；⑥发行承销（网下向机构配售、网上向社会公众发行，可设超额配售选择权）；⑦刊登上市公告书并挂牌交易；⑧上市后持续督导与信息披露。' },
+        { q: '简述股票发行定价的主要方法及其适用范围。', opts: null, a: -1, kp: '发行定价', chapter: '第3章', type: '简答', pts: ['市盈率法', '市净率法', '现金流折现', '可比公司法', '询价'], ans: '①市盈率法：发行价=每股收益×可比市盈率，适用于盈利稳定、可比公司较多的企业；②市净率法：适用于银行、保险等重资产或金融类企业；③现金流折现法（DCF）：绝对估值法，适用于现金流可预测、增长稳定的企业；④可比公司/可比交易法：横向比较定价，适用于行业可比样本充分的情形；⑤累计投标询价（市场竞价）法：由机构投资者询价形成价格，市场化程度最高，是我国现行主流方式。定价还需考虑公司基本面、行业景气、市场情绪与发行规模。' },
+        { q: '简述注册制与核准制的主要区别。', opts: null, a: -1, kp: '发行制度', chapter: '第3章', type: '简答', pts: ['信息披露', '实质判断', '审核效率', '中介机构责任', '市场自主决策'], ans: '①审核理念：核准制下监管机构对发行人的投资价值作实质性判断并决定是否核准；注册制下以信息披露为中心，监管机构不作实质价值判断。②审核效率：注册制下审核流程更透明、周期更可预期（如交易所审核 + 证监会注册）。③责任划分：注册制强化发行人信息披露第一责任与中介机构的核查把关责任（看门人责任），违规成本更高。④定价与配售：注册制下市场化询价定价，定价权更多交给市场。⑤投资者保护：由「监管背书」转向「买者自负」，同时以更严格的信息披露与事后追责保护投资者。' },
+        { q: '某公司发行前股本 1 亿股、净资产 4 亿元、净利润 5000 万元，拟公开发行 2500 万股。若按 20 倍市盈率定价，承销费率 5%，请计算发行价、募集资金总额与净额、发行后每股净资产分别约为多少。', opts: null, a: -1, kp: '发行定价', chapter: '第3章', type: '案例', pts: ['每股收益', '市盈率', '募集资金', '承销费', '每股净资产'], ans: '①发行后总股本 = 10000 + 2500 = 12500 万股；②摊薄每股收益 = 5000 万 ÷ 12500 万 = 0.40 元/股；③发行价 = 0.40 × 20 = 8.00 元/股；④募集资金总额 = 2500 万股 × 8 元 = 2.00 亿元；⑤承销保荐费 = 2.00 亿 × 5% = 0.10 亿元；⑥募集资金净额 = 2.00 − 0.10 = 1.90 亿元；⑦发行后净资产 = 4.00 + 1.90 = 5.90 亿元；⑧发行后每股净资产 = 5.90 亿 ÷ 1.25 亿股 = 4.72 元/股。可见发行价（8 元）显著高于发行后每股净资产（4.72 元），差额体现了市场对公司盈利能力的溢价，也提示投资者关注市盈率与实际盈利的匹配性。' },
+        /* ================= 第4章 上市公司再融资（24题） ================= */
         { q: '下列不属于上市公司再融资方式的是？', opts: ['公开增发', '配股', '发行可转换公司债券', '首次公开发行'], a: 3, kp: '再融资方式', chapter: '第4章', type: '选择' },
         { q: '配股与增发的核心区别在于？', opts: ['配股向原股东按持股比例优先配售，增发面向不特定对象或特定对象', '配股不能募集资金', '增发不会稀释股权', '配股必须在交易所之外进行'], a: 0, kp: '配股与增发', chapter: '第4章', type: '选择' },
         { q: '关于可转换公司债券，下列说法正确的是？', opts: ['持有人可在约定期间按转股价格将其转换为发行人股票', '票面利率通常高于同期限普通公司债', '不具有任何债权性质', '转股价格越高对投资者越有利'], a: 0, kp: '可转换公司债券', chapter: '第4章', type: '选择' },
@@ -2380,14 +2552,23 @@
         { q: '上市公司发行股份购买资产时，投资银行通常承担的角色是？', opts: ['独立财务顾问', '会计师事务所审计', '资产评估机构', '交易所审核人员'], a: 0, kp: '财务顾问', chapter: '第4章', type: '选择' },
         { q: '可转债「转股价格向下修正条款」的主要作用是？', opts: ['当股价持续低于转股价时下调转股价，保护投资者并促进转股', '提高债券票面利率', '延长债券到期期限', '赋予发行人强制赎回权'], a: 0, kp: '可转换公司债券', chapter: '第4章', type: '选择' },
         { q: '再融资业务中承销风险的主要来源是？', opts: ['定价过高导致发行失败或产生包销余额', '信息披露过于充分', '市场利率持续下降', '投资者认购过于踊跃'], a: 0, kp: '承销风险', chapter: '第4章', type: '选择' },
-        { q: '「配股」', opts: null, a: -1, kp: '配股', chapter: '第4章', type: '名词解释', ans: '配股是指上市公司向现有股东按其持股比例、以低于市价的价格优先配售新股的行为。原股东可自主决定认购或放弃，若放弃认购，其持股比例将因总股本扩大而被稀释。配股募集资金通常用于特定项目投资或补充流动资金。' },
-        { q: '「可转换公司债券」', opts: null, a: -1, kp: '可转换公司债券', chapter: '第4章', type: '名词解释', ans: '可转换公司债券是指发行人依照约定条件，在一定期间内可转换为发行人普通股股票的公司债券，兼具债性与股性。其票面利率通常低于同期限普通公司债，一般设有转股价格与转股期、转股价向下修正条款、赎回条款（发行人）与回售条款（投资者）。' },
-        { q: '「可交换公司债券」', opts: null, a: -1, kp: '可交换公司债券', chapter: '第4章', type: '名词解释', ans: '可交换公司债券是指上市公司股东依法发行、在一定期间内依据约定条件可交换为该股东所持有的其他公司股票（通常为其持有的上市公司股票）的公司债券。与可转债不同，其转换标的是发行人持有的他人股票，换股不会导致发行人（发债主体）自身股本增加。' },
-        { q: '简述配股与增发（公开增发、非公开增发）的比较。', opts: null, a: -1, kp: '配股与增发', chapter: '第4章', type: '简答', ans: '①发行对象：配股面向原股东按比例配售；公开增发面向不特定对象；非公开发行面向规定数量以内的特定投资者。②定价方式：配股价通常显著低于市价；公开增发多以市价或询价确定；非公开增发定价基准日与折价空间有明确规定。③控制权影响：原股东全额认购配股则不稀释；增发一般会稀释。④锁定期：非公开增发认购股份有锁定期要求（如控股股东18个月、其他投资者6个月）。⑤市场影响：配股常被视为负面信号（尤其是大比例低价配股），非公开增发若引入产业或战略投资者则偏正面。' },
-        { q: '简述可转换公司债券的主要条款及其作用。', opts: null, a: -1, kp: '可转换公司债券', chapter: '第4章', type: '简答', ans: '①票面利率：低于同期限普通公司债，因为内含转股期权价值；②转股价格与转股期：决定可转债的股性价值与转股时点；③转股价格向下修正条款：股价长期低迷时下调转股价，保护投资者、促进转股、减轻发行人偿付压力；④赎回条款（发行人权利）：当股价持续高于转股价一定比例时，发行人可按约定价格强制赎回，促使持有人尽快转股；⑤回售条款（投资者权利）：股价长期低于转股价一定幅度时，投资者可按约定价格将债券回售给发行人，形成价格保护。' },
-        { q: '某公司发行 10 亿元可转债，转股价格 20 元/股，期限 5 年。发行 3 年后股价升至 28 元，发行人宣布行使赎回权（赎回价约 103 元/张）。理性持有人应如何选择？', opts: null, a: -1, kp: '可转换公司债券', chapter: '第4章', type: '案例', ans: '转股价值 =（股价 ÷ 转股价）× 100 =（28 ÷ 20）× 100 = 140 元/张，明显高于赎回价的约 103 元/张。因此理性持有人应选择转股（或直接在二级市场卖出），否则将被按 103 元赎回，每股损失约 37 元的价值。投行作为承销与持续服务机构，应在赎回提示性公告期内主动提醒投资者及时转股或卖出，避免客户权益受损与投诉风险。' },
+        { q: '配股除权后，公司股票价格通常如何变化？', opts: ['因总股本扩大而向下调整（除权）', '因总股本扩大而向上调整', '始终保持不变', '由交易所随机确定'], a: 0, kp: '配股', chapter: '第4章', type: '选择' },
+        { q: '公开增发的发行对象通常是？', opts: ['不特定的社会公众投资者', '仅控股股东', '仅机构投资者', '仅公司内部职工'], a: 0, kp: '增发', chapter: '第4章', type: '选择' },
+        { q: '关于非公开发行（定向增发），下列说法正确的有？', opts: ['向不超过规定数量的特定投资者发行', '发行价可相对市价有一定折价', '认购股份通常设有锁定期', '面向全体社会公众公开发行', '不需要履行任何信息披露义务'], a: [0, 1, 2], multi: true, kp: '非公开发行', chapter: '第4章', type: '选择' },
+        { q: '可转换公司债券通常包含的条款有？', opts: ['转股价格与转股期', '转股价格向下修正条款', '赎回条款（发行人权利）', '回售条款（投资者权利）', '无限制的随时转股条款'], a: [0, 1, 2, 3], multi: true, kp: '可转换公司债券', chapter: '第4章', type: '选择' },
+        { q: '「配股」', opts: null, a: -1, kp: '配股', chapter: '第4章', type: '名词解释', pts: ['现有股东', '持股比例', '优先配售', '低于市价', '稀释'], ans: '配股是指上市公司向现有股东按其持股比例、以低于市价的价格优先配售新股的行为。原股东可自主决定认购或放弃，若放弃认购，其持股比例将因总股本扩大而被稀释。配股募集资金通常用于特定项目投资或补充流动资金。' },
+        { q: '「可转换公司债券」', opts: null, a: -1, kp: '可转换公司债券', chapter: '第4章', type: '名词解释', pts: ['转换为', '普通股', '公司债券', '票面利率低', '期权'], ans: '可转换公司债券是指发行人依照约定条件，在一定期间内可转换为发行人普通股股票的公司债券，兼具债性与股性。其票面利率通常低于同期限普通公司债，一般设有转股价格与转股期、转股价向下修正条款、赎回条款（发行人）与回售条款（投资者）。' },
+        { q: '「可交换公司债券」', opts: null, a: -1, kp: '可交换公司债券', chapter: '第4章', type: '名词解释', pts: ['股东发行', '其他公司股票', '交换', '不增加股本'], ans: '可交换公司债券是指上市公司股东依法发行、在一定期间内依据约定条件可交换为该股东所持有的其他公司股票（通常为其持有的上市公司股票）的公司债券。与可转债不同，其转换标的是发行人持有的他人股票，换股不会导致发行人（发债主体）自身股本增加。' },
+        { q: '「非公开发行」', opts: null, a: -1, kp: '非公开发行', chapter: '第4章', type: '名词解释', pts: ['特定投资者', '不超过规定数量', '折价', '锁定期'], ans: '非公开发行（定向增发）是指上市公司向不超过规定数量的特定投资者（如机构投资者、控股股东、战略投资者等）发行股份的再融资方式。其定价可相对市价有一定折价，认购股份通常设有锁定期（如控股股东 18 个月、其他投资者 6 个月），具有程序相对简便、对二级市场冲击较小等特点，但会稀释原股东持股比例。' },
+        { q: '「转股价格」', opts: null, a: -1, kp: '可转换公司债券', chapter: '第4章', type: '名词解释', pts: ['可转债', '约定价格', '转换为股票', '向下修正'], ans: '转股价格是可转换公司债券持有人将其持有的债券转换为发行人股票时所适用的每股价格，通常在发行时约定。转股价值 =（股票市价 ÷ 转股价格）× 100（每张面值 100 元）。转股价格越低，可转债的股性越强、转股价值越高；发行人通常还设置向下修正条款，在股价长期低于转股价时下调转股价。' },
+        { q: '简述配股与增发（公开增发、非公开增发）的比较。', opts: null, a: -1, kp: '配股与增发', chapter: '第4章', type: '简答', pts: ['发行对象', '定价方式', '控制权', '锁定期', '市场影响'], ans: '①发行对象：配股面向原股东按比例配售；公开增发面向不特定对象；非公开发行面向规定数量以内的特定投资者。②定价方式：配股价通常显著低于市价；公开增发多以市价或询价确定；非公开增发定价基准日与折价空间有明确规定。③控制权影响：原股东全额认购配股则不稀释；增发一般会稀释。④锁定期：非公开增发认购股份有锁定期要求（如控股股东18个月、其他投资者6个月）。⑤市场影响：配股常被视为负面信号（尤其是大比例低价配股），非公开增发若引入产业或战略投资者则偏正面。' },
+        { q: '简述可转换公司债券的主要条款及其作用。', opts: null, a: -1, kp: '可转换公司债券', chapter: '第4章', type: '简答', pts: ['票面利率', '转股价格', '向下修正', '赎回', '回售'], ans: '①票面利率：低于同期限普通公司债，因为内含转股期权价值；②转股价格与转股期：决定可转债的股性价值与转股时点；③转股价格向下修正条款：股价长期低迷时下调转股价，保护投资者、促进转股、减轻发行人偿付压力；④赎回条款（发行人权利）：当股价持续高于转股价一定比例时，发行人可按约定价格强制赎回，促使持有人尽快转股；⑤回售条款（投资者权利）：股价长期低于转股价一定幅度时，投资者可按约定价格将债券回售给发行人，形成价格保护。' },
+        { q: '简述上市公司再融资的主要方式及其适用情形。', opts: null, a: -1, kp: '再融资方式', chapter: '第4章', type: '简答', pts: ['配股', '公开增发', '非公开发行', '可转债', '可交换债', '适用'], ans: '①配股：向原股东按比例配售，适用于原股东持股集中、希望保持控制权结构的情形，但大比例低价配股易被市场视为负面信号；②公开增发：面向不特定公众，适用于市场认可度高、股价处于合理区间、需募集较大规模资金的公司；③非公开发行（定向增发）：向特定投资者发行，适用于引入战略投资者、并购配套融资或控股股东增持，程序相对简便；④可转换公司债券：兼具债性与股性、票面利率低，适用于股价有上涨预期、希望延迟摊薄股权的公司；⑤可交换公司债券：由股东发行，适用于股东减持或融资而不直接冲击标的股价。选择时需权衡融资成本、控制权稀释、市场承受力与监管条件。' },
+        { q: '简述可转换公司债券的「债性」与「股性」。', opts: null, a: -1, kp: '可转换公司债券', chapter: '第4章', type: '简答', pts: ['债性', '到期还本付息', '股性', '转股价值', '期权'], ans: '债性：可转债在未转股前是公司债券，持有人享有按期收取利息、到期收回本金的权利，并在发行人破产时享有优于股东的清偿顺序；其票面利率虽低于普通公司债，但提供了价格下限（债底）。股性：转股期内持有人可按转股价格将债券转换为股票，从而分享公司股价上涨的收益；转股价值 =（股价 ÷ 转股价）× 100，股价上涨时转股价值上升，可转债价格随之上涨。二者共同构成为「下有债底、上不封顶」的收益结构，其实质是一张债券 + 一份看涨期权的组合。' },
+        { q: '某公司发行 10 亿元可转债，转股价格 20 元/股，期限 5 年。发行 3 年后股价升至 28 元，发行人宣布行使赎回权（赎回价约 103 元/张）。理性持有人应如何选择？', opts: null, a: -1, kp: '可转换公司债券', chapter: '第4章', type: '案例', pts: ['转股价值', '赎回价', '理性选择', '承销商提示'], ans: '转股价值 =（股价 ÷ 转股价）× 100 =（28 ÷ 20）× 100 = 140 元/张，明显高于赎回价的约 103 元/张。因此理性持有人应选择转股（或直接在二级市场卖出），否则将被按 103 元赎回，每股损失约 37 元的价值。投行作为承销与持续服务机构，应在赎回提示性公告期内主动提醒投资者及时转股或卖出，避免客户权益受损与投诉风险。' },
+        { q: '某公司配股前总股本 4 亿股、股价 10 元，拟按「10 配 3」的比例配股，配股价 6 元。配股除权参考价约为多少？某股东原持有 1000 股，若全额认购需缴款多少？', opts: null, a: -1, kp: '配股', chapter: '第4章', type: '案例', pts: ['配股比例', '除权价', '缴款', '每股'], ans: '①配股比例 = 3 ÷ 10 = 0.3；②除权参考价 =（配股前股价 + 配股价 × 配股比例）÷（1 + 配股比例）=（10 + 6 × 0.3）÷（1 + 0.3）=（10 + 1.8）÷ 1.3 = 11.8 ÷ 1.3 ≈ 9.08 元/股；③该股东原持 1000 股，可配售 1000 × 0.3 = 300 股；④需缴款 = 300 × 6 = 1800 元。可见配股后股价被除权向下调整（由 10 元降至约 9.08 元），原股东若放弃认购，其持股比例将被稀释且承受除权损失；若全额认购，则可通过低价买入新股部分对冲除权影响。' },
 
-        /* ================= 第5章 债券的发行与承销 ================= */
+        /* ================= 第5章 债券的发行与承销（18题） ================= */
         { q: '债券价格与市场收益率之间的关系是？', opts: ['同向变动', '反向变动', '没有关系', '始终固定不变'], a: 1, kp: '债券定价', chapter: '第5章', type: '选择' },
         { q: '我国国债的主要发行方式是？', opts: ['承购包销与招标发行', '行政摊派', '定向募集', '纯私募发行'], a: 0, kp: '国债发行', chapter: '第5章', type: '选择' },
         { q: '下列不属于公司信用类债券的是？', opts: ['企业债券', '公司债券', '中期票据', '国债'], a: 3, kp: '债券分类', chapter: '第5章', type: '选择' },
@@ -2397,25 +2578,35 @@
         { q: '我国债券交易市场不包括？', opts: ['银行间债券市场', '交易所债券市场', '商业银行柜台市场', '商品期货市场'], a: 3, kp: '债券交易市场', chapter: '第5章', type: '选择' },
         { q: '债券承销中的「余额包销」是指？', opts: ['承销商承诺在发行期结束后按约定价格购入未售出部分', '承销商仅代理销售且不承担任何风险', '由发行人自行组织销售', '承销商全额买断后即时转售'], a: 0, kp: '承销方式', chapter: '第5章', type: '选择' },
         { q: '衡量债券价格对市场利率变动敏感程度的指标是？', opts: ['久期（Duration）', '信用等级', '换手率', '票面利率'], a: 0, kp: '债券定价', chapter: '第5章', type: '选择' },
-        { q: '「余额包销」', opts: null, a: -1, kp: '承销方式', chapter: '第5章', type: '名词解释', ans: '余额包销是指承销商在约定的发行期结束后，对未能售出的债券余额按约定价格自行购入的承销方式。承销商由此承担部分发行风险，相应地可获得更高的承销报酬；与之相对的是代销（不承担风险）与全额包销（承担全部发行风险）。' },
-        { q: '「信用评级」', opts: null, a: -1, kp: '信用评级', chapter: '第5章', type: '名词解释', ans: '信用评级是由独立、专业的评级机构对债券发行人按期足额偿还债务本息的能力与意愿进行评价，并以 AAA、AA、A 等等级符号表示的活动。评级结果是投资者识别信用风险、确定发行利率与发行条件的重要依据，也常被监管规则用作投资准入标准。' },
-        { q: '简述债券的基本要素及其对债券价格的影响。', opts: null, a: -1, kp: '债券定价', chapter: '第5章', type: '简答', ans: '①面值：到期偿还的本金金额，面值越高价格越高；②票面利率：决定每期利息的大小，票面利率越高，债券价格越高；③债券期限：期限越长，价格对利率变动越敏感（久期越大）；④市场收益率（折现率）：与债券价格反向变动；⑤付息频率：影响现金流的现值分布；⑥内含条款（赎回、回售、可转换、担保等）：改变现金流结构，进而影响定价；⑦发行人信用等级与流动性：影响投资者要求的风险溢价。' },
-        { q: '某债券面值 1000 元、票面利率 5%、每年付息一次、剩余期限 3 年。当市场收益率为 4% 时其理论价格约为多少？若市场收益率升至 6%，价格将如何变化？', opts: null, a: -1, kp: '债券定价', chapter: '第5章', type: '案例', ans: '市场收益率 4% 时：P = 50/1.04 + 50/1.04² + 1050/1.04³ ≈ 48.08 + 46.23 + 933.44 ≈ 1027.7 元。因票面利率（5%）高于市场收益率（4%），债券溢价交易。市场收益率升至 6% 时：P = 50/1.06 + 50/1.06² + 1050/1.06³ ≈ 47.17 + 44.50 + 881.60 ≈ 973.3 元，转为折价交易。这说明债券价格与市场收益率反向变动，且期限越长、票面利率越低，价格对利率变动越敏感。' },
+        { q: '债券的久期越长，通常意味着？', opts: ['价格对市场利率变动越敏感', '价格对利率变动越不敏感', '票面利率越高', '信用风险越低'], a: 0, kp: '债券定价', chapter: '第5章', type: '选择' },
+        { q: '下列属于债券基本要素的有？', opts: ['面值', '票面利率', '债券期限', '市场收益率', '承销商的注册资本'], a: [0, 1, 2, 3], multi: true, kp: '债券定价', chapter: '第5章', type: '选择' },
+        { q: '「余额包销」', opts: null, a: -1, kp: '承销方式', chapter: '第5章', type: '名词解释', pts: ['未售出', '自行购入', '发行风险', '承销报酬'], ans: '余额包销是指承销商在约定的发行期结束后，对未能售出的债券余额按约定价格自行购入的承销方式。承销商由此承担部分发行风险，相应地可获得更高的承销报酬；与之相对的是代销（不承担风险）与全额包销（承担全部发行风险）。' },
+        { q: '「信用评级」', opts: null, a: -1, kp: '信用评级', chapter: '第5章', type: '名词解释', pts: ['评级机构', '偿还能力', '等级符号', '发行利率'], ans: '信用评级是由独立、专业的评级机构对债券发行人按期足额偿还债务本息的能力与意愿进行评价，并以 AAA、AA、A 等等级符号表示的活动。评级结果是投资者识别信用风险、确定发行利率与发行条件的重要依据，也常被监管规则用作投资准入标准。' },
+        { q: '「久期」', opts: null, a: -1, kp: '债券定价', chapter: '第5章', type: '名词解释', pts: ['加权平均', '到期时间', '利率敏感性', '现值'], ans: '久期（Duration）是以债券各期现金流现值为权重计算的加权平均到期时间，用以衡量债券价格对市场利率变动的敏感程度。久期越长，价格对利率变动越敏感（利率上升时价格下跌幅度越大）。麦考利久期与修正久期是最常用的两种口径，修正久期 × 利率变动幅度 ≈ 债券价格变动百分比，是债券风险管理与免疫策略的核心工具。' },
+        { q: '简述债券的基本要素及其对债券价格的影响。', opts: null, a: -1, kp: '债券定价', chapter: '第5章', type: '简答', pts: ['面值', '票面利率', '期限', '市场收益率', '内含条款', '信用等级'], ans: '①面值：到期偿还的本金金额，面值越高价格越高；②票面利率：决定每期利息的大小，票面利率越高，债券价格越高；③债券期限：期限越长，价格对利率变动越敏感（久期越大）；④市场收益率（折现率）：与债券价格反向变动；⑤付息频率：影响现金流的现值分布；⑥内含条款（赎回、回售、可转换、担保等）：改变现金流结构，进而影响定价；⑦发行人信用等级与流动性：影响投资者要求的风险溢价。' },
+        { q: '简述债券承销的主要方式及其风险分担。', opts: null, a: -1, kp: '承销方式', chapter: '第5章', type: '简答', pts: ['代销', '余额包销', '全额包销', '发行风险', '承销报酬'], ans: '①代销（尽力销售）：承销商仅代理销售，不承担未售出部分的购入义务，发行风险由发行人承担，承销报酬最低；②余额包销：承销商承诺购入发行期结束后未售出的余额，承担部分发行风险，报酬较高；③全额包销（承购包销）：承销商先以约定价格全额买断本期债券，再自行向投资者销售，承担全部发行风险，报酬最高，通常以承销团形式分散风险。实务中选择何种方式取决于发行人的信用等级、市场环境、发行规模与承销商的销售能力；招标发行（如国债）则通过价格招标、利率招标等方式实现市场化定价。' },
+        { q: '某企业拟发行 5 年期公司债，面值 100 元、票面利率 4%、每年付息一次。同期限国债收益率 2.5%，该企业信用评级 AA，市场要求信用利差 1.2%。其理论发行利率约为多少？若一年后市场要求收益率上升至 6%，债券价格将如何变化？', opts: null, a: -1, kp: '债券定价', chapter: '第5章', type: '案例', pts: ['信用利差', '反向变动', '折价', '市场收益率'], ans: '①理论发行利率 ≈ 无风险利率 + 信用利差 = 2.5% + 1.2% = 3.7%，发行人将票面利率设为 4% 略高于理论值，以增强对投资者的吸引力；②一年后市场要求收益率升至 6%，债券剩余期限 4 年，理论价格 P = 4÷1.06 + 4÷1.06² + 4÷1.06³ + 104÷1.06⁴ ≈ 3.77 + 3.56 + 3.36 + 82.38 ≈ 93.07 元，低于面值 100 元，转为折价交易。③结论：债券价格与市场收益率反向变动；当票面利率低于市场要求收益率时债券折价，反之溢价，且期限越长、票面利率越低，价格对利率变动越敏感。' },
+        { q: '某债券面值 1000 元、票面利率 5%、每年付息一次、剩余期限 3 年。当市场收益率为 4% 时其理论价格约为多少？若市场收益率升至 6%，价格将如何变化？', opts: null, a: -1, kp: '债券定价', chapter: '第5章', type: '案例', pts: ['折现', '反向变动', '溢价', '折价', '久期'], ans: '市场收益率 4% 时：P = 50/1.04 + 50/1.04² + 1050/1.04³ ≈ 48.08 + 46.23 + 933.44 ≈ 1027.7 元。因票面利率（5%）高于市场收益率（4%），债券溢价交易。市场收益率升至 6% 时：P = 50/1.06 + 50/1.06² + 1050/1.06³ ≈ 47.17 + 44.50 + 881.60 ≈ 973.3 元，转为折价交易。这说明债券价格与市场收益率反向变动，且期限越长、票面利率越低，价格对利率变动越敏感。' },
 
-        /* ================= 第6章 资产证券化 ================= */
+        /* ================= 第6章 资产证券化（18题） ================= */
         { q: '资产证券化的核心融资逻辑是？', opts: ['以基础资产未来产生的稳定现金流为支撑发行证券', '以发起人的主体信用为支撑发行证券', '以政府信用担保发行证券', '以股权质押方式发行证券'], a: 0, kp: '资产证券化概念', chapter: '第6章', type: '选择' },
         { q: '资产证券化中设立 SPV（特殊目的载体）的主要目的是？', opts: ['实现基础资产与发起人的破产隔离', '提供外部信用增级', '承担证券承销职能', '充当信用评级机构'], a: 0, kp: 'SPV与破产隔离', chapter: '第6章', type: '选择' },
         { q: '下列属于资产证券化内部信用增级手段的是？', opts: ['优先/次级分层结构（超额抵押、现金储备）', '第三方担保', '购买信用保险', '银行提供流动性支持'], a: 0, kp: '信用增级', chapter: '第6章', type: '选择' },
         { q: 'MBS 与 ABS 的主要区别是？', opts: ['MBS 的基础资产为住房抵押贷款，ABS 的基础资产为其他各类资产', '两者完全相同', 'MBS 不能在交易所挂牌交易', 'ABS 只能由商业银行发行'], a: 0, kp: '资产证券化类型', chapter: '第6章', type: '选择' },
         { q: '2007 年美国次贷危机中，资产证券化扮演的角色是？', opts: ['次级抵押贷款证券化的风险通过分层与衍生品被放大并跨机构扩散', '提高了住房贷款质量', '有效隔离了全部风险', '与危机无关'], a: 0, kp: '资产证券化风险', chapter: '第6章', type: '选择' },
         { q: '我国资产证券化的主要类型不包括？', opts: ['信贷资产证券化', '企业资产证券化', '资产支持票据（ABN）', '股权质押式回购'], a: 3, kp: '我国资产证券化实践', chapter: '第6章', type: '选择' },
-        { q: '「资产证券化」', opts: null, a: -1, kp: '资产证券化概念', chapter: '第6章', type: '名词解释', ans: '资产证券化是指以基础资产（如住房抵押贷款、企业应收账款、租赁债权、基础设施收费权等）未来产生的稳定、可预测现金流为支持，通过结构化重组与信用增级，在金融市场上发行可流通证券的融资方式。其核心机制是现金流重组与破产隔离。' },
-        { q: '「真实出售」', opts: null, a: -1, kp: 'SPV与破产隔离', chapter: '第6章', type: '名词解释', ans: '真实出售是指发起人将与基础资产相关的全部权利、收益与风险实质性地转移给 SPV 的法律行为。它使基础资产从发起人的资产负债表中出表，从而实现与发起人破产风险的隔离——即使发起人日后破产，其债权人也不能追索已出售的基础资产。' },
-        { q: '简述资产证券化的基本交易结构。', opts: null, a: -1, kp: '交易结构', chapter: '第6章', type: '简答', ans: '①发起人（原始权益人）筛选并组建基础资产池；②将基础资产「真实出售」给 SPV，实现破产隔离；③对资产池进行信用增级（内部：优先/次级分层、超额抵押、现金储备账户；外部：第三方担保、保险、流动性支持）；④聘请评级机构对证券进行信用评级；⑤由承销商向投资者发行资产支持证券；⑥委托服务机构（通常由发起人担任）负责基础资产的日常管理与现金流归集；⑦按约定顺序向不同层级证券投资者分配本息。' },
-        { q: '简述资产证券化的收益与主要风险。', opts: null, a: -1, kp: '资产证券化风险', chapter: '第6章', type: '简答', ans: '收益：①发起人可盘活存量资产、提前回收资金、优化资产负债表（实现出表）、降低融资成本、拓宽融资渠道；②投资者可获得风险分层、结构清晰、收益相对稳定的固定收益产品；③提高金融体系资金配置效率。风险：①基础资产信用风险（借款人违约、现金流不足）；②提前偿付风险（利率下行时借款人提前还款，导致投资者面临再投资风险）；③利率风险与流动性风险；④结构化设计的杠杆放大与对评级的过度依赖风险（次贷危机的教训）；⑤法律风险与破产隔离不彻底的风险。' },
-        { q: '某银行将 50 亿元住房抵押贷款证券化，分为优先级 35 亿元（评级 AAA，票面 3.5%）与次级 15 亿元（未评级，由银行自持）。次级层的作用是什么？', opts: null, a: -1, kp: '信用增级', chapter: '第6章', type: '案例', ans: '次级层为优先级提供了内部信用增级：当基础资产池出现违约损失时，损失首先由次级层承担，优先级证券优先获得本息偿付，因此优先级可获得 AAA 高评级、以较低票面利率（3.5%）发行，降低整体融资成本。银行自持次级层意味着：①保留了资产池的第一损失风险，同时保留超额收益；②符合监管关于风险自留的要求，实现利益绑定，降低道德风险；③需对该部分风险计提资本并纳入风险管理。' },
-
-        /* ================= 第7章 公司并购 ================= */
+        { q: '资产证券化中，SPV 通常采取的组织形式是？', opts: ['特殊目的公司（SPC）或特殊目的信托（SPT）', '商业银行分行', '证券公司营业部', '基金管理公司'], a: 0, kp: 'SPV与破产隔离', chapter: '第6章', type: '选择' },
+        { q: '我国信贷资产证券化的主管机构主要是？', opts: ['中国人民银行与国家金融监督管理总局（原银保监会）', '中国证监会', '财政部', '国家发展改革委'], a: 0, kp: '我国资产证券化实践', chapter: '第6章', type: '选择' },
+        { q: '下列属于资产证券化内部信用增级手段的有？', opts: ['优先/次级分层结构', '超额抵押', '现金储备账户', '第三方担保', '购买信用保险'], a: [0, 1, 2], multi: true, kp: '信用增级', chapter: '第6章', type: '选择' },
+        { q: '「资产证券化」', opts: null, a: -1, kp: '资产证券化概念', chapter: '第6章', type: '名词解释', pts: ['基础资产', '稳定现金流', '结构化重组', '信用增级', '可流通证券'], ans: '资产证券化是指以基础资产（如住房抵押贷款、企业应收账款、租赁债权、基础设施收费权等）未来产生的稳定、可预测现金流为支持，通过结构化重组与信用增级，在金融市场上发行可流通证券的融资方式。其核心机制是现金流重组与破产隔离。' },
+        { q: '「真实出售」', opts: null, a: -1, kp: 'SPV与破产隔离', chapter: '第6章', type: '名词解释', pts: ['全部权利', '转移给SPV', '出表', '破产隔离'], ans: '真实出售是指发起人将与基础资产相关的全部权利、收益与风险实质性地转移给 SPV 的法律行为。它使基础资产从发起人的资产负债表中出表，从而实现与发起人破产风险的隔离——即使发起人日后破产，其债权人也不能追索已出售的基础资产。' },
+        { q: '「破产隔离」', opts: null, a: -1, kp: 'SPV与破产隔离', chapter: '第6章', type: '名词解释', pts: ['真实出售', '基础资产', '发起人破产', '不得追索', '出表'], ans: '破产隔离是指通过将基础资产「真实出售」给 SPV，使该资产在法律上与发起人的自有资产相分离的机制。其效果是：当发起人破产时，其债权人不得对已出售的基础资产行使追索权，资产池现金流继续按约定偿付证券投资者。破产隔离是资产证券化区别于普通担保融资的核心特征，也是其获得高于发起人主体信用评级的基础。' },
+        { q: '简述资产证券化的基本交易结构。', opts: null, a: -1, kp: '交易结构', chapter: '第6章', type: '简答', pts: ['发起人', '资产池', '真实出售', 'SPV', '信用增级', '评级', '承销发行'], ans: '①发起人（原始权益人）筛选并组建基础资产池；②将基础资产「真实出售」给 SPV，实现破产隔离；③对资产池进行信用增级（内部：优先/次级分层、超额抵押、现金储备账户；外部：第三方担保、保险、流动性支持）；④聘请评级机构对证券进行信用评级；⑤由承销商向投资者发行资产支持证券；⑥委托服务机构（通常由发起人担任）负责基础资产的日常管理与现金流归集；⑦按约定顺序向不同层级证券投资者分配本息。' },
+        { q: '简述资产证券化的收益与主要风险。', opts: null, a: -1, kp: '资产证券化风险', chapter: '第6章', type: '简答', pts: ['盘活存量', '出表', '降低融资成本', '信用风险', '提前偿付', '评级依赖'], ans: '收益：①发起人可盘活存量资产、提前回收资金、优化资产负债表（实现出表）、降低融资成本、拓宽融资渠道；②投资者可获得风险分层、结构清晰、收益相对稳定的固定收益产品；③提高金融体系资金配置效率。风险：①基础资产信用风险（借款人违约、现金流不足）；②提前偿付风险（利率下行时借款人提前还款，导致投资者面临再投资风险）；③利率风险与流动性风险；④结构化设计的杠杆放大与对评级的过度依赖风险（次贷危机的教训）；⑤法律风险与破产隔离不彻底的风险。' },
+        { q: '简述资产证券化的主要参与主体及其职责。', opts: null, a: -1, kp: '交易结构', chapter: '第6章', type: '简答', pts: ['发起人', 'SPV', '承销商', '评级机构', '服务机构', '投资者'], ans: '①发起人（原始权益人）：筛选与组建基础资产池，并将其真实出售给 SPV，通常是基础资产的服务机构；②SPV（特殊目的载体）：作为发行人持有基础资产并发行证券，实现破产隔离；③承销商（通常为投资银行）：设计交易结构、组织信用增级、向投资者承销发行证券；④信用增级机构：提供第三方担保、保险或流动性支持；⑤信用评级机构：对资产支持证券进行评级并跟踪评级；⑥服务机构（通常由发起人兼任）：负责基础资产的日常管理、本息回收与现金流归集分配；⑦受托机构/托管机构：代表投资者持有资产池权益、监督现金流分配；⑧投资者：购买资产支持证券并获取本息。' },
+        { q: '简述我国资产证券化的主要类型及其监管分工。', opts: null, a: -1, kp: '我国资产证券化实践', chapter: '第6章', type: '简答', pts: ['信贷资产证券化', '企业资产证券化', '资产支持票据', '监管分工'], ans: '①信贷资产证券化：由银行业金融机构发起，经中国人民银行、国家金融监督管理总局（原银保监会）监管，在银行间债券市场发行；②企业资产证券化：以企业应收款、租赁债权、基础设施收费权等为基础资产，由证券公司或基金子公司设立专项计划发行，由中国证监会监管，在交易所市场挂牌；③资产支持票据（ABN）：由非金融企业在银行间债券市场发行，由交易商协会注册管理；④项目资产支持计划等保险资管产品：由国家金融监督管理总局监管。三类产品的共同点是均以基础资产现金流为偿付支持，并通过 SPV 实现破产隔离。' },
+        { q: '某发起人将 20 亿元应收账款证券化，分为优先级 16 亿元（AAA，票面 3.6%）与次级 4 亿元（由发起人自持）。若资产池实际回收率为 96%，优先级本息能否全额兑付？次级层承担了多少损失？', opts: null, a: -1, kp: '信用增级', chapter: '第6章', type: '案例', pts: ['回收率', '优先级', '次级', '损失', '信用增级'], ans: '①资产池实际回收额 = 20 × 96% = 19.2 亿元；②优先级应付本息 = 16 ×（1 + 3.6%）= 16.576 亿元；③19.2 > 16.576，优先级本息可全额兑付，剩余 19.2 − 16.576 = 2.624 亿元用于偿付次级；④次级本金 4 亿元，实际收回 2.624 亿元，次级层承担损失 = 4 − 2.624 = 1.376 亿元，损失率约 34.4%。⑤结论：次级层充当第一损失缓冲，使优先级得以以 AAA 高评级、较低票面利率发行；发起人自持次级层意味着其保留资产池的第一损失风险与超额收益，实现利益绑定、降低道德风险。' },
+        /* ================= 第7章 公司并购（18题） ================= */
         { q: '按并购双方行业关系划分，纵向并购是指？', opts: ['处于同一产业链上下游企业之间的并购', '同行业竞争对手之间的并购', '无关联行业企业之间的混合并购', '母公司与子公司之间的内部重组'], a: 0, kp: '并购类型', chapter: '第7章', type: '选择' },
         { q: '横向并购最主要的动因是？', opts: ['扩大市场份额、提升行业集中度与议价能力', '降低交易成本、稳定上游供应', '分散单一行业经营风险', '获取上市壳资源'], a: 0, kp: '并购动因', chapter: '第7章', type: '选择' },
         { q: '杠杆收购（LBO）的基本特点是？', opts: ['以目标公司资产及未来现金流为担保大量举债以完成收购', '完全依靠收购方自有资金完成', '仅通过换股方式完成', '不需要目标公司现金流支持'], a: 0, kp: '杠杆收购', chapter: '第7章', type: '选择' },
@@ -2424,36 +2615,55 @@
         { q: '要约收购是指？', opts: ['收购人向目标公司全体股东公开发出收购其股份的要约', '收购人与大股东私下协议转让股份', '通过二级市场逐步买入股份', '通过司法拍卖取得股权'], a: 0, kp: '要约收购', chapter: '第7章', type: '选择' },
         { q: '并购的一般操作程序中，投行财务顾问的首要工作是？', opts: ['协助制定并购战略并筛选、评估目标公司', '直接代表双方签署收购协议', '对外发布并购公告', '办理工商变更登记'], a: 0, kp: '并购程序', chapter: '第7章', type: '选择' },
         { q: '并购估值中，可比交易法的核心做法是？', opts: ['参考类似已发生交易的估值倍数（如 EV/EBITDA）确定标的估值', '按目标公司账面净资产直接定价', '按收购方市盈率定价', '按目标公司历史股价均价定价'], a: 0, kp: '并购估值', chapter: '第7章', type: '选择' },
-        { q: '「杠杆收购（LBO）」', opts: null, a: -1, kp: '杠杆收购', chapter: '第7章', type: '名词解释', ans: '杠杆收购（Leveraged Buyout）是指收购方以目标公司的资产及未来现金流作为担保与偿债来源，主要通过大规模债务融资（银行贷款、高收益债券、夹层融资）取得目标公司控制权的收购方式。其特点是自有资金投入少、财务杠杆高、潜在收益与风险均被放大。' },
-        { q: '「反收购策略」', opts: null, a: -1, kp: '反收购策略', chapter: '第7章', type: '名词解释', ans: '反收购策略是目标公司管理层为防止公司被敌意收购而采取的一系列防御措施，常见包括：毒丸计划（股东权利计划）、白衣骑士（引入友好收购方竞价）、金降落伞（高管离职补偿）、焦土战术、股份回购、以及修改公司章程设置「驱鲨剂」条款等。' },
-        { q: '简述公司并购的主要动因。', opts: null, a: -1, kp: '并购动因', chapter: '第7章', type: '简答', ans: '①协同效应：经营协同（规模经济、渠道互补）、财务协同（降低融资成本、提高举债能力）、管理协同（提升效率）；②扩大市场份额、提升市场势力与定价权；③多元化经营、分散单一行业风险；④获取战略资源（技术、品牌、牌照、渠道、人才）；⑤纵向一体化降低交易成本、稳定供应链；⑥税收与融资便利等财务动因；⑦管理层扩张偏好与代理问题（需警惕「帝国建造」动机损害股东价值）。' },
-        { q: '简述并购的主要支付方式及其优缺点。', opts: null, a: -1, kp: '支付方式', chapter: '第7章', type: '简答', ans: '①现金支付：交易确定性强、速度快、不稀释控制权，但占用大量资金、加重财务压力，且目标公司股东需即时承担税负；②股票（换股）支付：不占用现金、可实现风险共担与税收递延，但会稀释原股东控制权、程序较复杂、耗时较长；③混合支付（现金＋股票/可转债/承付票据）：兼顾双方诉求、灵活性高，是实务中的主流选择；④承担债务式支付：适用于目标公司高负债的情形。选择时需综合考虑估值差异、税负、控制权安排与自身融资能力。' },
-        { q: '收购方净利润 8 亿元、股本 2 亿股（EPS 4 元）；目标公司净利润 1 亿元、市值 10 亿元。若以 12 亿元现金收购（溢价 20%），收购后 EPS 如何变化？若改为按 20 元/股换股收购，结果又如何？', opts: null, a: -1, kp: '并购估值', chapter: '第7章', type: '案例', ans: '现金收购：收购后净利润 = 8 + 1 = 9 亿元，股本不变仍为 2 亿股，EPS = 9 ÷ 2 = 4.5 元，较收购前的 4 元增厚 0.5 元（12.5%）。但该测算未计入收购对价 12 亿元的机会成本与融资成本——若 12 亿元来自借款，需扣除利息后重新测算，实际增厚幅度会明显缩小。换股收购：按 20 元/股发行 12 亿 ÷ 20 = 6000 万股，股本增至 2.6 亿股，EPS = 9 ÷ 2.6 ≈ 3.46 元，较 4 元被摊薄约 13.5%。可见在双方市盈率相近时，现金收购对 EPS 更有利，但会消耗现金、抬高杠杆；换股支付则把风险与收益与目标方股东共担。' },
+        { q: '并购中的「协同效应」通常是指？', opts: ['并购后整体价值大于双方独立价值之和（1 + 1 > 2）', '收购方支付了过高的收购溢价', '并购后大规模裁员降低成本', '目标公司股价在公告后下跌'], a: 0, kp: '并购动因', chapter: '第7章', type: '选择' },
+        { q: '敌意收购中，目标公司可采取的防御措施包括？', opts: ['毒丸计划', '白衣骑士', '金降落伞', '焦土战术', '主动提高收购溢价'], a: [0, 1, 2, 3], multi: true, kp: '反收购策略', chapter: '第7章', type: '选择' },
+        { q: '「杠杆收购（LBO）」', opts: null, a: -1, kp: '杠杆收购', chapter: '第7章', type: '名词解释', pts: ['债务融资', '目标公司资产', '现金流', '控制权', '高杠杆'], ans: '杠杆收购（Leveraged Buyout）是指收购方以目标公司的资产及未来现金流作为担保与偿债来源，主要通过大规模债务融资（银行贷款、高收益债券、夹层融资）取得目标公司控制权的收购方式。其特点是自有资金投入少、财务杠杆高、潜在收益与风险均被放大。' },
+        { q: '「反收购策略」', opts: null, a: -1, kp: '反收购策略', chapter: '第7章', type: '名词解释', pts: ['敌意收购', '毒丸计划', '白衣骑士', '金降落伞', '防御措施'], ans: '反收购策略是目标公司管理层为防止公司被敌意收购而采取的一系列防御措施，常见包括：毒丸计划（股东权利计划）、白衣骑士（引入友好收购方竞价）、金降落伞（高管离职补偿）、焦土战术、股份回购、以及修改公司章程设置「驱鲨剂」条款等。' },
+        { q: '「换股并购」', opts: null, a: -1, kp: '支付方式', chapter: '第7章', type: '名词解释', pts: ['发行股票', '支付对价', '换股比例', '不占用现金'], ans: '换股并购是指收购方以其自身（或控股公司）新发行的股票作为支付对价，按约定的换股比例换取目标公司股东所持股份的并购方式。换股比例的核心决定因素是双方的相对估值（目标公司每股价值 ÷ 收购方每股价值）。其优点是不占用现金、可实现风险共担与税收递延，缺点是会稀释收购方原股东控制权、程序较为复杂。' },
+        { q: '简述公司并购的主要动因。', opts: null, a: -1, kp: '并购动因', chapter: '第7章', type: '简答', pts: ['协同效应', '市场份额', '多元化', '战略资源', '纵向一体化', '代理问题'], ans: '①协同效应：经营协同（规模经济、渠道互补）、财务协同（降低融资成本、提高举债能力）、管理协同（提升效率）；②扩大市场份额、提升市场势力与定价权；③多元化经营、分散单一行业风险；④获取战略资源（技术、品牌、牌照、渠道、人才）；⑤纵向一体化降低交易成本、稳定供应链；⑥税收与融资便利等财务动因；⑦管理层扩张偏好与代理问题（需警惕「帝国建造」动机损害股东价值）。' },
+        { q: '简述并购的主要支付方式及其优缺点。', opts: null, a: -1, kp: '支付方式', chapter: '第7章', type: '简答', pts: ['现金支付', '换股', '混合支付', '控制权', '税负', '融资能力'], ans: '①现金支付：交易确定性强、速度快、不稀释控制权，但占用大量资金、加重财务压力，且目标公司股东需即时承担税负；②股票（换股）支付：不占用现金、可实现风险共担与税收递延，但会稀释原股东控制权、程序较复杂、耗时较长；③混合支付（现金＋股票/可转债/承付票据）：兼顾双方诉求、灵活性高，是实务中的主流选择；④承担债务式支付：适用于目标公司高负债的情形。选择时需综合考虑估值差异、税负、控制权安排与自身融资能力。' },
+        { q: '简述公司并购的一般操作流程以及投资银行在其中发挥的作用。', opts: null, a: -1, kp: '并购程序', chapter: '第7章', type: '简答', pts: ['战略制定', '筛选目标', '尽职调查', '估值', '方案设计', '谈判', '融资安排', '整合'], ans: '操作流程：①制定并购战略、明确并购标准；②筛选与初步评估目标公司；③签订保密协议、开展尽职调查；④估值与定价，设计交易方案与支付方式；⑤谈判并签署收购协议，履行审批与信息披露程序；⑥完成交割与整合。投行的作用：①作为财务顾问协助制定战略、筛选与评估目标公司；②组织尽职调查、开展估值与定价；③设计交易结构与融资方案（含过桥贷款、债务融资安排）；④参与谈判、协调会计师与律师等中介机构；⑤在要约收购中担任财务顾问并出具专业意见；⑥协助完成监管审批、信息披露与并购后整合。' },
+        { q: '收购方净利润 8 亿元、股本 2 亿股（EPS 4 元）；目标公司净利润 1 亿元、市值 10 亿元。若以 12 亿元现金收购（溢价 20%），收购后 EPS 如何变化？若改为按 20 元/股换股收购，结果又如何？', opts: null, a: -1, kp: '并购估值', chapter: '第7章', type: '案例', pts: ['每股收益', '增厚', '摊薄', '现金收购', '换股'], ans: '现金收购：收购后净利润 = 8 + 1 = 9 亿元，股本不变仍为 2 亿股，EPS = 9 ÷ 2 = 4.5 元，较收购前的 4 元增厚 0.5 元（12.5%）。但该测算未计入收购对价 12 亿元的机会成本与融资成本——若 12 亿元来自借款，需扣除利息后重新测算，实际增厚幅度会明显缩小。换股收购：按 20 元/股发行 12 亿 ÷ 20 = 6000 万股，股本增至 2.6 亿股，EPS = 9 ÷ 2.6 ≈ 3.46 元，较 4 元被摊薄约 13.5%。可见在双方市盈率相近时，现金收购对 EPS 更有利，但会消耗现金、抬高杠杆；换股支付则把风险与收益与目标方股东共担。' },
+        { q: '目标公司最近一年 EBITDA 为 2 亿元、净利润 1.2 亿元，可比交易 EV/EBITDA 平均为 9 倍，可比公司市盈率 18 倍，目标公司净债务 3 亿元。请分别用 EV/EBITDA 法与市盈率法估算其股权价值，并说明差异原因。', opts: null, a: -1, kp: '并购估值', chapter: '第7章', type: '案例', pts: ['EV/EBITDA', '市盈率', '股权价值', '净债务', '估值区间'], ans: '①EV/EBITDA 法：企业价值 EV = EBITDA × 倍数 = 2 × 9 = 18 亿元；股权价值 = EV − 净债务 = 18 − 3 = 15 亿元。②市盈率法：股权价值 = 净利润 × 市盈率 = 1.2 × 18 = 21.6 亿元。③差异原因：EV/EBITDA 从企业整体价值出发，剔除了资本结构、折旧摊销与所得税政策的影响，受财务杠杆影响较小，更适合资本结构差异较大的可比公司之间比较；市盈率法直接对应股东权益价值，但净利润易受会计政策、非经常性损益与杠杆水平影响。实务中通常同时采用多种方法交叉验证，并结合可比交易溢价水平形成估值区间，作为谈判与定价的依据。' },
 
-        /* ================= 第8章 投资银行的风险管理 ================= */
+        /* ================= 第8章 投资银行的风险管理（12题） ================= */
         { q: '投资银行交易对手无法按期履约所带来的风险属于？', opts: ['信用风险', '市场风险', '操作风险', '声誉风险'], a: 0, kp: '风险类型', chapter: '第8章', type: '选择' },
         { q: '在险价值（VaR）衡量的内容是？', opts: ['给定置信水平与持有期内，投资组合可能遭受的最大预期损失', '任何情况下可能出现的最大损失', '投资组合的平均收益率', '资产价格的波动率'], a: 0, kp: 'VaR', chapter: '第8章', type: '选择' },
         { q: '关于操作风险，下列说法正确的是？', opts: ['主要源于不完善的内部程序、人员、系统或外部事件', '仅指市场价格波动带来的风险', '与合规管理没有关系', '只可能发生在后台部门'], a: 0, kp: '操作风险', chapter: '第8章', type: '选择' },
         { q: '投资银行流动性风险的主要表现是？', opts: ['无法及时以合理成本获得资金以满足到期支付需要', '营业收入持续下降', '核心客户大量流失', '公司股价短期下跌'], a: 0, kp: '流动性风险', chapter: '第8章', type: '选择' },
         { q: '风险管理体系中的「三道防线」通常是指？', opts: ['业务部门自我控制、风险管理与合规部门、内部审计', '董事会、监事会、管理层', '前台、中台、后台', '事前、事中、事后'], a: 0, kp: '风险管理体系', chapter: '第8章', type: '选择' },
-        { q: '「在险价值（VaR）」', opts: null, a: -1, kp: 'VaR', chapter: '第8章', type: '名词解释', ans: 'VaR（Value at Risk）是指在给定置信水平（如 95%、99%）和持有期（如 1 日、10 日）下，投资组合在正常市场条件下可能遭受的最大预期损失。它是市场风险计量的核心工具之一，局限在于不刻画置信水平之外的尾部极端损失，故需与压力测试、情景分析配合使用。' },
-        { q: '「操作风险」', opts: null, a: -1, kp: '操作风险', chapter: '第8章', type: '名词解释', ans: '操作风险是指由不完善或有问题的内部程序、人员、系统以及外部事件造成损失的风险，包括内部欺诈、外部欺诈、就业制度与工作场所安全性、客户与产品、实物资产损坏、系统故障、交易执行与流程管理失误等类别，与市场风险、信用风险并列为金融机构三大风险。' },
-        { q: '简述投资银行面临的主要风险类型及其管理方法。', opts: null, a: -1, kp: '风险管理体系', chapter: '第8章', type: '简答', ans: '①市场风险（利率、汇率、股价波动）：建立限额管理体系，运用 VaR、久期、压力测试计量，并通过衍生工具对冲；②信用风险（交易对手违约、包销余额风险）：实行授信与内部评级、要求抵押担保、净额结算、分散化与集中度控制；③操作风险：内控流程再造、权限分离与轮岗、系统建设与灾备、合规培训与内部审计；④流动性风险：资产负债期限匹配、保持充足流动性储备、建立备用融资额度与应急计划；⑤声誉与法律风险：规范信息披露、管理利益冲突、强化合规审查。总体上依托「三道防线」与全面风险管理体系，实现事前识别、事中监控、事后问责。' },
+        { q: '在险价值（VaR）的主要局限是？', opts: ['不能刻画置信水平之外的尾部极端损失', '无法用于量化市场风险', '只能用于信用风险计量', '计算方法过于简单'], a: 0, kp: 'VaR', chapter: '第8章', type: '选择' },
+        { q: '投资银行面临的主要风险类型包括？', opts: ['市场风险', '信用风险', '操作风险', '流动性风险', '声誉风险', '政策风险'], a: [0, 1, 2, 3, 4, 5], multi: true, kp: '风险类型', chapter: '第8章', type: '选择' },
+        { q: '「在险价值（VaR）」', opts: null, a: -1, kp: 'VaR', chapter: '第8章', type: '名词解释', pts: ['置信水平', '持有期', '最大预期损失', '市场风险', '局限'], ans: 'VaR（Value at Risk）是指在给定置信水平（如 95%、99%）和持有期（如 1 日、10 日）下，投资组合在正常市场条件下可能遭受的最大预期损失。它是市场风险计量的核心工具之一，局限在于不刻画置信水平之外的尾部极端损失，故需与压力测试、情景分析配合使用。' },
+        { q: '「操作风险」', opts: null, a: -1, kp: '操作风险', chapter: '第8章', type: '名词解释', pts: ['内部程序', '人员', '系统', '外部事件', '损失'], ans: '操作风险是指由不完善或有问题的内部程序、人员、系统以及外部事件造成损失的风险，包括内部欺诈、外部欺诈、就业制度与工作场所安全性、客户与产品、实物资产损坏、系统故障、交易执行与流程管理失误等类别，与市场风险、信用风险并列为金融机构三大风险。' },
+        { q: '「三道防线」', opts: null, a: -1, kp: '风险管理体系', chapter: '第8章', type: '名词解释', pts: ['业务部门', '自我控制', '风险管理与合规', '内部审计', '监督'], ans: '三道防线是金融机构风险管理的组织架构安排：第一道防线是业务部门，作为风险的直接承担者，在日常经营中实施自我控制与流程管理；第二道防线是风险管理与合规部门，负责制定风险政策、计量风险、监控限额与合规审查；第三道防线是内部审计部门，独立于业务与风险管理，对前两道防线的有效性进行独立监督与评价，直接向董事会或审计委员会报告。三者相互制衡，构成全面风险管理体系的基础。' },
+        { q: '简述投资银行面临的主要风险类型及其管理方法。', opts: null, a: -1, kp: '风险管理体系', chapter: '第8章', type: '简答', pts: ['市场风险', '信用风险', '操作风险', '流动性风险', '限额管理', '三道防线'], ans: '①市场风险（利率、汇率、股价波动）：建立限额管理体系，运用 VaR、久期、压力测试计量，并通过衍生工具对冲；②信用风险（交易对手违约、包销余额风险）：实行授信与内部评级、要求抵押担保、净额结算、分散化与集中度控制；③操作风险：内控流程再造、权限分离与轮岗、系统建设与灾备、合规培训与内部审计；④流动性风险：资产负债期限匹配、保持充足流动性储备、建立备用融资额度与应急计划；⑤声誉与法律风险：规范信息披露、管理利益冲突、强化合规审查。总体上依托「三道防线」与全面风险管理体系，实现事前识别、事中监控、事后问责。' },
+        { q: '简述投资银行市场风险的主要计量方法及其适用性。', opts: null, a: -1, kp: 'VaR', chapter: '第8章', type: '简答', pts: ['VaR', '久期', '压力测试', '情景分析', '回测'], ans: '①VaR（在险价值）：在给定置信水平与持有期下估计最大预期损失，适用于日常限额管理与风险敞口监控，局限是不刻画尾部极端损失；②久期与凸性：衡量债券类资产价格对利率变动的敏感程度，适用于利率风险的精细化管理与免疫策略；③压力测试与情景分析：模拟极端市场情形（如利率剧变、流动性枯竭）下的损失，弥补 VaR 的尾部盲区；④敏感性分析与缺口分析：测算单一风险因子变动对损益的影响，适用于结构相对简单、敞口集中的组合；⑤回测：用历史数据检验风险模型的准确性，确保模型参数与实际相符。实务中通常多方法并用，并以限额体系与止损机制加以约束。' },
 
-        /* ================= 第9章 投资银行的监管 ================= */
+        /* ================= 第9章 投资银行的监管（12题） ================= */
         { q: '我国证券公司的直接监管机构是？', opts: ['中国证券监督管理委员会', '中国人民银行', '国家金融监督管理总局', '财政部'], a: 0, kp: '监管机构', chapter: '第9章', type: '选择' },
         { q: '证券监管模式中，「集中型监管」的典型代表国家是？', opts: ['美国', '英国', '德国', '瑞士'], a: 0, kp: '监管模式', chapter: '第9章', type: '选择' },
         { q: '我国现行金融监管格局「一行一局一会」分别指？', opts: ['中国人民银行、国家金融监督管理总局、中国证监会', '中国人民银行、中国银保监会、中国证监会', '财政部、国家发展改革委、中国人民银行', '中国人民银行、中国证监会、证券交易所'], a: 0, kp: '监管格局', chapter: '第9章', type: '选择' },
         { q: '下列不属于证券监管目标的是？', opts: ['保护投资者尤其是中小投资者的合法权益', '维护证券市场的公开、公平、公正', '保证投资者获得正的投资收益', '防范和化解系统性金融风险'], a: 2, kp: '监管目标', chapter: '第9章', type: '选择' },
         { q: '注册制下证券监管的核心思路是？', opts: ['以信息披露为中心，压实中介机构「看门人」责任', '由监管机构对企业的投资价值作实质性判断', '取消信息披露要求以降低发行成本', '完全交由市场自律、不加干预'], a: 0, kp: '注册制', chapter: '第9章', type: '选择' },
-        { q: '「注册制」', opts: null, a: -1, kp: '注册制', chapter: '第9章', type: '名词解释', ans: '注册制是指证券发行审核以信息披露为中心，发行人依法充分披露信息并对其真实性、准确性、完整性负责，监管机构不对发行人的投资价值作实质性判断，而由市场和投资者自主决策的发行审核制度。其要害在于强化信息披露质量与中介机构的核查把关责任。' },
-        { q: '简述证券监管的主要目标与基本原则。', opts: null, a: -1, kp: '监管目标', chapter: '第9章', type: '简答', ans: '主要目标：①保护投资者尤其是中小投资者的合法权益；②维护证券市场的公开、公平、公正（「三公」原则）；③提高资源配置效率、促进资本市场健康发展；④防范和化解系统性金融风险。基本原则：依法监管、公开透明、公平公正、效率与安全并重、政府监管与自律管理相结合、以及监管的适度性与一致性原则。' },
-        { q: '简述集中型监管模式与自律型监管模式的主要差异。', opts: null, a: -1, kp: '监管模式', chapter: '第9章', type: '简答', ans: '①集中型（以美国为代表）：由政府设立统一的专门证券监管机构（如 SEC）主导监管，法律体系完备、权威性强、执法统一、对投资者保护有力，但监管成本较高、对市场变化反应相对滞后；②自律型（以英国传统模式为代表）：主要依靠证券交易所与证券业协会实行自律管理，贴近市场、灵活性强、成本较低，但权威性不足、易纵容违规、投资者保护较弱；③中间型（以德国、法国为代表）：政府监管与自律管理相结合。我国总体上属于政府集中统一监管为主、行业自律管理为辅的模式。' },
-        { q: '结合注册制改革，说明保荐机构「看门人」责任的内涵及违反后可能承担的后果。', opts: null, a: -1, kp: '看门人责任', chapter: '第9章', type: '案例', ans: '责任内涵：注册制下监管不再为企业的投资价值背书，保荐机构必须勤勉尽责，对发行人的经营、财务、法律等事项进行充分核查与验证，确保招股说明书等信息披露文件真实、准确、完整，切实充当资本市场「看门人」。违反后果：①行政责任：监管警示、责令改正、监管谈话、认定为不适当人选、暂停或撤销相关业务资格、罚款等；②民事责任：因虚假陈述给投资者造成损失的，保荐机构应与发行人承担连带赔偿责任；③刑事责任：构成欺诈发行、提供虚假证明文件等犯罪的，依法追究刑事责任；④声誉与市场后果：信用评级下降、客户流失、业务受限。' }
+        { q: '我国证券监管的主要目标包括？', opts: ['保护投资者尤其是中小投资者的合法权益', '维护证券市场的公开、公平、公正', '提高资源配置效率、促进资本市场健康发展', '防范和化解系统性金融风险', '保证每一位投资者获得正的投资收益'], a: [0, 1, 2, 3], multi: true, kp: '监管目标', chapter: '第9章', type: '选择' },
+        { q: '「注册制」', opts: null, a: -1, kp: '注册制', chapter: '第9章', type: '名词解释', pts: ['信息披露为中心', '不作实质判断', '发行人负责', '中介机构责任', '市场自主决策'], ans: '注册制是指证券发行审核以信息披露为中心，发行人依法充分披露信息并对其真实性、准确性、完整性负责，监管机构不对发行人的投资价值作实质性判断，而由市场和投资者自主决策的发行审核制度。其要害在于强化信息披露质量与中介机构的核查把关责任。' },
+        { q: '「看门人责任」', opts: null, a: -1, kp: '看门人责任', chapter: '第9章', type: '名词解释', pts: ['中介机构', '核查把关', '信息披露', '勤勉尽责', '连带责任'], ans: '看门人责任是指在注册制下，保荐机构、会计师事务所、律师事务所等中介机构依法对发行人的信息披露进行独立核查与专业把关，确保招股说明书等信息披露文件真实、准确、完整，并对其出具的文件的真实性负责。若未勤勉尽责导致虚假陈述，中介机构可能承担行政处罚、与发行人连带民事赔偿责任，情节严重的还可能被追究刑事责任。' },
+        { q: '简述证券监管的主要目标与基本原则。', opts: null, a: -1, kp: '监管目标', chapter: '第9章', type: '简答', pts: ['保护投资者', '三公原则', '资源配置效率', '系统性风险', '依法监管'], ans: '主要目标：①保护投资者尤其是中小投资者的合法权益；②维护证券市场的公开、公平、公正（「三公」原则）；③提高资源配置效率、促进资本市场健康发展；④防范和化解系统性金融风险。基本原则：依法监管、公开透明、公平公正、效率与安全并重、政府监管与自律管理相结合、以及监管的适度性与一致性原则。' },
+        { q: '简述集中型监管模式与自律型监管模式的主要差异。', opts: null, a: -1, kp: '监管模式', chapter: '第9章', type: '简答', pts: ['集中型', '美国SEC', '自律型', '英国', '中间型', '政府监管'], ans: '①集中型（以美国为代表）：由政府设立统一的专门证券监管机构（如 SEC）主导监管，法律体系完备、权威性强、执法统一、对投资者保护有力，但监管成本较高、对市场变化反应相对滞后；②自律型（以英国传统模式为代表）：主要依靠证券交易所与证券业协会实行自律管理，贴近市场、灵活性强、成本较低，但权威性不足、易纵容违规、投资者保护较弱；③中间型（以德国、法国为代表）：政府监管与自律管理相结合。我国总体上属于政府集中统一监管为主、行业自律管理为辅的模式。' },
+        { q: '简述我国证券监管体系的基本构成。', opts: null, a: -1, kp: '监管格局', chapter: '第9章', type: '简答', pts: ['一行一局一会', '中国证监会', '自律管理', '交易所', '行业协会'], ans: '我国证券监管体系以「一行一局一会」为顶层架构：中国人民银行负责宏观审慎管理与系统性金融风险防范；国家金融监督管理总局负责银行业、保险业监管；中国证监会负责证券期货市场的统一监督管理。在证监会之下，证券交易所与证券业协会、上市公司协会等行业自律组织承担一线自律管理职能（如上市审核、信息披露监管、会员行为自律），形成「政府监管为主、自律管理为辅、社会监督为补充」的多层次监管体系。此外还通过司法（民事赔偿、刑事追责）与投资者保护机构（如投服中心）形成协同。监管手段包括市场准入、信息披露、现场检查、行政处罚与市场禁入等。' },
+        { q: '结合注册制改革，说明保荐机构「看门人」责任的内涵及违反后可能承担的后果。', opts: null, a: -1, kp: '看门人责任', chapter: '第9章', type: '案例', pts: ['勤勉尽责', '核查验证', '虚假陈述', '连带赔偿', '行政处罚', '声誉'], ans: '责任内涵：注册制下监管不再为企业的投资价值背书，保荐机构必须勤勉尽责，对发行人的经营、财务、法律等事项进行充分核查与验证，确保招股说明书等信息披露文件真实、准确、完整，切实充当资本市场「看门人」。违反后果：①行政责任：监管警示、责令改正、监管谈话、认定为不适当人选、暂停或撤销相关业务资格、罚款等；②民事责任：因虚假陈述给投资者造成损失的，保荐机构应与发行人承担连带赔偿责任；③刑事责任：构成欺诈发行、提供虚假证明文件等犯罪的，依法追究刑事责任；④声誉与市场后果：信用评级下降、客户流失、业务受限。' }
       ];
 
-      // 状态：以题目对象为键，跨筛选保留作答记录 'ok' | 'bad' | 'seen'
-      const status = new Map();
+      // 状态模型（答题结果与"看过答案"分离，避免互相覆盖）：
+      //   ansStatus: Map<题, 'ok' | 'bad'>  —— 答题结果（客观题自动判定；主观题由学生自评）
+      //   seenSet:   Set<题>                —— 是否查看过参考答案（仅作答题卡右上角紫点角标，不覆盖结果）
+      //   draft:     Map<题, string>        —— 主观题作答草稿（跨筛选、跨题切换保留）
+      //   picked:    Map<题, number[]>      —— 客观题已选/已勾选项下标
+      const ansStatus = new Map();
+      const seenSet = new Set();
+      const draft = new Map();
+      const picked = new Map();
       const wrongBook = [
         { q: '市盈率法与市净率法分别适用于什么类型公司？', kp: '相对估值', ans: '成长型、盈利稳定的公司常用 PE；重资产、金融类公司常用 PB。', exp: '容易混淆 PE 与 PB 的适用场景，需结合公司资产结构与盈利特征判断。' },
         { q: '包销与代销在风险分担上有何区别？', kp: '承销业务', ans: '包销由投行承担未售出风险；代销风险小但募资不确定。', exp: '抓住「风险由谁承担」这一关键，而非只记名词。' },
@@ -2464,14 +2674,20 @@
 
       function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
       function chNum(c) { return parseInt(String(c).replace(/[^0-9]/g, ''), 10) || 0; }
-      function doneCount() { return curList.filter(function (q) { return status.has(q); }).length; }
-      function okCount() { return curList.filter(function (q) { return status.get(q) === 'ok'; }).length; }
+      function isMulti(q) { return !!(q.multi && Array.isArray(q.a)); }
+      function normTxt(s) { return String(s == null ? '' : s).replace(/[\s，。、；：,.;:！？!?（）()《》〈〉【】\[\]"'“”‘’·—\-~\/]/g, ''); }
+      function ansIndexes(q) { return Array.isArray(q.a) ? q.a.slice().sort(function (a, b) { return a - b; }) : [q.a]; }
+      function ansLabel(q) { return ansIndexes(q).map(function (i) { return String.fromCharCode(65 + i); }).join('、'); }
+      function ansText(q) { return ansIndexes(q).map(function (i) { return String.fromCharCode(65 + i) + '. ' + q.opts[i]; }).join('　'); }
+      function doneCount() { return curList.filter(function (q) { return ansStatus.has(q); }).length; }
+      function okCount() { return curList.filter(function (q) { return ansStatus.get(q) === 'ok'; }).length; }
+      function trackAns(item, ok) { if (window.__ibankTrack) window.__ibankTrack('quiz', { chapter: item.chapter, qtype: item.type, correct: !!ok }); }
 
       function renderWrong() {
         const list = document.getElementById('wrong-list');
         if (!list) return;
         list.innerHTML = '';
-        if (!wrongBook.length) { list.innerHTML = '<div class="todo-note">暂无错题。答错的题目会自动归集到这里。</div>'; return; }
+        if (!wrongBook.length) { list.innerHTML = '<div class="todo-note">暂无错题。答错或自评未掌握的题目会自动归集到这里。</div>'; return; }
         wrongBook.forEach(function (w) {
           const div = document.createElement('div');
           div.className = 'wrong-item';
@@ -2479,6 +2695,18 @@
           list.appendChild(div);
         });
       }
+      function addWrong(item) {
+        const isObj = !!item.opts;
+        wrongBook.unshift({
+          q: item.q, kp: item.kp,
+          ans: isObj ? ansText(item) : (item.ans || ''),
+          exp: isObj
+            ? '正确答案为 ' + ansLabel(item) + '，请结合「' + item.kp + '」复习相关知识点。'
+            : '主观题无标准答案，请对照参考要点复习「' + item.kp + '」相关知识点。'
+        });
+        renderWrong();
+      }
+
       function buildChips() {
         const chBox = document.getElementById('ex-chips-ch'), typeBox = document.getElementById('ex-chips-type');
         const chapters = []; QUIZ.forEach(function (x) { if (chapters.indexOf(x.chapter) === -1) chapters.push(x.chapter); });
@@ -2492,34 +2720,35 @@
       }
       function metaHtml() {
         const byType = {}; TYPES.forEach(function (t) { byType[t] = curList.filter(function (q) { return q.type === t; }).length; });
+        const multiN = curList.filter(isMulti).length;
         const parts = TYPES.filter(function (t) { return byType[t]; }).map(function (t) { return t + ' ' + byType[t]; });
         const scope = (exCh || '全部章节') + (exType ? ' · ' + exType : '');
-        return '<div class="ex-meta">📍 当前：<b>' + scope + '</b> · 共 <b>' + curList.length + '</b> 题（' + parts.join(' / ') + '）</div>';
+        return '<div class="ex-meta">📍 当前：<b>' + scope + '</b> · 共 <b>' + curList.length + '</b> 题（' + parts.join(' / ') + (multiN ? '，其中多选 ' + multiN : '') + '）</div>';
       }
       function navHtml() {
         const total = curList.length, done = doneCount(), ok = okCount();
         const pct = total ? Math.round(done / total * 100) : 0;
         let grid = '';
         curList.forEach(function (q, i) {
-          const s = status.get(q);
-          const cls = 'qn-btn' + (s === 'ok' ? ' ok' : s === 'bad' ? ' bad' : s === 'seen' ? ' seen' : '') + (i === cur ? ' cur' : '');
-          grid += '<button class="' + cls + '" data-jump="' + i + '" title="第 ' + (i + 1) + ' 题 · ' + q.type + ' · ' + q.chapter + '">' + (i + 1) + '</button>';
+          const s = ansStatus.get(q);
+          const cls = 'qn-btn' + (s === 'ok' ? ' ok' : s === 'bad' ? ' bad' : '') + (i === cur ? ' cur' : '') + (seenSet.has(q) ? ' seen-dot' : '');
+          grid += '<button class="' + cls + '" data-jump="' + i + '" title="第 ' + (i + 1) + ' 题 · ' + q.type + ' · ' + q.chapter + (seenSet.has(q) ? ' · 已看答案' : '') + '">' + (i + 1) + '</button>';
         });
         const pos = cur >= total ? '已完成' : '第 ' + (cur + 1) + ' / ' + total + ' 题';
         return '<div class="qn-box"><div class="qn-head"><div class="qn-t">答题卡 · ' + pos + '</div>'
-          + '<div class="qn-legend"><span><i class="lg-cur"></i>当前</span><span><i class="lg-ok"></i>答对</span><span><i class="lg-bad"></i>答错</span><span><i class="lg-seen"></i>已看答案</span></div></div>'
+          + '<div class="qn-legend"><span><i class="lg-cur"></i>当前</span><span><i class="lg-ok"></i>答对</span><span><i class="lg-bad"></i>答错</span><span><i class="lg-dot"></i>看过答案</span></div></div>'
           + '<div class="ex-prog"><div class="pbar"><i style="width:' + pct + '%"></i></div><span>已作答 <b>' + done + '</b> / ' + total + '　答对 <b>' + ok + '</b>　正确率 ' + (done ? Math.round(ok / done * 100) : 0) + '%</span></div>'
           + '<div class="qn-grid">' + grid + '</div></div>';
       }
       function listHtml() {
         let items = '';
         curList.forEach(function (q, i) {
-          const s = status.get(q);
-          const lab = s === 'ok' ? '已答对' : s === 'bad' ? '答错' : s === 'seen' ? '已看答案' : '未作答';
-          const cls = s === 'ok' ? 'ok' : s === 'bad' ? 'bad' : s === 'seen' ? 'seen' : '';
+          const s = ansStatus.get(q), seen = seenSet.has(q);
+          const lab = s === 'ok' ? '已答对' : s === 'bad' ? '答错' : (seen ? '已看答案' : '未作答');
+          const cls = s === 'ok' ? 'ok' : s === 'bad' ? 'bad' : (seen ? 'seen' : '');
           items += '<div class="ql-item' + (i === cur ? ' cur' : '') + '" data-jump="' + i + '" title="点击跳到第 ' + (i + 1) + ' 题">'
             + '<span class="ql-no">' + (i + 1) + '</span>'
-            + '<span class="ql-body"><span class="ql-q">' + esc(q.q) + '</span><span class="ql-meta">' + q.type + ' · ' + q.chapter + ' · ' + esc(q.kp) + '</span></span>'
+            + '<span class="ql-body"><span class="ql-q">' + esc(q.q) + '</span><span class="ql-meta">' + q.type + (isMulti(q) ? '（多选）' : '') + ' · ' + q.chapter + ' · ' + esc(q.kp) + '</span></span>'
             + '<span class="ql-st ' + cls + '">' + lab + '</span></div>';
         });
         return '<details class="ql-wrap" id="ql-wrap"' + (listOpen ? ' open' : '') + '><summary>题目一览（共 ' + curList.length + ' 题，点击任意题可跳转）</summary><div class="ql-list">' + items + '</div></details>';
@@ -2532,96 +2761,160 @@
         return '<div class="ex-navbtns">' + prev + next + '</div>';
       }
       function headHtml() { return metaHtml() + navHtml() + listHtml(); }
+      function refreshNav() {
+        const box = quizBox.querySelector('.qn-box'); if (box) box.outerHTML = navHtml();
+        const wrap = quizBox.querySelector('#ql-wrap'); if (wrap) wrap.outerHTML = listHtml();
+      }
 
-      function renderQuiz() {
-        if (!curList.length) { quizBox.innerHTML = '<div class="todo-note">该筛选条件下暂无题目，请切换章节或题型。</div>'; return; }
-        if (cur >= curList.length) {
-          quizBox.innerHTML = headHtml() + '<div class="quiz-score">🎉 本轮练习已完成！共 ' + curList.length + ' 题，答对 <strong>' + okCount() + '</strong> 题，正确率 ' + Math.round(okCount() / curList.length * 100) + '%。</div><div class="ex-navbtns"><button class="sim-btn primary" id="quiz-restart">清空重做</button><button class="sim-btn" id="quiz-first">回到第 1 题</button></div>';
-          return;
-        }
-        const item = curList[cur];
-        const head = '<div class="quiz-q"><strong>第 ' + (cur + 1) + ' / ' + curList.length + ' 题</strong>　' + esc(item.q) + '　<span class="q-tag">' + item.type + ' · ' + item.chapter + '</span></div>';
-        // —— 主观题：名词解释 / 简答 / 案例（无选项） ——
-        if (!item.opts) {
-          const seen = status.get(item) === 'seen';
-          quizBox.innerHTML = headHtml() + head
-            + '<div class="ex-navbtns"><button class="sim-btn primary" id="quiz-reveal">' + (seen ? '再看参考要点' : '查看参考要点') + '</button></div>'
-            + '<div class="quiz-ans-box" id="quiz-ans" style="display:' + (seen ? 'block' : 'none') + ';"><b>参考要点：</b>' + esc(item.ans) + '</div>'
-            + footHtml();
-          return;
-        }
-        // —— 客观题：选择 ——
-        const s = status.get(item);
+      // —— 要点命中：把学生作答与要点关键词做归一化包含匹配，仅作提示，不作判分依据 ——
+      function ptsHit(item) {
+        const txt = normTxt(draft.get(item) || '');
+        return (item.pts || []).map(function (p) { const k = normTxt(p); return { t: p, hit: k.length > 0 && txt.indexOf(k) > -1 }; });
+      }
+
+      function renderObjective(item, head) {
+        const s = ansStatus.get(item), multi = isMulti(item);
+        const chosen = picked.get(item) || [];
         let html = head + '<div class="quiz-opts">';
         item.opts.forEach(function (o, i) {
-          let cls = 'quiz-opt';
+          let cls = 'quiz-opt' + (multi ? ' multi' : '') + (chosen.indexOf(i) > -1 ? ' on' : '');
           if (s) {
-            if (i === item.a) cls += ' correct';
-            else if (s === 'bad' && i === itemMark(item)) cls += ' wrong';
+            const isAns = ansIndexes(item).indexOf(i) > -1;
+            if (isAns) cls += ' correct';
+            else if (chosen.indexOf(i) > -1) cls += ' wrong';
             cls += ' disabled';
           }
           html += '<button class="' + cls + '" data-i="' + i + '">' + String.fromCharCode(65 + i) + '. ' + esc(o) + '</button>';
         });
-        html += '</div><div class="quiz-score" id="quiz-feedback"></div>' + footHtml();
+        html += '</div>';
+        if (multi && !s) html += '<div class="ex-navbtns" id="multi-submit-row"><button class="sim-btn primary" id="quiz-submit-multi">提交答案</button><span class="sub-tip">多选题：可勾选多个选项，全部选对才算正确</span></div>';
+        html += '<div class="quiz-score" id="quiz-feedback"></div>' + footHtml();
         quizBox.innerHTML = headHtml() + html;
         if (s) {
           const fb = document.getElementById('quiz-feedback');
-          if (fb) fb.innerHTML = s === 'ok' ? '✅ 回答正确' : '❌ 回答错误，正确答案是 ' + String.fromCharCode(65 + item.a);
+          if (fb) fb.innerHTML = s === 'ok' ? '✅ 回答正确' : '❌ 回答错误，正确答案是 ' + ansLabel(item);
         }
       }
-      // 记录客观题的错误选项，便于回看时标红
-      const picked = new Map();
-      function itemMark(q) { return picked.has(q) ? picked.get(q) : -1; }
 
-      function pickOption(btn) {
-        if (!curList.length || cur >= curList.length) return;
-        const item = curList[cur];
-        if (status.has(item)) return;           // 已作答，忽略重复点击
-        const i = parseInt(btn.getAttribute('data-i'), 10);
-        const fb = document.getElementById('quiz-feedback');
-        picked.set(item, i);
-        if (i === item.a) {
-          status.set(item, 'ok'); btn.classList.add('correct');
-          if (fb) fb.innerHTML = '✅ 回答正确';
-        } else {
-          status.set(item, 'bad'); btn.classList.add('wrong');
-          const right = quizBox.querySelector('.quiz-opt[data-i="' + item.a + '"]');
-          if (right) right.classList.add('correct');
-          if (fb) fb.innerHTML = '❌ 回答错误，正确答案是 ' + String.fromCharCode(65 + item.a);
-          wrongBook.unshift({ q: item.q, kp: item.kp, ans: item.opts[item.a], exp: '本题正确答案为 ' + String.fromCharCode(65 + item.a) + '，请结合「' + item.kp + '」复习相关知识点。' });
-          renderWrong();
+      function renderSubjective(item, head) {
+        const s = ansStatus.get(item), seen = seenSet.has(item);
+        const hits = ptsHit(item), hitN = hits.filter(function (h) { return h.hit; }).length;
+        let html = head
+          + '<div class="sub-ans-wrap"><textarea id="sub-input" placeholder="在此写下你的作答：先独立思考，再对照参考要点。">' + esc(draft.get(item) || '') + '</textarea>'
+          + '<div class="sub-tip">主观题没有唯一标准答案：提交后系统会标出你覆盖到的<b>要点关键词</b>，最终由你自己对照参考答案自评掌握程度。</div></div>'
+          + '<div class="ex-navbtns"><button class="sim-btn primary" id="sub-submit">' + (seen ? '重新提交并对照要点' : '提交作答并对照要点') + '</button>'
+          + (seen ? '' : '<button class="sim-btn" id="quiz-reveal">直接查看参考要点</button>') + '</div>';
+        if (seen) {
+          html += '<div class="pts-hit"><div class="hd">要点覆盖：命中 <b>' + hitN + '</b> / ' + hits.length + ' 个要点关键词</div><div class="pts-list">'
+            + hits.map(function (h) { return '<span class="pt' + (h.hit ? ' hit' : '') + '">' + (h.hit ? '✓ ' : '○ ') + esc(h.t) + '</span>'; }).join('')
+            + '</div></div>'
+            + '<div class="quiz-ans-box" id="quiz-ans"><b>参考要点：</b>' + esc(item.ans) + '</div>';
+          if (s) {
+            html += '<div class="quiz-score" id="quiz-feedback">' + (s === 'ok' ? '✅ 已自评：掌握' : '❌ 已自评：还需复习') + '　<span class="sub-tip">（自评结果已计入答题卡与学习统计）</span></div>';
+          } else {
+            html += '<div class="self-assess"><span>对照参考要点后自评：</span><button class="sim-btn primary" id="sub-ok">✅ 我掌握了</button><button class="sim-btn" id="sub-bad">❌ 还需复习</button></div>';
+          }
         }
-        if (window.__ibankTrack) window.__ibankTrack('quiz', { chapter: item.chapter, qtype: item.type, correct: (i === item.a) });
-        // 刷新答题卡与一览的状态染色，但不破坏当前题面
-        const box = quizBox.querySelector('.qn-box');
-        if (box) box.outerHTML = navHtml();
-        const wrap = quizBox.querySelector('#ql-wrap');
-        if (wrap) wrap.outerHTML = listHtml();
+        html += footHtml();
+        quizBox.innerHTML = headHtml() + html;
+      }
+
+      function renderQuiz() {
+        if (!curList.length) { quizBox.innerHTML = '<div class="todo-note">该筛选条件下暂无题目，请切换章节或题型。</div>'; return; }
+        if (cur >= curList.length) {
+          const total = curList.length, done = doneCount();
+          quizBox.innerHTML = headHtml() + '<div class="quiz-score">🎉 本轮练习已完成！共 ' + total + ' 题，已作答 <strong>' + done + '</strong> 题，答对 <strong>' + okCount() + '</strong> 题' + (done ? '，正确率 ' + Math.round(okCount() / done * 100) + '%' : '') + '。</div><div class="ex-navbtns"><button class="sim-btn primary" id="quiz-restart">清空重做</button><button class="sim-btn" id="quiz-first">回到第 1 题</button></div>';
+          return;
+        }
+        const item = curList[cur];
+        const tag = item.type + (isMulti(item) ? '（多选）' : '') + ' · ' + item.chapter;
+        const head = '<div class="quiz-q"><strong>第 ' + (cur + 1) + ' / ' + curList.length + ' 题</strong>　' + esc(item.q) + '　<span class="q-tag">' + tag + '</span></div>';
+        if (!item.opts) renderSubjective(item, head);
+        else renderObjective(item, head);
+      }
+
+      function pickOption(item, i) {
+        if (ansStatus.has(item)) return;           // 已作答，忽略重复点击
+        picked.set(item, [i]);
+        const ok = i === item.a;
+        ansStatus.set(item, ok ? 'ok' : 'bad');
+        const btns = quizBox.querySelectorAll('.quiz-opt');
+        Array.prototype.forEach.call(btns, function (b) {
+          const bi = parseInt(b.getAttribute('data-i'), 10);
+          if (bi === item.a) b.classList.add('correct');
+          else if (bi === i) b.classList.add('wrong');
+          b.classList.add('disabled');
+        });
+        const fb = document.getElementById('quiz-feedback');
+        if (fb) fb.innerHTML = ok ? '✅ 回答正确' : '❌ 回答错误，正确答案是 ' + ansLabel(item);
+        if (!ok) addWrong(item);
+        trackAns(item, ok);
+        refreshNav();
+      }
+
+      function submitMulti(item) {
+        if (ansStatus.has(item)) return;
+        const chosen = (picked.get(item) || []).slice().sort(function (a, b) { return a - b; });
+        if (!chosen.length) { if (typeof ibankToast === 'function') ibankToast('请先勾选至少一个选项再提交'); return; }
+        const ok = chosen.join(',') === ansIndexes(item).join(',');
+        ansStatus.set(item, ok ? 'ok' : 'bad');
+        const btns = quizBox.querySelectorAll('.quiz-opt');
+        Array.prototype.forEach.call(btns, function (b) {
+          const bi = parseInt(b.getAttribute('data-i'), 10);
+          b.classList.remove('on');
+          b.classList.add('disabled');
+          if (ansIndexes(item).indexOf(bi) > -1) b.classList.add('correct');
+          else if (chosen.indexOf(bi) > -1) b.classList.add('wrong');
+        });
+        const row = document.getElementById('multi-submit-row'); if (row) row.style.display = 'none';
+        const fb = document.getElementById('quiz-feedback');
+        if (fb) fb.innerHTML = ok ? '✅ 回答正确' : '❌ 回答错误，正确答案是 ' + ansLabel(item);
+        if (!ok) addWrong(item);
+        trackAns(item, ok);
+        refreshNav();
       }
 
       quizBox.addEventListener('click', function (e) {
         const jump = e.target.closest('[data-jump]');
-        if (jump) { cur = parseInt(jump.getAttribute('data-jump'), 10); renderQuiz(); return; }
+        if (jump) { if (cur < curList.length) { const ta = document.getElementById('sub-input'); if (ta) draft.set(curList[cur], ta.value); } cur = parseInt(jump.getAttribute('data-jump'), 10); renderQuiz(); return; }
         const opt = e.target.closest('.quiz-opt');
-        if (opt) { pickOption(opt); return; }
-        const id = e.target.id;
-        if (id === 'quiz-reveal') {
+        if (opt) {
+          if (cur >= curList.length) return;
           const item = curList[cur];
-          status.set(item, 'seen');
-          const ans = document.getElementById('quiz-ans');
-          if (ans) ans.style.display = 'block';
-          const b = document.getElementById('quiz-reveal');
-          if (b) b.textContent = '再看参考要点';
-          const box = quizBox.querySelector('.qn-box'); if (box) box.outerHTML = navHtml();
-          const wrap = quizBox.querySelector('#ql-wrap'); if (wrap) wrap.outerHTML = listHtml();
+          if (!item || !item.opts || ansStatus.has(item)) return;
+          const i = parseInt(opt.getAttribute('data-i'), 10);
+          if (isMulti(item)) {
+            let arr = (picked.get(item) || []).slice();
+            if (arr.indexOf(i) > -1) arr = arr.filter(function (x) { return x !== i; }); else arr.push(i);
+            picked.set(item, arr);
+            opt.classList.toggle('on');
+          } else pickOption(item, i);
           return;
         }
-        if (id === 'quiz-next') { cur++; renderQuiz(); return; }
-        if (id === 'quiz-prev') { cur--; renderQuiz(); return; }
+        const id = e.target.id;
+        if (id === 'sub-submit') {
+          const item = curList[cur];
+          const ta = document.getElementById('sub-input');
+          if (ta) draft.set(item, ta.value);
+          if (!seenSet.has(item) && !(ta && ta.value.trim())) { if (typeof ibankToast === 'function') ibankToast('先写下你的作答，再对照参考要点吧'); return; }
+          seenSet.add(item); renderQuiz(); refreshNav(); return;
+        }
+        if (id === 'sub-ok' || id === 'sub-bad') {
+          const item = curList[cur];
+          const ok = id === 'sub-ok';
+          ansStatus.set(item, ok ? 'ok' : 'bad');
+          if (!ok) addWrong(item);
+          trackAns(item, ok); renderQuiz(); return;
+        }
+        if (id === 'quiz-reveal') { const item = curList[cur]; const ta = document.getElementById('sub-input'); if (ta) draft.set(item, ta.value); seenSet.add(item); renderQuiz(); return; }
+        if (id === 'quiz-submit-multi') { submitMulti(curList[cur]); return; }
+        if (id === 'quiz-next') { const ta = document.getElementById('sub-input'); if (ta) draft.set(curList[cur], ta.value); cur++; renderQuiz(); return; }
+        if (id === 'quiz-prev') { const ta = document.getElementById('sub-input'); if (ta) draft.set(curList[cur], ta.value); cur--; renderQuiz(); return; }
         if (id === 'quiz-finish') { cur = curList.length; renderQuiz(); return; }
         if (id === 'quiz-first') { cur = 0; renderQuiz(); return; }
-        if (id === 'quiz-restart') { curList.forEach(function (q) { status.delete(q); picked.delete(q); }); cur = 0; renderQuiz(); return; }
+        if (id === 'quiz-restart') { curList.forEach(function (q) { ansStatus.delete(q); seenSet.delete(q); picked.delete(q); draft.delete(q); }); cur = 0; renderQuiz(); return; }
       });
+      quizBox.addEventListener('input', function (e) { const t = e.target; if (t && t.id === 'sub-input' && cur < curList.length) draft.set(curList[cur], t.value); });
       quizBox.addEventListener('toggle', function (e) { if (e.target && e.target.id === 'ql-wrap') listOpen = e.target.open; }, true);
 
       const chBox = document.getElementById('ex-chips-ch'), typeBox = document.getElementById('ex-chips-type');
@@ -2673,43 +2966,582 @@
       });
     })();
 
-    // ===== IPO 流程仿真 =====
+    // ===== 科创板 IPO 定价配售仿真（参照上海师范大学虚仿实验：可算法化规则链）=====
+    // v32：判分从「唯一正解」改为「合规区间 + 质量分档 + 可重试」；新增实时定价体检、
+    //      逐项解析、决策后果传导、分步得分明细与导出。
     (function () {
-      const STEPS = [
-        { t: '改制设立', d: '有限责任公司改制为股份有限公司，明确股权结构与治理架构，为后续申报奠定主体资格基础。' },
-        { t: '上市辅导', d: '保荐机构对企业进行规范辅导，完善财务、内控与信息披露制度，使其达到上市条件。' },
-        { t: '申报受理', d: '保荐机构编制招股说明书等申报材料，向交易所提交上市申请并获受理。' },
-        { t: '审核注册', d: '交易所审核、证监会注册，围绕财务、法律、业务等问题问询，企业与保荐机构答复。' },
-        { t: '发行定价', d: '确定估值方法与发行价区间，综合市盈率、市净率、现金流折现等给出定价。' },
-        { t: '路演询价', d: '向机构投资者路演推介，收集申购意愿与报价，确定最终发行价。' },
-        { t: '发行上市', d: '完成申购、配售与资金募集，股票挂牌上市交易。' }
-      ];
-      let si = 0;
-      const dots = document.getElementById('ipo-steps');
-      const title = document.getElementById('ipo-title');
-      const desc = document.getElementById('ipo-desc');
-      const prev = document.getElementById('ipo-prev');
-      const next = document.getElementById('ipo-next');
-      function render() {
-        dots.innerHTML = '';
-        STEPS.forEach(function (s, i) {
-          const d = document.createElement('div');
-          d.className = 'step-dot' + (i === si ? ' active' : (i < si ? ' done' : ''));
-          d.textContent = (i + 1) + '. ' + s.t;
-          dots.appendChild(d);
-        });
-        title.textContent = STEPS[si].t;
-        desc.textContent = STEPS[si].d;
-        prev.disabled = si === 0;
-        next.textContent = si === STEPS.length - 1 ? '完成上市' : '下一步';
-        next.disabled = false;
+      function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+      function fmtMoney(n){if(!isFinite(n))return '—';if(n>=1e8)return (n/1e8).toFixed(2)+' 亿元';if(n>=1e4)return (n/1e4).toFixed(1)+' 万元';return Math.round(n).toLocaleString('zh-CN')+' 元';}
+      function fmtN(n){return isFinite(n)?Math.round(n).toLocaleString('zh-CN'):'—';}
+      function pc(x,d){return isFinite(x)?(x*100).toFixed(d==null?1:d)+'%':'—';}
+
+      // 虚构情景公司（种子化，可反复练，学生查不到标准答案）
+      const CO = { name:'芯辰微电子', code:'688CXX', industry:'半导体器件制造', industryPE:45.2,
+        offerShares:12000000, postTotal:100000000, planRaise:456000000, netProfit:120000000,
+        offlineInit:0.70, onlineInit:0.30 };
+      const EPS = CO.netProfit/CO.postTotal;
+
+      let Q=[], onlineMult=0, seedNow=0;
+      function genQuotes(seed){
+        const rnd=mulberry32(seed); const N=480; const arr=[];
+        for(let i=0;i<N;i++){
+          const r=rnd(); const cls=r<0.42?'A':(r<0.66?'B':'C');
+          const base=44, disp=cls==='A'?2.8:5.2;
+          let p=base+(rnd()+rnd()+rnd()-1.5)*disp*1.6; p=Math.max(18,Math.min(70,+p.toFixed(2)));
+          const qty=Math.round((80000+rnd()*1800000)/100)*100;
+          arr.push({cls:cls,price:p,qty:qty});
+        }
+        return arr;
       }
-      prev.addEventListener('click', function () { if (si > 0) { si--; render(); } });
-      next.addEventListener('click', function () {
-        if (si < STEPS.length - 1) { si++; render(); }
-        else { title.textContent = '🎉 上市完成'; desc.textContent = '你已完成从改制到上市的完整流程，掌握了 IPO 各环节的业务逻辑。'; next.disabled = true; }
-      });
-      render();
+      // 网上超额认购倍数每轮随机 → 回拨档位随之变化（≤50 不回拨 / 51–100 回拨 10% / >100 回拨 20%）
+      function genOnlineMult(seed){
+        const r=mulberry32(seed+7777); const t=r();
+        if(t<0.34) return Math.round(30+r()*20);
+        if(t<0.68) return Math.round(55+r()*45);
+        return Math.round(110+r()*1390);
+      }
+      function cbRate(mult){ return mult>100?0.20:(mult>50?0.10:0); }
+
+      const STEPS=[
+        {key:'collect',title:'报价收集',weight:0},
+        {key:'excludeHigh',title:'高价剔除',weight:15},
+        {key:'reference',title:'定价参考',weight:10},
+        {key:'setPrice',title:'确定发行价',weight:30},
+        {key:'excludeLow',title:'低价剔除',weight:10},
+        {key:'callback',title:'回拨机制',weight:20},
+        {key:'allocate',title:'网下配售',weight:15}
+      ];
+      const MAXTRY=3;
+
+      const REF_OPTS=[
+        {t:'中位数与加权平均数的孰低值', why:'科创板规定发行价格不得高于剔除最高报价后网下投资者报价中位数与加权平均数的孰低值，这是询价结果对定价的硬约束。'},
+        {t:'全部报价的算术平均', why:'算术平均不剔除极端高报价，会系统性抬高上限，不符合「剔除最高报价后」的口径。'},
+        {t:'按行业市盈率倒推的价格', why:'行业市盈率是判断定价合理性的参照系，不是询价的直接约束，不能用来推导区间上限。'},
+        {t:'拟募资额对应的发行底价', why:'募资底价是参考区间的「下限」，方向相反。'}
+      ];
+      const ALLOC_OPTS=[
+        {t:'不低于（优先配售）', why:'科创板网下配售按 A→B→C 顺序优先，A 类（公募基金、社保、养老金、年金、保险资管等）获配比例最高。'},
+        {t:'不高于', why:'方向相反——A 类是被优先照顾的对象，获配比例只会更高。'},
+        {t:'等于', why:'若各类等比例配售，优先配售制度就失去意义。'},
+        {t:'与类别无关，平均分配', why:'科创板明确区分 A/B/C 类投资者并给予差异化配售，不存在无差别平均分配。'}
+      ];
+      function cbOpts(){
+        return [
+          {t:'不回拨（0%）', why:'仅当网上超额认购倍数未超过 50 倍时适用。'},
+          {t:'回拨 10%', why:'适用于 50 倍 < 网上超额认购倍数 ≤ 100 倍。'},
+          {t:'回拨 20%', why:'适用于网上超额认购倍数 > 100 倍。'}
+        ];
+      }
+      function lowSamples(P){
+        return [1.16,1.05,1.00,0.982,0.84].map(function(k){
+          const price=+(P*k).toFixed(2);
+          return {t:'报价 '+price.toFixed(2)+' 元', price:price, cut:price<P-1e-9};
+        });
+      }
+
+      let si=0;
+      const dec={}, stepScore={}, fbMap={}, resMap={}, tried={}, solved={};
+      const doneSteps=new Set(), logs=[];
+      let reportTracked=false;
+
+      const navEl=document.getElementById('ipo-steps');
+      const coEl=document.getElementById('ipo-co');
+      const stage=document.getElementById('ipo-stage');
+      const prev=document.getElementById('ipo-prev');
+      const next=document.getElementById('ipo-next');
+      const restart=document.getElementById('ipo-restart');
+      const scoreEl=document.getElementById('ipo-score');
+      const logEl=document.getElementById('ipo-log');
+
+      function totalQtyOf(){ return Q.reduce(function(s,q){return s+q.qty;},0); }
+      function exclAt(line){
+        if(!(line>0)) return null;
+        const t=totalQtyOf();
+        const ex=Q.filter(function(q){return q.price>=line;}).reduce(function(s,q){return s+q.qty;},0);
+        return {qty:ex, ratio:ex/t};
+      }
+      function core(Pline){
+        const totalQty=totalQtyOf();
+        const valid=Q.filter(function(q){return q.price<Pline;});
+        const excluded=Q.filter(function(q){return q.price>=Pline;});
+        const aValid=valid.filter(function(q){return q.cls==='A';});
+        if(aValid.length<5) return null;
+        const exclQty=excluded.reduce(function(s,q){return s+q.qty;},0);
+        const aPrices=aValid.map(function(q){return q.price;}).sort(function(x,y){return x-y;});
+        const med=aPrices[Math.floor(aPrices.length/2)];
+        const wavg=aValid.reduce(function(s,q){return s+q.price*q.qty;},0)/aValid.reduce(function(s,q){return s+q.qty;},0);
+        return {totalQty:totalQty,valid:valid,excluded:excluded,exclQty:exclQty,exclRatio:exclQty/totalQty,aValid:aValid,med:med,wavg:wavg};
+      }
+      function pipeline(){
+        const totalQty=totalQtyOf();
+        const sorted=Q.slice().sort(function(a,b){return b.price-a.price;});
+        const thr=totalQty*0.10; let acc=0,cutIdx=0;
+        for(let i=0;i<sorted.length;i++){acc+=sorted[i].qty;cutIdx=i;if(acc>=thr)break;}
+        const Pcut=sorted[cutIdx].price;
+        const std=exclAt(Pcut);
+        // 决策后果传导：学生设定的剔除线若合规（≥10%），后续所有计算都按他的线执行
+        const mine=exclAt(dec.excludeHigh);
+        let c = (mine && mine.ratio>=0.10-1e-9) ? core(dec.excludeHigh) : null;
+        const usedMine = !!c;
+        if(!c) c = core(Pcut);
+        const floor=CO.planRaise/CO.offerShares;
+        let cap=Math.min(c.med,c.wavg);
+        if(!isFinite(cap) || cap<floor+0.5) cap=floor+0.5;
+        const Plow=+floor.toFixed(2), Phigh=+cap.toFixed(2);
+        const priceOK = dec.setPrice!=null && dec.setPrice>=Plow-1e-9 && dec.setPrice<=Phigh+1e-9;
+        const Pissue = priceOK ? dec.setPrice : +((Plow+Phigh)/2).toFixed(2);
+        const raise=Pissue*CO.offerShares, PE=Pissue/EPS, disc=1-PE/CO.industryPE;
+        const eff=c.valid.filter(function(q){return q.price>=Pissue;});
+        const effQty=eff.reduce(function(s,q){return s+q.qty;},0);
+        const offlineNeed=CO.offerShares*CO.offlineInit;
+        const offlineMult=offlineNeed>0?effQty/offlineNeed:0;
+        const cb=cbRate(onlineMult);
+        const offlineFinal=CO.offerShares*(CO.offlineInit-cb);
+        const onlineFinal=CO.offerShares*(CO.onlineInit+cb);
+        const clsQty={A:0,B:0,C:0}; eff.forEach(function(q){clsQty[q.cls]+=q.qty;});
+        const pri={A:1.25,B:1.0,C:0.85}; const priSum=clsQty.A*pri.A+clsQty.B*pri.B+clsQty.C*pri.C;
+        const alloc={}, rate={};
+        ['A','B','C'].forEach(function(k){
+          alloc[k]= priSum>0?offlineFinal*clsQty[k]*pri[k]/priSum:0;
+          rate[k]= clsQty[k]>0?alloc[k]/clsQty[k]:0;
+        });
+        return {totalQty:totalQty,Pcut:Pcut,stdRatio:std?std.ratio:0,stdQty:std?std.qty:0,
+          usedMine:usedMine,valid:c.valid,exclRatio:c.exclRatio,exclQty:c.exclQty,
+          med:c.med,wavg:c.wavg,floor:floor,cap:cap,Plow:Plow,Phigh:Phigh,
+          Pissue:Pissue,priceOK:priceOK,raise:raise,PE:PE,disc:disc,eff:eff,effQty:effQty,
+          offlineMult:offlineMult,onlineMult:onlineMult,cb:cb,offlineFinal:offlineFinal,onlineFinal:onlineFinal,
+          clsQty:clsQty,alloc:alloc,rate:rate,lowOpts:lowSamples(Pissue),EPS:EPS};
+      }
+      function baseScore(key){ const s=STEPS.filter(function(x){return x.key===key;})[0]; return s?s.weight:0; }
+      function tries(key){ return tried[key]||0; }
+      function decay(n){ return n<=1?1:(n===2?0.7:0.4); }
+      function lockedOf(key){ return solved[key]===true || tries(key)>=MAXTRY; }
+      function curTotal(){let t=0;STEPS.forEach(function(s){if(stepScore[s.key]!=null)t+=stepScore[s.key];});return t;}
+      function trackIpo(step,score,max){ if(window.__ibankTrack) window.__ibankTrack('ipo',{step:step,score:score,max:max,total:curTotal(),tries:tries(step)}); }
+
+      function renderNav(){
+        navEl.innerHTML='';
+        STEPS.forEach(function(s,i){
+          const d=document.createElement('div');
+          const cls='st'+(i===si?' active':((i<si||doneSteps.has(s.key))?' done':''));
+          d.className=cls;
+          const w=s.weight||0;
+          const sc = stepScore[s.key]!=null ? '<span class="sc '+(w>0&&stepScore[s.key]>=w*0.6?'ok':'bad')+'">'+stepScore[s.key]+'/'+(w||'–')+'</span>' : '';
+          d.innerHTML='<span class="no">'+(i+1)+'</span><span>'+s.title+'</span>'+sc;
+          d.onclick=function(){ if(i<=si||doneSteps.has(s.key)){ si=i; renderAll(); } };
+          navEl.appendChild(d);
+        });
+      }
+      function renderCo(){
+        coEl.innerHTML='<div class="ci"><span class="k">公司</span><span class="v">'+CO.name+'（'+CO.code+'）</span></div>'
+          +'<div class="ci"><span class="k">行业</span><span class="v">'+CO.industry+'</span></div>'
+          +'<div class="ci"><span class="k">行业市盈率</span><span class="v">'+CO.industryPE+'x</span></div>'
+          +'<div class="ci"><span class="k">拟发行股数</span><span class="v">'+fmtN(CO.offerShares)+' 股</span></div>'
+          +'<div class="ci"><span class="k">拟募资额</span><span class="v">'+fmtMoney(CO.planRaise)+'</span></div>'
+          +'<div class="ci"><span class="k">发行后总股本</span><span class="v">'+fmtN(CO.postTotal)+' 股</span></div>';
+      }
+      function renderScore(){
+        const t=curTotal(); const pct=Math.min(100,t);
+        const rating=t>=85?'优秀':(t>=70?'良好':(t>=60?'及格':'待加强'));
+        scoreEl.innerHTML='<div class="sm">实时得分</div><div class="big">'+t+'<span style="font-size:15px;color:var(--muted)">/100</span></div>'
+          +'<div class="bar2"><i style="width:'+pct+'%"></i></div>'
+          +'<div class="sm">'+(si>=STEPS.length?('评级：'+rating):'每步最多可提交 '+MAXTRY+' 次，重复提交分数递减')+'</div>';
+      }
+      function renderLog(){
+        logEl.innerHTML = logs.length ? logs.map(function(l){return '<div class="lg"><span class="dot '+l.k+'"></span><span class="tx">'+l.t+'</span></div>';}).join('') : '<div class="lg"><span class="dot info"></span><span class="tx">尚未开始决策。</span></div>';
+      }
+      function histHTML(){
+        const ps=Q.map(function(q){return q.price;}); const mn=Math.min.apply(null,ps),mx=Math.max.apply(null,ps);
+        const bins=14; const w=(mx-mn)/bins; const cnt=new Array(bins).fill(0);
+        Q.forEach(function(q){let b=Math.min(bins-1,Math.floor((q.price-mn)/w));cnt[b]+=q.qty;});
+        const mxv=Math.max.apply(null,cnt);
+        let bars=''; for(let i=0;i<bins;i++){bars+='<i style="height:'+Math.max(4,cnt[i]/mxv*100)+'%"></i>';}
+        return '<div class="ipo-hist"><div class="bar">'+bars+'</div><div class="sm" style="color:var(--muted);font-size:11px;margin-top:4px">网下投资者报价分布（横轴价格由低到高，柱高=申购量）</div></div>';
+      }
+      // 高价剔除用：按价位分档的累计剔除量表（学生据此自行判断剔除线，不再给出答案）
+      function cutTableHTML(){
+        const total=totalQtyOf();
+        const lvl=new Map();
+        Q.forEach(function(q){ const k=Math.floor(q.price); lvl.set(k,(lvl.get(k)||0)+q.qty); });
+        const keys=Array.from(lvl.keys()).sort(function(a,b){return b-a;});
+        let acc=0, rows='';
+        for(let i=0;i<keys.length;i++){
+          const k=keys[i]; acc+=lvl.get(k); const cum=acc/total;
+          rows+='<tr><td>≥ '+k+' 元</td><td>'+fmtN(lvl.get(k))+'</td><td>'+fmtN(acc)+'</td><td class="hi">'+pc(cum)+'</td></tr>';
+          if(cum>=0.30||i>=13) break;
+        }
+        return '<table class="ipo-tbl"><thead><tr><th>剔除线（报价 ≥ 该价即剔除）</th><th>该价位申报量</th><th>累计剔除量</th><th>累计占比</th></tr></thead><tbody>'+rows+'</tbody></table>'
+          +'<div class="ipo-tr-head">用法：自上而下逐行累加，找到<b>累计占比首次 ≥ 10% 的那一行</b>——把剔除线设在该行的价位上，就等于只剔掉了「必须剔的最少部分」，是合规且最克制（也最优）的做法。剔除线设得越低，剔掉的报价越多，定价基准被压得越低。</div>';
+      }
+      function mcqHTML(domId, storeKey, opts, multi, locked, res){
+        const sel = multi ? (dec[storeKey]||[]) : (dec[storeKey]==null?[]:[dec[storeKey]]);
+        let h='<div class="opt" id="'+domId+'" data-store="'+storeKey+'" data-multi="'+(multi?'1':'0')+'" data-locked="'+(locked?'1':'0')+'">';
+        opts.forEach(function(o,i){
+          let cls='';
+          if(res){
+            if(res.correct.indexOf(i)>=0) cls=' correct';
+            else if(sel.indexOf(i)>=0) cls=' wrong';
+          } else if(sel.indexOf(i)>=0) cls=' on';
+          h+='<button data-i="'+i+'"'+(cls?' class="'+cls.trim()+'"':'')+(locked?' disabled':'')+'>'+(multi?(sel.indexOf(i)>=0?'☑ ':'☐ '):'')+o.t+'</button>';
+        });
+        h+='</div>';
+        if(res){
+          h+='<ul class="opt-why">'+opts.map(function(o,i){
+            const right = res.correct.indexOf(i)>=0;
+            const why = right ? (o.why||'正确依据。') : (o.why||'不符合科创板规则。');
+            return '<li class="'+(right?'y':'n')+'"><b>'+o.t+'</b>：'+why+'</li>';
+          }).join('')+'</ul>';
+        }
+        return h;
+      }
+      function trialRow(key){
+        const n=tries(key);
+        if(solved[key]===true) return '<span class="tries">已答对'+(n>1?'（第 '+n+' 次提交）':'')+'</span>';
+        if(n>=MAXTRY) return '<span class="tries">已用完 '+MAXTRY+' 次机会，本步锁定</span>';
+        return '<span class="tries">已提交 '+n+'/'+MAXTRY+' 次'+(n>0?'，可修改后重试（分数递减）':'')+'</span>';
+      }
+      function fb(ok,head,body){ return '<div class="ipo-fb show '+(ok?'ok':'bad')+'"><span class="tt">'+(ok?'✓ 判分通过':'✗ 需改进')+'</span>'+head+'<div class="ans">'+body+'</div></div>'; }
+      // 定价实时体检：回答「我这个价合不合适」
+      function healthHTML(price){
+        const p=pipeline();
+        if(!(price>0)) return '<div class="ipo-health"><div class="hd">💡 定价体检<span class="chip w">待输入</span></div>'
+          +'<div class="hint">输入发行价后，这里会实时给出<b>发行市盈率</b>、<b>相对行业折价</b>、<b>募集资金与募资完成度</b>，并判断是否落在合规区间内。</div></div>';
+        const pe=price/EPS, disc=1-pe/CO.industryPE, raise=price*CO.offerShares, cover=raise/CO.planRaise;
+        let cls,chip,hint;
+        if(price<p.Plow-1e-9){
+          cls='r'; chip='不合规';
+          hint='低于募资底价 '+p.Plow.toFixed(2)+' 元，募集资金不足以覆盖拟募资额。';
+        } else if(price>p.Phigh+1e-9){
+          cls='r'; chip='不合规';
+          hint='高于询价结果约束（孰低值 '+p.Phigh.toFixed(2)+' 元），不符合科创板定价规则。';
+        } else if(disc>=0.28){
+          cls='w'; chip='偏保守';
+          hint='折价高于区间内常见水平：发行人少募资金，但给二级市场留出的价差空间更大。';
+        } else if(disc>=0.20){
+          cls='g'; chip='稳健';
+          hint='折价处于区间内的常见水平，兼顾募资效率与投资者空间。';
+        } else {
+          cls='g'; chip='贴近上限';
+          hint='定价贴近询价结果上限，募资效率最高，但留给二级市场的价差空间较小。';
+        }
+        return '<div class="ipo-health"><div class="hd">💡 定价体检<span class="chip '+cls+'">'+chip+'</span></div>'
+          +'<div class="hg">'
+          +'<div class="hx"><div class="k">发行市盈率</div><div class="v">'+pe.toFixed(1)+'x（行业 '+CO.industryPE+'x）</div></div>'
+          +'<div class="hx"><div class="k">相对行业折价</div><div class="v">'+pc(disc)+'</div></div>'
+          +'<div class="hx"><div class="k">募集资金</div><div class="v">'+fmtMoney(raise)+'</div></div>'
+          +'<div class="hx"><div class="k">募资完成度</div><div class="v">'+pc(cover)+'</div></div>'
+          +'</div><div class="hint">'+hint+'</div></div>';
+      }
+
+      function renderStage(){
+        if(si>=STEPS.length){ renderReport(); return; }
+        const p=pipeline(); const key=STEPS[si].key;
+        let h='<h4>'+(si+1)+'. '+STEPS[si].title+'<span style="font-size:12px;font-weight:600;color:var(--muted);margin-left:8px">满分 '+(STEPS[si].weight||0)+' 分</span></h4>';
+        if(key==='collect'){
+          h+='<div class="lead">主承销商已完成网下询价：共 <b>480</b> 家网下投资者提交报价与申购意向。科创板实行市场化询价，发行价格的<b>上限</b>由剔除最高报价后的报价分布决定，<b>下限</b>由募资需求决定。请先熟悉报价分布，再进入定价环节。</div>';
+          h+='<div class="ipo-data">'
+            +'<div class="dx"><div class="k">报价家数</div><div class="v">480 家</div></div>'
+            +'<div class="dx"><div class="k">报价区间</div><div class="v">'+Math.min.apply(null,Q.map(function(q){return q.price;})).toFixed(1)+' – '+Math.max.apply(null,Q.map(function(q){return q.price;})).toFixed(1)+' 元</div></div>'
+            +'<div class="dx"><div class="k">加权均价</div><div class="v">'+(Q.reduce(function(s,q){return s+q.price*q.qty;},0)/p.totalQty).toFixed(2)+' 元</div></div>'
+            +'<div class="dx"><div class="k">拟申购总量</div><div class="v">'+fmtN(p.totalQty)+' 股</div></div></div>';
+          h+=histHTML();
+          h+='<div class="lead" style="margin-top:12px">本步为<b>信息准备</b>，不计分，看清数据后点「下一步」。</div>';
+        } else if(key==='excludeHigh'){
+          window.__ipoStdCut = +p.Pcut.toFixed(2);
+          h+='<div class="lead">规则：主承销商应剔除拟申购总量中报价<b>最高的部分</b>，剔除比例<b>不低于 10%</b>。请依据下方分档表自行推算并设定<b>高价剔除线</b>（元）——报价 ≥ 该价格的申报将被剔除。</div>';
+          h+='<div class="ipo-data">'
+            +'<div class="dx"><div class="k">拟申购总量</div><div class="v">'+fmtN(p.totalQty)+' 股</div></div>'
+            +'<div class="dx"><div class="k">10% 最低剔除量</div><div class="v">'+fmtN(Math.ceil(p.totalQty*0.10))+' 股</div></div></div>';
+          h+=cutTableHTML();
+          h+='<div class="ipo-dec"><div class="row"><label>高价剔除线（元）</label>'
+            +'<input type="number" id="ipo-in-cut" step="0.01" placeholder="输入你推算出的报价线" value="'+(dec.excludeHigh!=null?dec.excludeHigh:'')+'">'
+            +'<button class="sim-btn primary" id="ipo-sub">提交本步</button>'+trialRow(key)+'</div>'
+            +'<div class="ipo-tr-head" style="margin:0">判分只看<b>剔除比例是否合规、是否克制</b>，不要求精确到某一分钱：剔除 10%–12% 满分，12%–16% 良好，16%–22% 一般，超过 22% 视为过度剔除。低于 10% 判 0 分。</div></div>';
+          if(doneSteps.has(key)) h+=fbMap[key]||'';
+        } else if(key==='reference'){
+          h+='<div class="lead">剔除最高报价后，发行价格<b>不得高于</b>网下投资者报价的<b>中位数与加权平均数的孰低值</b>；<b>下限</b>由募资需求决定（不低于募资底价）。请判断<b>参考区间上限</b>的来源。</div>';
+          h+='<div class="ipo-data">'
+            +'<div class="dx"><div class="k">A 类报价中位数</div><div class="v">'+p.med.toFixed(2)+' 元</div></div>'
+            +'<div class="dx"><div class="k">A 类加权均价</div><div class="v">'+p.wavg.toFixed(2)+' 元</div></div>'
+            +'<div class="dx"><div class="k">上限（孰低值）</div><div class="v">'+p.Phigh.toFixed(2)+' 元</div></div>'
+            +'<div class="dx"><div class="k">下限（募资底价）</div><div class="v">'+p.Plow.toFixed(2)+' 元</div></div>'
+            +'<div class="dx"><div class="k">定价参考区间</div><div class="v">['+p.Plow+', '+p.Phigh+']</div></div></div>';
+          h+='<div class="ipo-tr-head">已按'+(p.usedMine?'<b>你设定的 '+Number(dec.excludeHigh).toFixed(2)+' 元</b>剔除线':'<b>标准剔除线 '+p.Pcut.toFixed(2)+' 元</b>（你的设定未达 10% 下限，系统按标准线执行）')
+            +'剔除，剔除比例 '+pc(p.exclRatio)+'；上方参考值随该剔除结果重新计算。</div>';
+          const locked=lockedOf(key);
+          h+='<div class="ipo-dec"><div class="row"><label>参考区间上限应取自</label></div>'
+            +mcqHTML('ipo-opt-ref','__ref',REF_OPTS,false,locked,doneSteps.has(key)?resMap[key]:null)
+            +'<div class="row"><button class="sim-btn primary" id="ipo-sub">提交本步</button>'+trialRow(key)+'</div></div>';
+          if(doneSteps.has(key)) h+=fbMap[key]||'';
+        } else if(key==='setPrice'){
+          h+='<div class="lead">在参考区间内确定发行价：不低于募资底价 <b>'+p.Plow.toFixed(2)+' 元</b>，且不高于上限（孰低值）<b>'+p.Phigh.toFixed(2)+' 元</b>。区间内<b>任意价格都合规</b>，差别在于募资效率与留给二级市场的空间。</div>';
+          h+='<div class="ipo-data">'
+            +'<div class="dx"><div class="k">参考区间</div><div class="v">['+p.Plow+', '+p.Phigh+'] 元</div></div>'
+            +'<div class="dx"><div class="k">募资底价</div><div class="v">'+p.Plow.toFixed(2)+' 元</div></div>'
+            +'<div class="dx"><div class="k">拟募资额</div><div class="v">'+fmtMoney(CO.planRaise)+'</div></div></div>';
+          h+='<div class="ipo-dec"><div class="row"><label>确定发行价（元）</label>'
+            +'<input type="number" id="ipo-in-price" step="0.01" placeholder="输入你的定价" value="'+(dec.setPrice!=null?dec.setPrice:'')+'">'
+            +'<button class="sim-btn primary" id="ipo-sub">提交本步</button>'+trialRow(key)+'</div></div>';
+          h+='<div id="ipo-health"></div>';
+          if(doneSteps.has(key)) h+=fbMap[key]||'';
+        } else if(key==='excludeLow'){
+          h+='<div class="lead">报价<b>低于发行价 '+p.Pissue.toFixed(2)+' 元</b>的申报被剔除，剩余为有效申购（注意边界：报价<b>等于</b>发行价的申报仍然有效）。下表是本次询价中的 5 笔代表性申报，请勾选<b>将被剔除</b>的申报。</div>';
+          const locked=lockedOf(key);
+          h+='<div class="ipo-dec"><div class="row"><label>将被剔除的申报（多选）</label></div>'
+            +mcqHTML('ipo-opt-low','__low',p.lowOpts,true,locked,doneSteps.has(key)?resMap[key]:null)
+            +'<div class="row"><button class="sim-btn primary" id="ipo-sub">提交本步</button>'+trialRow(key)+'</div></div>';
+          h+='<div class="ipo-data">'
+            +'<div class="dx"><div class="k">有效申购家数</div><div class="v">'+p.eff.length+' 家（共 480 家）</div></div>'
+            +'<div class="dx"><div class="k">有效申购总量</div><div class="v">'+fmtN(p.effQty)+' 股</div></div>'
+            +'<div class="dx"><div class="k">网下有效倍数</div><div class="v">'+p.offlineMult.toFixed(1)+'x</div></div></div>';
+          if(doneSteps.has(key)) h+=fbMap[key]||'';
+        } else if(key==='callback'){
+          h+='<div class="lead">网上初始发行比例 '+pc(CO.onlineInit,0)+'、网下初始 '+pc(CO.offlineInit,0)+'。回拨规则：网上超额认购倍数<b>超 50 倍回拨 10%</b>、<b>超 100 倍回拨 20%</b>（由网下回拨至网上）；未超过 50 倍不回拨。本次网上超额认购 <b>'+p.onlineMult+' 倍</b>，请判断应回拨多少。</div>';
+          h+='<div class="ipo-data">'
+            +'<div class="dx"><div class="k">网上超额认购倍数</div><div class="v">'+p.onlineMult+' 倍</div></div>'
+            +'<div class="dx"><div class="k">网下初始发行</div><div class="v">'+pc(CO.offlineInit,0)+'</div></div>'
+            +'<div class="dx"><div class="k">网上初始发行</div><div class="v">'+pc(CO.onlineInit,0)+'</div></div></div>';
+          const locked=lockedOf(key);
+          h+='<div class="ipo-dec"><div class="row"><label>应回拨比例</label></div>'
+            +mcqHTML('ipo-opt-cb','__cb',cbOpts(),false,locked,doneSteps.has(key)?resMap[key]:null)
+            +'<div class="row"><button class="sim-btn primary" id="ipo-sub">提交本步</button>'+trialRow(key)+'</div></div>';
+          if(doneSteps.has(key)) h+=fbMap[key]||'';
+        } else if(key==='allocate'){
+          h+='<div class="lead">回拨后网下发行量为 <b>'+fmtN(p.offlineFinal)+' 股</b>。科创板按 A/B/C 类投资者优先顺序配售，A 类（公募/社保等）获配比例最高。请判断 A 类与 B 类的获配比例关系。</div>';
+          h+='<div class="ipo-tbl-wrap"><table class="ipo-tbl"><thead><tr><th>类别</th><th>有效申购量（股）</th><th>占比</th></tr></thead><tbody>'
+            +['A','B','C'].map(function(k){
+              return '<tr><td>'+k+' 类</td><td>'+fmtN(p.clsQty[k])+'</td><td class="hi">'+(p.effQty>0?pc(p.clsQty[k]/p.effQty):'—')+'</td></tr>';
+            }).join('')+'</tbody></table></div>';
+          const locked=lockedOf(key);
+          h+='<div class="ipo-dec"><div class="row"><label>A 类获配比例应（ ）B 类</label></div>'
+            +mcqHTML('ipo-opt-alloc','__alloc',ALLOC_OPTS,false,locked,doneSteps.has(key)?resMap[key]:null)
+            +'<div class="row"><button class="sim-btn primary" id="ipo-sub">提交本步</button>'+trialRow(key)+'</div></div>';
+          if(doneSteps.has(key)) h+=fbMap[key]||'';
+        }
+        stage.innerHTML=h;
+        bindStep(key);
+        next.disabled = (STEPS[si].weight>0 && !doneSteps.has(key));
+        next.textContent = si===STEPS.length-1 ? '生成定价配售报告' : '下一步';
+        prev.disabled = si===0;
+      }
+
+      function bindStep(key){
+        const sub=document.getElementById('ipo-sub');
+        if(sub) sub.onclick=function(){ submitStep(key); };
+        document.querySelectorAll('#ipo-stage .opt').forEach(function(box){
+          if(box.dataset.locked==='1') return;
+          const multi=box.dataset.multi==='1'; const store=box.dataset.store;
+          box.querySelectorAll('button').forEach(function(b){
+            b.onclick=function(){
+              const i=+b.dataset.i;
+              if(multi){
+                let arr=(dec[store]||[]).slice();
+                const k=arr.indexOf(i); if(k>=0)arr.splice(k,1); else arr.push(i);
+                dec[store]=arr;
+              } else { dec[store]=i; }
+              renderStage();
+            };
+          });
+        });
+        const pin=document.getElementById('ipo-in-price');
+        const hbox=document.getElementById('ipo-health');
+        if(pin&&hbox){
+          const upd=function(){ hbox.innerHTML=healthHTML(parseFloat(pin.value)); };
+          pin.addEventListener('input',upd);
+          upd();
+        }
+      }
+
+      function submitStep(key){
+        if(lockedOf(key)) return;
+        // ① 先落盘本步输入，再据此重算全链路（决策有后果）
+        if(key==='excludeHigh'){ const el=document.getElementById('ipo-in-cut'); const v=el?parseFloat(el.value):NaN; dec.excludeHigh=(v>0?v:null); }
+        if(key==='setPrice'){ const el=document.getElementById('ipo-in-price'); const v=el?parseFloat(el.value):NaN; dec.setPrice=(v>0?v:null); }
+        const p=pipeline();
+        const w=baseScore(key);
+        tried[key]=(tried[key]||0)+1; const n=tried[key];
+        let ratio=0, ok=false, head='', ans='';
+        if(key==='excludeHigh'){
+          const v=dec.excludeHigh; const ex=exclAt(v);
+          ans='标准剔除线 <b>'+p.Pcut.toFixed(2)+' 元</b>（累计占比首次 ≥10% 的价位），对应剔除拟申购量 <b>'+pc(p.stdRatio)+'</b>。';
+          if(!ex){ ratio=0; head='请先输入一个有效的剔除线（元）。'; }
+          else if(ex.ratio<0.10-1e-9){
+            ratio=0;
+            head='你设定 '+v.toFixed(2)+' 元，剔除 '+pc(ex.ratio)+'（'+fmtN(ex.qty)+' 股），<b>低于 10% 的强制下限</b>，违反科创板规则，本步 0 分。';
+          } else {
+            const d=ex.ratio-0.10;
+            if(d<=0.02) ratio=1; else if(d<=0.06) ratio=0.73; else if(d<=0.12) ratio=0.4; else ratio=0.13;
+            head='你设定 '+v.toFixed(2)+' 元，剔除 '+pc(ex.ratio)+'（'+fmtN(ex.qty)+' 股）。'
+              +(d<=0.02?'合规且克制——只剔掉必须剔的部分，是最优做法。'
+                :(d<=0.06?'合规，但比最低要求多剔了一些高报价，定价基准会被略微压低。'
+                  :(d<=0.12?'剔除比例明显偏高，会压低询价基准、影响发行人募资效率。'
+                    :'剔除比例过高，属于过度剔除，严重偏离市场化询价的本意。')));
+          }
+          ok=ratio>=0.73;
+        } else if(key==='reference'){
+          const sel=dec.__ref;
+          resMap[key]={correct:[0],picked:sel==null?[]:[sel]};
+          ratio=(sel===0)?1:0;
+          head = ratio>0 ? '判断正确：发行价格的上限取自中位数与加权平均数的<b>孰低值</b>。'
+            : (sel==null ? '请先选择一个选项再提交。'
+              : '判断有误。上限不是全部报价的平均值（未剔除极端高价），也不是行业市盈率倒推价（那是估值参照系，不是询价约束），更不是募资底价（那是下限）。');
+          ans='A 类中位数 '+p.med.toFixed(2)+' 元、加权均价 '+p.wavg.toFixed(2)+' 元，孰低值 '+p.Phigh.toFixed(2)+' 元；下限取募资底价 '+p.Plow.toFixed(2)+' 元，故参考区间 ['+p.Plow+', '+p.Phigh+']。';
+          ok=ratio>0;
+        } else if(key==='setPrice'){
+          const v=dec.setPrice;
+          const inInt = v!=null && v>=p.Plow-1e-9 && v<=p.Phigh+1e-9;
+          if(inInt) ratio=1; else if(v!=null && v>p.Phigh && v<=p.Phigh*1.02) ratio=0.5; else ratio=0;
+          head = inInt ? ('发行价 '+v.toFixed(2)+' 元，募资 '+fmtMoney(v*CO.offerShares)+'，发行 PE '+(v/EPS).toFixed(1)+'x（行业 '+CO.industryPE+'x，折价 '+pc(1-(v/EPS)/CO.industryPE)+'）。区间内定价均合规。')
+            : (v==null?'请先输入发行价。'
+              : (v<p.Plow ? ('发行价 '+v.toFixed(2)+' 元低于募资底价 '+p.Plow.toFixed(2)+' 元，募集资金不足，本步 0 分。')
+                : ('发行价 '+v.toFixed(2)+' 元高于询价结果上限（孰低值）'+p.Phigh.toFixed(2)+' 元，不符合科创板定价规则。')));
+          ans='合规区间 ['+p.Plow+', '+p.Phigh+']：下限=募资底价，上限=A 类报价中位数与加权均价的孰低值。区间内建议靠近上限，募资效率更高。';
+          ok=ratio>=1;
+        } else if(key==='excludeLow'){
+          const samples=p.lowOpts; const sel=(dec.__low||[]).slice().sort(function(a,b){return a-b;});
+          const correct=[]; samples.forEach(function(s,i){ if(s.cut) correct.push(i); });
+          resMap[key]={correct:correct,picked:sel};
+          const miss = correct.filter(function(x){return sel.indexOf(x)<0;}).length + sel.filter(function(x){return correct.indexOf(x)<0;}).length;
+          const same = miss===0 && sel.length===correct.length;
+          ratio = same?1:(miss===1?0.5:0);
+          head = same ? '全部判断正确。边界规则是易错点：<b>报价等于发行价的申报属于有效申购</b>，只有严格低于发行价的才被剔除。'
+            : (miss===1?'基本正确，但漏选/多选了 1 笔申报——注意「报价等于发行价」仍为有效申购这一边界。'
+              :'判断偏差较大。剔除标准是「申报价格严格低于发行价」，等于发行价的申报依然有效。');
+          ans='本次应剔除 '+correct.length+' 笔（'+correct.map(function(i){return samples[i].t.replace('报价 ','');}).join('、')+'）；剔除后有效申购 <b>'+p.eff.length+' 家</b>、总量 <b>'+fmtN(p.effQty)+' 股</b>、网下有效倍数 <b>'+p.offlineMult.toFixed(1)+'x</b>。';
+          ok=ratio>=0.5;
+        } else if(key==='callback'){
+          const sel=dec.__cb;
+          const correct = p.cb===0.20?2:(p.cb===0.10?1:0);
+          resMap[key]={correct:[correct],picked:sel==null?[]:[sel]};
+          ratio=(sel===correct)?1:0;
+          const tier = p.cb===0.20?'网上超额认购 '+p.onlineMult+' 倍 >100 倍，触发最高档，应回拨 20%'
+            : (p.cb===0.10?'网上超额认购 '+p.onlineMult+' 倍，处于 50–100 倍区间，应回拨 10%'
+              :'网上超额认购 '+p.onlineMult+' 倍，未超过 50 倍，无需回拨');
+          head = ratio>0 ? ('判断正确：'+tier+'。') : ('判断有误：'+tier+'。回拨比例由「网上超额认购倍数」落在那一个档位唯一决定，回拨后网下与网上的最终发行量随之改变。');
+          ans='回拨 '+pc(p.cb,0)+' 后：网下最终 <b>'+fmtN(p.offlineFinal)+' 股</b>（'+pc(CO.offlineInit-p.cb,0)+'）、网上最终 <b>'+fmtN(p.onlineFinal)+' 股</b>（'+pc(CO.onlineInit+p.cb,0)+'）。';
+          ok=ratio>0;
+        } else if(key==='allocate'){
+          const sel=dec.__alloc;
+          resMap[key]={correct:[0],picked:sel==null?[]:[sel]};
+          ratio=(sel===0)?1:0;
+          head = ratio>0 ? '判断正确：A 类投资者优先配售，获配比例不低于 B、C 类。' : '判断有误。科创板网下配售按 A→B→C 优先顺序执行，A 类获配比例最高。';
+          ans='各类获配：A <b>'+fmtN(p.alloc.A)+'</b> 股（获配率 '+(p.clsQty.A>0?pc(p.rate.A,2):'—')+'）/ B <b>'+fmtN(p.alloc.B)+'</b> 股（'+(p.clsQty.B>0?pc(p.rate.B,2):'—')+'）/ C <b>'+fmtN(p.alloc.C)+'</b> 股（'+(p.clsQty.C>0?pc(p.rate.C,2):'—')+'）。A 类获配率最高。';
+          ok=ratio>0;
+        }
+        if(ratio>=1) solved[key]=true;
+        stepScore[key]=Math.round(w*ratio*decay(n));
+        doneSteps.add(key);
+        fbMap[key]=fb(ok,head,ans);
+        logs.push({k:ok?'ok':'bad',t:'<b>第'+(si+1)+'步 '+STEPS[si].title+'</b>：'+stepScore[key]+'/'+w+' 分'+(n>1?'（第 '+n+' 次提交，分数递减）':'')+'。'});
+        trackIpo(key,stepScore[key],w);
+        renderNav(); renderScore(); renderLog(); renderStage();
+      }
+
+      function reportText(p,t,rating,rows){
+        const line=function(a,b){ return a+'：'+b; };
+        const out=[];
+        out.push('科创板 IPO 定价配售报告 · '+CO.name+'（'+CO.code+'）');
+        out.push('综合评分：'+t+'/100（'+rating+'）');
+        out.push('');
+        out.push('【分步得分】');
+        rows.forEach(function(r){ out.push('  '+r[0]+'  '+r[1]+'  '+r[2]); });
+        out.push('');
+        out.push('【关键结果】');
+        out.push('  '+line('发行价格', p.Pissue.toFixed(2)+' 元'));
+        out.push('  '+line('募集资金', fmtMoney(p.raise)+'（拟募资 '+fmtMoney(CO.planRaise)+'）'));
+        out.push('  '+line('发行市盈率', p.PE.toFixed(1)+'x（行业 '+CO.industryPE+'x，折价 '+pc(p.disc)+'）'));
+        out.push('  '+line('高价剔除', pc(p.exclRatio)+'（剔除线 '+(p.usedMine?Number(dec.excludeHigh).toFixed(2):p.Pcut.toFixed(2))+' 元）'));
+        out.push('  '+line('定价参考区间', '['+p.Plow+', '+p.Phigh+'] 元'));
+        out.push('  '+line('低价剔除后有效申购', p.eff.length+' 家 / '+fmtN(p.effQty)+' 股 / 网下有效倍数 '+p.offlineMult.toFixed(1)+'x'));
+        out.push('  '+line('回拨比例', pc(p.cb,0)+'（网下 '+fmtN(p.offlineFinal)+' 股 / 网上 '+fmtN(p.onlineFinal)+' 股）'));
+        out.push('  '+line('网下配售 A/B/C', fmtN(p.alloc.A)+' / '+fmtN(p.alloc.B)+' / '+fmtN(p.alloc.C)+' 股'));
+        out.push('');
+        out.push('【与其他同学的比较】请将本报告提交至课程平台。');
+        return out.join('\n');
+      }
+
+      function renderReport(){
+        const p=pipeline(); const t=curTotal();
+        const rating=t>=85?'优秀':(t>=70?'良好':(t>=60?'及格':'待加强'));
+        const stepRows=STEPS.filter(function(s){return s.weight>0;}).map(function(s){
+          const sc=stepScore[s.key]; const w=s.weight;
+          const tag=sc==null?'未作答':(sc>=w?'满分':(sc>=w*0.6?'良好':'需加强'));
+          return [('第'+(STEPS.indexOf(s)+1)+'步 '+s.title),((sc==null?'—':sc)+' / '+w),tag+(tries(s.key)>1?'（提交 '+tries(s.key)+' 次）':'')];
+        });
+        const cmpRows=[
+          ['高价剔除线', dec.excludeHigh!=null?(Number(dec.excludeHigh).toFixed(2)+' 元，剔除 '+pc(p.exclRatio)):'未作答', p.Pcut.toFixed(2)+' 元（剔除 '+pc(p.stdRatio)+'）'],
+          ['参考区间上限来源', dec.__ref!=null?REF_OPTS[dec.__ref].t:'未作答', '中位数与加权平均数的孰低值'],
+          ['发行价', dec.setPrice!=null?Number(dec.setPrice).toFixed(2)+' 元'+(p.priceOK?'':'（不合规，系统按区间执行）'):'未作答', '区间 ['+p.Plow+', '+p.Phigh+']，建议靠近上限 '+p.Phigh+' 元'],
+          ['低价剔除判断', dec.__low&&dec.__low.length?('勾选 '+dec.__low.length+' 笔'):'未作答', '应剔除 '+p.lowOpts.filter(function(s){return s.cut;}).length+' 笔'],
+          ['回拨比例', dec.__cb!=null?cbOpts()[dec.__cb].t:'未作答', pc(p.cb,0)+'（网上 '+p.onlineMult+' 倍）'],
+          ['A/B 类配售', dec.__alloc!=null?ALLOC_OPTS[dec.__alloc].t:'未作答', 'A 类优先，获配比例不低于 B、C 类']
+        ];
+        const sug=[];
+        if(stepScore.excludeHigh!=null && stepScore.excludeHigh<15) sug.push('高价剔除：按分档表自上而下累加，取<b>累计占比首次 ≥10%</b> 的价位即可，不必剔得更多——剔得越多，定价基准被压得越低。');
+        if(stepScore.reference!=null && stepScore.reference<10) sug.push('定价参考：记住约束是「中位数与加权平均数的<b>孰低值</b>」，不是平均值、也不是行业市盈率倒推价。');
+        if(stepScore.setPrice!=null && stepScore.setPrice<30) sug.push('发行定价：科创板要求落在 [募资底价, 孰低值] 之间，低于下限会募资不足，高于上限属违规。');
+        if(stepScore.excludeLow!=null && stepScore.excludeLow<10) sug.push('低价剔除：判断标准是「申报价格<b>严格低于</b>发行价」，等于发行价的申报仍然有效。');
+        if(stepScore.callback!=null && stepScore.callback<20) sug.push('回拨机制：先看网上超额认购倍数落在哪一档（≤50 / 50–100 / >100），再定 0% / 10% / 20%。');
+        if(stepScore.allocate!=null && stepScore.allocate<15) sug.push('网下配售：A 类（公募、社保、养老金、年金等）是优先配售对象，获配比例最高。');
+        if(!sug.length) sug.push('全流程决策质量很高：剔除克制、定价合规、回拨与配售判断准确。可以点「重置仿真」换一组报价池与网上申购倍数再练一次。');
+        if(!p.usedMine) sug.push('提示：你设定的剔除线未达 10% 合规下限，系统按标准线执行；请回看第 2 步。');
+        if(t<60) sug.push('建议先复习教材第 3 章「股份有限公司与首次公开发行」中关于询价、定价与配售的规则，再重置仿真重做一遍。');
+
+        stage.innerHTML='<div class="ipo-report">'
+          +'<div class="rp-head"><div class="rp-big">'+t+'<span>/100</span></div><div class="rp-txt">综合评级：<b>'+rating+'</b><br>本报告由 '+CO.name+'（'+CO.code+'）科创板 IPO 定价配售全流程决策生成。</div></div>'
+          +'<h6>分步得分</h6><table class="ipo-tbl"><thead><tr><th>步骤</th><th>得分</th><th>评价</th></tr></thead><tbody>'
+          +stepRows.map(function(r){return '<tr><td>'+r[0]+'</td><td class="hi">'+r[1]+'</td><td>'+r[2]+'</td></tr>';}).join('')+'</tbody></table>'
+          +'<h6>关键结果</h6><table class="ipo-tbl"><tbody>'
+          +'<tr><td>发行价格</td><td class="hi">'+p.Pissue.toFixed(2)+' 元</td></tr>'
+          +'<tr><td>募集资金</td><td class="hi">'+fmtMoney(p.raise)+'（拟募资 '+fmtMoney(CO.planRaise)+'）</td></tr>'
+          +'<tr><td>发行市盈率</td><td class="hi">'+p.PE.toFixed(1)+'x（行业 '+CO.industryPE+'x，折价 '+pc(p.disc)+'）</td></tr>'
+          +'<tr><td>高价剔除</td><td class="hi">'+pc(p.exclRatio)+'（剔除线 '+(p.usedMine?Number(dec.excludeHigh).toFixed(2):p.Pcut.toFixed(2))+' 元）</td></tr>'
+          +'<tr><td>定价参考区间</td><td class="hi">['+p.Plow+', '+p.Phigh+'] 元</td></tr>'
+          +'<tr><td>低价剔除后有效申购</td><td class="hi">'+p.eff.length+' 家 / '+fmtN(p.effQty)+' 股 / 倍数 '+p.offlineMult.toFixed(1)+'x</td></tr>'
+          +'<tr><td>回拨比例</td><td class="hi">'+pc(p.cb,0)+'（网下 '+fmtN(p.offlineFinal)+' / 网上 '+fmtN(p.onlineFinal)+' 股）</td></tr>'
+          +'<tr><td>网下配售 A/B/C</td><td class="hi">'+fmtN(p.alloc.A)+' / '+fmtN(p.alloc.B)+' / '+fmtN(p.alloc.C)+' 股</td></tr>'
+          +'</tbody></table>'
+          +'<h6>你的决策 vs 标准做法</h6><table class="ipo-tbl"><thead><tr><th>决策点</th><th>你的选择</th><th>标准做法</th></tr></thead><tbody>'
+          +cmpRows.map(function(r){return '<tr><td>'+r[0]+'</td><td>'+r[1]+'</td><td class="hi">'+r[2]+'</td></tr>';}).join('')+'</tbody></table>'
+          +'<h6>改进建议</h6><ul class="rp-sug">'+sug.map(function(s){return '<li>'+s+'</li>';}).join('')+'</ul>'
+          +'<div class="ipo-foot"><button class="sim-btn ghost" id="ipo-export">导出报告（.txt）</button></div>'
+          +'</div>';
+        const ex=document.getElementById('ipo-export');
+        if(ex) ex.onclick=function(){
+          try{
+            const blob=new Blob([reportText(p,t,rating,stepRows)],{type:'text/plain;charset=utf-8'});
+            const a=document.createElement('a'); a.href=URL.createObjectURL(blob);
+            a.download='IPO定价配售报告_'+CO.name+'_'+t+'分.txt';
+            document.body.appendChild(a); a.click(); document.body.removeChild(a);
+            setTimeout(function(){ URL.revokeObjectURL(a.href); },3000);
+          }catch(e){ /* 离线或受限环境静默降级 */ }
+        };
+        next.disabled=true; prev.disabled=false; next.textContent='已完成';
+        if(!reportTracked){ reportTracked=true; trackIpo('report',t,100); }
+      }
+
+      function reset(){
+        si=0;
+        for(const k in dec)delete dec[k];
+        for(const k in stepScore)delete stepScore[k];
+        for(const k in fbMap)delete fbMap[k];
+        for(const k in resMap)delete resMap[k];
+        for(const k in tried)delete tried[k];
+        for(const k in solved)delete solved[k];
+        doneSteps.clear(); logs.length=0; reportTracked=false;
+        seedNow=Math.floor(Math.random()*1e9);
+        Q=genQuotes(seedNow); onlineMult=genOnlineMult(seedNow);
+        renderAll();
+      }
+      function renderAll(){ renderNav(); renderCo(); renderScore(); renderLog(); renderStage(); }
+
+      prev.onclick=function(){ if(si>0){si--; renderAll();} };
+      next.onclick=function(){ const key=STEPS[si].key; if(STEPS[si].weight>0 && !doneSteps.has(key)){ return; } if(si<STEPS.length-1){si++; renderAll();} else {si=STEPS.length; renderAll();} };
+      restart.onclick=reset;
+
+      seedNow=Math.floor(Math.random()*1e9);
+      Q=genQuotes(seedNow); onlineMult=genOnlineMult(seedNow);
+      renderAll();
     })();
 
     // ===== 估值实验 =====
