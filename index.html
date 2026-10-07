@@ -312,29 +312,233 @@
     .case-item.open .case-body { display: block; }
     .case-body .sub-h { font-size: 13px; color: var(--accent-text); font-weight: 600; margin: 16px 0 8px; }
 
-    /* ===== 股市模拟 ===== */
-    .sim-grid { display: grid; grid-template-columns: 1.25fr 1fr; gap: 16px; margin-top: 18px; }
-    .stock-row { display: flex; align-items: center; gap: 10px; padding: 11px 4px; border-bottom: 1px solid var(--panel-border); }
-    .stock-row:last-child { border-bottom: none; }
-    .stock-name { font-size: 14px; font-weight: 600; min-width: 74px; cursor: pointer; }
-    .stock-code { font-size: 11.5px; color: var(--dim); display: block; }
-    .stock-price { text-align: right; min-width: 84px; font-variant-numeric: tabular-nums; }
-    .stock-price .p { font-size: 14px; font-weight: 700; }
-    .stock-price .chg { font-size: 11.5px; }
+    /* ===== 宏观市场（资产专题 v37 基础 · v38 情景推演与联动关系图） ===== */
+    :root {
+      --dir-up: #b91c1c; --dir-down: #15803d; --dir-flat: #475569;
+      --rel-line: #cbd5e1; --rel-neg: #7c3aed; --rel-pos: #0e7490; --rel-mix: #b45309; --rel-weak: #475569;
+      --rn-fill: rgba(99,102,241,.12);
+    }
+    body.dark:not(.light) {
+      --dir-up: #fca5a5; --dir-down: #6ee7b7; --dir-flat: #94a3b8;
+      --rel-line: #475569; --rel-neg: #c4b5fd; --rel-pos: #67e8f9; --rel-mix: #fbbf24; --rel-weak: #94a3b8;
+      --rn-fill: rgba(129,140,248,.22);
+    }
+    .macro-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin-top: 14px; }
+    .macro-card { position: relative; text-align: left; background: var(--panel); border: 1px solid var(--panel-border); border-radius: 14px; padding: 14px 16px; cursor: pointer; transition: .2s; display: flex; flex-direction: column; gap: 9px; color: var(--text); font-family: inherit; }
+    .macro-card:hover { border-color: var(--accent); }
+    .macro-card.active { border-color: var(--accent); box-shadow: inset 3px 0 0 var(--accent), 0 0 0 2px rgba(99,102,241,.18); }
+    .macro-card .mc-top { display: flex; align-items: center; gap: 10px; }
+    .macro-card .mc-ico { width: 30px; height: 30px; flex: 0 0 auto; border-radius: 9px; background: var(--accent-solid); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 14px; }
+    .macro-card .mc-name { font-weight: 600; font-size: 15px; }
+    .macro-card .mc-tag { font-size: 11.5px; color: var(--accent2); background: rgba(34,211,238,.14); padding: 3px 9px; border-radius: 999px; margin-left: auto; }
+    .macro-card .mc-desc { font-size: 13px; color: var(--muted); line-height: 1.7; }
+    .macro-card .mc-drivers { display: flex; flex-wrap: wrap; gap: 6px; }
+    .macro-card .mc-drivers span { font-size: 11.5px; color: var(--accent-text); background: rgba(99,102,241,.12); border-radius: 6px; padding: 2px 9px; }
+    /* v38 情景下的资产方向 */
+    .mc-mv { display: flex; align-items: flex-start; gap: 8px; }
+    .mc-mv .mv-a { flex: 0 0 auto; width: 22px; height: 22px; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; }
+    .mc-mv .mv-t { font-size: 12.5px; line-height: 1.65; color: var(--muted); }
+    .mc-mv.up .mv-a { background: rgba(185,28,28,.12); color: var(--dir-up); }
+    .mc-mv.down .mv-a { background: rgba(21,128,61,.12); color: var(--dir-down); }
+    .mc-mv.flat .mv-a { background: rgba(71,85,105,.12); color: var(--dir-flat); }
+    body.dark:not(.light) .mc-mv.up .mv-a { background: rgba(248,113,113,.18); }
+    body.dark:not(.light) .mc-mv.down .mv-a { background: rgba(52,211,153,.18); }
+    body.dark:not(.light) .mc-mv.flat .mv-a { background: rgba(148,163,184,.18); }
+    .mc-live { display: none; }
+    .macro-card.active .mc-live { display: inline-flex; align-items: center; align-self: flex-start; font-size: 11.5px; font-weight: 600; color: #fff; background: var(--accent-solid); border-radius: 999px; padding: 3px 10px; }
+    /* v38 情景推演条 */
+    .macro-scen { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+    .msc { font-size: 12.5px; padding: 7px 14px; border-radius: 999px; border: 1px solid var(--panel-border); background: var(--panel); color: var(--muted); cursor: pointer; font-family: inherit; transition: .18s; }
+    .msc:hover { border-color: var(--accent); color: var(--accent-text); }
+    .msc.active { background: var(--accent-solid); border-color: var(--accent-solid); color: #fff; font-weight: 600; }
+    .scen-note { margin-top: 10px; font-size: 13px; line-height: 1.75; color: var(--muted); background: rgba(99,102,241,.08); border-left: 3px solid var(--accent); border-radius: 0 10px 10px 0; padding: 10px 14px; }
+    .scen-note .sn-tag { display: inline-block; font-size: 11.5px; font-weight: 600; color: var(--accent-text); background: rgba(99,102,241,.16); border-radius: 6px; padding: 2px 8px; margin-right: 8px; }
+    /* v38 联动关系图 */
+    .macro-rel { margin-top: 12px; background: var(--panel); border: 1px solid var(--panel-border); border-radius: 14px; padding: 14px 16px 16px; }
+    .rel-svg { width: 100%; height: auto; display: block; }
+    .rl { stroke: var(--rel-line); stroke-width: 1.6; transition: .2s; }
+    .rl.r-neg.on { stroke: var(--rel-neg); stroke-width: 3; }
+    .rl.r-pos.on { stroke: var(--rel-pos); stroke-width: 3; }
+    .rl.r-mix.on { stroke: var(--rel-mix); stroke-width: 3; stroke-dasharray: 7 4; }
+    .rl.r-weak.on { stroke: var(--rel-weak); stroke-width: 2.4; stroke-dasharray: 3 4; }
+    .rl-bg { fill: var(--panel); stroke: var(--rel-line); stroke-width: 1; }
+    .rl-bg.r-neg.on { stroke: var(--rel-neg); stroke-width: 1.6; }
+    .rl-bg.r-pos.on { stroke: var(--rel-pos); stroke-width: 1.6; }
+    .rl-bg.r-mix.on { stroke: var(--rel-mix); stroke-width: 1.6; }
+    .rl-bg.r-weak.on { stroke: var(--rel-weak); stroke-width: 1.6; }
+    .rl-lab { fill: var(--muted); font-size: 11px; }
+    .rl-g.on .rl-lab { fill: var(--text); font-weight: 600; }
+    .rn-g { cursor: pointer; }
+    .rn { fill: var(--panel); stroke: var(--panel-border); stroke-width: 2; transition: .2s; }
+    .rn-g.on .rn { fill: var(--rn-fill); stroke: var(--accent); stroke-width: 3; }
+    .rn-s { fill: var(--text); font-size: 17px; font-weight: 600; }
+    .rn-n { fill: var(--text); font-size: 12.5px; }
+    .rn-g.on .rn-s, .rn-g.on .rn-n { fill: var(--accent-text); font-weight: 600; }
+    .rel-list { margin-top: 14px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+    @media (max-width: 700px) { .rel-list { grid-template-columns: 1fr; } }
+    .rel-item { border: 1px solid var(--panel-border); border-left: 3px solid var(--rel-line); border-radius: 10px; padding: 10px 12px; }
+    .rel-item.r-neg { border-left-color: var(--rel-neg); }
+    .rel-item.r-pos { border-left-color: var(--rel-pos); }
+    .rel-item.r-mix { border-left-color: var(--rel-mix); }
+    .rel-item.r-weak { border-left-color: var(--rel-weak); }
+    .ri-pair { font-size: 13px; font-weight: 600; color: var(--text); }
+    .ri-sym { color: var(--accent-text); padding: 0 3px; }
+    .ri-lab { font-size: 11.5px; color: var(--accent-text); background: rgba(99,102,241,.12); border-radius: 5px; padding: 2px 8px; margin-left: 6px; }
+    .ri-why { font-size: 12.5px; color: var(--muted); line-height: 1.75; margin-top: 6px; }
+    .macro-detail { margin-top: 14px; background: var(--panel); border: 1px solid var(--panel-border); border-radius: 14px; padding: 16px 18px; scroll-margin-top: 16px; }
+    .md-head { display: flex; align-items: center; gap: 12px; padding-bottom: 14px; margin-bottom: 16px; border-bottom: 1px solid var(--panel-border); }
+    .md-h-ico { flex: 0 0 auto; width: 40px; height: 40px; border-radius: 11px; background: var(--accent-solid); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 17px; font-weight: 600; }
+    .md-h-txt { min-width: 0; }
+    .md-h-name { font-size: 16px; font-weight: 600; color: var(--text); display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .md-h-tag { font-size: 11.5px; font-weight: 500; color: var(--accent2); background: rgba(34,211,238,.14); border-radius: 999px; padding: 2px 9px; }
+    .md-h-sub { font-size: 12.5px; color: var(--muted); margin-top: 3px; }
+    .md-row { border-left: 2px solid var(--c); padding-left: 12px; margin-bottom: 14px; }
+    .md-k { font-size: 12.5px; color: var(--accent-text); font-weight: 600; margin-bottom: 5px; }
+    .md-v { font-size: 14px; color: var(--text); line-height: 1.85; }
+    .md-v strong { color: var(--accent-text); }
+    .md-q { border-left: 2px solid var(--accent3); padding-left: 12px; }
+    .md-q .md-k { color: var(--accent-text); }
+    .md-q ul { list-style: none; display: flex; flex-direction: column; gap: 10px; margin: 0; padding: 0; }
+    .md-q li { display: flex; gap: 10px; align-items: flex-start; }
+    .md-q li .n { flex: 0 0 auto; width: 22px; height: 22px; border-radius: 50%; background: rgba(99,102,241,.16); color: var(--accent-text); font-size: 12px; display: flex; align-items: center; justify-content: center; }
+    .md-q li .t { font-size: 13.5px; color: var(--muted); line-height: 1.75; }
+    @media (max-width: 560px) { .macro-grid { grid-template-columns: 1fr; } }
+
+    /* ===== 股市模拟（v39 全面重构：A股规则 + 持仓/流水 + 图表交互 + 基准对比） ===== */
+    .sim-grid { display: grid; grid-template-columns: 1.35fr 1fr; gap: 16px; margin-top: 16px; align-items: start; }
+    /* ★教学模拟免责提示条（v41）：行情为随机生成，必须在最显眼处说清，不能只留页脚小字 */
+    .sim-notice { display: flex; gap: 10px; align-items: flex-start; margin-top: 14px; padding: 11px 14px;
+      background: rgba(245,158,11,.10); border: 1px solid rgba(245,158,11,.34); border-radius: 12px; }
+    .sn-tag { flex: 0 0 auto; font-size: 11.5px; font-weight: 600; color: #854F0B; background: rgba(245,158,11,.22);
+      border-radius: 999px; padding: 2px 9px; white-space: nowrap; }
+    .sn-txt { font-size: 12.5px; line-height: 1.75; color: var(--text); min-width: 0; }
+    .sn-txt b { display: block; font-size: 13.5px; font-weight: 600; margin-bottom: 3px; }
+    /* 「模拟」角标：加在走势图标题与每个成交价旁，让数据出处随数字走 */
+    #sim-chart-title::after { content: '模拟数据'; font-size: 10.5px; font-weight: 600; color: var(--accent-text);
+      background: rgba(99,102,241,.14); border-radius: 999px; padding: 2px 8px; margin-left: 8px; vertical-align: 2px; }
+    .sl-sim { display: block; font-size: 10.5px; color: var(--muted); letter-spacing: .3px; margin-top: 1px; }
+    .sim-toolbar { display: flex; flex-wrap: wrap; gap: 10px 18px; align-items: center; justify-content: space-between; margin-top: 14px; padding: 11px 14px; background: rgba(99,102,241,.07); border: 1px solid var(--panel-border); border-radius: 12px; }
+    .st-day { font-size: 13px; color: var(--muted); display: flex; align-items: center; gap: 7px; flex-wrap: wrap; }
+    .st-k { font-size: 11.5px; }
+    .st-day b { font-size: 14px; color: var(--accent-text); font-variant-numeric: tabular-nums; }
+    .st-sub { font-size: 11.5px; color: var(--dim); }
+    .st-rule { display: flex; align-items: flex-start; gap: 8px; font-size: 12.5px; color: var(--muted); line-height: 1.6; cursor: pointer; max-width: 100%; }
+    .st-rule input { margin-top: 2px; flex: 0 0 auto; accent-color: var(--accent); color: var(--text); background-color: transparent; }
+    /* ===== v42 A/C：行情种子栏 + 情景选择（可复现 / 可控市况） ===== */
+    .sim-seedbar, .sim-modes { display: flex; flex-direction: column; gap: 7px; margin-top: 12px; padding: 11px 14px; background: rgba(99,102,241,.06); border: 1px solid var(--panel-border); border-radius: 12px; }
+    .sb-row { display: flex; align-items: center; gap: 9px; flex-wrap: wrap; }
+    .sb-input { height: 32px; padding: 0 10px; min-width: 0; width: 132px; border-radius: 9px; border: 1px solid var(--panel-border); background: var(--panel); color: var(--text); font-size: 13.5px; font-family: inherit; font-variant-numeric: tabular-nums; outline: none; }
+    .sb-input:focus { border-color: var(--accent); }
+    .sb-btn { height: 32px; padding: 0 13px; font-size: 12.5px; border-radius: 9px; }
+    .sb-hint { font-size: 12px; color: var(--muted); line-height: 1.65; min-width: 0; }
+    .sb-hint b { font-weight: 600; color: var(--accent-text); }
+    .sm-chips { display: flex; flex-wrap: wrap; gap: 7px; }
+    .sm-chip { height: 30px; padding: 0 13px; border-radius: 999px; border: 1px solid var(--panel-border); background: var(--panel); color: var(--muted); font-size: 12.5px; font-family: inherit; cursor: pointer; transition: .18s; }
+    .sm-chip:hover { border-color: var(--accent); color: var(--text); }
+    .sm-chip.active { background: rgba(99,102,241,.14); border-color: var(--accent); color: var(--accent-text); font-weight: 600; }
+    body.dark:not(.light) .sm-chip.active { background: rgba(129,140,248,.22); color: #c7d2fe; }
+    /* ===== v42 B：重复实验面板 ===== */
+    .sim-exp { margin-top: 16px; }
+    .se-intro { font-size: 12.5px; color: var(--muted); line-height: 1.75; margin-bottom: 12px; }
+    .se-intro b { color: var(--accent-text); font-weight: 600; }
+    .se-ctrl { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 12px; }
+    .se-lab { display: flex; align-items: center; gap: 8px; font-size: 12.5px; color: var(--muted); }
+    .se-n { width: 84px; }
+    .pol-a { color: var(--up); font-weight: 600; }
+    .pol-b { color: var(--down); font-weight: 600; }
+    .se-stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin-bottom: 12px; }
+    .se-s { background: var(--panel); border: 1px solid var(--panel-border); border-radius: 11px; padding: 10px 12px; min-width: 0; }
+    .se-s .k { font-size: 11.5px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .se-s .v { font-size: 17px; font-weight: 700; color: var(--text); margin-top: 4px; font-variant-numeric: tabular-nums; }
+    .se-s .v small { font-size: 11.5px; font-weight: 600; color: var(--muted); margin-left: 2px; }
+    .se-concl { margin-top: 12px; padding: 11px 13px; background: rgba(99,102,241,.08); border: 1px solid var(--panel-border); border-radius: 11px; font-size: 12.5px; color: var(--text); line-height: 1.8; }
+    .se-concl b { color: var(--accent-text); }
+    @media (max-width: 720px) { .se-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+    @media (max-width: 380px) { .se-stats { grid-template-columns: 1fr; } }
+    /* KPI：固定列数（3 / 6 / 2 / 1），不用 auto-fit，避免 6 格时出现孤行错位 */
+    .sim-kpis { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin-top: 14px; }
+    .sk { background: var(--panel); border: 1px solid var(--panel-border); border-radius: 12px; padding: 12px 14px; min-width: 0; }
+    .sk-l { font-size: 12px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .sk-v { font-size: 21px; font-weight: 800; color: var(--text); margin-top: 6px; font-variant-numeric: tabular-nums; letter-spacing: -.3px; }
+    .sk-u { font-size: 12px; font-weight: 600; color: var(--muted); margin-left: 2px; }
+    @media (min-width: 1120px) { .sim-kpis { grid-template-columns: repeat(6, minmax(0, 1fr)); } }
+    @media (max-width: 720px) { .sim-kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+    @media (max-width: 380px) { .sim-kpis { grid-template-columns: 1fr; } }
+    /* 行情列表：宽屏单行 / 窄屏操作区换行，杜绝固定宽撑破容器 */
+    .sim-list { display: flex; flex-direction: column; }
+    .sl-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px 10px; align-items: center; padding: 10px 2px 10px 10px; border-bottom: 1px solid var(--panel-border); border-radius: 10px; }
+    .sl-row:last-child { border-bottom: none; }
+    /* ★「正在查看」选中态：左竖条 + 淡底 + 名称胶囊，让走势图标的与列表行一一对应 */
+    .sl-row.active { background: rgba(99,102,241,.07); box-shadow: inset 3px 0 0 var(--accent); }
+    .sl-name { display: flex; flex-direction: column; gap: 2px; text-align: left; background: none; border: none; padding: 0; cursor: pointer; font-family: inherit; color: var(--text); min-width: 0; }
+    .sl-n { font-size: 13.5px; font-weight: 600; }
+    .sl-live { display: none; font-size: 10.5px; font-weight: 600; color: var(--accent-text); background: rgba(99,102,241,.16); border-radius: 999px; padding: 1px 7px; margin-left: 6px; vertical-align: 1px; white-space: nowrap; }
+    .sl-row.active .sl-live { display: inline-block; }
+    .sl-c { font-size: 11px; color: var(--dim); }
+    .sl-price { text-align: right; font-variant-numeric: tabular-nums; }
+    .sl-p { display: block; font-size: 15px; font-weight: 700; }
+    .sl-chg { display: block; font-size: 11.5px; }
+    .sl-act { grid-column: 1 / -1; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+    .sl-qty { width: 68px; height: 30px; padding: 0 6px; border-radius: 8px; border: 1px solid var(--panel-border); background: var(--panel); color: var(--text); font-size: 13px; text-align: center; outline: none; font-family: inherit; }
+    .sl-qty:focus { border-color: var(--accent); }
+    .sl-buy, .sl-sell { height: 30px; padding: 0 14px; border: none; border-radius: 8px; font-size: 12.5px; font-weight: 600; cursor: pointer; font-family: inherit; }
+    .sl-buy { background: #fecaca; color: #7f1d1d; }
+    .sl-sell { background: #bbf7d0; color: #064e3b; }
+    .sl-buy:disabled, .sl-sell:disabled { opacity: .42; cursor: not-allowed; }
+    @media (min-width: 640px) { .sl-row { grid-template-columns: minmax(0, 1fr) auto auto; } .sl-act { grid-column: auto; } }
+    /* 图表图例 */
+    .sim-legend { display: flex; flex-wrap: wrap; gap: 14px; align-items: center; margin-top: 10px; font-size: 11.5px; color: var(--muted); }
+    .sim-legend i { display: inline-block; width: 15px; height: 0; border-top: 2px solid var(--accent); margin-right: 5px; vertical-align: middle; }
+    .sim-legend .lg-m { border-top-style: dashed; border-top-color: var(--accent2); }
+    .sim-tip { margin-left: auto; color: var(--dim); }
+    /* 持仓 / 流水 */
+    .sim-block { margin-top: 22px; }
+    .sb-head { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; margin-bottom: 10px; }
+    .sb-head h4 { font-size: 14px; font-weight: 600; color: var(--text); margin: 0; }
+    .sb-note { font-size: 11.5px; color: var(--muted); }
+    .hd-head, .hd-row { display: grid; grid-template-columns: minmax(0, 1.5fr) repeat(5, minmax(0, 1fr)); gap: 8px; padding: 9px 4px; font-size: 13px; align-items: center; }
+    .hd-head { font-size: 11.5px; color: var(--muted); border-bottom: 1px solid var(--panel-border); padding-bottom: 7px; }
+    .hd-row { border-bottom: 1px solid var(--panel-border); font-variant-numeric: tabular-nums; }
+    .hd-row > span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .hd-row:last-child { border-bottom: none; }
+    .hd-name { font-weight: 600; }
+    .hd-empty { padding: 16px 4px; font-size: 13px; color: var(--muted); }
+    @media (max-width: 760px) {
+      .hd-head { display: none; }
+      .hd-row { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px 14px; border: 1px solid var(--panel-border); border-radius: 10px; padding: 11px 13px; margin-bottom: 8px; }
+      .hd-row > span::before { content: attr(data-l); display: block; font-size: 11px; color: var(--muted); }
+      .hd-row > span { white-space: normal; overflow: visible; text-overflow: clip; }
+      .hd-row .hd-name { grid-column: 1 / -1; font-size: 14px; }
+      .hd-row .hd-name::before { content: none; }
+    }
+    .fl-row { display: flex; flex-wrap: wrap; gap: 6px 10px; padding: 9px 4px; border-bottom: 1px solid var(--panel-border); font-size: 12.5px; align-items: center; font-variant-numeric: tabular-nums; }
+    .fl-row:last-child { border-bottom: none; }
+    .fl-row > span { white-space: nowrap; }
+    .fl-date { color: var(--dim); font-size: 11.5px; }
+    .fl-side { font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 5px; }
+    .fl-side.buy { background: #fecaca; color: #7f1d1d; }
+    .fl-side.sell { background: #bbf7d0; color: #064e3b; }
+    .fl-stock { font-weight: 600; color: var(--text); }
+    .fl-mut { color: var(--muted); }
+    .fl-fee { color: var(--dim); font-size: 11.5px; }
+    .fl-empty { padding: 16px 4px; font-size: 13px; color: var(--muted); }
+    .sim-scroll { max-height: 300px; overflow-y: auto; }
+    body.dark:not(.light) .sim-notice { background: rgba(245,158,11,.12); border-color: rgba(245,158,11,.4); }
+    body.dark:not(.light) .sn-tag { color: #FAC775; background: rgba(245,158,11,.24); }
+    body.dark:not(.light) #sim-chart-title::after { background: rgba(129,140,248,.22); }
+    body.dark:not(.light) .sl-row.active { background: rgba(129,140,248,.12); }
+    body.dark:not(.light) .sl-live { background: rgba(129,140,248,.2); }
+    body.dark:not(.light) .sl-buy, body.dark:not(.light) .fl-side.buy { background: #4c1d24; color: #fca5a5; }
+    body.dark:not(.light) .sl-sell, body.dark:not(.light) .fl-side.sell { background: #0f3d2e; color: #6ee7b7; }
+    /* 以下为全站通用（估值实验 / IPO / 习题等模块共用），勿删 */
     .up { color: var(--up); }
     .down { color: var(--down); }
     .flat { color: var(--muted); }
-    .trade-qty { width: 56px; height: 30px; padding: 0 6px; border-radius: 8px; border: 1px solid var(--panel-border);
-      background: rgba(255,255,255,0.05); color: var(--text); font-size: 13px; text-align: center; outline: none; }
-    .btn-buy, .btn-sell { height: 30px; padding: 0 12px; border: none; border-radius: 8px; font-size: 12.5px; font-weight: 600; cursor: pointer; }
-    .btn-buy { background: #fca5a5; color: #7f1d1d; }
-    .btn-sell { background: #6ee7b7; color: #064e3b; }
-    .btn-buy:hover, .btn-sell:hover { filter: brightness(1.08); }
     .sim-actions { display: flex; gap: 10px; margin-top: 18px; flex-wrap: wrap; align-items: center; }
-    .sim-btn { height: 40px; padding: 0 20px; border: none; border-radius: 11px; font-size: 14px; font-weight: 600; cursor: pointer; transition: 0.2s; }
+    .sim-btn { height: 40px; padding: 0 20px; border: none; border-radius: 11px; font-size: 14px; font-weight: 600; cursor: pointer; transition: 0.2s; font-family: inherit; }
     .sim-btn.primary { background: linear-gradient(135deg, #4f46e5, #7c3aed); color: #fff; }
-    .sim-btn.ghost { background: rgba(255,255,255,0.06); color: var(--text); border: 1px solid var(--panel-border); }
-    .sim-btn:hover { filter: brightness(1.1); }
+    .sim-btn.ghost { background: var(--panel); color: var(--text); border: 1px solid var(--panel-border); }
+    .sim-btn:hover { filter: brightness(1.06); }
     /* ★修复：禁用态样式 */
     .sim-btn:disabled { opacity: .45; cursor: not-allowed; filter: none; }
     /* ===== 课程学习 · 章节式学习器 ===== */
@@ -1827,95 +2031,27 @@
     <section class="page" id="p-macro">
       <div class="panel">
         <div class="section-title"><span class="bar"></span>宏观市场 · 资产专题</div>
-        <div class="section-sub">围绕美元、黄金、股票、美债四类核心资产，理解其定价逻辑与投行实务联系。</div>
+        <div class="section-sub">围绕美元、黄金、股票、美债四类核心资产，理解其定价逻辑、彼此联动与投行实务联系。选定宏观情景可看到四类资产的方向变化，点击资产卡下钻查看详解。</div>
 
-        <div class="case-item open">
-          <button class="case-head">
-            <span class="case-idx">$</span>
-            <span class="case-title">美元</span>
-            <span class="case-tag">储备货币</span>
-            <span class="case-arrow">▾</span>
-          </button>
-          <div class="case-body">
-            <div class="sub-h">概述</div>
-            <div class="text-slot">美元（USD）是全球最主要的<strong>储备货币</strong>与计价结算货币，多数国际贸易与大宗商品（如石油、黄金）以美元计价结算。</div>
-            <div class="sub-h">关键驱动</div>
-            <div class="text-slot">美元汇率的核心驱动是<strong>美联储货币政策</strong>——加息通常吸引资本回流、推升美元，降息则相反；同时美国经济基本面、通胀与全球避险情绪也会影响美元强弱。</div>
-            <div class="sub-h">投行视角</div>
-            <div class="text-slot">美元汇率影响跨境并购的收购成本、外币债券的发行成本与企业的<strong>汇兑风险管理</strong>，跨国投行业务需密切关注美元利率与汇率走势。</div>
-            <div class="sub-h">讨论题</div>
-            <ul class="q-list">
-              <li><span class="num">1</span><span>美联储加息为什么通常会推升美元？这对企业的外币债务成本意味着什么？</span></li>
-              <li><span class="num">2</span><span>美元走强或走弱，对黄金、美债价格分别有何影响？</span></li>
-            </ul>
-          </div>
+        <!-- ① 情景推演：选一个宏观情景，四类资产方向联动变化 -->
+        <div class="section-title" style="margin-top:26px;"><span class="bar"></span>情景推演 · 四类资产如何联动</div>
+        <div class="macro-scen" id="macro-scen"></div>
+        <div class="scen-note" id="scen-note"></div>
+
+        <!-- ② 资产概览卡（含情景方向，点击下钻详解） -->
+        <div class="macro-grid" id="macro-grid"></div>
+
+        <!-- ③ 联动关系图（四资产两两关系，点击点名下钻） -->
+        <div class="section-title" style="margin-top:26px;"><span class="bar"></span>联动关系 · 四类资产两两相关</div>
+        <div class="section-sub">点击图中任一资产（或上方资产卡），高亮它与其余三者的传导关系。图示为定性关系，非统计相关系数。</div>
+        <div class="macro-rel">
+          <svg class="rel-svg" id="rel-svg" viewBox="0 0 560 340" role="img" aria-label="美元、黄金、股票、美债四类资产的联动关系图"></svg>
+          <div class="rel-list" id="rel-list"></div>
         </div>
 
-        <div class="case-item">
-          <button class="case-head">
-            <span class="case-idx">金</span>
-            <span class="case-title">黄金</span>
-            <span class="case-tag">避险资产</span>
-            <span class="case-arrow">▾</span>
-          </button>
-          <div class="case-body">
-            <div class="sub-h">概述</div>
-            <div class="text-slot">黄金是典型的<strong>避险资产</strong>与价值贮藏工具，在通胀上行或市场动荡时往往受到追捧。</div>
-            <div class="sub-h">关键驱动</div>
-            <div class="text-slot">金价常与美元、<strong>实际利率</strong>反向变动：美元走弱、实际利率（名义利率减通胀）下行时金价走强，通胀上行也推高金价。</div>
-            <div class="sub-h">投行视角</div>
-            <div class="text-slot">黄金与股票、债券相关性较低，可起到<strong>分散投资组合风险</strong>的作用，是投行为客户做资产配置或大宗商品交易时的重要工具。</div>
-            <div class="sub-h">讨论题</div>
-            <ul class="q-list">
-              <li><span class="num">1</span><span>为什么说「实际利率」比名义利率更能解释金价？</span></li>
-              <li><span class="num">2</span><span>通胀上行时，黄金和股票通常各自如何反应？</span></li>
-            </ul>
-          </div>
-        </div>
-
-        <div class="case-item">
-          <button class="case-head">
-            <span class="case-idx">股</span>
-            <span class="case-title">股票</span>
-            <span class="case-tag">权益资产</span>
-            <span class="case-arrow">▾</span>
-          </button>
-          <div class="case-body">
-            <div class="sub-h">概述</div>
-            <div class="text-slot">股票是公司发行的<strong>所有权凭证</strong>，代表股东对公司的剩余索取权。</div>
-            <div class="sub-h">关键驱动</div>
-            <div class="text-slot">股价长期由<strong>企业盈利与成长预期</strong>决定，短期受市场情绪、流动性与资金面影响。</div>
-            <div class="sub-h">投行视角</div>
-            <div class="text-slot">在一级市场，投行帮助企业通过 IPO、增发等发行股票融资并负责定价承销；在二级市场，投资者自由买卖。投行连接了企业与资本市场。</div>
-            <div class="sub-h">讨论题</div>
-            <ul class="q-list">
-              <li><span class="num">1</span><span>一级市场与二级市场在功能上有什么区别？投行主要活跃在哪一级？</span></li>
-              <li><span class="num">2</span><span>为什么说「估值」是投行在股票发行中的核心工作？</span></li>
-            </ul>
-          </div>
-        </div>
-
-        <div class="case-item">
-          <button class="case-head">
-            <span class="case-idx">债</span>
-            <span class="case-title">美债</span>
-            <span class="case-tag">利率基准</span>
-            <span class="case-arrow">▾</span>
-          </button>
-          <div class="case-body">
-            <div class="sub-h">概述</div>
-            <div class="text-slot">美国国债（美债）是全球金融市场的<strong>定价基准</strong>，其收益率常被视为「无风险利率」。</div>
-            <div class="sub-h">关键驱动</div>
-            <div class="text-slot">债券价格与收益率<strong>反向变动</strong>：收益率上行则债券价格下跌；美债收益率受美联储政策、通胀预期与经济前景影响。</div>
-            <div class="sub-h">投行视角</div>
-            <div class="text-slot">美债收益率是估值中<strong>折现率（DCF）</strong>的重要参照，直接影响股票与债券估值水平，也是判断全球流动性松紧的关键指标。</div>
-            <div class="sub-h">讨论题</div>
-            <ul class="q-list">
-              <li><span class="num">1</span><span>为什么债券价格与收益率反向变动？</span></li>
-              <li><span class="num">2</span><span>美债收益率上行，对股票估值（尤其是成长股）通常意味着什么？</span></li>
-            </ul>
-          </div>
-        </div>
+        <!-- ④ 资产详解（点击资产卡后自动定位到此处） -->
+        <div class="section-title" style="margin-top:26px;"><span class="bar"></span>资产详解</div>
+        <div class="macro-detail" id="macro-detail"></div>
       </div>
     </section>
 
@@ -1923,31 +2059,91 @@
     <section class="page" id="p-sim">
       <div class="panel">
         <div class="section-title"><span class="bar"></span>股市模拟 · 模拟交易</div>
-        <div class="section-sub">虚拟资金 100 万元。点击「下一交易日」推进行情，点击股票名查看走势。红涨绿跌（A股惯例）。</div>
+        <div class="section-sub">虚拟资金 100 万元。点击「下一交易日」推进行情，点击股票名查看走势。红涨绿跌（A股惯例）。持仓与成交流水会自动保存，刷新不丢失。</div>
 
-        <div class="kpi-row">
-          <div class="kpi-card"><div class="num" id="sim-cash">100.00<span class="unit">万</span></div><div class="label">可用资金</div></div>
-          <div class="kpi-card"><div class="num" id="sim-mv">0.00<span class="unit">万</span></div><div class="label">持仓市值</div></div>
-          <div class="kpi-card"><div class="num" id="sim-total">100.00<span class="unit">万</span></div><div class="label">总资产</div></div>
-          <div class="kpi-card"><div class="num" id="sim-pnl">0.00<span class="unit">%</span></div><div class="label">累计盈亏</div></div>
+        <div class="sim-notice">
+          <span class="sn-tag">教学模拟</span>
+          <div class="sn-txt"><b>行情由本地模型生成，不是真实行情</b>标的名称、代码、板块与交易规则参照真实 A 股；所有价格、走势与沪深300 基准均由程序生成。同一种子 + 同一情景 = 同一条行情，可用于课堂统一发题。仅用于教学，不可用于真实投资决策。</div>
+        </div>
+
+        <!-- v42 A：行情种子（可复现，支持课堂统一发题） -->
+        <div class="sim-seedbar">
+          <div class="sb-row">
+            <span class="st-k">行情种子</span>
+            <input class="sb-input" id="sim-seed" type="text" inputmode="numeric" aria-label="行情种子号，相同号生成完全相同的行情" />
+            <button class="sim-btn ghost sb-btn" id="sim-seed-apply">应用种子</button>
+            <button class="sim-btn ghost sb-btn" id="sim-seed-rand">随机换一组</button>
+          </div>
+          <div class="sb-hint">同一种子号 + 同一情景 = 完全相同的走势。课堂统一发一个号，全班看到同一条行情，作业与讲评才有可比性。</div>
+        </div>
+
+        <!-- v42 C：行情情景（确定性路径，便于同一策略在不同市况下对照） -->
+        <div class="sim-modes">
+          <div class="sb-row"><span class="st-k">行情情景</span><div class="sm-chips" id="sim-modes"></div></div>
+          <div class="sb-hint" id="sim-mode-note">—</div>
+        </div>
+
+        <div class="sim-toolbar">
+          <div class="st-day"><span class="st-k">交易日</span><b id="sim-date">—</b><span class="st-sub" id="sim-day">第 30 日</span></div>
+          <label class="st-rule">
+            <input type="checkbox" id="sim-rule" checked />
+            <span>按 A 股真实规则：佣金万2.5（最低5元）· 印花税 0.05%（卖出）· 过户费 0.001% · T+1 · 涨跌停</span>
+          </label>
+        </div>
+
+        <div class="sim-kpis">
+          <div class="sk"><div class="sk-l">可用资金</div><div class="sk-v" id="sim-cash">100.00<span class="sk-u">万</span></div></div>
+          <div class="sk"><div class="sk-l">持仓市值</div><div class="sk-v" id="sim-mv">0.00<span class="sk-u">万</span></div></div>
+          <div class="sk"><div class="sk-l">总资产</div><div class="sk-v" id="sim-total">100.00<span class="sk-u">万</span></div></div>
+          <div class="sk"><div class="sk-l">累计盈亏</div><div class="sk-v" id="sim-pnl">0.00<span class="sk-u">%</span></div></div>
+          <div class="sk"><div class="sk-l">沪深300 基准</div><div class="sk-v" id="sim-bench">0.00<span class="sk-u">%</span></div></div>
+          <div class="sk"><div class="sk-l">超额收益 α</div><div class="sk-v" id="sim-alpha">0.00<span class="sk-u">%</span></div></div>
         </div>
 
         <div class="sim-grid">
           <div class="chart-card">
-            <h4 id="sim-chart-title">中芯国际 688981 · 近 30 日走势</h4>
-            <svg id="sim-chart" viewBox="0 0 560 220" width="100%" role="img" aria-label="选中股票走势图"></svg>
+            <h4 id="sim-chart-title">走势</h4>
+            <svg id="sim-chart" viewBox="0 0 560 240" width="100%" role="img" aria-label="选中股票近 30 个交易日模拟走势图"></svg>
+            <div class="sim-legend">
+              <span><i class="lg-p"></i>收盘价</span>
+              <span><i class="lg-m"></i>MA5 均线</span>
+              <span class="sim-tip">移动鼠标查看某日价格</span>
+            </div>
           </div>
           <div class="chart-card">
             <h4>行情列表</h4>
-            <div class="hint" style="margin-bottom:10px;">数量默认 100 股。</div>
-            <div id="sim-stocks"></div>
+            <div class="sim-list" id="sim-stocks"></div>
           </div>
+        </div>
+
+        <div class="sim-block">
+          <div class="sb-head"><h4>我的持仓</h4><span class="sb-note" id="sim-hold-note"></span></div>
+          <div id="sim-holdings"></div>
+        </div>
+
+        <div class="sim-block">
+          <div class="sb-head"><h4>成交流水</h4><span class="sb-note" id="sim-flow-note"></span></div>
+          <div id="sim-flow"></div>
+        </div>
+
+        <!-- v42 B：重复实验（把随机性变成教学点：运气 vs 技能 / 交易成本拖累） -->
+        <div class="sim-block sim-exp">
+          <div class="sb-head"><h4>重复实验 · 运气还是能力</h4><span class="sb-note">配对比较，把运气消掉</span></div>
+          <div class="se-intro">单看一次盈亏，分不清是策略对了还是运气好。这里让两个策略在<b>同一条行情</b>上各跑一遍、重复 N 次，再用「配对比较」消除行情差异，剩下的才是策略本身的差别。</div>
+          <div class="se-ctrl">
+            <label class="se-lab">实验次数
+              <input class="sb-input se-n" id="se-n" type="number" min="5" max="200" step="5" value="20" aria-label="重复实验次数" />
+            </label>
+            <button class="sim-btn primary" id="se-run">运行实验</button>
+            <span class="sb-hint">对照策略：<b class="pol-a">买入并持有</b> vs <b class="pol-b">每日换手</b>（每日卖出再买回，受 T+1 约束）</span>
+          </div>
+          <div id="se-out"></div>
         </div>
 
         <div class="sim-actions">
           <button class="sim-btn primary" id="sim-next">下一交易日</button>
           <button class="sim-btn ghost" id="sim-reset">重置模拟</button>
-          <span class="hint">本模块为教学模拟，不构成投资建议。</span>
+          <span class="hint">本模块为教学模拟，行情为虚构数据，不构成投资建议。</span>
         </div>
       </div>
     </section>
@@ -2286,6 +2482,181 @@
       });
     })();
 
+    // ===== 宏观市场：情景推演 · 联动关系图 · 资产卡下钻详解（v38） =====
+    const escM = function (t) { return String(t == null ? '' : t).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); };
+    const MACRO = {
+      usd: {
+        ico: '$', name: '美元', tag: '储备货币', desc: '全球最主要的计价与结算货币', drivers: ['美联储政策', '通胀', '避险情绪'],
+        overview: '美元（USD）是全球最主要的<strong>储备货币</strong>与计价结算货币，多数国际贸易与大宗商品（如石油、黄金）以美元计价结算。',
+        driver: '美元汇率的核心驱动是<strong>美联储货币政策</strong>——加息通常吸引资本回流、推升美元，降息则相反；同时美国经济基本面、通胀与全球避险情绪也会影响美元强弱。',
+        ib: '美元汇率影响跨境并购的收购成本、外币债券的发行成本与企业的<strong>汇兑风险管理</strong>，跨国投行业务需密切关注美元利率与汇率走势。',
+        q: ['美联储加息为什么通常会推升美元？这对企业的外币债务成本意味着什么？', '美元走强或走弱，对黄金、美债价格分别有何影响？']
+      },
+      gold: {
+        ico: '金', name: '黄金', tag: '避险资产', desc: '通胀与动荡期的价值贮藏工具', drivers: ['实际利率', '美元', '避险'],
+        overview: '黄金是典型的<strong>避险资产</strong>与价值贮藏工具，在通胀上行或市场动荡时往往受到追捧。',
+        driver: '金价常与美元、<strong>实际利率</strong>反向变动：美元走弱、实际利率（名义利率减通胀）下行时金价走强，通胀上行也推高金价。',
+        ib: '黄金与股票、债券相关性较低，可起到<strong>分散投资组合风险</strong>的作用，是投行为客户做资产配置或大宗商品交易时的重要工具。',
+        q: ['为什么说「实际利率」比名义利率更能解释金价？', '通胀上行时，黄金和股票通常各自如何反应？']
+      },
+      stock: {
+        ico: '股', name: '股票', tag: '权益资产', desc: '企业的所有权凭证与剩余索取权', drivers: ['盈利预期', '流动性'],
+        overview: '股票是公司发行的<strong>所有权凭证</strong>，代表股东对公司的剩余索取权。',
+        driver: '股价长期由<strong>企业盈利与成长预期</strong>决定，短期受市场情绪、流动性与资金面影响。',
+        ib: '在一级市场，投行帮助企业通过 IPO、增发等发行股票融资并负责定价承销；在二级市场，投资者自由买卖。投行连接了企业与资本市场。',
+        q: ['一级市场与二级市场在功能上有什么区别？投行主要活跃在哪一级？', '为什么说「估值」是投行在股票发行中的核心工作？']
+      },
+      bond: {
+        ico: '债', name: '美债', tag: '利率基准', desc: '全球无风险利率的定价锚', drivers: ['美联储政策', '通胀预期'],
+        overview: '美国国债（美债）是全球金融市场的<strong>定价基准</strong>，其收益率常被视为「无风险利率」。',
+        driver: '债券价格与收益率<strong>反向变动</strong>：收益率上行则债券价格下跌；美债收益率受美联储政策、通胀预期与经济前景影响。',
+        ib: '美债收益率是估值中<strong>折现率（DCF）</strong>的重要参照，直接影响股票与债券估值水平，也是判断全球流动性松紧的关键指标。',
+        q: ['为什么债券价格与收益率反向变动？', '美债收益率上行，对股票估值（尤其是成长股）通常意味着什么？']
+      }
+    };
+    const MORDER = ['usd', 'gold', 'stock', 'bond'];
+    // 五类宏观情景：每类资产的方向（up 走强 / down 走弱 / flat 双向·震荡）与原因
+    const SCEN = [
+      { id: 'hike', name: '美联储加息', note: '政策利率上行、美元流动性收紧：资金回流美元资产，同时抬高全球折现率，估值端普遍承压。',
+        d: { usd: ['up', '走强：利差扩大吸引国际资本回流'], gold: ['down', '承压：实际利率上行抬高持金机会成本'], stock: ['down', '估值承压：折现率上行，成长股最敏感'], bond: ['down', '价格下跌：收益率与价格反向变动'] } },
+      { id: 'cut', name: '美联储降息', note: '政策利率下行、流动性转松：折现率回落、美元走弱，利率敏感资产与权益估值修复。',
+        d: { usd: ['down', '走弱：利差收窄，资本流出美元资产'], gold: ['up', '走强：实际利率下行，持金成本降低'], stock: ['up', '估值修复：折现率回落提振权益估值'], bond: ['up', '价格上涨：收益率下行推升债券价格'] } },
+      { id: 'infl', name: '通胀超预期', note: '通胀高于目标：名义利率与实际利率相互博弈，实物资产与计价货币走势分化。',
+        d: { usd: ['flat', '双向：央行被迫转鹰利好美元，但通胀侵蚀购买力'], gold: ['up', '走强：抗通胀属性凸显'], stock: ['flat', '分化：成本上升挤压毛利，估值同步承压'], bond: ['down', '价格下跌：通胀预期推高名义收益率'] } },
+      { id: 'risk', name: '避险情绪升温', note: '地缘冲突或金融条件恶化：资金涌向安全资产，风险资产普遍承压，这是四类资产联动最典型的一幕。',
+        d: { usd: ['up', '走强：美元作为首要避险与结算货币受益'], gold: ['up', '走强：传统避险资产需求上升'], stock: ['down', '下跌：风险偏好回落，资金流出权益'], bond: ['up', '价格上涨：避险资金买入压低收益率'] } },
+      { id: 'reces', name: '衰退担忧加剧', note: '增长预期下修：盈利端受压、宽松预期升温，形成「股弱债强」的经典组合。',
+        d: { usd: ['flat', '震荡：避险需求与宽松预期相互抵消'], gold: ['up', '走强：宽松预期叠加避险需求'], stock: ['down', '下跌：盈利预期下修是主要压制'], bond: ['up', '价格上涨：宽松预期带动收益率下行'] } }
+    ];
+    // 四类资产两两关系（定性，非统计相关系数）
+    const LINKS = [
+      { a: 'usd', b: 'gold', r: 'neg', sym: '−', lab: '反向', why: '美元与黄金多数时期反向：美元走弱、实际利率下行时金价往往走强。' },
+      { a: 'usd', b: 'bond', r: 'pos', sym: '+', lab: '同向', why: '同源驱动：加息同时推升美元与美债收益率，二者常同向变动。' },
+      { a: 'usd', b: 'stock', r: 'mix', sym: '±', lab: '双向', why: '双向作用：强美元吸引全球资金回流美股，却压制美国跨国企业的海外盈利。' },
+      { a: 'gold', b: 'bond', r: 'neg', sym: '−', lab: '反向', why: '共同的锚是实际利率：美债实际收益率上行抬高持金成本，金价承压。' },
+      { a: 'gold', b: 'stock', r: 'weak', sym: '~', lab: '弱相关', why: '相关性长期偏低，这正是黄金可用于分散组合风险的根本原因。' },
+      { a: 'bond', b: 'stock', r: 'neg', sym: '−', lab: '反向', why: '估值传导：美债收益率是折现率基准，上行压制股票估值，成长股最敏感。' }
+    ];
+    const NODE = { usd: [280, 54], bond: [494, 170], stock: [280, 286], gold: [66, 170] };
+    let macroAsset = 'usd', macroScen = 'hike';
+    const scenOf = function () { for (let i = 0; i < SCEN.length; i++) { if (SCEN[i].id === macroScen) return SCEN[i]; } return SCEN[0]; };
+
+    function renderScenBar() {
+      const bar = document.getElementById('macro-scen'); if (!bar) return;
+      bar.innerHTML = SCEN.map(function (s) {
+        return '<button class="msc' + (s.id === macroScen ? ' active' : '') + '" data-scen="' + s.id + '">' + escM(s.name) + '</button>';
+      }).join('');
+      const note = document.getElementById('scen-note');
+      if (note) note.innerHTML = '<span class="sn-tag">当前情景</span>' + escM(scenOf().note);
+    }
+
+    function renderCards() {
+      const g = document.getElementById('macro-grid'); if (!g) return;
+      const s = scenOf();
+      g.innerHTML = MORDER.map(function (k) {
+        const m = MACRO[k], dv = s.d[k] || ['flat', ''];
+        const cls = dv[0] === 'up' ? 'up' : (dv[0] === 'down' ? 'down' : 'flat');
+        const arrow = dv[0] === 'up' ? '↑' : (dv[0] === 'down' ? '↓' : '→');
+        return '<button class="macro-card' + (k === macroAsset ? ' active' : '') + '" data-asset="' + k + '" aria-pressed="' + (k === macroAsset) + '">' +
+          '<div class="mc-top"><span class="mc-ico">' + escM(m.ico) + '</span><span class="mc-name">' + escM(m.name) + '</span><span class="mc-tag">' + escM(m.tag) + '</span></div>' +
+          '<div class="mc-desc">' + escM(m.desc) + '</div>' +
+          '<div class="mc-mv ' + cls + '"><span class="mv-a">' + arrow + '</span><span class="mv-t">' + escM(dv[1]) + '</span></div>' +
+          '<div class="mc-drivers">' + m.drivers.map(function (d) { return '<span>' + escM(d) + '</span>'; }).join('') + '</div>' +
+          '<span class="mc-live">正在查看</span>' +
+          '</button>';
+      }).join('');
+    }
+
+    function renderDetail() {
+      const el = document.getElementById('macro-detail'); if (!el) return;
+      const m = MACRO[macroAsset]; if (!m) return;
+      el.innerHTML =
+        '<div class="md-head"><span class="md-h-ico">' + escM(m.ico) + '</span><div class="md-h-txt">' +
+        '<div class="md-h-name">' + escM(m.name) + '<span class="md-h-tag">' + escM(m.tag) + '</span></div>' +
+        '<div class="md-h-sub">' + escM(m.desc) + '</div></div></div>' +
+        '<div class="md-row" style="--c:#4f46e5"><div class="md-k">概述</div><div class="md-v">' + m.overview + '</div></div>' +
+        '<div class="md-row" style="--c:#0e7490"><div class="md-k">关键驱动</div><div class="md-v">' + m.driver + '</div></div>' +
+        '<div class="md-row" style="--c:#8b5cf6"><div class="md-k">投行视角</div><div class="md-v">' + m.ib + '</div></div>' +
+        '<div class="md-q"><div class="md-k">讨论题</div><ul>' +
+        m.q.map(function (t, i) { return '<li><span class="n">' + (i + 1) + '</span><span class="t">' + t + '</span></li>'; }).join('') +
+        '</ul></div>';
+    }
+
+    // 关系标签位置：黄金—美债为横向对角线，标签偏移避开纵向的美元—股票标签
+    const labPos = function (l) {
+      const p1 = NODE[l.a], p2 = NODE[l.b];
+      const t = ((l.a === 'gold' && l.b === 'bond') || (l.a === 'bond' && l.b === 'gold')) ? 0.72 : 0.5;
+      return [Math.round(p1[0] + (p2[0] - p1[0]) * t), Math.round(p1[1] + (p2[1] - p1[1]) * t)];
+    };
+
+    function renderRel() {
+      const svg = document.getElementById('rel-svg'); if (!svg) return;
+      let s = '';
+      LINKS.forEach(function (l) {
+        const p1 = NODE[l.a], p2 = NODE[l.b];
+        const on = (l.a === macroAsset || l.b === macroAsset);
+        s += '<line class="rl r-' + l.r + (on ? ' on' : '') + '" x1="' + p1[0] + '" y1="' + p1[1] + '" x2="' + p2[0] + '" y2="' + p2[1] + '" />';
+      });
+      LINKS.forEach(function (l) {
+        const p = labPos(l);
+        const on = (l.a === macroAsset || l.b === macroAsset);
+        const w = l.lab.length * 12 + 18;
+        s += '<g class="rl-g' + (on ? ' on' : '') + '">' +
+          '<rect class="rl-bg r-' + l.r + (on ? ' on' : '') + '" rx="8" x="' + (p[0] - w / 2) + '" y="' + (p[1] - 11) + '" width="' + w + '" height="22" />' +
+          '<text class="rl-lab" x="' + p[0] + '" y="' + (p[1] + 4) + '" text-anchor="middle">' + escM(l.sym + ' ' + l.lab) + '</text>' +
+          '</g>';
+      });
+      MORDER.forEach(function (k) {
+        const p = NODE[k], m = MACRO[k], on = (k === macroAsset);
+        s += '<g class="rn-g' + (on ? ' on' : '') + '" data-asset="' + k + '">' +
+          '<circle class="rn" cx="' + p[0] + '" cy="' + p[1] + '" r="36" />' +
+          '<text class="rn-s" x="' + p[0] + '" y="' + (p[1] - 1) + '" text-anchor="middle">' + escM(m.ico) + '</text>' +
+          '<text class="rn-n" x="' + p[0] + '" y="' + (p[1] + 19) + '" text-anchor="middle">' + escM(m.name) + '</text>' +
+          '</g>';
+      });
+      svg.innerHTML = s;
+    }
+
+    function renderRelList() {
+      const el = document.getElementById('rel-list'); if (!el) return;
+      const rel = LINKS.filter(function (l) { return l.a === macroAsset || l.b === macroAsset; });
+      el.innerHTML = rel.map(function (l) {
+        const other = MACRO[l.a === macroAsset ? l.b : l.a];
+        return '<div class="rel-item r-' + l.r + '"><div class="ri-pair">' + escM(MACRO[macroAsset].name) +
+          '<span class="ri-sym">' + escM(l.sym) + '</span>' + escM(other.name) +
+          '<span class="ri-lab">' + escM(l.lab) + '</span></div>' +
+          '<div class="ri-why">' + escM(l.why) + '</div></div>';
+      }).join('');
+    }
+
+    function selectAsset(k, scroll) {
+      if (!MACRO[k]) return;
+      macroAsset = k;
+      renderCards(); renderDetail(); renderRel(); renderRelList();
+      if (scroll) {
+        const el = document.getElementById('macro-detail');
+        if (el && el.scrollIntoView) { try { el.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); } catch (err) { el.scrollIntoView(); } }
+      }
+    }
+
+    (function bindMacro() {
+      const g = document.getElementById('macro-grid'), bar = document.getElementById('macro-scen'), svg = document.getElementById('rel-svg');
+      if (g) g.addEventListener('click', function (e) {
+        const b = e.target.closest && e.target.closest('.macro-card');
+        if (b) selectAsset(b.getAttribute('data-asset'), true);
+      });
+      if (bar) bar.addEventListener('click', function (e) {
+        const b = e.target.closest && e.target.closest('.msc');
+        if (b) { macroScen = b.getAttribute('data-scen'); renderScenBar(); renderCards(); }
+      });
+      if (svg) svg.addEventListener('click', function (e) {
+        const n = e.target.closest && e.target.closest('.rn-g');
+        if (n) selectAsset(n.getAttribute('data-asset'), true);
+      });
+    })();
+
+    renderScenBar(); renderCards(); renderDetail(); renderRel(); renderRelList();
+
     // ===== 本地知识库问答 =====
     const KNOWLEDGE = [
       { keys: ['美元','汇率','美联储','加息','降息','美元指数','usd','汇兑'], ans: '美元是全球最主要的储备货币与计价结算货币。美联储货币政策（加息/降息）是影响美元汇率的核心因素：加息通常推升美元、吸引资本回流，降息则相反。对投行而言，美元汇率影响跨境并购成本、外币债券发行与企业的汇兑风险管理。' },
@@ -2386,143 +2757,587 @@
       }
     });
 
-    // ===== 股市模拟 =====
+    // ===== 股市模拟（v39：A股规则 + 持仓/流水 + 图表交互 + 基准对比）=====
     (function () {
+      // 名称/代码/板块/交易规则参照真实 A 股；base 为接近真实量级的取整基准价（v41 校准，原先比亚迪 250 与真实价差 3 倍）
+      // 价格本身由 genSeed / nextDay 随机生成，非真实行情
       const STOCKS = [
-        { code: '688981', name: '中芯国际', base: 60.0 },
-        { code: '000333', name: '美的集团', base: 70.0 },
-        { code: '600036', name: '招商银行', base: 35.0 },
-        { code: '002594', name: '比亚迪', base: 250.0 },
-        { code: '300750', name: '宁德时代', base: 200.0 }
+        { code: '688981', name: '中芯国际', base: 110.0, board: '科创板', limit: 0.20, beta: 1.30 },
+        { code: '000333', name: '美的集团', base: 80.0, board: '深主板', limit: 0.10, beta: 0.90 },
+        { code: '600036', name: '招商银行', base: 41.0, board: '沪主板', limit: 0.10, beta: 0.80 },
+        { code: '002594', name: '比亚迪', base: 83.0, board: '深主板', limit: 0.10, beta: 1.20 },
+        { code: '300750', name: '宁德时代', base: 290.0, board: '创业板', limit: 0.20, beta: 1.40 }
       ];
-      const START_CASH = 1000000;
-      const DAYS = 30;
-      let cash = START_CASH;
-      let holdings = {};
-      let history = {};
-      let selected = STOCKS[0].code;
+      const DAYS = 30, START_CASH = 1000000, IDX_BASE = 3800, KEY = 'ibank_sim';
+      const FEE = { comm: 0.00025, commMin: 5, stamp: 0.0005, transfer: 0.00001 };
+      const CW = 560, CH = 240, PL = 50, PR = 56, PT = 16, PB = 30;
+      const X = function (i) { return PL + i / (DAYS - 1) * (CW - PL - PR); };
+      const nameOf = function (c) { const s = STOCKS.filter(function (x) { return x.code === c; })[0]; return s ? s.name : c; };
+      const stockOf = function (c) { const s = STOCKS.filter(function (x) { return x.code === c; })[0]; return s || STOCKS[0]; };
+      const fmt2 = function (v) { return v.toFixed(2); };
+      const fmtW = function (v) { return (v / 10000).toFixed(2); };
+      const money = function (v) { return '¥' + v.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ','); };
+      const isoOf = function (d) { return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); };
+      const mdOf = function (s) { return String(s).slice(5); };
+      const toast = function (m) { try { if (typeof ibankToast === 'function') ibankToast(m); } catch (e) {} };
 
-      function genHistory(s) {
-        let p = s.base * (0.9 + Math.random() * 0.2);
-        const arr = [];
-        for (let i = 0; i < DAYS; i++) { p = Math.max(0.1, p * (1 + (Math.random() - 0.5) * 0.05)); arr.push(p); }
-        return arr;
+      // ===== v42 A：确定性随机数 mulberry32（与站内 IPO 模块 3852 行同源，保证两个数据模拟模块口径一致）=====
+      function mulberry32(a) {
+        return function () {
+          a |= 0; a = a + 0x6D2B79F5 | 0;
+          let t = Math.imul(a ^ a >>> 15, 1 | a);
+          t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+          return ((t ^ t >>> 14) >>> 0) / 4294967296;
+        };
       }
-      STOCKS.forEach(function (s) { history[s.code] = genHistory(s); });
+      // 任意输入映射为 32 位整数种子：支持纯数字（20261007）或文本种子（如「期中考」）
+      function seedOf(v) {
+        const s = String(v == null ? '' : v).trim();
+        if (!s) return 1;
+        if (/^\d+$/.test(s)) { const n = parseInt(s, 10) % 2147483647; return n === 0 ? 1 : n; }
+        let h = 2166136261;
+        for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); }
+        h = h >>> 0; return h === 0 ? 1 : h;
+      }
 
-      function price(code) { const h = history[code]; return h[h.length - 1]; }
-      function prevClose(code) { const h = history[code]; return h.length >= 2 ? h[h.length - 2] : h[0]; }
-      function chg(code) { return (price(code) - prevClose(code)) / prevClose(code) * 100; }
-      function mv() {
-        let sum = 0;
-        Object.keys(holdings).forEach(function (c) { sum += holdings[c].qty * price(c); });
-        return sum;
+      // v42 C：行情情景（确定性市况）。mu=市场日均漂移，sg=市场日波动，mr=均值回复强度
+      const MODES = [
+        { id: 'rand',  name: '随机行情', mu: 0.0002, sg: 0.0080, mr: 0,     desc: '无主导方向的随机走势，用作对照基准' },
+        { id: 'bull',  name: '单边上涨', mu: 0.0060, sg: 0.0040, mr: 0,     desc: '市场日均 +0.6% 的低波动慢牛：趋势市里，拿得住往往比择时更重要' },
+        { id: 'bear',  name: '单边下跌', mu: -0.0060, sg: 0.0040, mr: 0,    desc: '市场日均 -0.6% 的低波动阴跌：看不同策略能否控制回撤' },
+        { id: 'range', name: '宽幅震荡', mu: 0,      sg: 0.0160, mr: 0.020, desc: '零漂移 + 波动翻倍 + 均值回复：来回反复的震荡最容易放大交易成本' },
+        { id: 'shock', name: '波动骤升', mu: 0.0005, sg: 0.0060, mr: 0,     desc: '第 12 个交易日起波动放大 3 倍：检验极端行情下的表现', shockAt: 12, shockMul: 3 },
+        { id: 'gap',   name: '跳空缺口', mu: 0.0003, sg: 0.0070, mr: 0.010, desc: '第 16 个交易日一次性跳空 -7%：跳空无法在盘中从容止损', gapAt: 16, gap: -0.07 }
+      ];
+      const modeOf = function (id) { const m = MODES.filter(function (x) { return x.id === id; })[0]; return m || MODES[0]; };
+
+      // 市场因子序列：完全由 (seed, mode) 决定 —— 同参数必得同一条行情，这是可复现的基础
+      function marketSeq(seed, mode, n, tag) {
+        const md = modeOf(mode);
+        const rnd = mulberry32(seedOf(seed) + (tag || 0) * 7919 + 11);
+        const out = []; let dev = 0;
+        for (let i = 0; i < n; i++) {
+          let sg = md.sg;
+          if (md.shockAt != null && i >= md.shockAt) sg *= md.shockMul;
+          let m = md.mu + (rnd() - 0.5) * 2 * sg;
+          if (md.gapAt != null && i === md.gapAt) m += md.gap;
+          if (md.mr) { dev += m; m -= md.mr * dev; }
+          out.push(m);
+        }
+        return out;
       }
-      function total() { return cash + mv(); }
-      function fmtWan(v) { return (v / 10000).toFixed(2); }
+
+      // 生成一条完整行情：个股收益 = β × 市场收益 + 特异性收益（便于演示 β 与分散化）
+      function genPath(seed, mode) {
+        const ms = marketSeq(seed, mode, DAYS - 1, 0);
+        const rnd = mulberry32(seedOf(seed) * 31 + 7);
+        const idx = [IDX_BASE * (0.98 + rnd() * 0.04)];
+        for (let i = 0; i < DAYS - 1; i++) idx.push(Math.max(800, idx[i] * (1 + ms[i])));
+        const hist = {};
+        STOCKS.forEach(function (s) {
+          const a = [s.base * (0.93 + rnd() * 0.12)];
+          for (let i = 0; i < DAYS - 1; i++) {
+            let p = a[i] * (1 + s.beta * ms[i] + (rnd() - 0.5) * 0.03);
+            p = Math.min(a[i] * (1 + s.limit), Math.max(a[i] * (1 - s.limit), p));
+            a.push(Math.max(0.5, p));
+          }
+          hist[s.code] = a;
+        });
+        return { idx: idx, hist: hist };
+      }
+      function dateSeq() {
+        const ds = [], d0 = new Date(2026, 8, 1), d = new Date(d0);
+        while (ds.length < DAYS) { if (d.getDay() !== 0 && d.getDay() !== 6) ds.push(isoOf(d)); d.setDate(d.getDate() + 1); }
+        return ds;
+      }
+      function fresh(seed, mode) {
+        const sd = seedOf(seed == null ? (100000 + Math.floor(Math.random() * 899999)) : seed);
+        const md = mode || 'rand';
+        const g = genPath(sd, md);
+        return { cash: START_CASH, holdings: {}, trades: [], day: DAYS, rule: true, selected: STOCKS[0].code,
+          dates: dateSeq(), idx: g.idx, idx0: g.idx[DAYS - 1], hist: g.hist,
+          seed: sd, mode: md, step: 0 };
+      }
+
+      let S = null;
+      try {
+        const raw = localStorage.getItem(KEY);
+        if (raw) {
+          const o = JSON.parse(raw);
+          let good = !!(o && o.hist && o.holdings && o.dates && o.idx && o.dates.length === DAYS && o.idx.length === DAYS);
+          if (good) STOCKS.forEach(function (s) { if (!Array.isArray(o.hist[s.code]) || o.hist[s.code].length !== DAYS) good = false; });
+          if (good) S = o;
+        }
+      } catch (e) { S = null; }
+      if (!S) S = fresh();
+      // 字段迁移：v41 及更早的存档没有 seed / mode / step
+      if (S.seed == null) S.seed = seedOf(20261007);
+      if (!S.mode) S.mode = 'rand';
+      if (S.step == null) S.step = 0;
+
+      const save = function () { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} };
+      const px = function (c) { return S.hist[c][DAYS - 1]; };
+      const prevPx = function (c) { return S.hist[c][DAYS - 2]; };
+      const chg = function (c) { return (px(c) / prevPx(c) - 1) * 100; };
+      const mv = function () { let t = 0; Object.keys(S.holdings).forEach(function (c) { t += S.holdings[c].qty * px(c); }); return t; };
+      const total = function () { return S.cash + mv(); };
+      const pnlPct = function () { return (total() / START_CASH - 1) * 100; };
+      const benchPct = function () { return (S.idx[DAYS - 1] / S.idx0 - 1) * 100; };
+      function feeOf(amount, isSell) {
+        if (!S.rule) return 0;
+        let f = Math.max(amount * FEE.comm, FEE.commMin) + amount * FEE.transfer;
+        if (isSell) f += amount * FEE.stamp;
+        return f;
+      }
+      const qtyOf = function (code) { const e = document.getElementById('q-' + code); const n = parseInt(e && e.value, 10); return isNaN(n) ? 0 : n; };
 
       function renderStats() {
-        const t = total();
-        const pnl = (t - START_CASH) / START_CASH * 100;
-        document.getElementById('sim-cash').innerHTML = fmtWan(cash) + '<span class="unit">万</span>';
-        document.getElementById('sim-mv').innerHTML = fmtWan(mv()) + '<span class="unit">万</span>';
-        document.getElementById('sim-total').innerHTML = fmtWan(t) + '<span class="unit">万</span>';
-        const pnlEl = document.getElementById('sim-pnl');
-        const col = pnl >= 0 ? 'var(--up)' : 'var(--down)';
-        pnlEl.innerHTML = (pnl >= 0 ? '+' : '') + pnl.toFixed(2) + '%';
-        pnlEl.style.background = 'none';
-        pnlEl.style.color = col;
-        pnlEl.style.webkitTextFillColor = col;
+        const t = total(), p = pnlPct(), b = benchPct(), a = p - b;
+        setHtml('sim-cash', fmtW(S.cash) + '<span class="sk-u">万</span>', null);
+        setHtml('sim-mv', fmtW(mv()) + '<span class="sk-u">万</span>', null);
+        setHtml('sim-total', fmtW(t) + '<span class="sk-u">万</span>', null);
+        setHtml('sim-pnl', (p >= 0 ? '+' : '') + fmt2(p) + '<span class="sk-u">%</span>', p);
+        setHtml('sim-bench', (b >= 0 ? '+' : '') + fmt2(b) + '<span class="sk-u">%</span>', b);
+        setHtml('sim-alpha', (a >= 0 ? '+' : '') + fmt2(a) + '<span class="sk-u">%</span>', a);
+        const de = document.getElementById('sim-date'); if (de) de.textContent = '第 ' + S.day + ' 交易日';
+        const dy = document.getElementById('sim-day'); if (dy) dy.textContent = '模拟日期 ' + mdOf(S.dates[0]) + ' → ' + mdOf(S.dates[DAYS - 1]) + '（虚构）';
       }
 
       function renderStocks() {
-        const box = document.getElementById('sim-stocks');
-        box.innerHTML = '';
-        STOCKS.forEach(function (s) {
-          const c = chg(s.code);
-          const cls = c > 0 ? 'up' : (c < 0 ? 'down' : 'flat');
-          const row = document.createElement('div');
-          row.className = 'stock-row';
-          row.innerHTML =
-            '<div class="stock-name">' + s.name + '<span class="stock-code">' + s.code + '</span></div>' +
-            '<div class="stock-price"><span class="p ' + cls + '">' + price(s.code).toFixed(2) + '</span>' +
-            '<div class="chg ' + cls + '">' + (c >= 0 ? '+' : '') + c.toFixed(2) + '%</div></div>' +
-            '<input class="trade-qty" id="q-' + s.code + '" type="number" value="100" min="100" step="100" />' +
-            '<button class="btn-buy" data-code="' + s.code + '">买入</button>' +
-            '<button class="btn-sell" data-code="' + s.code + '">卖出</button>';
-          row.querySelector('.stock-name').addEventListener('click', function () { select(s.code); });
-          row.querySelector('.btn-buy').addEventListener('click', function () { trade(s.code, 1); });
-          row.querySelector('.btn-sell').addEventListener('click', function () { trade(s.code, -1); });
-          box.appendChild(row);
+        const box = document.getElementById('sim-stocks'); if (!box) return;
+        const keep = {};
+        Array.prototype.forEach.call(box.querySelectorAll('.sl-qty'), function (i) { keep[i.id] = i.value; });
+        box.innerHTML = STOCKS.map(function (s) {
+          const c = chg(s.code), cls = c > 0 ? 'up' : (c < 0 ? 'down' : 'flat');
+          const hold = S.holdings[s.code], on = s.code === S.selected;
+          return '<div class="sl-row' + (on ? ' active' : '') + '" data-code="' + s.code + '">' +
+            '<button class="sl-name" data-code="' + s.code + '"' + (on ? ' aria-current="true"' : '') + ' aria-label="查看 ' + s.name + ' 走势">' +
+              '<span class="sl-n">' + s.name + '<span class="sl-live">正在查看</span></span>' +
+              '<span class="sl-c">' + s.code + ' · ' + s.board + ' · 涨跌停 ±' + Math.round(s.limit * 100) + '%' + (hold ? ' · 持有 ' + hold.qty + ' 股' : '') + '</span>' +
+            '</button>' +
+            '<div class="sl-price"><span class="sl-p ' + cls + '">' + fmt2(px(s.code)) + '</span>' +
+              '<span class="sl-chg ' + cls + '">' + (c >= 0 ? '+' : '') + fmt2(c) + '%</span>' +
+              '<span class="sl-sim">模拟价</span></div>' +
+            '<div class="sl-act">' +
+              '<input class="sl-qty" id="q-' + s.code + '" type="number" value="100" min="100" step="100" aria-label="' + s.name + '交易数量（股）" />' +
+              '<button class="sl-buy" data-code="' + s.code + '" aria-label="买入 ' + s.name + '">买入</button>' +
+              '<button class="sl-sell" data-code="' + s.code + '" aria-label="卖出 ' + s.name + '">卖出</button>' +
+            '</div></div>';
+        }).join('');
+        Object.keys(keep).forEach(function (id) { const e = document.getElementById(id); if (e) e.value = keep[id]; });
+      }
+
+      // 选中态同步：只切 class 不重建 DOM（避免打断数量输入框），保证「图表显示的是哪只」一眼可见
+      function paintActive() {
+        Array.prototype.forEach.call(document.querySelectorAll('#sim-stocks .sl-row'), function (r) {
+          const on = r.getAttribute('data-code') === S.selected;
+          r.classList.toggle('active', on);
+          const n = r.querySelector('.sl-name');
+          if (n) { if (on) n.setAttribute('aria-current', 'true'); else n.removeAttribute('aria-current'); }
         });
       }
 
-      function trade(code, dir) {
-        const q = parseInt(document.getElementById('q-' + code).value, 10) || 0;
-        if (q <= 0) { alert('请输入正数股数'); return; }
-        const p = price(code);
-        if (dir === 1) {
-          const cost = q * p;
-          if (cost > cash) { alert('可用资金不足'); return; }
-          if (!holdings[code]) holdings[code] = { qty: 0, avg: 0 };
-          const h = holdings[code];
-          h.avg = (h.avg * h.qty + cost) / (h.qty + q);
-          h.qty += q;
-          cash -= cost;
-        } else {
-          const h = holdings[code];
-          if (!h || h.qty < q) { alert('持仓不足'); return; }
-          cash += q * p;
-          h.qty -= q;
-          if (h.qty === 0) delete holdings[code];
-        }
-        renderStats(); renderStocks();
+      // 切换走势图标的（点名称 / 买入 / 卖出 都走这里，做到「操作谁就看谁」）
+      function selectStock(code) {
+        if (!code || !stockOf(code)) return;
+        S.selected = code; save(); paintActive(); renderChart();
       }
 
-      function select(code) { selected = code; renderChart(); }
+      function ma5(a) {
+        const out = [];
+        for (let i = 0; i < a.length; i++) {
+          if (i < 4) { out.push(null); continue; }
+          let s = 0; for (let k = i - 4; k <= i; k++) s += a[k];
+          out.push(s / 5);
+        }
+        return out;
+      }
 
+      let curG = null;
       function renderChart() {
-        const s = STOCKS.find(function (x) { return x.code === selected; });
-        document.getElementById('sim-chart-title').textContent = s.name + ' ' + s.code + ' · 近 ' + DAYS + ' 日走势';
-        const h = history[selected];
-        const svg = document.getElementById('sim-chart');
-        const W = 560, H = 220, pad = 20;
-        const min = Math.min.apply(null, h), max = Math.max.apply(null, h);
-        const span = (max - min) || 1;
-        const pts = h.map(function (v, i) {
-          const x = pad + i / (DAYS - 1) * (W - pad * 2);
-          const y = pad + (1 - (v - min) / span) * (H - pad * 2);
-          return x.toFixed(1) + ',' + y.toFixed(1);
-        }).join(' ');
-        const last = h[h.length - 1];
-        const color = last >= h[0] ? 'var(--up)' : 'var(--down)';
-        svg.innerHTML =
-          '<line x1="' + pad + '" y1="' + (H - pad) + '" x2="' + (W - pad) + '" y2="' + (H - pad) + '" stroke="var(--chart-axis)" stroke-width="2"/>' +
-          '<line x1="' + pad + '" y1="' + pad + '" x2="' + pad + '" y2="' + (H - pad) + '" stroke="var(--chart-axis)" stroke-width="2"/>' +
-          '<polyline points="' + pts + '" fill="none" stroke="' + color + '" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>' +
-          '<text x="' + (W - pad) + '" y="' + (pad + 6) + '" fill="' + color + '" font-size="13" text-anchor="end" font-weight="700">' + last.toFixed(2) + '</text>' +
-          '<text x="' + pad + '" y="' + (H - pad + 18) + '" fill="var(--chart-label)" font-size="11">' + h[0].toFixed(2) + '</text>';
+        const s = stockOf(S.selected);
+        const tt = document.getElementById('sim-chart-title');
+        if (tt) tt.textContent = s.name + ' ' + s.code + ' · ' + s.board + ' · 近 ' + DAYS + ' 个交易日';
+        const svg = document.getElementById('sim-chart'); if (!svg) return;
+        const a = S.hist[S.selected];
+        let mn = Math.min.apply(null, a), mx = Math.max.apply(null, a);
+        const pad = (mx - mn) * 0.14 || 1; mn -= pad; mx += pad;
+        const Y = function (v) { return PT + (1 - (v - mn) / (mx - mn)) * (CH - PT - PB); };
+        let g = '';
+        for (let k = 0; k <= 3; k++) {
+          const v = mn + (mx - mn) * k / 3, y = Y(v);
+          g += '<line x1="' + PL + '" y1="' + y.toFixed(1) + '" x2="' + (CW - PR) + '" y2="' + y.toFixed(1) + '" stroke="var(--chart-axis)" stroke-width="0.6" stroke-dasharray="3 3"/>' +
+               '<text x="' + (PL - 6) + '" y="' + (y + 3.5).toFixed(1) + '" fill="var(--chart-label)" font-size="10.5" text-anchor="end">' + v.toFixed(1) + '</text>';
+        }
+        for (let i = 0; i < DAYS; i += 6) g += '<text x="' + X(i).toFixed(1) + '" y="' + (CH - PB + 16) + '" fill="var(--chart-label)" font-size="10.5" text-anchor="middle">' + mdOf(S.dates[i]) + '</text>';
+        g += '<text x="' + X(DAYS - 1).toFixed(1) + '" y="' + (CH - PB + 16) + '" fill="var(--chart-label)" font-size="10.5" text-anchor="middle">' + mdOf(S.dates[DAYS - 1]) + '</text>';
+        const up = a[DAYS - 1] >= a[0], col = up ? 'var(--up)' : 'var(--down)';
+        g += '<polyline points="' + a.map(function (v, i) { return X(i).toFixed(1) + ',' + Y(v).toFixed(1); }).join(' ') + '" fill="none" stroke="' + col + '" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round"/>';
+        const l5 = ma5(a).map(function (v, i) { return v === null ? '' : X(i).toFixed(1) + ',' + Y(v).toFixed(1); }).filter(Boolean).join(' ');
+        g += '<polyline points="' + l5 + '" fill="none" stroke="var(--accent2)" stroke-width="1.4" stroke-dasharray="5 4" stroke-linejoin="round"/>';
+        g += '<text x="' + (CW - PR + 8) + '" y="' + (Y(a[DAYS - 1]) + 4).toFixed(1) + '" fill="' + col + '" font-size="12.5" font-weight="700">' + fmt2(a[DAYS - 1]) + '</text>';
+        g += '<g id="sim-cursor" style="display:none">' +
+          '<line id="sc-x" x1="0" y1="' + PT + '" x2="0" y2="' + (CH - PB) + '" stroke="var(--accent)" stroke-width="1" stroke-dasharray="4 3"/>' +
+          '<circle id="sc-dot" cx="0" cy="0" r="4" fill="var(--accent-solid)" stroke="var(--panel-solid)" stroke-width="1.5"/>' +
+          '<rect id="sc-bg" x="0" y="0" width="116" height="42" rx="7" fill="var(--panel-solid)" stroke="var(--panel-border)" stroke-width="1"/>' +
+          '<text id="sc-t1" x="0" y="0" fill="var(--text)" font-size="11.5"></text>' +
+          '<text id="sc-t2" x="0" y="0" fill="var(--muted)" font-size="11.5"></text>' +
+        '</g>';
+        svg.innerHTML = g;
+        curG = svg.querySelector('#sim-cursor');
+      }
+
+      function showCursor(i) {
+        if (!curG) return;
+        const a = S.hist[S.selected], x = X(i), y = PT + 0;
+        const yy = (function () {
+          let mn = Math.min.apply(null, a), mx = Math.max.apply(null, a);
+          const pad = (mx - mn) * 0.14 || 1; mn -= pad; mx += pad;
+          return PT + (1 - (a[i] - mn) / (mx - mn)) * (CH - PT - PB);
+        })();
+        curG.style.display = '';
+        const lx = curG.querySelector('#sc-x'); lx.setAttribute('x1', x); lx.setAttribute('x2', x);
+        const dot = curG.querySelector('#sc-dot'); dot.setAttribute('cx', x); dot.setAttribute('cy', yy);
+        const tw = 116, th = 42;
+        let bx = x + 12; if (bx + tw > CW - 2) bx = x - 12 - tw;
+        if (bx < 2) bx = 2;
+        let by = yy - th - 12; if (by < 2) by = yy + 14;
+        curG.querySelector('#sc-bg').setAttribute('x', bx);
+        curG.querySelector('#sc-bg').setAttribute('y', by);
+        const t1 = curG.querySelector('#sc-t1'); t1.setAttribute('x', bx + 10); t1.setAttribute('y', by + 17);
+        t1.textContent = S.dates[i] + '　' + fmt2(a[i]);
+        const pc = i > 0 ? (a[i] / a[i - 1] - 1) * 100 : 0;
+        const t2 = curG.querySelector('#sc-t2'); t2.setAttribute('x', bx + 10); t2.setAttribute('y', by + 33);
+        t2.textContent = i > 0 ? '较前日 ' + (pc >= 0 ? '+' : '') + fmt2(pc) + '%' : '区间首日';
+        t2.setAttribute('fill', i > 0 ? (pc >= 0 ? 'var(--up)' : 'var(--down)') : 'var(--muted)');
+      }
+      const hideCursor = function () { if (curG) curG.style.display = 'none'; };
+
+      function renderHoldings() {
+        const box = document.getElementById('sim-holdings'); if (!box) return;
+        const note = document.getElementById('sim-hold-note');
+        const codes = Object.keys(S.holdings);
+        if (!codes.length) {
+          box.innerHTML = '<div class="hd-empty">暂无持仓。在上方行情列表中输入数量后点击「买入」。</div>';
+          if (note) note.textContent = '';
+          return;
+        }
+        let tc = 0, tv = 0;
+        codes.forEach(function (c) { tc += S.holdings[c].cost; tv += S.holdings[c].qty * px(c); });
+        if (note) note.textContent = '合计成本 ' + money(tc) + ' · 合计市值 ' + money(tv);
+        box.innerHTML = '<div class="hd-head"><span>股票</span><span>持股</span><span>成本价</span><span>现价</span><span>市值</span><span>浮动盈亏</span></div>' +
+          codes.map(function (c) {
+            const h = S.holdings[c], p = px(c), val = h.qty * p, fl = val - h.cost, r = h.cost ? fl / h.cost * 100 : 0;
+            const cls = fl > 0 ? 'up' : (fl < 0 ? 'down' : 'flat');
+            return '<div class="hd-row">' +
+              '<span class="hd-name" data-l="股票">' + nameOf(c) + '</span>' +
+              '<span data-l="持股">' + h.qty + ' 股' + (h.locked ? ' · 锁定 ' + h.locked : '') + '</span>' +
+              '<span data-l="成本价">' + fmt2(h.cost / h.qty) + '</span>' +
+              '<span data-l="现价">' + fmt2(p) + '</span>' +
+              '<span data-l="市值">' + fmtW(val) + ' 万</span>' +
+              '<span class="' + cls + '" data-l="浮动盈亏">' + (fl >= 0 ? '+' : '') + fmt2(fl) + '（' + (r >= 0 ? '+' : '') + fmt2(r) + '%）</span>' +
+            '</div>';
+          }).join('');
+      }
+
+      function renderFlow() {
+        const box = document.getElementById('sim-flow'); if (!box) return;
+        const note = document.getElementById('sim-flow-note');
+        if (note) note.textContent = S.rule ? '含佣金（万2.5·最低5元）、印花税（卖出 0.05%）、过户费（0.001%）' : '当前为简化模式，不计交易费用';
+        if (!S.trades.length) { box.className = ''; box.innerHTML = '<div class="fl-empty">暂无成交记录。</div>'; return; }
+        box.className = 'sim-scroll';
+        box.innerHTML = S.trades.slice(0, 40).map(function (t) {
+          const isBuy = t.side === 'buy';
+          return '<div class="fl-row">' +
+            '<span class="fl-date">' + t.date + '</span>' +
+            '<span class="fl-side ' + (isBuy ? 'buy' : 'sell') + '">' + (isBuy ? '买入' : '卖出') + '</span>' +
+            '<span class="fl-stock">' + nameOf(t.code) + '</span>' +
+            '<span class="fl-mut">' + t.qty + ' 股</span>' +
+            '<span class="fl-mut">@ ' + fmt2(t.price) + '</span>' +
+            '<span class="fl-mut">金额 ' + fmtW(t.amount) + ' 万</span>' +
+            (t.fee > 0 ? '<span class="fl-fee">费用 ' + fmt2(t.fee) + '</span>' : '') +
+            (!isBuy && t.realized != null ? '<span class="' + (t.realized >= 0 ? 'up' : 'down') + '">' + (t.realized >= 0 ? '盈利 +' : '亏损 ') + fmt2(Math.abs(t.realized)) + '</span>' : '') +
+          '</div>';
+        }).join('');
+      }
+
+      function setHtml(id, html, colorV) {
+        const e = document.getElementById(id); if (!e) return;
+        e.innerHTML = html;
+        if (colorV !== null && colorV !== undefined) e.style.color = colorV > 0.0001 ? 'var(--up)' : (colorV < -0.0001 ? 'var(--down)' : 'var(--text)');
+      }
+
+      function buy(code, q) {
+        if (!q || q <= 0 || q % 100 !== 0) { toast('请输入 100 的整数倍股数'); return; }
+        const p = px(code), amount = q * p, fee = feeOf(amount, false);
+        if (amount + fee > S.cash) { toast('可用资金不足：本次需 ' + money(amount + fee) + '，可用 ' + money(S.cash)); return; }
+        const h = S.holdings[code] || { qty: 0, cost: 0, locked: 0 };
+        h.cost += amount + fee; h.qty += q; if (S.rule) h.locked += q;
+        S.holdings[code] = h;
+        S.cash -= (amount + fee);
+        S.trades.unshift({ date: mdOf(S.dates[DAYS - 1]), side: 'buy', code: code, qty: q, price: p, amount: amount, fee: fee });
+        S.selected = code;              // 买入后走势图自动切到该标的
+        save(); renderAll();
+        toast('买入 ' + nameOf(code) + ' ' + q + ' 股 @ ' + money(p) + (fee > 0 ? '，费用 ' + money(fee) : ''));
+      }
+
+      function sell(code, q) {
+        const h = S.holdings[code];
+        if (!h || h.qty <= 0) { toast('你当前未持有 ' + nameOf(code)); return; }
+        if (!q || q <= 0) { toast('请输入有效股数'); return; }
+        const avail = S.rule ? h.qty - (h.locked || 0) : h.qty;
+        if (avail <= 0) { toast('T+1 限制：当日买入的股票，次一交易日才可卖出'); return; }
+        if (q > avail) { toast('可卖不足：当前可卖 ' + avail + ' 股' + (h.locked ? '（另有 ' + h.locked + ' 股当日买入锁定）' : '')); return; }
+        const p = px(code), amount = q * p, fee = feeOf(amount, true);
+        const costOut = h.cost * (q / h.qty);
+        h.qty -= q; h.cost -= costOut;
+        if (h.qty === 0) delete S.holdings[code];
+        S.cash += (amount - fee);
+        const realized = amount - fee - costOut;
+        S.trades.unshift({ date: mdOf(S.dates[DAYS - 1]), side: 'sell', code: code, qty: q, price: p, amount: amount, fee: fee, realized: realized });
+        S.selected = code;              // 卖出后走势图自动切到该标的
+        save(); renderAll();
+        toast('卖出 ' + nameOf(code) + ' ' + q + ' 股 @ ' + money(p) + '，本笔' + (realized >= 0 ? '盈利 ' : '亏损 ') + money(Math.abs(realized)) + (fee > 0 ? '（含费用 ' + money(fee) + '）' : ''));
       }
 
       function nextDay() {
+        // v42：推进同样可复现——由「种子 + 情景 + 第几步」唯一决定，不再依赖 Math.random
+        const step = (S.step || 0) + 1;
+        const mdz = modeOf(S.mode);
+        let m = marketSeq(S.seed, S.mode, 1, 100000 + step)[0];
+        if (mdz.shockAt != null) m = mdz.mu + (m - mdz.mu) * mdz.shockMul;  // 推进阶段已处于冲击后半段
+        const rs = mulberry32(seedOf(S.seed) + 100003 * step + 17);
         STOCKS.forEach(function (s) {
-          const last = price(s.code);
-          history[s.code].push(Math.max(0.1, last * (1 + (Math.random() - 0.5) * 0.06)));
-          history[s.code].shift();
+          const a = S.hist[s.code], last = a[DAYS - 1];
+          let p = last * (1 + s.beta * m + (rs() - 0.5) * 0.03);
+          p = Math.min(last * (1 + s.limit), Math.max(last * (1 - s.limit), p));
+          a.push(Math.max(0.5, p)); a.shift();
         });
-        renderStats(); renderStocks(); renderChart();
+        const ip = S.idx[DAYS - 1];
+        S.idx.push(Math.max(800, ip * (1 + m))); S.idx.shift();
+        const nd = new Date(S.dates[DAYS - 1] + 'T00:00:00');
+        do { nd.setDate(nd.getDate() + 1); } while (nd.getDay() === 0 || nd.getDay() === 6);
+        S.dates.push(isoOf(nd)); S.dates.shift();
+        S.day++; S.step = step;
+        Object.keys(S.holdings).forEach(function (c) { S.holdings[c].locked = 0; });
+        save(); renderAll();
+        toast('已推进到 ' + S.dates[DAYS - 1] + '（第 ' + S.day + ' 个模拟交易日）');
       }
 
       function reset() {
-        cash = START_CASH; holdings = {}; history = {};
-        STOCKS.forEach(function (s) { history[s.code] = genHistory(s); });
-        renderStats(); renderStocks(); renderChart();
+        try { localStorage.removeItem(KEY); } catch (e) {}
+        // v42：重置只重置「账户」，行情仍由当前种子决定 —— 这样课堂上不会出现「一按重置就对不上答案」
+        S = fresh(S.seed, S.mode);
+        save(); renderAll(); renderSeedBar();
+        toast('账户已重置：资金 100 万元、持仓与流水清空；行情仍为种子 ' + S.seed + '（要换行情请点「随机换一组」）');
       }
 
-      document.getElementById('sim-next').addEventListener('click', nextDay);
-      document.getElementById('sim-reset').addEventListener('click', reset);
+      function renderAll() { renderStats(); renderStocks(); renderChart(); renderHoldings(); renderFlow(); }
 
-      renderStats(); renderStocks(); renderChart();
+      // ===== v42 A/C：种子栏与情景切换 =====
+      function renderSeedBar() {
+        const inp = document.getElementById('sim-seed'); if (inp) inp.value = S.seed;
+        const box = document.getElementById('sim-modes');
+        if (box) box.innerHTML = MODES.map(function (m) {
+          return '<button class="sm-chip' + (m.id === S.mode ? ' active' : '') + '" data-mode="' + m.id + '" aria-pressed="' + (m.id === S.mode) + '">' + m.name + '</button>';
+        }).join('');
+        const nt = document.getElementById('sim-mode-note');
+        if (nt) nt.textContent = modeOf(S.mode).desc;
+      }
+      // 换种子 / 换情景时行情变了，账户必须一并归零，否则历史成本价与新行情对不上
+      function relaunch(seed, mode) {
+        try { localStorage.removeItem(KEY); } catch (e) {}
+        S = fresh(seed, mode); save(); renderAll(); renderSeedBar();
+        const eo = document.getElementById('se-out'); if (eo) eo.innerHTML = '';
+      }
+      function applySeed() {
+        const inp = document.getElementById('sim-seed');
+        const v = (inp && inp.value || '').trim();
+        if (!v) { toast('请输入种子号，例如 20261007'); return; }
+        const sd = seedOf(v); relaunch(sd, S.mode);
+        toast('已应用种子 ' + sd + '：全班输入同一个号，即得到完全相同的一条走势');
+      }
+      function randomSeed() {
+        relaunch(100000 + Math.floor(Math.random() * 899999), S.mode);
+        toast('已随机换一组行情，当前种子 ' + S.seed);
+      }
+
+      // ===== v42 B：重复实验（把随机变成教学点：运气 vs 技能 / 交易成本拖累）=====
+      function feeCalc(amount, isSell) {
+        if (!S.rule) return 0;
+        let f = Math.max(amount * FEE.comm, FEE.commMin) + amount * FEE.transfer;
+        if (isSell) f += amount * FEE.stamp;
+        return f;
+      }
+      // policy: 'hold' 买入并持有 | 'turn' 每日换手（受 T+1 约束）；不触碰当前账户 S
+      function runTrial(seed, mode, policy) {
+        const g = genPath(seed, mode);
+        const n = STOCKS.length;
+        let cash = START_CASH;
+        const H = {};
+        const buyDay = function (i) {
+          const per = cash / n;
+          STOCKS.forEach(function (s) {
+            const p = g.hist[s.code][i];
+            let q = Math.floor(per / p / 100) * 100;
+            for (; q > 0; q -= 100) { const t0 = q * p, f0 = feeCalc(t0, false); if (t0 + f0 <= cash) break; }
+            if (q <= 0) return;
+            const amt = q * p, fee = feeCalc(amt, false);
+            cash -= amt + fee;
+            const h = H[s.code] || (H[s.code] = { qty: 0, cost: 0, locked: 0 });
+            h.qty += q; h.cost += amt + fee; h.locked += q;
+          });
+        };
+        const sellDay = function (i) {
+          STOCKS.forEach(function (s) {
+            const h = H[s.code]; if (!h || h.qty <= 0) return;
+            const avail = S.rule ? (h.qty - h.locked) : h.qty;
+            const q = Math.floor(avail / 100) * 100;
+            if (q <= 0) return;
+            const p = g.hist[s.code][i], amt = q * p, fee = feeCalc(amt, true);
+            const part = h.cost * (q / h.qty);
+            cash += amt - fee;
+            h.qty -= q; h.cost -= part; h.locked = Math.max(0, h.locked - q);
+          });
+        };
+        buyDay(0);
+        if (policy === 'turn') {
+          for (let i = 1; i < DAYS; i++) {
+            STOCKS.forEach(function (s) { const h = H[s.code]; if (h) h.locked = 0; });  // 次一交易日解除 T+1 锁定
+            sellDay(i); buyDay(i);
+          }
+        }
+        let mkt = 0;
+        STOCKS.forEach(function (s) { const h = H[s.code]; if (h) mkt += h.qty * g.hist[s.code][DAYS - 1]; });
+        return (cash + mkt) / START_CASH * 100 - 100;
+      }
+      function statOf(arr) {
+        let s = 0; arr.forEach(function (x) { s += x; });
+        const mean = s / arr.length;
+        let v = 0; arr.forEach(function (x) { v += (x - mean) * (x - mean); });
+        return { mean: mean, sd: Math.sqrt(v / arr.length), min: Math.min.apply(null, arr), max: Math.max.apply(null, arr) };
+      }
+      function runExperiment() {
+        const out = document.getElementById('se-out'); if (!out) return;
+        const el = document.getElementById('se-n');
+        let n = parseInt(el && el.value, 10);
+        if (!n || n < 5) n = 20; n = Math.min(200, Math.max(5, n));
+        if (el) el.value = n;
+        out.innerHTML = '<div class="sb-hint">正在生成 ' + n + ' 条行情并跑两套策略…</div>';
+        setTimeout(function () {
+          const A = [], B = [], base = seedOf(S.seed);
+          for (let k = 0; k < n; k++) {
+            const sd = seedOf(String(base) + '-' + (k + 1));   // 每条路径的派生种子：确定且互不重复
+            A.push(runTrial(sd, S.mode, 'hold'));
+            B.push(runTrial(sd, S.mode, 'turn'));
+          }
+          renderExp(A, B, n, out);
+        }, 30);
+      }
+      function renderExp(A, B, n, out) {
+        const sa = statOf(A), sb = statOf(B);
+        let win = 0; for (let i = 0; i < n; i++) if (A[i] > B[i]) win++;
+        const wr = win / n * 100, diff = sa.mean - sb.mean;
+        const all = A.concat(B);
+        let lo = Math.min.apply(null, all), hi = Math.max.apply(null, all);
+        if (lo > 0) lo = 0; if (hi < 0) hi = 0;
+        if (hi - lo < 0.5) hi = lo + 0.5;
+        const NB = 12, bw = (hi - lo) / NB;
+        const ha = [], hb = []; for (let k = 0; k < NB; k++) { ha.push(0); hb.push(0); }
+        const put = function (arr, dst) {
+          arr.forEach(function (v) { let k = Math.floor((v - lo) / bw); if (k < 0) k = 0; if (k > NB - 1) k = NB - 1; dst[k]++; });
+        };
+        put(A, ha); put(B, hb);
+        const mx = Math.max.apply(null, ha.concat(hb).concat([1]));
+        const W = 560, Hh = 200, pl = 28, pr = 8, pt = 10, pb = 30;
+        const iw = W - pl - pr, ih = Hh - pt - pb;
+        let svg = '<svg viewBox="0 0 ' + W + ' ' + Hh + '" width="100%" role="img" aria-label="两种策略在 ' + n + ' 条行情上的收益率分布直方图"><title>买入并持有与每日换手的收益率分布</title>';
+        for (let gi = 0; gi <= 4; gi++) {
+          const y = pt + ih * gi / 4;
+          svg += '<line x1="' + pl + '" y1="' + y.toFixed(1) + '" x2="' + (W - pr) + '" y2="' + y.toFixed(1) + '" stroke="var(--chart-axis)" stroke-width="0.5"/>';
+        }
+        const stp = iw / NB, bwid = stp * 0.34;
+        for (let k = 0; k < NB; k++) {
+          const cx = pl + stp * (k + 0.5);
+          if (ha[k] > 0) { const h1 = ha[k] / mx * ih; svg += '<rect x="' + (cx - bwid).toFixed(1) + '" y="' + (pt + ih - h1).toFixed(1) + '" width="' + bwid.toFixed(1) + '" height="' + h1.toFixed(1) + '" fill="var(--up)" rx="2"/>'; }
+          if (hb[k] > 0) { const h2 = hb[k] / mx * ih; svg += '<rect x="' + (cx + 1).toFixed(1) + '" y="' + (pt + ih - h2).toFixed(1) + '" width="' + bwid.toFixed(1) + '" height="' + h2.toFixed(1) + '" fill="var(--down)" rx="2"/>'; }
+        }
+        if (lo < 0 && hi > 0) {
+          const zy = pt + ih - (0 - lo) / (hi - lo) * ih;
+          svg += '<line x1="' + pl + '" y1="' + zy.toFixed(1) + '" x2="' + (W - pr) + '" y2="' + zy.toFixed(1) + '" stroke="var(--muted)" stroke-width="1" stroke-dasharray="4 3"/>';
+        }
+        for (let k = 0; k < NB; k += 2) {
+          const cx = pl + stp * (k + 0.5);
+          svg += '<text x="' + cx.toFixed(1) + '" y="' + (Hh - 10) + '" fill="var(--muted)" font-size="10" text-anchor="middle">' + (lo + bw * k).toFixed(1) + '</text>';
+        }
+        svg += '</svg>';
+        const ia = '<i style="display:inline-block;width:10px;height:10px;border-radius:2px;background:var(--up);margin-right:5px;"></i>';
+        const ib = '<i style="display:inline-block;width:10px;height:10px;border-radius:2px;background:var(--down);margin-right:5px;"></i>';
+        const concl = S.rule
+          ? '在 <b>' + n + ' 条行情</b>上做的配对比较里，<b class="pol-a">买入并持有</b>平均 ' + sa.mean.toFixed(2) + '%，<b class="pol-b">每日换手</b>平均 ' + sb.mean.toFixed(2) + '%，持有策略平均领先 <b>' + diff.toFixed(2) + ' 个百分点</b>，并在 <b>' + wr.toFixed(0) + '%</b> 的路径上占优。但要看清楚：持有策略自己的成绩也在 ' + sa.min.toFixed(1) + '% ~ ' + sa.max.toFixed(1) + '% 之间大幅摆动（标准差 ' + sa.sd.toFixed(1) + '%）——<b>单次结果主要由运气决定，只有反复出现、稳定存在的差异，才属于策略本身</b>。'
+          : '当前已<b>关闭 A 股交易费用</b>，两种策略的差距压缩到 <b>' + diff.toFixed(2) + ' 个百分点</b>。请勾选上方「按 A 股真实规则」再跑一次：多出来的那部分差距，就是佣金、印花税与过户费对<b>频繁交易</b>的惩罚。';
+        out.innerHTML =
+          '<div class="se-stats">' +
+            '<div class="se-s"><div class="k">买入持有 · 平均收益</div><div class="v">' + (sa.mean >= 0 ? '+' : '') + sa.mean.toFixed(2) + '<small>%</small></div></div>' +
+            '<div class="se-s"><div class="k">每日换手 · 平均收益</div><div class="v">' + (sb.mean >= 0 ? '+' : '') + sb.mean.toFixed(2) + '<small>%</small></div></div>' +
+            '<div class="se-s"><div class="k">持有占优的路径占比</div><div class="v">' + wr.toFixed(0) + '<small>%</small></div></div>' +
+            '<div class="se-s"><div class="k">平均领先幅度</div><div class="v">' + (diff >= 0 ? '+' : '') + diff.toFixed(2) + '<small>pp</small></div></div>' +
+          '</div>' + svg +
+          '<div class="sim-legend"><span>' + ia + '买入并持有</span><span>' + ib + '每日换手</span>' +
+          '<span class="sim-tip">横轴为收益率区间（%），纵轴为落入该区间的次数</span></div>' +
+          '<div class="se-concl">' + concl + '</div>';
+      }
+
+      const list = document.getElementById('sim-stocks');
+      if (list) list.addEventListener('click', function (e) {
+        const btn = e.target.closest ? e.target.closest('button') : null; if (!btn) return;
+        const code = btn.getAttribute('data-code'); if (!code) return;
+        if (btn.classList.contains('sl-name')) { selectStock(code); return; }
+        const q = qtyOf(code);
+        if (btn.classList.contains('sl-buy')) buy(code, q);
+        else if (btn.classList.contains('sl-sell')) sell(code, q);
+      });
+      const svgEl = document.getElementById('sim-chart');
+      if (svgEl) {
+        svgEl.addEventListener('mousemove', function (e) {
+          const r = svgEl.getBoundingClientRect(); if (!r.width) return;
+          const vx = (e.clientX - r.left) / r.width * CW;
+          let i = Math.round((vx - PL) / (CW - PL - PR) * (DAYS - 1));
+          i = Math.max(0, Math.min(DAYS - 1, i));
+          showCursor(i);
+        });
+        svgEl.addEventListener('mouseleave', hideCursor);
+      }
+      const btnNext = document.getElementById('sim-next'); if (btnNext) btnNext.addEventListener('click', nextDay);
+      const btnReset = document.getElementById('sim-reset'); if (btnReset) btnReset.addEventListener('click', reset);
+
+      // v42 A/C：种子与情景
+      const btnApply = document.getElementById('sim-seed-apply'); if (btnApply) btnApply.addEventListener('click', applySeed);
+      const btnRandSeed = document.getElementById('sim-seed-rand'); if (btnRandSeed) btnRandSeed.addEventListener('click', randomSeed);
+      const inpSeed = document.getElementById('sim-seed');
+      if (inpSeed) inpSeed.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.keyCode === 13) { e.preventDefault(); applySeed(); } });
+      const boxMode = document.getElementById('sim-modes');
+      if (boxMode) boxMode.addEventListener('click', function (e) {
+        const b = e.target.closest ? e.target.closest('.sm-chip') : null; if (!b) return;
+        const id = b.getAttribute('data-mode'); if (!id || id === S.mode) return;
+        relaunch(S.seed, id);
+        toast('已切换到「' + modeOf(id).name + '」情景：' + modeOf(id).desc);
+      });
+      // v42 B：重复实验
+      const btnRun = document.getElementById('se-run'); if (btnRun) btnRun.addEventListener('click', runExperiment);
+      const inpN = document.getElementById('se-n');
+      if (inpN) inpN.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.keyCode === 13) { e.preventDefault(); runExperiment(); } });
+
+      renderSeedBar();
+      const ruleBox = document.getElementById('sim-rule');
+      if (ruleBox) {
+        ruleBox.checked = !!S.rule;
+        ruleBox.addEventListener('change', function () {
+          S.rule = this.checked; save(); renderAll();
+          toast(S.rule ? '已启用 A 股真实规则：佣金 · 印花税 · 过户费 · T+1' : '已切换为简化模式：不计费用、不受 T+1 限制');
+        });
+      }
+      renderAll();
     })();
 
     // ===== 首页模块卡片：点击跳转 =====
