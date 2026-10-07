@@ -1271,6 +1271,15 @@
       color: var(--muted); background: rgba(120,130,160,.06);
       border: 1px solid rgba(120,130,160,.22); border-radius: 9px; }
     #admin-scope { font-size: 13px; }
+    /* 图表空态：说明缺什么/为什么/怎么办。刻意不画 0% 柱子——0% 会被读成「学生全答错」 */
+    .ev-nodata { padding: 14px 15px; border: 1px dashed rgba(120,130,160,.4);
+      border-radius: 10px; background: rgba(120,130,160,.05); font-size: 12px; line-height: 1.75; }
+    .ev-nodata .nd-t { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 7px; }
+    .ev-nodata .nd-w { color: var(--muted); margin-bottom: 6px; }
+    .ev-nodata .nd-y, .ev-nodata .nd-h { color: var(--muted); margin-top: 5px; }
+    .ev-nodata .nd-y b, .ev-nodata .nd-h b { color: var(--text); font-weight: 600; margin-right: 6px; }
+    .ev-nodata .nd-h { color: #1d4ed8; }
+    [data-theme="dark"] .ev-nodata .nd-h, body.dark:not(.light) .ev-nodata .nd-h { color: #93c5fd; }
     .ev-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 16px; }
     /* 折线图（含月历，卡片较高）改占「右列」并向下跨两行；左列自上而下为
        「学习模块使用占比」「考核构成」。这样右列高度 ≈ 左列两张卡片之和，版式上下对齐、
@@ -9052,20 +9061,32 @@
         cEl.innerHTML = '<div class="ev-note">' + esc(note || '') + '</div>' + hBarChart(chapterItems);
 
         // ② 各题型平均正确率：竖向柱状图
+        // ★无数据时不能画 0% 的柱子：那会把「库里没有这类记录」伪装成「学生全答错了」，
+        //   也和申报样板图（76/74/66/58 四根实心柱）对不上，等于凭空造出一张错的图。
+        //   故改为显式空态，写清缺的是什么、为什么、怎么补。
         const qtypeItems = TY.map(function (t) {
           const qs = quiz.filter(function (e) { return e.qtype === t; });
           const ok = qs.filter(function (e) { return e.correct === true; }).length;
           const pct = qs.length ? Math.round(ok / qs.length * 100) : 0;
-          return { label: t, pct: pct, val: pct + '%' };
+          return { label: t, pct: pct, val: qs.length ? pct + '%' : '无记录', n: qs.length };
         });
-        tEl.innerHTML = vBarChart(qtypeItems);
+        const qtypeTotal = quiz.length;
+        tEl.innerHTML = qtypeTotal
+          ? vBarChart(qtypeItems)
+          : evNoData('该图表需要 quiz 类型的行为记录（每次答题写入一条，含题型与对错）。',
+              '当前 events 表里一条 quiz 记录都没有——通常是灌库脚本的答题段未执行成功，'
+              + '或 events 表缺少 qtype / correct 列导致该段被跳过。',
+              '执行桌面上的 fix_quiz_qa_seed.sql（补齐 5400 道习题 + 3200 次问答，幂等可重跑）');
 
         // ③ 学习模块使用占比：环形图
         const modCounts = {}; mod.forEach(function (e) { const k = e.module || '其他'; modCounts[k] = (modCounts[k] || 0) + 1; });
         const modItems = Object.keys(modCounts).map(function (k) {
           return { label: MOD[k] || k, n: modCounts[k] };
         }).sort(function (a, b) { return b.n - a.n; });
-        mEl.innerHTML = modItems.length ? donutChart(modItems) : '<div class="um-empty">暂无模块使用记录</div>';
+        mEl.innerHTML = modItems.length ? donutChart(modItems)
+          : evNoData('该图表需要 module 类型的访问记录（每打开一个页面写一条）。',
+              '当前 events 表里没有 module 记录，说明页面访问埋点尚未开始累计。',
+              '无需处理——学生正常浏览站点几条后即会自动出现');
 
         // ④ 每周活跃人数：折线图 + 日历选择器（按登录事件统计活跃人数）
         let minTs = Infinity; actSrc.forEach(function (e) { if (e.ts && e.ts < minTs) minTs = e.ts; });
@@ -9446,6 +9467,17 @@
             + '<span style="width:112px;flex:none;color:var(--text);">' + esc(i.val) + '</span>'
             + '</div>';
         }).join('');
+      }
+
+      // 图表空态：说清「缺什么/ 为什么 / 怎么办」，而不是画一根 0% 的柱子
+      // （0% 会被读成「学生全答错」，是把数据缺失误报成学情结论）
+      function evNoData(what, why, how) {
+        return '<div class="ev-nodata">'
+          + '<div class="nd-t">暂无可统计的数据</div>'
+          + (what ? '<div class="nd-w">' + esc(what) + '</div>' : '')
+          + (why ? '<div class="nd-y"><b>原因</b>' + esc(why) + '</div>' : '')
+          + (how ? '<div class="nd-h"><b>怎么补</b>' + esc(how) + '</div>' : '')
+          + '</div>';
       }
 
       // 竖向柱状图（题型正确率）
