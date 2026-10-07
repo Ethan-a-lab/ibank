@@ -1582,7 +1582,7 @@
       align-items: center; justify-content: center; background: rgba(255,255,255,.16);
       border: 1px solid rgba(255,255,255,.34); }
     .qa-hero-av svg { width: 42px; height: 42px; }
-    .qa-hero-main { min-width: 220px; flex: 1; }
+    .qa-hero-main { min-width: 0; flex: 1 1 220px; }
     .qa-hero-title { display: flex; align-items: center; gap: 9px; font-size: 17.5px; font-weight: 700; flex-wrap: wrap; }
     .qa-status { display: inline-flex; align-items: center; gap: 5px; font-size: 11.5px; font-weight: 500;
       padding: 3px 10px; border-radius: 20px; background: rgba(255,255,255,.18);
@@ -1637,7 +1637,10 @@
     .qa-row.b .qa-av svg { width: 20px; height: 20px; }
     .qa-row.u .qa-av { background: #64748b; }
     .qa-row.u .qa-av svg { width: 17px; height: 17px; }
-    .qa-bub { max-width: calc(100% - 44px); border-radius: 14px; padding: 11px 13px;
+    /* v49 修复：气泡与附属区块改为纵向堆叠（原先并排导致被压成竖窄条） */
+    .qa-main { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; align-items: stretch; }
+    .qa-row.u .qa-main { align-items: flex-end; }
+    .qa-bub { max-width: 100%; border-radius: 14px; padding: 11px 13px;
       font-size: 13.5px; line-height: 1.75; }
     .qa-row.b .qa-bub { background: var(--bg); border: 1px solid var(--panel-border);
       border-top-left-radius: 5px; color: var(--text); }
@@ -1670,12 +1673,12 @@
       color: var(--accent-text); transition: .16s; }
     .qa-welcome .wq button:hover { background: rgba(99,102,241,.18); border-color: var(--accent); }
     /* 工具条 + 相关跳转 */
-    .qa-tools { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+    .qa-tools { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; align-self: flex-start; max-width: 100%; }
     .qa-tools button { font-family: inherit; font-size: 11.5px; cursor: pointer; padding: 3.5px 10px;
       border-radius: 20px; background: transparent; border: 1px solid var(--panel-border);
       color: var(--muted); transition: .16s; }
     .qa-tools button:hover { color: var(--accent-text); border-color: rgba(99,102,241,.45); background: rgba(99,102,241,.08); }
-    .qa-rel { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; align-items: center; }
+    .qa-rel { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; align-items: center; align-self: flex-start; max-width: 100%; }
     .qa-rel .rl { font-size: 11px; color: var(--muted); }
     .qa-rel a { font-size: 11.5px; text-decoration: none; padding: 3px 10px; border-radius: 20px;
       border: 1px solid rgba(99,102,241,.34); color: var(--accent-text); background: rgba(99,102,241,.1);
@@ -1718,6 +1721,7 @@
 
     @media (max-width: 640px) {
       .qa-hero { padding: 15px 15px; gap: 11px; }
+      .qa-hero-main { flex: 1 1 100%; }
       .qa-hero-side { margin-left: 0; width: 100%; }
       .qa-hero-btn { flex: 1; justify-content: center; }
       .qa-vpanel { position: static; width: 100%; max-width: none; margin-top: 11px; }
@@ -1731,6 +1735,48 @@
     body.dark:not(.light) .qa-tabs button.on { background: rgba(255,255,255,.12); }
     body.dark:not(.light) .qa-chipset button { background: rgba(255,255,255,.04); }
     body.dark:not(.light) .qa-bar { background: rgba(255,255,255,.05); }
+    /* ===== v48 答疑：真实过程 + 可核验依据 ===== */
+    .qa-phase { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px;
+      font-size: 11.5px; color: var(--muted); padding: 2px 1px; }
+    .qa-phase .pstep { display: inline-flex; align-items: center; gap: 5px; }
+    .qa-phase .pdot { width: 6px; height: 6px; border-radius: 50%; background: var(--panel-border);
+      flex: none; transition: background .2s; }
+    .qa-phase .pstep.on .pdot { background: var(--accent); }
+    .qa-phase .pstep.done .pdot { background: var(--accent-solid); }
+    .qa-phase .pstep.on { color: var(--accent-text); font-weight: 600; }
+    .qa-phase .pstep.done { color: var(--text); }
+    .qa-phase .parrow { color: var(--panel-border); }
+    /* 依据面板：默认折叠（details/summary），点击标题行展开 */
+    .qa-basis { margin-top: 9px; border-radius: 11px;
+      background: var(--panel); border: 1px solid var(--panel-border); font-size: 11.5px;
+      color: var(--muted); overflow: hidden; }
+    .qa-basis > summary { list-style: none; cursor: pointer; user-select: none;
+      display: flex; align-items: center; gap: 7px; padding: 8px 12px;
+      color: var(--text); font-weight: 600; font-size: 11.5px; transition: background .16s; }
+    .qa-basis > summary::-webkit-details-marker { display: none; }
+    .qa-basis > summary:hover { background: rgba(99,102,241,.08); }
+    .qa-basis > summary:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+    .qa-basis .caret { flex: none; margin-left: auto; font-size: 10px; color: var(--muted);
+      transition: transform .18s; }
+    .qa-basis[open] .caret { transform: rotate(90deg); }
+    .qa-basis .btip { font-weight: 400; color: var(--muted); font-size: 11px; }
+    .qa-basis .bbody { padding: 2px 12px 10px; border-top: 1px dashed var(--panel-border);
+      /* 兜底：内容极多时面板内部滚动，不会被日志容器裁掉 */
+      max-height: 42vh; overflow-y: auto; }
+    /* 显式折叠兜底：不依赖浏览器 UA 对 details 正文的隐藏策略 */
+    .qa-basis:not([open]) > .bbody { display: none; }
+    .qa-basis .bt { display: none; }
+    .qa-basis .brow { display: flex; gap: 7px; align-items: baseline; margin-top: 6px; }
+    .qa-basis .bk { flex: none; min-width: 62px; color: var(--muted); }
+    .qa-basis .bv { color: var(--text); min-width: 0; flex: 1 1 auto; }
+    .qa-basis .bv a { color: var(--accent-text); text-decoration: none; }
+    .qa-basis .bv a:hover { text-decoration: underline; }
+    .qa-basis .off { color: var(--text); font-weight: 600; }
+    .qa-basis .warn { margin-top: 8px; padding-top: 7px; border-top: 1px dashed var(--panel-border); }
+
+    body.dark:not(.light) .qa-basis { background: rgba(255,255,255,.04); }
+    body.dark:not(.light) .qa-phase .pstep.done .pdot { background: var(--accent-solid); }
+
   </style>
 </head>
 <body>
@@ -1906,7 +1952,7 @@
         <div class="section-sub">12 个功能模块覆盖「学 · 练 · 诊 · 评 · 战」完整教学闭环，点击卡片直达。</div>
         <div class="home-grid">
           <div class="home-card" data-page="p-graph"><div class="ico">🕸️</div><h4>知识图谱</h4><p>8 章知识树梳理重点难点，结构化导览课程内容</p><span class="go">进入 →</span></div>
-          <div class="home-card" data-page="p-qa"><div class="ico">💬</div><h4>智能答疑</h4><p>智谱 GLM + 课程知识库，AI 学伴流式随问随答</p><span class="go">进入 →</span></div>
+          <div class="home-card" data-page="p-qa"><div class="ico">💬</div><h4>智能答疑</h4><p>智谱 GLM + 课程知识库检索增强，AI 学伴流式随问随答</p><span class="go">进入 →</span></div>
           <div class="home-card" data-page="p-exercise"><div class="ico">✍️</div><h4>习题训练</h4><p>实务导向习题，即时判分与解析反馈</p><span class="go">进入 →</span></div>
           <div class="home-card" data-page="p-wrong"><div class="ico">🎯</div><h4>错题定位</h4><p>错题自动归因，薄弱知识点靶向补学</p><span class="go">进入 →</span></div>
           <div class="home-card" data-page="p-profile"><div class="ico">📊</div><h4>学情画像</h4><p>章节掌握度可视化，学习进度一目了然</p><span class="go">进入 →</span></div>
@@ -1955,8 +2001,8 @@
           <span class="qa-hero-av" aria-hidden="true"><svg viewBox="0 0 48 48" fill="none"><rect x="8" y="14" width="32" height="26" rx="9" fill="rgba(255,255,255,.94)"/><circle cx="18" cy="26" r="3.2" fill="#4f46e5"/><circle cx="30" cy="26" r="3.2" fill="#4f46e5"/><path d="M18.5 32.5c2.2 1.8 8.8 1.8 11 0" stroke="#4f46e5" stroke-width="2.2" stroke-linecap="round"/><path d="M24 14V9" stroke="rgba(255,255,255,.94)" stroke-width="2.4" stroke-linecap="round"/><circle cx="24" cy="6.6" r="2.6" fill="#fbbf24"/><path d="M10 19 5.5 16M38 19l4.5-3" stroke="rgba(255,255,255,.75)" stroke-width="2.2" stroke-linecap="round"/></svg></span>
           <div class="qa-hero-main">
             <div class="qa-hero-title">iBank AI 学伴 <span class="qa-status" id="qa-status"><i></i>就绪</span></div>
-            <div class="qa-hero-sub">智谱 GLM 大模型 + 课程本地知识库双引擎，联网失败自动回落，离线也能答。</div>
-            <div class="qa-hero-tags"><span>📚 8 章知识体系</span><span>📖 20 个真实案例</span><span>🧠 18 条本地知识库</span><span>⚡ 流式作答</span></div>
+            <div class="qa-hero-sub">智谱 GLM + 课程知识库检索增强（RAG），回答优先依据本课程资料；联网失败自动回落本地题库，离线也能答。</div>
+            <div class="qa-hero-tags"><span>📚 8 章知识体系</span><span>📖 20 个真实案例</span><span>🧠 RAG 课程知识库</span><span>⚡ 流式作答</span></div>
           </div>
           <div class="qa-hero-side">
             <button type="button" class="qa-hero-btn" id="qa-voice" aria-pressed="false" title="自动朗读开关：开启后每条回答自动朗读">🔊 朗读关</button>
@@ -4727,7 +4773,7 @@
       });
     });
 
-// ===== 智能答疑页（v46 重做：单栏沉浸式对话 + 音色可调语音，删知识地图）=====
+// ===== 智能答疑页（v46 重做：单栏沉浸式对话 + 音色可调语音，删知识地图；v47 文案对齐 RAG）=====
     (function () {
       var log = document.getElementById('qa-log');
       var form = document.getElementById('qa-form');
@@ -4780,6 +4826,101 @@
 
       // ---------- 相关跳转：从案例库 / 章节实时读取，增删后自动跟随 ----------
       var chTitlesQA = { '第0章': '导论', '第1章': '投资银行概述', '第2章': '企业融资方案设计', '第3章': '股份有限公司与首次公开发行', '第4章': '上市公司再融资', '第5章': '债券的发行与承销', '第6章': '资产证券化', '第7章': '公司并购' };
+      // ---------- v48-依据面板：回答依据（全部可核验，不编造云端检索细节） ----------
+      // 知识库规模为人工核实过的常量（4 个 md，切片数取自控制台实测）
+      var KB_DOCS = 4, KB_CHUNKS = 67;
+      function qaMatch(q) {
+        var r = { ch: '', title: '', cases: [] };
+        var s = String(q || '').toLowerCase();
+        var marks = [
+          { re: /(中芯|芯片|科创板|半导体|ipo|上市|发行|定价)/, ch: '第3章' },
+          { re: /(可转债|可交换|转债|增发|配股|优先股|再融资|再募)/, ch: '第4章' },
+          { re: /(债券|国债|信用评级|票面|收益率|承销|超日|永煤|违约)/, ch: '第5章' },
+          { re: /(abs|资产证券化|证券化|次级|分层|mbs|花呗|借呗)/, ch: '第6章' },
+          { re: /(并购|收购|重组|杠杆收购|lbo|要约|库卡|沃尔沃|宝万|恒大|万科)/, ch: '第7章' },
+          { re: /(融资方案|股权融资|债权融资|融资需求|资本结构|蔚来|合肥)/, ch: '第2章' },
+          { re: /(美元|黄金|美联储|加息|降息|美债|汇率|避险|熊债)/, ch: '第0章' }
+        ];
+        var i, hit = null;
+        for (i = 0; i < marks.length; i++) { if (marks[i].re.test(s)) { hit = marks[i]; break; } }
+        if (hit) { r.ch = hit.ch; r.title = (chTitlesQA && chTitlesQA[hit.ch]) || ''; }
+        try {
+          var els = document.querySelectorAll('#p-case .case-item');
+          for (i = 0; i < els.length && r.cases.length < 2; i++) {
+            if (hit && els[i].getAttribute('data-chapter') === hit.ch) {
+              var t = els[i].querySelector('.case-title');
+              var ttl = t ? t.textContent : '';
+              if (ttl) r.cases.push({ id: els[i].id, title: ttl });
+            }
+          }
+        } catch (e) { /* 案例库未渲染时静默跳过 */ }
+        return r;
+      }
+      function esc2(s) {
+        return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+      }
+      function addBasis(main, q, local, ms) {
+        var m = qaMatch(q);
+        var box = document.createElement('details');
+        box.className = 'qa-basis';
+        // v49：默认折叠（不写 open 属性），标题行给出可核验摘要
+        var tip = local
+          ? '本地题库回落'
+          : '知识库检索 + 大模型生成';
+        var h = '<summary><span>📚 本次回答依据</span>'
+          + '<span class="btip">' + esc2(tip) + '</span>'
+          + '<span class="caret" aria-hidden="true">▶</span></summary>'
+          + '<div class="bbody">';
+        if (local) {
+          h += '<div class="brow"><span class="bk">依据来源</span><span class="bv off">⚠ 本次未使用知识库</span></div>';
+          h += '<div class="brow"><span class="bk">原因</span><span class="bv">联网调用大模型失败（断网 / 服务不可达），已自动回落到站内本地题库</span></div>';
+        } else {
+          h += '<div class="brow"><span class="bk">知识库</span><span class="bv">iBank 课程知识库（' + KB_DOCS + ' 篇文档 / ' + KB_CHUNKS + ' 切片）· 检索增强</span></div>';
+          h += '<div class="brow"><span class="bk">推理引擎</span><span class="bv">智谱 GLM（大模型生成，答案不限于原文）</span></div>';
+        }
+        if (m.ch) {
+          h += '<div class="brow"><span class="bk">命中章节</span><span class="bv"><a data-goto="p-graph" data-ch="' + esc2(m.ch) + '">' + esc2(m.ch + (m.title ? ' ' + m.title : '')) + ' ↗</a></span></div>';
+        }
+        if (m.cases.length) {
+          var cs = m.cases.map(function (x) {
+            return '<a data-goto="p-case" data-case="' + esc2(x.id) + '">' + esc2(x.title) + ' ↗</a>';
+          }).join('　');
+          h += '<div class="brow"><span class="bk">参考案例</span><span class="bv">' + cs + '</span></div>';
+        }
+        if (ms) {
+          var tsec = function (v) { return (v > 0 ? v : 0) / 1000; };
+          h += '<div class="brow"><span class="bk">实测用时</span><span class="bv">首字 ' + tsec(ms.ttfbMs).toFixed(2) + 's · 总耗时 ' + tsec(ms.totalMs).toFixed(2) + 's · 输出 ' + ms.chars + ' 字</span></div>';
+        }
+        h += '<div class="warn">回答由大模型生成，可能存在偏差；关键数据请点开上方章节与案例核对原文。</div>';
+        h += '</div>';
+        box.innerHTML = h;
+        main.appendChild(box);
+        // v50：展开时把日志滚到底，确保正文完整可见。
+        // 原因：#qa-log 是 max-height + overflow-y:auto 的内部滚动容器，
+        // 面板位于消息流末尾，展开后向下溢出，不滚动则正文会被容器裁掉（表现为「展不开 / 没内容」）。
+        box.addEventListener('toggle', function () {
+          if (!box.open) return;
+          var bring = function () { log.scrollTop = log.scrollHeight; };
+          requestAnimationFrame(function () { requestAnimationFrame(bring); });
+          setTimeout(bring, 60);
+          setTimeout(bring, 220);
+        });
+      }
+      // 阶段指示器：由真实事件驱动 —— 请求发出 / 首字到达；不声称云端检索条数
+      function phaseHTML(stage) {
+        var S = [
+          { t: '连接智谱 GLM', on: 0 },
+          { t: '检索课程知识库并组织答案', on: 1 },
+          { t: '已生成', on: 2 }
+        ];
+        var h = '';
+        for (var i = 0; i < S.length; i++) {
+          var cls = i < stage ? 'done' : (i === stage ? 'on' : '');
+          h += '<span class="pstep ' + cls + '"><i class="pdot"></i>' + S[i].t + '</span>';
+          if (i < S.length - 1) h += '<span class="parrow">→</span>';
+        }
+        return '<div class="qa-phase">' + h + '</div>';
+      }
       function qaRelated(q) {
         var s = q.toLowerCase(), seen = {};
         var marks = [
@@ -4943,15 +5084,19 @@
         av.className = 'qa-av';
         av.setAttribute('aria-hidden', 'true');
         av.innerHTML = who === 'u' ? USER_AV : BOT_AV;
+        // v49：头像 + 内容列（.qa-main）纵向结构，气泡/工具条/相关/依据都在内容列内堆叠
+        var main = document.createElement('div');
+        main.className = 'qa-main';
         var bub = document.createElement('div');
         bub.className = 'qa-bub';
+        main.appendChild(bub);
         row.appendChild(av);
-        row.appendChild(bub);
+        row.appendChild(main);
         log.appendChild(row);
         log.scrollTop = log.scrollHeight;
-        return { row: row, bub: bub };
+        return { row: row, bub: bub, main: main };
       }
-      function addTools(row, host, text, rel) {
+      function addTools(row, main, host, text, rel) {
         var box = document.createElement('div');
         box.className = 'qa-tools';
         var bCopy = document.createElement('button');
@@ -4972,6 +5117,8 @@
           if (stale) stale.remove();
           var staleRel = row.querySelectorAll('.qa-rel');
           for (var i = 0; i < staleRel.length; i++) staleRel[i].remove();
+          var staleBasis = row.querySelectorAll('.qa-basis');
+          for (var j = 0; j < staleBasis.length; j++) staleBasis[j].remove();
           host.innerHTML = '';
           ask(u, { fresh: true });
         });
@@ -4983,12 +5130,12 @@
           else { tts.on = true; syncVoiceBtn(); speak(text); ibankToast('开始朗读（' + tts.voice.name + '）'); }
         });
         box.appendChild(bCopy); box.appendChild(bRe); box.appendChild(bRead);
-        row.appendChild(box);
+        main.appendChild(box);
         if (rel) {
           var wrap = document.createElement('span');
           wrap.className = 'qa-rel';
           wrap.innerHTML = rel;
-          row.appendChild(wrap);
+          main.appendChild(wrap);
         }
       }
 
@@ -5043,7 +5190,8 @@
         u.bub.innerHTML = '<p>' + esc(q) + '</p>';
         var b = addRow('b');
         b.bub.setAttribute('data-ask', q);
-        b.bub.innerHTML = '<span class="qa-typing" aria-label="正在思考"><i></i><i></i><i></i></span>';
+        // v48：阶段指示器（真实事件驱动）+ 首字计时
+        b.bub.innerHTML = phaseHTML(0) + '<span class="qa-typing" aria-label="正在思考"><i></i><i></i><i></i></span>';
         history.push({ role: 'user', content: q });
         busy = true; aborted = false;
         sendBtn.classList.add('stop');
@@ -5051,16 +5199,21 @@
         sendBtn.setAttribute('aria-label', '停止生成');
         setStatus('busy', '思考中…');
         var full = '';
+        var t0 = (window.performance && performance.now) ? performance.now() : Date.now();
+        var ttfb = 0;
         var done = function (finalText, local) {
           b.bub.classList.remove('streaming');
-          b.bub.innerHTML = mdToHtml(finalText);
+          b.bub.innerHTML = (local ? '' : phaseHTML(2)) + mdToHtml(finalText);
           var foot = document.createElement('span');
           foot.className = 'qf';
           foot.innerHTML = local
             ? '来源：<b>本地知识库</b>（联网调用大模型失败时自动回落）'
-            : '来源：<b>智谱 GLM</b> · 生成内容仅供学习参考，不构成投资建议';
+            : '来源：<b>智谱 GLM + 课程知识库检索</b> · 生成内容仅供学习参考，不构成投资建议';
           b.bub.appendChild(foot);
-          addTools(b.row, b.bub, finalText, qaRelated(q));
+          addTools(b.row, b.main, b.bub, finalText, qaRelated(q));
+          // v49：可核验依据面板（默认折叠的 details；实测用时 + 站内匹配到的章节/案例 + 兜底如实标注）
+          var nowT = (window.performance && performance.now) ? performance.now() : Date.now();
+          addBasis(b.main, q, local, local ? null : { ttfbMs: ttfb, totalMs: nowT - t0, chars: (finalText || '').length });
           history.push({ role: 'assistant', content: finalText });
           lastReply = finalText;
           busy = false;
@@ -5075,9 +5228,14 @@
         var msgs = history.slice(-12);
         streamFromSCF(msgs, function (delta) {
           if (aborted) return;
+          if (!full) {
+            ttfb = ((window.performance && performance.now) ? performance.now() : Date.now()) - t0;
+            b.bub.classList.add('streaming');
+            b.bub.innerHTML = phaseHTML(2) + mdToHtml(full);
+          }
           full += delta;
           b.bub.classList.add('streaming');
-          b.bub.innerHTML = mdToHtml(full);
+          b.bub.innerHTML = phaseHTML(2) + mdToHtml(full);
           log.scrollTop = log.scrollHeight;
         }).then(function () {
           if (aborted) { done(full || '（已停止生成）', false); return; }
