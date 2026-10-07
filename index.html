@@ -1270,6 +1270,17 @@
     .ev-sw { display: inline-flex; align-items: center; gap: 7px; font-size: 13px; color: #1a2233; cursor: pointer; user-select: none; }
     .ev-sw input { width: 15px; height: 15px; accent-color: #2563eb; cursor: pointer; }
     .ev-toolbar .tip { font-size: 12px; color: var(--muted); }
+    /* ★v58.7 统计口径说明条：常显，把「教师行为不入统计」讲在明面上。
+       用信息色（主色系）而非警告色——这是正常设计，不是异常。 */
+    .ev-scope-note { display: flex; gap: 10px; margin: 4px 0 14px; padding: 11px 14px;
+      font-size: 12px; line-height: 1.75; color: var(--text);
+      background: rgba(37,99,235,.06); border: 1px solid rgba(37,99,235,.24); border-radius: 10px; }
+    .ev-scope-note b { font-weight: 600; }
+    .esn-i { flex: 0 0 auto; width: 17px; height: 17px; margin-top: 1px; border-radius: 50%;
+      display: inline-flex; align-items: center; justify-content: center;
+      font-size: 11px; font-style: normal; font-weight: 700; line-height: 1;
+      color: #fff; background: var(--primary, #2563eb); }
+    .esn-t { min-width: 0; flex: 1 1 auto; }
     /* 统计区间说明条：与 KPI 同源，年份/起止日由真实事件算出，替代原先写死的学年文案 */
     .ev-scope { margin: 10px 0 0; padding: 8px 13px; font-size: 12px; line-height: 1.6;
       color: var(--muted); background: rgba(120,130,160,.06);
@@ -3644,7 +3655,8 @@
         </div>
       </div>
       <div style="margin:14px 0 4px;padding:10px 14px;border:1px solid rgba(120,130,160,.25);border-radius:10px;font-size:12px;color:var(--muted);background:rgba(120,130,160,.06);line-height:1.7;">
-        数据说明：学情统计由真实行为埋点实时累计；历史批次数据已做<b>匿名化处理</b>（课程已结束，为保护学生隐私，学生姓名不予留存，仅以「匿名学生」编号还原整体学习画像）。新登录学生将在此基础之上继续累计真实行为。
+        数据说明：学情统计由真实行为埋点实时累计；历史批次数据已做<b>匿名化处理</b>（课程已结束，为保护学生隐私，学生姓名不予留存，仅以「匿名学生」编号还原整体学习画像）。新登录学生将在此基础之上继续累计真实行为。<br />
+        <b>统计范围：仅学生。</b>教师与管理员在本站的操作（含试答、试问）不写入统计，故教师端自行演示时数字不会变化 —— 这是设计预期。
       </div>
 
       <div class="admin-panel">
@@ -3677,7 +3689,19 @@
       </details>
 
       <div class="ev-toolbar">
-        <label class="ev-sw"><input type="checkbox" id="ev-only-student" /> <span>仅统计学生（排除教师 / 管理员）</span></label>
+        <!-- ★v58.7：原「仅统计学生」复选框已移除。教师/管理员的行为不再写入任何存储，
+             该开关失去意义（开着关着都一样），留着反而让人误以为"关掉就会把教师算进来"。
+             改为常显的口径说明条，把「谁被统计、谁不被统计、为什么」讲在明面上。 -->
+        <div class="ev-scope-note" id="ev-scope-note">
+          <span class="esn-i">i</span>
+          <div class="esn-t">
+            <b>统计口径：只统计学生行为。</b>
+            教师与管理员在本站的点击、试答、试问一律<b>不会写入统计</b>（云端与本机都不记录），不会推高下方任何数字；
+            <b>用教师账号演示「作答会被记录」看不到变化，请改用学生账号。</b><br />
+            数字构成 = <b>学期申报基线</b>（本课程 2025-08-28 — 2025-12-11 的既定口径）
+            + <b>学期后的真实新增</b>（学生课下继续使用时实时累加）。
+          </div>
+        </div>
       </div>
 
       <div class="admin-kpi-row" id="ev-kpi-row">
@@ -9110,6 +9134,7 @@ window.ibank_use_design_stats = function (on) {
           '本机真实埋点（你在本机点的）': locBy,
           '本机条数': loc.length,
           '云端事件口径（v58.7）': '云端存有种子脚本灌入的整套学期数据，与基线是同一份申报口径的两份拷贝；看板只取站点基线这一份，学期内的云端/本机记录一律剔除，只累加课后新增',
+          '统计范围（v58.7）': '只统计学生行为。教师/管理员的点击、试答、试问一律不入库（云端与本机都不写），故教师端自己演示时数字不会变化 —— 这是设计预期，不是故障',
    '两者相加 = 页面上的 KPI': {
     AI问答: (byType.qa || 0) + (locBy.qa || 0),
             习题作答: (byType.quiz || 0) + (locBy.quiz || 0),
@@ -10284,16 +10309,11 @@ const actSrc = login.length ? login : study.concat(quiz, mod, qa);
       var umFrSel = document.getElementById('um-filter-role');
       if (umFrSel) umFrSel.addEventListener('change', function () { renderUserList(lastUserRows); });
 
-      // ===== 看板开关：仅统计学生（排除教师 / 管理员）=====
-      var cbOnly = document.getElementById('ev-only-student');
-      if (cbOnly) {
-        cbOnly.checked = onlyStudent;
-        cbOnly.addEventListener('change', function () {
-          onlyStudent = cbOnly.checked;
-          try { localStorage.setItem('ibank_stat_only_student', onlyStudent ? '1' : '0'); } catch (e) {}
-          loadEventStats();
-        });
-      }
+      // ===== 看板统计口径（v58.7）=====
+      // 原「仅统计学生」复选框已移除：v58.7 起教师/管理员行为根本不入库，
+      // 该开关已无实际作用（开与不开结果相同），保留会误导。改为上方常显说明条。
+      // onlyStudent 变量保持恒真，供下游过滤链路继续使用（语义不变：统计里只应有学生）。
+      onlyStudent = true;
       var stuExportBtn = document.getElementById('stu-export-btn');
       if (stuExportBtn) stuExportBtn.addEventListener('click', exportStuCsv);
       var causeExportBtn = document.getElementById('cause-export-btn');
