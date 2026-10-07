@@ -1348,6 +1348,164 @@
       #logout-btn { padding: 0 8px; font-size: 12px; }
       #nav-user-name { max-width: 56px; }
     }
+
+    /* ===== 案例库 v43：HBS 式案例详情页（章节分组 · 检索 · 多区块） ===== */
+    :root {
+      --cl-line: #e5e8f2;
+      --cl-soft: rgba(15,23,42,.035);
+      --cl-card: #ffffff;
+      --cl-chip: rgba(99,102,241,.10);
+      --cl-warn: #b45309; --cl-warn-bg: rgba(180,83,9,.09);
+      --cl-ok: #0f766e;   --cl-ok-bg: rgba(15,118,110,.09);
+      --cl-num: rgba(99,102,241,.13);
+      --cl-ring: rgba(99,102,241,.30);
+    }
+    body.dark:not(.light) {
+      --cl-line: rgba(148,163,184,.20);
+      --cl-soft: rgba(255,255,255,.045);
+      --cl-card: #181c32;
+      --cl-chip: rgba(129,140,248,.18);
+      --cl-warn: #fbbf24; --cl-warn-bg: rgba(251,191,36,.14);
+      --cl-ok: #34d399;   --cl-ok-bg: rgba(52,211,153,.14);
+      --cl-num: rgba(129,140,248,.22);
+      --cl-ring: rgba(129,140,248,.42);
+    }
+
+    .cl-note { margin: 12px 0 2px; padding: 11px 14px; background: rgba(59,130,246,.08);
+      border: 1px solid rgba(59,130,246,.30); border-radius: 12px; }
+    .cl-note b { display: block; font-size: 13.5px; font-weight: 600; color: var(--text); margin-bottom: 4px; }
+    .cl-note span { display: block; font-size: 12.5px; line-height: 1.75; color: var(--text); }
+    body.dark:not(.light) .cl-note { background: rgba(59,130,246,.14); border-color: rgba(59,130,246,.42); }
+    .cl-tools { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin: 4px 0 14px; }
+    .cl-stats { display: flex; flex-wrap: wrap; gap: 8px; min-width: 0; }
+    .cl-stat { display: inline-flex; align-items: baseline; gap: 6px; padding: 7px 12px;
+      border: 1px solid var(--cl-line); border-radius: 11px; background: var(--cl-card); }
+    .cl-stat b { font-size: 15px; line-height: 1; color: var(--accent-text); }
+    .cl-stat span { font-size: 12px; color: var(--muted); }
+    .cl-search { flex: 1 1 240px; min-width: 0; display: flex; align-items: center; gap: 8px;
+      padding: 8px 12px; border: 1px solid var(--cl-line); border-radius: 999px; background: var(--cl-card); }
+    .cl-search:focus-within { border-color: var(--cl-ring); }
+    .cl-search svg { flex: 0 0 auto; width: 15px; height: 15px; }
+    .cl-search input { flex: 1 1 auto; min-width: 0; border: 0; background: transparent; outline: none;
+      color: var(--text); font-size: 13.5px; font-family: inherit; }
+    .cl-search input::-webkit-search-cancel-button { display: none; }
+    .cl-search .cl-clear { flex: 0 0 auto; border: 0; background: transparent; color: var(--muted);
+      cursor: pointer; font-size: 17px; line-height: 1; padding: 0 2px; }
+
+    .case-filter { display: flex; flex-wrap: wrap; gap: 8px; margin: 6px 0 16px; }
+    .case-filter .cf-btn { display: inline-flex; align-items: center; gap: 6px; border: 1px solid var(--cl-line);
+      background: var(--cl-card); color: var(--muted); border-radius: 999px; padding: 6px 12px;
+      font-size: 12.5px; cursor: pointer; transition: .15s; font-family: inherit; }
+    .case-filter .cf-btn:hover { border-color: var(--cl-ring); color: var(--text); }
+    .case-filter .cf-btn.active { background: linear-gradient(135deg,#4f46e5,#7c3aed); color: #fff; border-color: transparent; }
+    .case-filter .cf-btn .cf-n { font-size: 11px; opacity: .72; }
+    body.dark:not(.light) .case-filter .cf-btn.active { color: #fff; }
+
+    .case-chapter { display: flex; align-items: center; gap: 10px; margin: 22px 0 12px;
+      padding: 10px 14px; border-left: 3px solid var(--accent); border-radius: 0 12px 12px 0; background: var(--cl-soft); }
+    .case-chapter:first-of-type { margin-top: 2px; }
+    .case-chapter .cc-no { flex: 0 0 auto; font-size: 12.5px; font-weight: 700; color: var(--accent-text); }
+    .case-chapter .cc-nm { min-width: 0; font-size: 13.5px; font-weight: 600; color: var(--text); }
+    .case-chapter .cc-cnt { margin-left: auto; flex: 0 0 auto; font-size: 11.5px; color: var(--muted); }
+
+    .case-item { border: 1px solid var(--cl-line); border-radius: 16px; overflow: hidden; margin-bottom: 12px;
+      background: var(--cl-card); box-shadow: var(--shadow-sm); }
+    .case-item.open { border-color: var(--cl-ring); }
+    .case-head { width: 100%; display: flex; flex-wrap: wrap; align-items: center; gap: 12px; padding: 14px 16px;
+      background: transparent; border: none; color: var(--text); font-size: 15px; cursor: pointer;
+      text-align: left; font-family: inherit; transition: background .15s; }
+    .case-head:hover { background: var(--cl-soft); }
+    .case-item.open .case-head { border-bottom: 1px solid var(--cl-line); }
+    .case-idx { width: 32px; height: 32px; flex: 0 0 auto; border-radius: 10px; display: flex;
+      align-items: center; justify-content: center; background: linear-gradient(135deg,#4f46e5,#7c3aed);
+      font-weight: 700; font-size: 13px; color: #fff; }
+    .case-main { display: flex; flex-direction: column; gap: 2px; min-width: 0; flex: 1 1 240px; }
+    .case-title { font-weight: 600; font-size: 15px; line-height: 1.45; }
+    .case-sub { font-size: 12.5px; color: var(--muted); line-height: 1.5; }
+    .case-tag { flex: 0 0 auto; font-size: 11.5px; color: var(--accent-text); background: var(--cl-chip);
+      padding: 3px 9px; border-radius: 999px; white-space: nowrap; }
+    .case-tag[data-t="risk"] { color: var(--cl-warn); background: var(--cl-warn-bg); }
+    .case-tag[data-t="ok"] { color: var(--cl-ok); background: var(--cl-ok-bg); }
+    .case-meta { flex: 0 0 auto; font-size: 11.5px; color: var(--dim); text-align: right; line-height: 1.5; }
+    .case-arrow { flex: 0 0 auto; margin-left: auto; color: var(--muted); transition: transform .2s; }
+    .case-item.open .case-arrow { transform: rotate(180deg); }
+    .case-body { display: none; padding: 18px 18px 20px; }
+    .case-item.open .case-body { display: block; }
+
+    .cl-kpis { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 10px; margin-bottom: 18px; }
+    .cl-kpi { padding: 11px 12px; border-radius: 12px; background: var(--cl-soft);
+      border: 1px solid var(--cl-line); min-width: 0; }
+    .cl-kpi .k { display: block; font-size: 11.5px; color: var(--muted); margin-bottom: 3px; line-height: 1.5; }
+    .cl-kpi .v { display: block; font-size: 15px; font-weight: 700; color: var(--accent-text); line-height: 1.4; word-break: break-word; }
+    .cl-kpi .n { display: block; font-size: 11.5px; color: var(--dim); margin-top: 4px; line-height: 1.6; }
+
+    .cl-sec { margin-bottom: 16px; }
+    .cl-h { display: flex; align-items: center; gap: 8px; font-size: 13.5px; font-weight: 700;
+      color: var(--text); margin-bottom: 9px; }
+    .cl-n { width: 20px; height: 20px; flex: 0 0 auto; border-radius: 6px; background: var(--cl-num);
+      color: var(--accent-text); font-size: 11.5px; font-weight: 700;
+      display: flex; align-items: center; justify-content: center; }
+    .cl-p { font-size: 13.5px; color: var(--text); line-height: 1.85; }
+    .cl-p + .cl-p { margin-top: 8px; }
+    .cl-p strong, .cl-list strong, .cl-cell strong, .cl-take strong, .cl-tl strong { color: var(--accent-text); font-weight: 600; }
+
+    .cl-tl { list-style: none; position: relative; padding-left: 20px; }
+    .cl-tl::before { content: ''; position: absolute; left: 5px; top: 6px; bottom: 8px; width: 2px; background: var(--cl-line); }
+    .cl-tl li { position: relative; padding-bottom: 12px; font-size: 13px; }
+    .cl-tl li:last-child { padding-bottom: 0; }
+    .cl-tl li::before { content: ''; position: absolute; left: -19px; top: 7px; width: 9px; height: 9px;
+      border-radius: 50%; background: var(--accent); box-shadow: 0 0 0 3px var(--cl-card); }
+    .cl-tl .tl-t { display: block; font-weight: 600; color: var(--accent-text); font-size: 12.5px; line-height: 1.6; }
+    .cl-tl .tl-d { display: block; color: var(--text); line-height: 1.75; }
+
+    .cl-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(200px,100%),1fr)); gap: 10px; }
+    .cl-cell { padding: 11px 12px; border: 1px solid var(--cl-line); border-radius: 12px; background: var(--cl-soft); min-width: 0; }
+    .cl-cell .ck { display: block; font-size: 11.5px; color: var(--muted); line-height: 1.5; }
+    .cl-cell .cv { display: block; font-size: 14.5px; font-weight: 700; color: var(--text); margin-top: 2px;
+      word-break: break-word; line-height: 1.45; }
+    .cl-cell .cn { display: block; font-size: 11.5px; color: var(--dim); margin-top: 4px; line-height: 1.65; }
+
+    .cl-list { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+    .cl-list li { display: flex; gap: 8px; font-size: 13px; line-height: 1.78; padding: 10px 13px;
+      border-radius: 11px; background: var(--cl-soft); border-left: 3px solid var(--accent); }
+    .cl-list li span { min-width: 0; }
+    .cl-list.warn li { border-left-color: var(--cl-warn); }
+
+    .cl-q { list-style: none; counter-reset: clq; display: flex; flex-direction: column; gap: 9px; }
+    .cl-q li { display: flex; gap: 10px; align-items: flex-start; font-size: 13px; line-height: 1.78; }
+    .cl-q li span { min-width: 0; }
+    .cl-q li::before { counter-increment: clq; content: counter(clq); flex: 0 0 auto; width: 22px; height: 22px;
+      border-radius: 50%; background: var(--cl-num); color: var(--accent-text); font-size: 11.5px; font-weight: 700;
+      display: flex; align-items: center; justify-content: center; }
+
+    .cl-take { padding: 13px 15px; border-radius: 13px; background: var(--cl-chip); border: 1px solid var(--cl-ring); }
+    .cl-take-h { display: block; font-size: 12px; font-weight: 700; color: var(--accent-text); margin-bottom: 5px; letter-spacing: .04em; }
+    .cl-take p { font-size: 13px; color: var(--text); line-height: 1.82; }
+
+    .cl-src { margin-top: 14px; padding-top: 11px; border-top: 1px dashed var(--cl-line);
+      font-size: 11.5px; color: var(--dim); line-height: 1.7; }
+
+    .cl-empty { display: none; padding: 26px 16px; text-align: center; color: var(--muted);
+      font-size: 13.5px; border: 1px dashed var(--cl-line); border-radius: 14px; }
+
+    @media (max-width: 900px) {
+      .cl-kpis { grid-template-columns: repeat(2, minmax(0,1fr)); }
+    }
+    @media (max-width: 700px) {
+      .case-meta { display: none; }
+      .case-main { flex: 1 1 100%; order: 3; }
+      .case-idx { order: 1; }
+      .case-tag { order: 2; margin-left: auto; }
+      .case-arrow { order: 4; }
+      .case-head { row-gap: 8px; }
+      .case-chapter .cc-nm { font-size: 13px; }
+    }
+    @media (max-width: 420px) {
+      .cl-kpis { grid-template-columns: minmax(0,1fr); }
+      .cl-stats { width: 100%; }
+      .cl-stat { flex: 1 1 auto; justify-content: center; }
+      .case-body { padding: 16px 14px 18px; }
+    }
   </style>
 </head>
 <body>
@@ -1684,346 +1842,1114 @@
       </div>
     </section>
 
-    <!-- ⑧ 案例库 -->
+    <!-- ⑧ 案例库（v43：HBS 式案例详情页 · 20 个真实案例 · 按章号排序） -->
     <section class="page" id="p-case">
       <div class="panel">
         <div class="section-title"><span class="bar"></span>投行教学案例库</div>
-        <div class="section-sub">点击案例标题展开完整内容。可按章节筛选；案例库即本课程全部真实案例的汇总页。</div>
+        <div class="section-sub">收录 <strong>20 个真实交易案例</strong>，按教材章节（第0章导论 → 第7章公司并购）顺序编排，每章至少 2 例。点击案例标题展开：概览指标 → 案例背景 → 关键时间线 → 关键数据 → 投行角色 → 争议与难点 → 课堂讨论题 → 结论与启示。支持关键词检索与按章节筛选。</div>
+
+        <div class="cl-note">
+          <b>教学使用说明</b>
+          <span>案例依据中国证监会行政处罚决定、法院生效判决、交易所自律监管措施及上市公司公开披露信息整理，仅用于课堂研讨与专业训练。所述事实与数据截至各案例标注时点，此后市场与财务情况可能发生变化；对相关机构与个人的描述以生效文书为准，不构成对任何主体的评价，也不构成投资建议。课堂讨论请回到决策当时的信息集，避免以结果倒推对错。</span>
+        </div>
+
+        <div class="cl-tools">
+          <div class="cl-stats">
+            <span class="cl-stat"><b>20</b><span>个案例</span></span>
+            <span class="cl-stat"><b>8</b><span>个章节</span></span>
+            <span class="cl-stat"><b>100%</b><span>真实交易</span></span>
+          </div>
+          <label class="cl-search" for="cl-q">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><circle cx="11" cy="11" r="7" style="stroke:var(--muted)"></circle><path d="M20 20l-3.5-3.5" style="stroke:var(--muted)"></path></svg>
+            <input id="cl-q" type="search" placeholder="搜索案例 / 主体 / 业务类型（如 IPO、并购、可转债、违约）" autocomplete="off" aria-label="搜索案例" />
+            <button class="cl-clear" type="button" id="cl-q-clear" aria-label="清空搜索">×</button>
+          </label>
+        </div>
+
         <div class="case-filter" id="case-filter"></div>
 
-        <div class="case-item open" id="case-01" data-chapter="第3章">
-          <button class="case-head">
+        <h3 class="case-chapter" data-ch="第0章">
+          <span class="cc-no">第0章</span>
+          <span class="cc-nm">导论</span>
+          <span class="cc-cnt">2 个案例</span>
+        </h3>
+        <article class="case-item" id="case-01" data-chapter="第0章" data-search-key="五洋 德邦证券 大信 大公国际 锦天城 代表人诉讼 看门人 尽职调查 连带责任 虚假陈述 公司债">
+          <button class="case-head" type="button" aria-expanded="false">
             <span class="case-idx">01</span>
-            <span class="case-title">中芯国际 · 科创板 IPO</span>
-            <span class="case-tag">承销保荐</span>
-            <span class="case-arrow">▾</span>
+            <span class="case-main">
+              <span class="case-title">五洋建设 · 债券欺诈发行案</span>
+              <span class="case-sub">全国首例公司债券欺诈发行案｜中介机构「看门人」责任的一次司法定价</span>
+            </span>
+            <span class="case-tag" data-t="risk">中介责任</span>
+            <span class="case-meta">2015–2022<br />7.4 亿元连带赔偿</span>
+            <span class="case-arrow" aria-hidden="true">▾</span>
           </button>
           <div class="case-body">
-            <div class="sub-h">案例简介</div>
-            <div class="text-slot">
-              <strong>中芯国际</strong>（688981）是中国大陆规模最大的集成电路晶圆代工企业。2020 年 7 月 16 日在上交所科创板上市，发行价 <strong>27.46 元/股</strong>，行使超额配售选择权后募资约 <strong>532 亿元</strong>，创下科创板募资纪录，也是 A 股近十年最大规模的 IPO。上市首日开盘 95 元（高开约 246%），收盘 82.92 元，<strong>首日涨幅约 202%</strong>，全天成交约 480 亿元。
-            </div>
-            <div class="sub-h">关键数据</div>
-            <div class="photo-grid">
-              <div class="photo-slot">
-                <svg viewBox="0 0 400 300" style="width:100%;height:100%;display:block" xmlns="http://www.w3.org/2000/svg">
-                  <rect width="400" height="300" fill="var(--chart-bg)"/>
-                  <g font-family="Microsoft YaHei, sans-serif">
-                    <text x="200" y="52" fill="var(--chart-title)" font-size="16" font-weight="bold" text-anchor="middle">中芯国际 · 科创板 IPO</text>
-                    <text x="30" y="120" fill="var(--chart-label)" font-size="14">发行价</text>
-                    <text x="370" y="120" fill="var(--chart-title)" font-size="16" font-weight="bold" text-anchor="end">27.46 元/股</text>
-                    <text x="30" y="175" fill="var(--chart-label)" font-size="14">募资额（含超额配售）</text>
-                    <text x="370" y="175" fill="var(--chart-cyan)" font-size="16" font-weight="bold" text-anchor="end">532 亿元</text>
-                    <text x="30" y="230" fill="var(--chart-label)" font-size="14">上市首日涨幅</text>
-                    <text x="370" y="230" fill="var(--chart-up)" font-size="16" font-weight="bold" text-anchor="end">+202%</text>
-                  </g>
-                </svg>
-                <div class="caption">图：中芯国际科创板 IPO 关键数据</div>
-              </div>
-            </div>
-            <div class="sub-h">思考题</div>
-            <ul class="q-list">
-              <li><span class="num">1</span><span>科创板与主板在上市定位上有什么不同？对中芯国际这类硬科技企业有何吸引力？</span></li>
-              <li><span class="num">2</span><span>本次发行中的「超额配售选择权（绿鞋机制）」起什么作用？</span></li>
-              <li><span class="num">3</span><span>上市首日大涨约 202%，说明发行定价可能存在什么问题？定价「偏低」对发行人意味着什么？</span></li>
-            </ul>
-            <div class="sub-h">结论与启示</div>
-            <div class="text-slot">
-              科创板为硬科技企业提供了融资通道，投行在承销保荐中承担<strong>估值定价</strong>与<strong>稳定市场</strong>的双重职责；首日高涨幅也引发对「发行定价合理性」的讨论。
-            </div>
-          </div>
-        </div>
+            <div class="cl-kpis"><div class="cl-kpi"><span class="k">涉案债券</span><span class="v">13.6 亿元</span><span class="n">「15五洋债」8 亿 +「15五洋02」5.6 亿</span></div><div class="cl-kpi"><span class="k">判赔标的</span><span class="v">7.4 亿元</span><span class="n">487 名自然人投资者债务本息</span></div><div class="cl-kpi"><span class="k">主承销商实际赔付</span><span class="v">5.76 亿元</span><span class="n">德邦证券（承销佣金仅数千万元级）</span></div><div class="cl-kpi"><span class="k">判决层级</span><span class="v">二审维持原判</span><span class="n">杭州中院 2020-12 → 浙江高院 2021-09</span></div></div>
 
-        <div class="case-item" id="case-02" data-chapter="第7章">
-          <button class="case-head">
+            <section class="cl-sec">
+              <h4 class="cl-h"><span class="cl-n">1</span>案例背景</h4>
+              <p class="cl-p">五洋建设集团是浙江绍兴的建筑施工企业，2015 年在不符合公开发行条件的前提下，通过<strong>制作虚假财务报表</strong>骗取债券发行资格，发行了「15五洋债」与「15五洋02」两期公募公司债，合计 13.6 亿元。</p><p class="cl-p">2016 年底风险初步暴露，2017 年偿付风险全面爆发，债券投资者陆续起诉至杭州中院。案件中，发行人实控人、主承销商、审计机构、评级机构、律所<strong>全部被列为共同被告</strong>——这是中国债券市场第一次把「中介机构责任」摆到法庭上逐一定价。</p>
+            </section>
+
+            <section class="cl-sec">
+              <h4 class="cl-h"><span class="cl-n">2</span>关键时间线</h4>
+              <ol class="cl-tl"><li><span class="tl-t">2015 年</span><span class="tl-d">五洋建设以虚假财务数据骗取发行资格，发行两期公募公司债合计 13.6 亿元；德邦证券为主承销商，大信会计师事务所审计，大公国际评级，锦天城律所出具法律意见书。</span></li><li><span class="tl-t">2016 年底—2017 年</span><span class="tl-d">危机初步爆发、偿付风险暴露，五洋建设进入破产重整，投资者开始维权。</span></li><li><span class="tl-t">2020 年 3 月</span><span class="tl-d">杭州中院发布公告公开征集适格自然人投资者，成为新《证券法》实施后<strong>普通代表人诉讼在证券民事赔偿领域的首次司法实践</strong>。</span></li><li><span class="tl-t">2020 年 12 月 31 日</span><span class="tl-d">一审判决：陈志樟、德邦证券、大信会计师事务所就全部债务承担<strong>连带赔偿责任</strong>；大公国际在 10%、锦天城律所在 5% 范围内承担连带责任。</span></li><li><span class="tl-t">2021 年 9 月</span><span class="tl-d">浙江高院二审判决驳回上诉、维持原判。判决书金句：「让破坏者付出破坏的代价，让装睡的『看门人』不敢装睡。」</span></li><li><span class="tl-t">2022 年</span><span class="tl-d">杭州中院四次发放案款合计逾 7 亿元，案款执行到位——德邦证券履行约 5.76 亿元、大信会计 1 亿元，公司高管陈志樟仅履行 15 万元。</span></li></ol>
+            </section>
+
+            <section class="cl-sec">
+              <h4 class="cl-h"><span class="cl-n">3</span>关键数据</h4>
+              <div class="cl-grid"><div class="cl-cell"><span class="ck">连带责任主体</span><span class="cv">陈志樟 / 德邦证券 / 大信会计</span><span class="cn">就案件总标的 6.96 亿元承担连带赔偿</span></div><div class="cl-cell"><span class="ck">大公国际（评级）</span><span class="cv">10% 范围内</span><span class="cn">未勤勉尽职、存在一定过错</span></div><div class="cl-cell"><span class="ck">锦天城律所（法律意见书）</span><span class="cv">5% 范围内</span><span class="cn">未勤勉尽职、存在一定过错</span></div><div class="cl-cell"><span class="ck">德邦证券事后追偿</span><span class="cv">3.15 亿元</span><span class="cn">向实控人 1.79 亿、大信 0.79 亿、大公国际 0.57 亿追偿</span></div><div class="cl-cell"><span class="ck">判决依据</span><span class="cv">证券虚假陈述责任纠纷</span><span class="cn">发行人欺诈发行 + 中介未勤勉尽责</span></div><div class="cl-cell"><span class="ck">后续监管动作</span><span class="cv">中证协修订《承销规范》</span><span class="cn">厘清主承销商核查责任，禁止与发行利率挂钩的承销费</span></div></div>
+            </section>
+
+            <section class="cl-sec">
+              <h4 class="cl-h"><span class="cl-n">4</span>投行角色与业务职能</h4>
+              <ul class="cl-list"><li><span><strong>尽职调查与审慎核查</strong>：主承销商对发行人财务真实性负第一道把关义务，且<strong>不得依赖</strong>会计师、评级机构、律所的结论，须对其他中介提供的材料做合理怀疑。</span></li><li><span><strong>债券受托管理人</strong>：存续期持续监督、信息披露、召集持有人会议、代表投资者维权。</span></li><li><span><strong>定价与销售</strong>：票面利率确定与投资者适当性管理——本案例中募集说明书的真实性声明显然未能兜住风险。</span></li></ul>
+            </section>
+
+            <section class="cl-sec">
+              <h4 class="cl-h"><span class="cl-n">5</span>争议与难点</h4>
+              <ul class="cl-list warn"><li><span><strong>收益与代价的倒挂</strong>：承销佣金仅数千万元，判决后赔付 5.76 亿元，承销业务的「尾部风险」被重新定价。</span></li><li><span><strong>连带责任内部如何分摊</strong>：判决生效后各家互相追偿，责任分担比例成为新一轮诉讼焦点，也暴露了「连带」与「过错程度相匹配」原则的执行难题。</span></li><li><span><strong>代表人诉讼的示范效应</strong>：本案确立的判例让债券虚假陈述从「个人零星诉讼」转向「集体化维权」，显著抬高了中介机构的执业成本预期。</span></li></ul>
+            </section>
+
+            <section class="cl-sec">
+              <h4 class="cl-h"><span class="cl-n">6</span>课堂讨论题</h4>
+              <ol class="cl-q"><li><span>主承销商为什么不能直接采信会计师事务所的审计报告？「合理怀疑」在实务中如何落地？</span></li><li><span>法院对德邦证券判 100% 连带责任、对大公国际判 10%、对律所判 5%，这个比例背后的归责逻辑是什么？</span></li><li><span>如果你是投行合规负责人，本案之后会怎样重写你的尽职调查清单？</span></li></ol>
+            </section>
+
+            <div class="cl-take">
+              <span class="cl-take-h">结论与启示</span>
+              <p>投资银行的核心资产是<strong>信用</strong>，而信用的对价是责任。本案例的教学价值在于：它把「中介机构责任」从一句免责声明，变成了可以量化到亿元级别的法律后果——这是理解投行职业道德最直观的一课。</p>
+            </div>
+
+            <div class="cl-src">资料来源：杭州中院一审判决（2020-12-31）、浙江高院二审判决（2021-09）、中国证券报、中国经济网、中国金融信息网。</div>
+          </div>
+        </article>
+        <article class="case-item" id="case-02" data-chapter="第0章" data-search-key="欣泰电气 兴业证券 先行赔付 保荐代表人 欺诈发行 强制退市 创业板 终身市场禁入 新三板">
+          <button class="case-head" type="button" aria-expanded="false">
             <span class="case-idx">02</span>
-            <span class="case-title">美的集团 · 收购库卡（KUKA）</span>
-            <span class="case-tag">并购重组</span>
-            <span class="case-arrow">▾</span>
+            <span class="case-main">
+              <span class="case-title">欣泰电气 · 欺诈发行强制退市</span>
+              <span class="case-sub">创业板退市第一股｜保荐机构 5.5 亿元先行赔付的起点</span>
+            </span>
+            <span class="case-tag" data-t="risk">保荐责任</span>
+            <span class="case-meta">2014–2017<br />5.5 亿元先行赔付基金</span>
+            <span class="case-arrow" aria-hidden="true">▾</span>
           </button>
           <div class="case-body">
-            <div class="sub-h">案例简介</div>
-            <div class="text-slot">
-              <strong>美的集团</strong> 2016 年通过境外子公司 MECCA 向德国机器人巨头<strong>库卡（KUKA）</strong>发起要约收购，每股 <strong>115 欧元</strong>，要约收购约 81.04% 股权、对价约 <strong>37 亿欧元</strong>（约 292 亿元人民币），收购完成后持股比例升至约 <strong>94.55%</strong>；2021 年继续收购剩余约 5.45% 股权，实现全资控股并将库卡私有化退市。
-            </div>
-            <div class="sub-h">关键数据</div>
-            <div class="photo-grid">
-              <div class="photo-slot">
-                <svg viewBox="0 0 400 300" style="width:100%;height:100%;display:block" xmlns="http://www.w3.org/2000/svg">
-                  <rect width="400" height="300" fill="var(--chart-bg)"/>
-                  <g font-family="Microsoft YaHei, sans-serif">
-                    <text x="200" y="52" fill="var(--chart-title)" font-size="16" font-weight="bold" text-anchor="middle">美的收购库卡 · 关键数据</text>
-                    <text x="30" y="120" fill="var(--chart-label)" font-size="14">要约收购价</text>
-                    <text x="370" y="120" fill="var(--chart-title)" font-size="16" font-weight="bold" text-anchor="end">115 欧元/股</text>
-                    <text x="30" y="175" fill="var(--chart-label)" font-size="14">交易对价（81.04% 股权）</text>
-                    <text x="370" y="175" fill="var(--chart-cyan)" font-size="16" font-weight="bold" text-anchor="end">约 37 亿欧元</text>
-                    <text x="30" y="230" fill="var(--chart-label)" font-size="14">收购完成后持股</text>
-                    <text x="370" y="230" fill="var(--chart-indigo)" font-size="16" font-weight="bold" text-anchor="end">94.55%</text>
-                  </g>
-                </svg>
-                <div class="caption">图：美的收购库卡关键数据</div>
-              </div>
-            </div>
-            <div class="sub-h">思考题</div>
-            <ul class="q-list">
-              <li><span class="num">1</span><span>跨境并购中「要约收购」与「协议收购」有何区别？美的为什么采用要约收购？</span></li>
-              <li><span class="num">2</span><span>全部现金支付对买方（美的）的财务压力与好处分别是什么？</span></li>
-              <li><span class="num">3</span><span>跨境并购需要面对哪些特殊的监管与合规问题（如反垄断、外资审查）？</span></li>
-            </ul>
-            <div class="sub-h">结论与启示</div>
-            <div class="text-slot">
-              跨境并购是投行的重要业务，<strong>估值合理</strong>、<strong>交易结构设计</strong>（现金要约）与<strong>跨境监管合规</strong>是交易成败的关键。
-            </div>
-          </div>
-        </div>
+            <div class="cl-kpis"><div class="cl-kpi"><span class="k">保荐机构</span><span class="v">兴业证券</span><span class="n">同时担任主承销商</span></div><div class="cl-kpi"><span class="k">先行赔付基金</span><span class="v">5.5 亿元</span><span class="n">兴业证券以自有资金出资设立</span></div><div class="cl-kpi"><span class="k">实际赔付</span><span class="v">2.42 亿元</span><span class="n">1.2 万投资者、95.16% 达成和解</span></div><div class="cl-kpi"><span class="k">退市结果</span><span class="v">创业板第一股</span><span class="n">创业板不接受公司股票重新上市</span></div></div>
 
-        <div class="case-item" id="case-03" data-chapter="第5章">
-          <button class="case-head">
+            <section class="cl-sec">
+              <h4 class="cl-h"><span class="cl-n">1</span>案例背景</h4>
+              <p class="cl-p">欣泰电气 2014 年 1 月在深交所创业板上市。其<strong>IPO 申请文件中的财务数据存在虚假记载</strong>，上市后披露的 2013 年年报、2014 年半年报和年报继续存在虚假记载与重大遗漏。</p><p class="cl-p">2016 年 7 月 8 日，公司收到证监会《行政处罚决定书》和《市场禁入决定书》，因欺诈发行及信息披露违法违规被依法处罚，并<strong>启动强制退市程序</strong>——这是 A 股创业板第一家因欺诈发行退市的公司。</p>
+            </section>
+
+            <section class="cl-sec">
+              <h4 class="cl-h"><span class="cl-n">2</span>关键时间线</h4>
+              <ol class="cl-tl"><li><span class="tl-t">2014 年 1 月</span><span class="tl-d">欣泰电气在深交所创业板上市，兴业证券担任保荐机构及主承销商。</span></li><li><span class="tl-t">2015 年 7 月 14 日</span><span class="tl-d">证监会立案调查；公司此后每 5 个交易日发布一次暂停上市风险提示。</span></li><li><span class="tl-t">2016 年 7 月 8 日</span><span class="tl-d">证监会作出行政处罚并启动强制退市程序：对公司及 17 名现任/时任董监高实施处罚，对实控人温德乙、时任总会计师刘明胜采取<strong>终身证券市场禁入</strong>。</span></li><li><span class="tl-t">2016 年 7 月 12 日</span><span class="tl-d">股票复牌交易 30 个交易日，简称调整为「*欣泰」；深交所同步强制风险警示。</span></li><li><span class="tl-t">2016 年 7 月 27 日</span><span class="tl-d">兴业证券因未勤勉尽责地审慎核查 IPO 申请文件，被证监会警告、没收违法所得并罚款。</span></li><li><span class="tl-t">2017 年 6—10 月</span><span class="tl-d">兴业证券出资 5.5 亿元设立先行赔付专项基金并完成赔付。</span></li><li><span class="tl-t">2017 年 11 月 6 日</span><span class="tl-d">公司退至新三板挂牌，简称变更为「欣泰 3」；创业板不安排重新上市，成为不可逆的终局。</span></li></ol>
+            </section>
+
+            <section class="cl-sec">
+              <h4 class="cl-h"><span class="cl-n">3</span>关键数据</h4>
+              <div class="cl-grid"><div class="cl-cell"><span class="ck">处罚范围</span><span class="cv">17 名董监高 + 2 人终身禁入</span><span class="cn">实控人、总会计师终身市场禁入</span></div><div class="cl-cell"><span class="ck">先行赔付对象</span><span class="cv">一级 + 二级市场适格投资者</span><span class="cn">分两类分别计算赔付金额</span></div><div class="cl-cell"><span class="ck">和解情况</span><span class="cv">95.16% 投资者达成和解</span><span class="cn">赔付金额占应赔付总额的 99.46%，人均约 2 万元</span></div><div class="cl-cell"><span class="ck">不受赔的典型情形</span><span class="cv">立案调查后买入</span><span class="cn">如私募创势翔旗下基金，因买入时点在立案后而无法获赔</span></div><div class="cl-cell"><span class="ck">处理机构</span><span class="cv">投保基金公司协调</span><span class="cn">中证协牵头投保基金、深交所、中国结算、兴业证券成立协调小组</span></div><div class="cl-cell"><span class="ck">制度后果</span><span class="cv">欺诈发行不可重新上市</span><span class="cn">「影响无法消除、无法纠正」，不符合全面纠正违法行为的条件</span></div></div>
+            </section>
+
+            <section class="cl-sec">
+              <h4 class="cl-h"><span class="cl-n">4</span>投行角色与业务职能</h4>
+              <ul class="cl-list"><li><span><strong>保荐与持续督导</strong>：保荐机构不仅要「推荐」企业，还要对申请文件的真实性做审慎核查，并在上市后持续督导。</span></li><li><span><strong>先行赔付</strong>：作为 IPO 保荐人及主承销商，对发行人虚假陈述致投资者损失承担连带赔偿责任——先行赔付是主动履责、避免诉讼拖延的路径。</span></li><li><span><strong>声誉与业务准入</strong>：欺诈发行案件会直接触发对保荐机构的行政处罚，影响其后续业务资格与市场声誉。</span></li></ul>
+            </section>
+
+            <section class="cl-sec">
+              <h4 class="cl-h"><span class="cl-n">5</span>争议与难点</h4>
+              <ul class="cl-list warn"><li><span><strong>先行赔付是义务还是自愿</strong>：欣泰电气发行时间在 2014 年 1 月，兴业证券并未做出先行赔付承诺，最终属主动设立基金，证监会表示支持——制度上的「应有之义」当时仍需靠机构自觉。</span></li><li><span><strong>「不可纠正」的退市逻辑</strong>：欺诈发行的违法行为影响无法消除，因此创业板不接受重新上市，避免了「退市—重组—再上市」的套利。</span></li><li><span><strong>谁是适格投资者</strong>：立案调查后买入者不在赔付范围，说明「损失」与「因果关系」的界定直接决定赔付边界。</span></li></ul>
+            </section>
+
+            <section class="cl-sec">
+              <h4 class="cl-h"><span class="cl-n">6</span>课堂讨论题</h4>
+              <ol class="cl-q"><li><span>保荐机构与主承销商是同一个角色时，为什么责任会被放大？</span></li><li><span>先行赔付与「连带赔偿责任」在法律关系上有什么不同？为什么监管层鼓励前者？</span></li><li><span>为什么创业板对欺诈发行设置了「不可重新上市」的最严后果？这对发行人的约束力体现在哪里？</span></li></ol>
+            </section>
+
+            <div class="cl-take">
+              <span class="cl-take-h">结论与启示</span>
+              <p>保荐机构签下的每一个字都要兑现。欣泰电气案第一次让市场看到：<strong>「看门人」的失职可以用 5.5 亿元来结算</strong>，而发行人则可能付出「永久退出资本市场」的代价。</p>
+            </div>
+
+            <div class="cl-src">资料来源：证监会《行政处罚决定书》（[2016]84 号）、《市场禁入决定书》（[2016]5 号）、深交所问答、投保基金公司赔付终止公告、中国金融新闻网。</div>
+          </div>
+        </article>
+        <h3 class="case-chapter" data-ch="第1章">
+          <span class="cc-no">第1章</span>
+          <span class="cc-nm">投资银行概述</span>
+          <span class="cc-cnt">2 个案例</span>
+        </h3>
+        <article class="case-item" id="case-03" data-chapter="第1章" data-search-key="高盛 Goldman Sachs 投资银行 全球市场 资产管理 财富管理 轻资本 做市 财务顾问 并购顾问 卖方研究">
+          <button class="case-head" type="button" aria-expanded="false">
             <span class="case-idx">03</span>
-            <span class="case-title">中国中化 · 公司债承销</span>
-            <span class="case-tag">债券承销</span>
-            <span class="case-arrow">▾</span>
-          </button>
-          <div class="case-body">
-            <div class="sub-h">案例简介</div>
-            <div class="text-slot">
-              <strong>中国中化</strong>面向专业投资者公开发行 2026 年可续期公司债券（第一期），发行规模 <strong>60 亿元</strong>，票面利率 <strong>2.35%</strong>，认购倍数 <strong>1.39</strong>，主承销商为中信建投、中信证券、招商证券、平安证券等。
-            </div>
-            <div class="sub-h">关键数据</div>
-            <div class="photo-grid">
-              <div class="photo-slot">
-                <svg viewBox="0 0 400 300" style="width:100%;height:100%;display:block" xmlns="http://www.w3.org/2000/svg">
-                  <rect width="400" height="300" fill="var(--chart-bg)"/>
-                  <g font-family="Microsoft YaHei, sans-serif">
-                    <text x="200" y="52" fill="var(--chart-title)" font-size="16" font-weight="bold" text-anchor="middle">中国中化公司债 · 关键数据</text>
-                    <text x="30" y="120" fill="var(--chart-label)" font-size="14">发行规模</text>
-                    <text x="370" y="120" fill="var(--chart-title)" font-size="16" font-weight="bold" text-anchor="end">60 亿元</text>
-                    <text x="30" y="175" fill="var(--chart-label)" font-size="14">票面利率</text>
-                    <text x="370" y="175" fill="var(--chart-cyan)" font-size="16" font-weight="bold" text-anchor="end">2.35%</text>
-                    <text x="30" y="230" fill="var(--chart-label)" font-size="14">认购倍数</text>
-                    <text x="370" y="230" fill="var(--chart-indigo)" font-size="16" font-weight="bold" text-anchor="end">1.39 倍</text>
-                  </g>
-                </svg>
-                <div class="caption">图：中国中化公司债关键数据</div>
-              </div>
-            </div>
-            <div class="sub-h">思考题</div>
-            <ul class="q-list">
-              <li><span class="num">1</span><span>公司债的票面利率如何确定？与发行人信用评级、市场利率有什么关系？</span></li>
-              <li><span class="num">2</span><span>「可续期公司债」与普通公司债有什么不同？对企业资产负债率有何影响？</span></li>
-              <li><span class="num">3</span><span>多家券商联合主承销（组成承销团）的作用是什么？</span></li>
-            </ul>
-            <div class="sub-h">结论与启示</div>
-            <div class="text-slot">
-              债券承销体现投行的<strong>「信用中介」</strong>职能，票面利率定价综合反映发行人信用风险与市场利率环境。
-            </div>
-          </div>
-        </div>
-
-        <div class="case-item" id="case-04" data-chapter="第3章">
-          <button class="case-head">
-            <span class="case-idx">04</span>
-            <span class="case-title">阿里巴巴 · 港股二次上市</span>
-            <span class="case-tag">境外上市</span>
-            <span class="case-arrow">▾</span>
-          </button>
-          <div class="case-body">
-            <div class="sub-h">案例简介</div>
-            <div class="text-slot">
-              <strong>阿里巴巴集团</strong>（9988）2019 年 11 月 26 日在港交所主板二次上市，发行价 <strong>176 港元</strong>，全球发售 5 亿股新股，基础募资约 <strong>880 亿港元</strong>，成为 2019 年全球最大新股发行。上市首日收涨约 <strong>6.59%</strong>，市值约 4 万亿港元，超越腾讯成为港股市值第一。
-            </div>
-            <div class="sub-h">关键数据</div>
-            <div class="photo-grid">
-              <div class="photo-slot">
-                <svg viewBox="0 0 400 300" style="width:100%;height:100%;display:block" xmlns="http://www.w3.org/2000/svg">
-                  <rect width="400" height="300" fill="var(--chart-bg)"/>
-                  <g font-family="Microsoft YaHei, sans-serif">
-                    <text x="200" y="52" fill="var(--chart-title)" font-size="16" font-weight="bold" text-anchor="middle">阿里巴巴港股上市 · 关键数据</text>
-                    <text x="30" y="120" fill="var(--chart-label)" font-size="14">发行价</text>
-                    <text x="370" y="120" fill="var(--chart-title)" font-size="16" font-weight="bold" text-anchor="end">176 港元</text>
-                    <text x="30" y="175" fill="var(--chart-label)" font-size="14">基础募资</text>
-                    <text x="370" y="175" fill="var(--chart-cyan)" font-size="16" font-weight="bold" text-anchor="end">880 亿港元</text>
-                    <text x="30" y="230" fill="var(--chart-label)" font-size="14">上市首日涨幅</text>
-                    <text x="370" y="230" fill="var(--chart-up)" font-size="16" font-weight="bold" text-anchor="end">+6.59%</text>
-                  </g>
-                </svg>
-                <div class="caption">图：阿里巴巴港股上市关键数据</div>
-              </div>
-            </div>
-            <div class="sub-h">思考题</div>
-            <ul class="q-list">
-              <li><span class="num">1</span><span>什么是「二次上市」？它与「双重主要上市」有何区别？</span></li>
-              <li><span class="num">2</span><span>阿里巴巴为什么选择回到香港二次上市？</span></li>
-              <li><span class="num">3</span><span>全球发售中的「超额配股权（绿鞋）」如何起到稳定股价的作用？</span></li>
-            </ul>
-            <div class="sub-h">结论与启示</div>
-            <div class="text-slot">
-              港股二次上市为大型科技企业提供了额外的融资渠道与风险分散方式，投行在其中承担<strong>跨境发行、定价与全球配售</strong>职能。
-            </div>
-          </div>
-        </div>
-
-        <div class="case-item" id="case-05" data-chapter="第1章">
-          <button class="case-head">
-            <span class="case-idx">05</span>
-            <span class="case-title">高盛 · 投资银行业务版图</span>
+            <span class="case-main">
+              <span class="case-title">高盛集团 · 投资银行业务版图</span>
+              <span class="case-sub">全球投行标杆的两大业务引擎与 535 亿美元的收入结构</span>
+            </span>
             <span class="case-tag">业务概览</span>
-            <span class="case-arrow">▾</span>
+            <span class="case-meta">2024 财年<br />净收入 535.1 亿美元</span>
+            <span class="case-arrow" aria-hidden="true">▾</span>
           </button>
           <div class="case-body">
-            <div class="sub-h">案例简介</div>
-            <div class="text-slot"><strong>高盛（Goldman Sachs）</strong>是全球领先的全能型投资银行，业务涵盖<strong>投资银行</strong>（承销保荐、并购顾问）、<strong>全球市场</strong>（做市与交易）、<strong>资产管理与财富管理</strong>，以及零售银行（Marcus）等。其收入中全球市场与资产管理贡献过半，体现「轻资本、高智力」的投行特征。</div>
-            <div class="sub-h">关键数据</div>
-            <div class="text-slot">业务板块：投资银行 / 全球市场 / 资产管理 / 零售银行；2023 年净收入约 <strong>462 亿美元</strong>；全球员工约 4.5 万人。</div>
-            <div class="sub-h">思考题</div>
-            <ul class="q-list">
-              <li><span class="num">1</span><span>全能型投行与专精型投行在风险结构上有何差异？</span></li>
-              <li><span class="num">2</span><span>投行「轻资本」特征意味着什么？对其盈利模式有何影响？</span></li>
-              <li><span class="num">3</span><span>高盛为何同时拥有交易与资管业务？协同效应来自哪里？</span></li>
-            </ul>
-            <div class="sub-h">结论与启示</div>
-            <div class="text-slot">投资银行是现代资本市场的「全能枢纽」，通过多元业务分散周期风险、发挥协同效应，是理解投行职能的最佳样本。</div>
-          </div>
-        </div>
+            <div class="cl-kpis"><div class="cl-kpi"><span class="k">净收入</span><span class="v">535.1 亿美元</span><span class="n">同比 +16%</span></div><div class="cl-kpi"><span class="k">净利润</span><span class="v">142.8 亿美元</span><span class="n">每股收益 40.54 美元（+77%）</span></div><div class="cl-kpi"><span class="k">全球银行与市场（GBM）</span><span class="v">349.4 亿美元</span><span class="n">含投资银行、FICC、股票业务</span></div><div class="cl-kpi"><span class="k">资产与财富管理（AWM）</span><span class="v">161.4 亿美元</span><span class="n">管理资产 3.14 万亿美元，+12%</span></div></div>
 
-        <div class="case-item" id="case-06" data-chapter="第2章">
-          <button class="case-head">
+            <section class="cl-sec">
+              <h4 class="cl-h"><span class="cl-n">1</span>案例背景</h4>
+              <p class="cl-p">高盛是全球最具代表性的<strong>全能型投资银行</strong>。它的业务版图可以直接回答教材第 1 章的核心问题：投资银行到底做什么、与商业银行有什么不同。</p><p class="cl-p">2024 年高盛净收入 535.1 亿美元，其中<strong>全球银行与市场（GBM）</strong>贡献 349.4 亿美元，<strong>资产与财富管理（AWM）</strong>贡献 161.4 亿美元。收入结构显示：投行不只是「帮企业上市」，更包括做市、风险中介与资产管理——这是「轻资本、高智力」模式的典型特征。</p>
+            </section>
+
+            <section class="cl-sec">
+              <h4 class="cl-h"><span class="cl-n">2</span>关键时间线</h4>
+              <ol class="cl-tl"><li><span class="tl-t">1999 年</span><span class="tl-d">美国《金融服务现代化法案》废除分业经营限制，独立投行向全能型金融机构演进的大背景。</span></li><li><span class="tl-t">2008 年 9 月 21 日</span><span class="tl-d">金融危机中高盛与摩根士丹利转为<strong>银行控股公司</strong>，接受美联储更严格的监管，传统独立投行模式就此终结。</span></li><li><span class="tl-t">2020 年</span><span class="tl-d">投资者日提出五年战略目标：提高收入的稳定性，扩大手续费类与融资类收入占比。</span></li><li><span class="tl-t">2024 年</span><span class="tl-d">净收入 535.1 亿美元、EPS 40.54 美元、ROE 12.7%、效率比 63.1%；全球已宣布与已完成的并购交易排名<strong>双双第一</strong>，顾问业务净收入<strong>连续 22 年第一</strong>。</span></li><li><span class="tl-t">2025 年</span><span class="tl-d">新设 <strong>Capital Solutions Group</strong>，整合融资、发起、结构化与风险管理能力，回应私募信贷等私募资产的崛起。</span></li></ol>
+            </section>
+
+            <section class="cl-sec">
+              <h4 class="cl-h"><span class="cl-n">3</span>关键数据</h4>
+              <div class="cl-grid"><div class="cl-cell"><span class="ck">净收入结构</span><span class="cv">GBM 65% / AWM 30%</span><span class="cn">其余为平台解决方案等（Platform Solutions）</span></div><div class="cl-cell"><span class="ck">股票业务</span><span class="cv">创历史新高</span><span class="cn">股票融资与 FICC 融资双双创纪录，合计 91 亿美元（2019 年以来 CAGR 15%）</span></div><div class="cl-cell"><span class="ck">管理资产（AUS）</span><span class="cv">3.14 万亿美元</span><span class="cn">同比 +12%，创历史新高</span></div><div class="cl-cell"><span class="ck">并购顾问排名</span><span class="cv">全球第一</span><span class="cn">已宣布 &amp; 已完成交易口径均为第一</span></div><div class="cl-cell"><span class="ck">每股账面价值</span><span class="cv">336.77 美元</span><span class="cn">同比 +7.4%</span></div><div class="cl-cell"><span class="ck">股东总回报</span><span class="cv">52%</span><span class="cn">2024 年 TSR</span></div></div>
+            </section>
+
+            <section class="cl-sec">
+              <h4 class="cl-h"><span class="cl-n">4</span>投行角色与业务职能</h4>
+              <ul class="cl-list"><li><span><strong>投资银行（承销保荐与财务顾问）</strong>：IPO/再融资承销、并购顾问、债务重组顾问。</span></li><li><span><strong>全球市场（FICC 与股票）</strong>：做市、融资、风险分散与对冲——投行作为「流动性提供者」的角色。</span></li><li><span><strong>资产与财富管理</strong>：管理费驱动的稳定收入，以及私募股权、私募信贷、房地产与基础设施等另类投资。</span></li></ul>
+            </section>
+
+            <section class="cl-sec">
+              <h4 class="cl-h"><span class="cl-n">5</span>争议与难点</h4>
+              <ul class="cl-list warn"><li><span><strong>轻资本还是重资本</strong>：做市与融资业务需要占用资本，与「高智力、低资本」的传统印象并不完全一致，资本效率成为估值核心变量。</span></li><li><span><strong>周期性的代价</strong>：投行收入高度依赖市场环境，2024 年增长 16% 的同时也说明行业对行情的高敏感性。</span></li><li><span><strong>私募信贷的冲击</strong>：银行与投行正在被私募信贷抢走融资业务，Capital Solutions Group 的设立即是应对。</span></li></ul>
+            </section>
+
+            <section class="cl-sec">
+              <h4 class="cl-h"><span class="cl-n">6</span>课堂讨论题</h4>
+              <ol class="cl-q"><li><span>高盛为什么同时拥有交易业务与资管业务？两者的协同效应来自哪里，风险是否也会互相传染？</span></li><li><span>对比投资银行与商业银行的收入结构，说明二者在「风险承担方式」上的本质差异。</span></li><li><span>「轻资本、高智力」的投行模式在 2008 年之后为什么难以为继？监管变化如何改变了投行的资本结构？</span></li></ol>
+            </section>
+
+            <div class="cl-take">
+              <span class="cl-take-h">结论与启示</span>
+              <p>投资银行是现代资本市场的<strong>枢纽型中介</strong>：既在发行环节做承销定价，又在交易环节做市与风险中介，还在资管环节长期配置资本。理解高盛的收入结构，就理解了「投行职能」的完整拼图。</p>
+            </div>
+
+            <div class="cl-src">资料来源：Goldman Sachs 2024 年全年及第四季度业绩公告（2025-01-15）、2024 年年报、可持续发展报告（2025 年 12 月）。</div>
+          </div>
+        </article>
+        <article class="case-item" id="case-04" data-chapter="第1章" data-search-key="雷曼兄弟 Lehman 次贷 破产 第11章 杠杆 流动性风险 VaR 压力测试 银行控股公司 系统性风险">
+          <button class="case-head" type="button" aria-expanded="false">
+            <span class="case-idx">04</span>
+            <span class="case-main">
+              <span class="case-title">雷曼兄弟 · 破产与风险失控</span>
+              <span class="case-sub">美国史上最大破产案｜高杠杆与流动性枯竭如何击穿一家 158 年的投行</span>
+            </span>
+            <span class="case-tag" data-t="risk">风险管理</span>
+            <span class="case-meta">1994–2008<br />6130 亿美元债务</span>
+            <span class="case-arrow" aria-hidden="true">▾</span>
+          </button>
+          <div class="case-body">
+            <div class="cl-kpis"><div class="cl-kpi"><span class="k">破产申请日</span><span class="v">2008-09-15</span><span class="n">依美国破产法第 11 章申请破产保护</span></div><div class="cl-kpi"><span class="k">债务规模</span><span class="v">6130 亿美元</span><span class="n">创下美国史上最大金额破产案</span></div><div class="cl-kpi"><span class="k">杠杆水平</span><span class="v">约 30 倍</span><span class="n">资产规模峰值超 6000 亿美元</span></div><div class="cl-kpi"><span class="k">雇员规模</span><span class="v">8,500 → 28,600 人</span><span class="n">1994 年 IPO 至 2008 年破产</span></div></div>
+
+            <section class="cl-sec">
+              <h4 class="cl-h"><span class="cl-n">1</span>案例背景</h4>
+              <p class="cl-p">雷曼兄弟凭 1994 年 IPO 到 2008 年破产的 14 年间，净营收从 27.3 亿美元增至 192 亿美元（+600%），雇员从 8,500 人增至 28,600 人——这是一条典型的「加杠杆做大规模」的投行增长曲线。</p><p class="cl-p">它大量持有次级抵押贷款相关资产，以约 30 倍杠杆运营。当抵押品价值下跌，交易对手同时抽走回购融资，<strong>市场风险、信用风险与流动性风险在同一时刻叠加</strong>，任何单一的风控指标都无法覆盖。</p>
+            </section>
+
+            <section class="cl-sec">
+              <h4 class="cl-h"><span class="cl-n">2</span>关键时间线</h4>
+              <ol class="cl-tl"><li><span class="tl-t">1994 年</span><span class="tl-d">雷曼兄弟 IPO，此后净营收增长 600%、雇员增长 230%。</span></li><li><span class="tl-t">2003 年 6 月</span><span class="tl-d">因投行部门不正当引导分析部门误导客户，雷曼等 10 家投行被美国监管当局罚款 8000 万美元。</span></li><li><span class="tl-t">2008 年 7 月</span><span class="tl-d">破产传闻已开始流传，市场信心进入自我强化式的下行螺旋。</span></li><li><span class="tl-t">2008 年 9 月 15 日</span><span class="tl-d">正式申请破产保护，债务规模 6130 亿美元，创美国史上最大破产案。</span></li><li><span class="tl-t">2008 年 9 月 16 日</span><span class="tl-d">中国香港证监会向雷曼在港营运的四家公司发出限制通知，以保存公司及客户资产。</span></li><li><span class="tl-t">2008 年 9 月 17 日</span><span class="tl-d">巴克莱银行以 17.5 亿美元收购雷曼北美投资银行与资本市场业务。</span></li><li><span class="tl-t">2008 年 9 月 21 日</span><span class="tl-d">高盛与摩根士丹利转为银行控股公司——<strong>传统独立投行模式宣告终结</strong>。</span></li><li><span class="tl-t">2008 年 9 月 22—23 日</span><span class="tl-d">野村控股宣布收购雷曼亚太与欧洲中东业务，接手雷曼在北美之外的主要地盘。</span></li></ol>
+            </section>
+
+            <section class="cl-sec">
+              <h4 class="cl-h"><span class="cl-n">3</span>关键数据</h4>
+              <div class="cl-grid"><div class="cl-cell"><span class="ck">债务规模</span><span class="cv">6130 亿美元</span><span class="cn">破产时披露口径</span></div><div class="cl-cell"><span class="ck">净营收（2007 前）</span><span class="cv">27.3 亿 → 192 亿美元</span><span class="cn">1994 年至破产前，+600%</span></div><div class="cl-cell"><span class="ck">资产管理规模</span><span class="cv">2,750 亿美元</span><span class="cn">破产前投资管理部（含 Neuberger Berman）</span></div><div class="cl-cell"><span class="ck">北美业务买家</span><span class="cv">巴克莱银行</span><span class="cn">17.5 亿美元收购投行与资本市场业务</span></div><div class="cl-cell"><span class="ck">亚太/欧洲业务买家</span><span class="cv">野村控股</span><span class="cn">接手约 5,500 名雇员（亚太 3,000 + 欧洲中东 2,500）</span></div><div class="cl-cell"><span class="ck">中国香港子公司</span><span class="cv">200 亿美元资产 / 225 亿美元负债</span><span class="cn">2009-02 临时清盘人披露</span></div><div class="cl-cell"><span class="ck">监管后续</span><span class="cv">中国香港立法会引用特权法调查</span><span class="cn">2008-11-12 以 47 票通过，调查 19 间银行</span></div></div>
+            </section>
+
+            <section class="cl-sec">
+              <h4 class="cl-h"><span class="cl-n">4</span>投行角色与业务职能</h4>
+              <ul class="cl-list"><li><span><strong>风险管理体系</strong>：市场风险、信用风险、流动性风险、操作风险的识别与限额管理——本案例说明四类风险会在危机中同向共振。</span></li><li><span><strong>压力测试与资本缓冲</strong>：VaR 等日常量化工具基于历史波动率，对「尾部事件」天然失灵。</span></li><li><span><strong>交易对手与抵押品管理</strong>：回购融资的期限错配使流动性风险成为「致命一击」。</span></li></ul>
+            </section>
+
+            <section class="cl-sec">
+              <h4 class="cl-h"><span class="cl-n">5</span>争议与难点</h4>
+              <ul class="cl-list warn"><li><span><strong>量化指标为何预警失效</strong>：VaR 假设历史分布可外推，而次贷危机的相关性结构与历史完全不同。</span></li><li><span><strong>流动性风险的传导速度</strong>：当抵押品价格下跌触发追加保证金，融资方与交易对手同时收缩，形成「自我实现的挤兑」。</span></li><li><span><strong>「大而不倒」的道德风险</strong>：雷曼未被救助而 AIG 被救助，政策不一致性本身成为市场不确定性的来源。</span></li></ul>
+            </section>
+
+            <section class="cl-sec">
+              <h4 class="cl-h"><span class="cl-n">6</span>课堂讨论题</h4>
+              <ol class="cl-q"><li><span>约 30 倍的杠杆如何放大市场下跌对投行权益的冲击？请用简化的资产负债表说明。</span></li><li><span>为什么流动性风险会在危机中「突然」变得致命？它与市场风险、信用风险有何不同？</span></li><li><span>VaR 等量化工具为何仍然无法预警尾部风险？投行应如何补充压力测试与情景分析？</span></li></ol>
+            </section>
+
+            <div class="cl-take">
+              <span class="cl-take-h">结论与启示</span>
+              <p>投行风险管理的教训不是「不要加杠杆」，而是<strong>必须在杠杆之外配置流动性缓冲与压力测试</strong>：任何单一量化指标都无法覆盖尾部风险，而尾部风险到来时，速度比规模更致命。</p>
+            </div>
+
+            <div class="cl-src">资料来源：美国破产法院第 11 章申请文件、巴克莱与野村公告（2008-09）、中国香港证监会限制通知、中国新闻网/新华社/央视网报道、《理查德·福尔德与雷曼破产案》。</div>
+          </div>
+        </article>
+        <h3 class="case-chapter" data-ch="第2章">
+          <span class="cc-no">第2章</span>
+          <span class="cc-nm">企业融资方案设计</span>
+          <span class="cc-cnt">2 个案例</span>
+        </h3>
+        <article class="case-item" id="case-05" data-chapter="第2章" data-search-key="蔚来 NIO 合肥 战略投资 产业基金 资产注入 估值 稀释 控制权 银行授信 组合融资 融资方案设计">
+          <button class="case-head" type="button" aria-expanded="false">
+            <span class="case-idx">05</span>
+            <span class="case-main">
+              <span class="case-title">蔚来汽车 · 「合肥模式」的组合融资</span>
+              <span class="case-sub">70 亿元战略投资 + 42.6 亿元现金 + 104 亿元授信：一次融资方案设计的完整样本</span>
+            </span>
+            <span class="case-tag">组合融资</span>
+            <span class="case-meta">2019–2020<br />70 亿元战略投资</span>
+            <span class="case-arrow" aria-hidden="true">▾</span>
+          </button>
+          <div class="case-body">
+            <div class="cl-kpis"><div class="cl-kpi"><span class="k">战略投资者现金出资</span><span class="v">70 亿元</span><span class="n">合肥建投、国投招商、安徽省高新投等</span></div><div class="cl-kpi"><span class="k">蔚来现金出资</span><span class="v">42.6 亿元</span><span class="n">与资产注入同步分期到位</span></div><div class="cl-kpi"><span class="k">注入资产估值</span><span class="v">177.7 亿元</span><span class="n">前 30 个交易日市值均值的 85% 折算</span></div><div class="cl-kpi"><span class="k">银行综合授信</span><span class="v">104 亿元</span><span class="n">2020-07-10 建行/工行/中行/农行/兴业/招行</span></div></div>
+
+            <section class="cl-sec">
+              <h4 class="cl-h"><span class="cl-n">1</span>案例背景</h4>
+              <p class="cl-p">2019 年是蔚来「最困难的一年」：现金流濒临断裂，据创始人李斌回忆，公司<strong>先后接触了 18 个城市</strong>寻求支持未果。</p><p class="cl-p">2020 年 1 月蔚来与合肥开始正式接触，2 月 25 日签署框架协议，4 月 29 日签署股权投资的最终协议——从接触到落地仅约 3 个月。这不是一次单纯的股权融资，而是<strong>「战略投资 + 资产重组 + 银行授信」的组合融资方案</strong>。</p>
+            </section>
+
+            <section class="cl-sec">
+              <h4 class="cl-h"><span class="cl-n">2</span>关键时间线</h4>
+              <ol class="cl-tl"><li><span class="tl-t">2020 年 1 月</span><span class="tl-d">蔚来与合肥开始正式接触；此前已与 18 个城市洽谈未果。</span></li><li><span class="tl-t">2020 年 2 月 25 日</span><span class="tl-d">双方签署框架协议。</span></li><li><span class="tl-t">2020 年 4 月 21 日</span><span class="tl-d">估值基准日：以此前 30 个公开交易日蔚来市值均值作为估值基础。</span></li><li><span class="tl-t">2020 年 4 月 29 日</span><span class="tl-d">签署最终协议：战略投资者向蔚来中国现金投资 70 亿元；蔚来注入中国核心业务与资产（作价 177.7 亿元）并追加现金 42.6 亿元；蔚来中国总部落户合肥经开区。</span></li><li><span class="tl-t">2020 年 7 月 10 日</span><span class="tl-d">获得建行、工行、中行、农行、兴业、招行 6 家银行合计 104 亿元综合授信。</span></li><li><span class="tl-t">2020 年 6 月—2021 年 3 月</span><span class="tl-d">资金分五期到位（战投 35/15/10/5/5 亿元；蔚来 12.78/12.78/8.52/4.26/4.26 亿元）。</span></li><li><span class="tl-t">2020 年之后</span><span class="tl-d">蔚来经营与股价显著修复；合肥「产投模式」成为各地招商引资的研究样本。</span></li></ol>
+            </section>
+
+            <section class="cl-sec">
+              <h4 class="cl-h"><span class="cl-n">3</span>关键数据</h4>
+              <div class="cl-grid"><div class="cl-cell"><span class="ck">交易后股权结构</span><span class="cv">蔚来 75.9% / 战投 24.1%</span><span class="cn">蔚来仍保持绝对控股</span></div><div class="cl-cell"><span class="ck">资产注入作价</span><span class="cv">177.7 亿元</span><span class="cn">整车研发、供应链与制造、销售与服务、能源服务</span></div><div class="cl-cell"><span class="ck">估值折价</span><span class="cv">按市值均值 85%</span><span class="cn">相当于对标二级市场给 15% 的流动性/控制权折价</span></div><div class="cl-cell"><span class="ck">融资工具组合</span><span class="cv">股权 + 资产 + 授信</span><span class="cn">三类工具解决三类问题：控制权、资产归属、流动性</span></div><div class="cl-cell"><span class="ck">资金到位节奏</span><span class="cv">分五期（约 1 年）</span><span class="cn">既缓解一次性现金流压力，也绑定双方履约</span></div><div class="cl-cell"><span class="ck">投资方性质</span><span class="cv">地方政府产业投资平台</span><span class="cn">合肥建投、国投招商、安徽省高新投</span></div></div>
+            </section>
+
+            <section class="cl-sec">
+              <h4 class="cl-h"><span class="cl-n">4</span>投行角色与业务职能</h4>
+              <ul class="cl-list"><li><span><strong>融资方案设计</strong>：把「缺钱」拆解为控制权、资产边界与流动性三个问题，分别用股权、资产重组与银行授信对应解决。</span></li><li><span><strong>估值与定价</strong>：以二级市场市值的 85% 作为未上市主体的估值锚，兼顾投资人安全边际与融资方接受度。</span></li><li><span><strong>交易结构与分期安排</strong>：五期到位把「一次性巨额出资」变成可管理的现金流节奏。</span></li></ul>
+            </section>
+
+            <section class="cl-sec">
+              <h4 class="cl-h"><span class="cl-n">5</span>争议与难点</h4>
+              <ul class="cl-list warn"><li><span><strong>85% 折价的合理性</strong>：折价既是流动性补偿，也是对赌/保护条款的替代；但折价过高会伤害老股东利益。</span></li><li><span><strong>产业基金的双重身份</strong>：地方政府平台既是财务投资人、又是产业政策执行者，「战略投资」与「财务投资」的边界需要在协议中明确。</span></li><li><span><strong>稀释与控制权的平衡</strong>：24.1% 给了投资人足够的话语权，而 75.9% 保住了蔚来的控制地位——这个比例不是偶然的。</span></li></ul>
+            </section>
+
+            <section class="cl-sec">
+              <h4 class="cl-h"><span class="cl-n">6</span>课堂讨论题</h4>
+              <ol class="cl-q"><li><span>如果只用一笔 70 亿元股权融资，蔚来的问题能被解决吗？「组合融资」多解决了哪些问题？</span></li><li><span>按前 30 个交易日市值均值的 85% 估值定价，其依据是什么？对投资人与融资方分别意味着什么？</span></li><li><span>从资本结构角度看，为什么蔚来在获得股权融资后仍需 104 亿元银行授信？</span></li><li><span>结合教材第 2 章，为一家处于高速扩张期、持续亏损的制造企业设计一份融资方案要点。</span></li></ol>
+            </section>
+
+            <div class="cl-take">
+              <span class="cl-take-h">结论与启示</span>
+              <p>融资方案设计的关键不是「选一种融资工具」，而是<strong>把企业的资金缺口拆解成性质不同的子问题，再用不同的工具一一对应</strong>。蔚来案中，股权解决资本金与控制权，资产重组划清边界，银行授信解决流动性与信用背书。</p>
+            </div>
+
+            <div class="cl-src">资料来源：蔚来（NIO Inc.）2020-04-29 投资协议公告及 SEC 披露、合肥市政府相关公告、经济参考报专访、中国青年网。</div>
+          </div>
+        </article>
+        <article class="case-item" id="case-06" data-chapter="第2章" data-search-key="万科 恒大 融资结构 资本结构 有息负债 表外负债 融资成本 杠杆 高周转 债务重组 房地产">
+          <button class="case-head" type="button" aria-expanded="false">
             <span class="case-idx">06</span>
-            <span class="case-title">宁德时代 · 向特定对象发行（定增）</span>
-            <span class="case-tag">股权融资</span>
-            <span class="case-arrow">▾</span>
+            <span class="case-main">
+              <span class="case-title">万科 vs 恒大 · 融资结构决定抗风险能力</span>
+              <span class="case-sub">同一行业、同一周期，两种资本结构走向两种结局</span>
+            </span>
+            <span class="case-tag" data-t="risk">融资结构</span>
+            <span class="case-meta">2015–2025<br />恒大负债峰值 超 2 万亿元</span>
+            <span class="case-arrow" aria-hidden="true">▾</span>
           </button>
           <div class="case-body">
-            <div class="sub-h">案例简介</div>
-            <div class="text-slot"><strong>宁德时代</strong>2020 年向特定对象发行股票（定增）募资约 <strong>197 亿元</strong>，用于湖西锂离子电池扩建、江苏时代动力及储能锂电池研发等项目，发行对象含高瓴资本等机构。定增是其高速扩张期的核心股权融资方式。</div>
-            <div class="sub-h">关键数据</div>
-            <div class="text-slot">募资约 <strong>197 亿元</strong>；发行价 <strong>161 元/股</strong>；资金主要用于产能扩建与研发。</div>
-            <div class="sub-h">思考题</div>
-            <ul class="q-list">
-              <li><span class="num">1</span><span>定增与公开发行在发行对象、稀释节奏上有何不同？</span></li>
-              <li><span class="num">2</span><span>股权融资如何稀释原有股东的控制权？</span></li>
-              <li><span class="num">3</span><span>为何高速成长型企业更偏好股权而非债权融资？</span></li>
-            </ul>
-            <div class="sub-h">结论与启示</div>
-            <div class="text-slot">企业融资方案须结合发展阶段——高速成长期常以股权融资支撑扩张，避免过高财务杠杆放大风险。</div>
-          </div>
-        </div>
+            <div class="cl-kpis"><div class="cl-kpi"><span class="k">恒大负债峰值</span><span class="v">超 2 万亿元</span><span class="n">含大量表外负债与非标融资</span></div><div class="cl-kpi"><span class="k">万科有息负债</span><span class="v">约 3,600 亿元</span><span class="n">全部为表内可查债务</span></div><div class="cl-kpi"><span class="k">恒大融资成本</span><span class="v">约 8.3%</span><span class="n">依赖高息非标与信托融资</span></div><div class="cl-kpi"><span class="k">万科融资成本</span><span class="v">约 5.18%</span><span class="n">约 62% 为低息银行贷款</span></div></div>
 
-        <div class="case-item" id="case-07" data-chapter="第4章">
-          <button class="case-head">
+            <section class="cl-sec">
+              <h4 class="cl-h"><span class="cl-n">1</span>案例背景</h4>
+              <p class="cl-p">这是教材第 2 章最直观的一组对照：两家头部房企处在同一行业、同一政策周期，但选择了<strong>完全不同的融资结构</strong>。</p><p class="cl-p">恒大以高息非标、表外负债和「高杠杆、高周转」模式快速放大规模，负债峰值超 2 万亿元，融资成本约 8.3%；万科以低息银行贷款为主，有息负债约 3,600 亿元、融资成本约 5.18%。当行业进入下行周期，两家公司的风险处置路径与结果出现了本质分化。</p>
+            </section>
+
+            <section class="cl-sec">
+              <h4 class="cl-h"><span class="cl-n">2</span>关键时间线</h4>
+              <ol class="cl-tl"><li><span class="tl-t">2015—2020 年</span><span class="tl-d">行业上行期：恒大以高杠杆快速扩张做大规模，万科维持相对稳健的资本结构。</span></li><li><span class="tl-t">2020 年 8 月</span><span class="tl-d">房地产融资「三条红线」政策出台，行业融资环境系统性收紧。</span></li><li><span class="tl-t">2021 年下半年</span><span class="tl-d">恒大流动性危机全面爆发，出现债务违约；万科仍保持正常的公开市场融资。</span></li><li><span class="tl-t">2024 年</span><span class="tl-d">万科年报：资产 12,862.6 亿元、负债 9,474.1 亿元、资产负债率 73.66%、有息负债 3,819.1 亿元；恒大进入清盘与重组程序。</span></li><li><span class="tl-t">2025 年 8 月</span><span class="tl-d">恒大从港交所退市；万科选择与债权人协商公开债展期，走市场化风险缓释路径。</span></li></ol>
+            </section>
+
+            <section class="cl-sec">
+              <h4 class="cl-h"><span class="cl-n">3</span>关键数据</h4>
+              <div class="cl-grid"><div class="cl-cell"><span class="ck">债务透明度</span><span class="cv">表内 vs 表外</span><span class="cn">万科债务结构清晰、处置路径相对明确；恒大存在大量表外与非标负债</span></div><div class="cl-cell"><span class="ck">融资渠道</span><span class="cv">银行贷款 vs 高息非标</span><span class="cn">万科约 62% 为银行贷款，主要债权人为国有及股份制银行</span></div><div class="cl-cell"><span class="ck">资产质量</span><span class="cv">一二线 vs 三四线</span><span class="cn">万科约 70% 土储位于一二线核心城市，另有物业、物流等经营性收入</span></div><div class="cl-cell"><span class="ck">债务处置方式</span><span class="cv">主动展期 vs 被动违约</span><span class="cn">万科推进市场化债务展期，恒大为全面违约后被裁定清盘</span></div><div class="cl-cell"><span class="ck">万科有息负债率</span><span class="cv">约 44%</span><span class="cn">2025 年报口径</span></div><div class="cl-cell"><span class="ck">万科资产负债率</span><span class="cv">76.89%</span><span class="cn">2025 年报口径</span></div></div>
+            </section>
+
+            <section class="cl-sec">
+              <h4 class="cl-h"><span class="cl-n">4</span>投行角色与业务职能</h4>
+              <ul class="cl-list"><li><span><strong>资本结构顾问</strong>：投行在企业高速扩张期就应提示负债率上限、融资渠道多元化与期限结构匹配。</span></li><li><span><strong>债务重组与展期顾问</strong>：行业下行期的核心业务是帮助企业在不触发违约的前提下争取时间。</span></li><li><span><strong>投资者沟通</strong>：向债券与股权投资者清晰披露表内外负债，是融资可持续的前提。</span></li></ul>
+            </section>
+
+            <section class="cl-sec">
+              <h4 class="cl-h"><span class="cl-n">5</span>争议与难点</h4>
+              <ul class="cl-list warn"><li><span><strong>表外负债的隐蔽性</strong>：同一负债率的两家公司，真实风险可能完全不同——融资结构调研必须穿透表外。</span></li><li><span><strong>高杠杆的顺周期放大</strong>：上行期高杠杆放大收益，下行期同样放大损失，且会因抵押品估值下降触发追加保证金。</span></li><li><span><strong>融资成本差 3 个百分点意味着什么</strong>：以 3,000 亿元有息负债计，融资成本每差 1 个百分点，年利息支出相差约 30 亿元。</span></li></ul>
+            </section>
+
+            <section class="cl-sec">
+              <h4 class="cl-h"><span class="cl-n">6</span>课堂讨论题</h4>
+              <ol class="cl-q"><li><span>同样是高负债，为什么「全部表内的 3,600 亿」与「含大量表外的 2 万亿」风险等级完全不同？</span></li><li><span>结合教材第 2 章的融资需求分析，企业应如何确定负债规模的「安全边界」？</span></li><li><span>如果一家房企要在下行周期融资，股权与债权该如何配比？各自的前提条件是什么？</span></li></ol>
+            </section>
+
+            <div class="cl-take">
+              <span class="cl-take-h">结论与启示</span>
+              <p>融资方案的本质是<strong>风险结构的选择</strong>，而不是融资成本的简单比较。用更贵的资金换取更短的决策链，或者用更便宜的资金承担更长的审批与披露义务——这是一个需要用整个周期来结算的取舍。</p>
+            </div>
+
+            <div class="cl-src">资料来源：万科企业股份有限公司 2024/2025 年度报告、恒大集团公告与港交所退市安排、新浪财经/中国新闻网/央视财经相关报道。本案例仅作资本结构分析用途。</div>
+          </div>
+        </article>
+        <h3 class="case-chapter" data-ch="第3章">
+          <span class="cc-no">第3章</span>
+          <span class="cc-nm">股份有限公司与首次公开发行</span>
+          <span class="cc-cnt">3 个案例</span>
+        </h3>
+        <article class="case-item" id="case-07" data-chapter="第3章" data-search-key="中芯国际 688981 科创板 IPO 询价 绿鞋 超额配售选择权 红筹 A+H 承销保荐 定价 估值">
+          <button class="case-head" type="button" aria-expanded="false">
             <span class="case-idx">07</span>
-            <span class="case-title">东方财富 · 可转换公司债券</span>
-            <span class="case-tag">再融资</span>
-            <span class="case-arrow">▾</span>
+            <span class="case-main">
+              <span class="case-title">中芯国际 · 科创板 IPO</span>
+              <span class="case-sub">532 亿元「募资王」｜从受理到上市 45 天，A+H 红筹回归首例</span>
+            </span>
+            <span class="case-tag">承销保荐</span>
+            <span class="case-meta">2020<br />募资 532.3 亿元</span>
+            <span class="case-arrow" aria-hidden="true">▾</span>
           </button>
           <div class="case-body">
-            <div class="sub-h">案例简介</div>
-            <div class="text-slot"><strong>东方财富</strong>2021 年发行可转换公司债券（东财转3）募资约 <strong>158 亿元</strong>，用于补充营运资金、发展融资融券与证券投资业务。可转债「债性 + 股性」兼具，是上市公司再融资的重要工具。</div>
-            <div class="sub-h">关键数据</div>
-            <div class="text-slot">募资约 <strong>158 亿元</strong>；票面利率极低（首年 0.2%）；转股溢价受正股带动。</div>
-            <div class="sub-h">思考题</div>
-            <ul class="q-list">
-              <li><span class="num">1</span><span>可转债与一般公司债在融资成本与风险上有何不同？</span></li>
-              <li><span class="num">2</span><span>转股条款对发行人与投资者分别意味着什么？</span></li>
-              <li><span class="num">3</span><span>再融资对股价可能产生什么短期与长期影响？</span></li>
-            </ul>
-            <div class="sub-h">结论与启示</div>
-            <div class="text-slot">可转债以低成本实现「权益化」融资，是再融资中平衡融资成本与稀释时点的巧妙工具。</div>
-          </div>
-        </div>
+            <div class="cl-kpis"><div class="cl-kpi"><span class="k">发行价</span><span class="v">27.46 元/股</span><span class="n">初始发行 16.86 亿股，募资 462.87 亿元</span></div><div class="cl-kpi"><span class="k">绿鞋全额行使后</span><span class="v">532.3 亿元</span><span class="n">发行 19.38 亿股，刷新科创板纪录</span></div><div class="cl-kpi"><span class="k">审核速度</span><span class="v">45 天</span><span class="n">6-01 受理 → 7-16 上市，科创板最快</span></div><div class="cl-kpi"><span class="k">上市首日</span><span class="v">收盘 82.92 元 / +202%</span><span class="n">盘中最高涨幅超 246%</span></div></div>
 
-        <div class="case-item" id="case-08" data-chapter="第6章">
-          <button class="case-head">
+            <section class="cl-sec">
+              <h4 class="cl-h"><span class="cl-n">1</span>案例背景</h4>
+              <p class="cl-p">中芯国际是<strong>中国大陆规模最大、技术最先进的集成电路晶圆代工企业</strong>，2020 年 7 月 16 日以红筹架构回归上交所科创板，成为国内首家同时实现「A+H」的科创红筹企业。</p><p class="cl-p">本次 IPO 从受理到上市仅用 45 天，创下科创板最快纪录；募资规模创科创板之最，也是 A 股近十年最大规模 IPO。首日收盘 82.92 元，较发行价上涨约 202%。</p>
+            </section>
+
+            <section class="cl-sec">
+              <h4 class="cl-h"><span class="cl-n">2</span>关键时间线</h4>
+              <ol class="cl-tl"><li><span class="tl-t">2020 年 6 月 1 日</span><span class="tl-d">科创板上市申请获受理。</span></li><li><span class="tl-t">2020 年 7 月 16 日</span><span class="tl-d">正式上市，相距受理仅 45 天；以红筹架构回归，成为首家「A+H」科创红筹企业。</span></li><li><span class="tl-t">发行阶段</span><span class="tl-d">发行价 27.46 元/股，初始发行 16.86 亿股，对应募资 462.87 亿元、发行市值约 1,959.66 亿元。</span></li><li><span class="tl-t">绿鞋行使后</span><span class="tl-d">授予海通证券的超额配售选择权全额行使，发行总股数扩大至 19.38 亿股，募资 532.3 亿元，发行市值约 2,029.09 亿元。</span></li><li><span class="tl-t">上市首日</span><span class="tl-d">午间收盘 87.98 元（+220.39%），全天收盘 82.92 元，涨幅约 202%。</span></li><li><span class="tl-t">募资投向</span><span class="tl-d">约 40% 用于 12 英寸芯片 SN1 项目（中芯南方一期），满足 14 纳米及以下先进工艺的研发与量产需求。</span></li></ol>
+            </section>
+
+            <section class="cl-sec">
+              <h4 class="cl-h"><span class="cl-n">3</span>关键数据</h4>
+              <div class="cl-grid"><div class="cl-cell"><span class="ck">发行前行业地位</span><span class="cv">全球晶圆代工第五</span><span class="cn">2020 年一季度市占率约 4.5%</span></div><div class="cl-cell"><span class="ck">募资规模排名</span><span class="cv">科创板第一</span><span class="cn">亦为 A 股近十年最大规模 IPO</span></div><div class="cl-cell"><span class="ck">发行市值</span><span class="cv">1,959.66 → 2,029.09 亿元</span><span class="cn">绿鞋行使前后</span></div><div class="cl-cell"><span class="ck">SN1 项目投资总额</span><span class="cv">120.4 亿美元</span><span class="cn">产能由 6,000 片/月 → 目标 3.5 万片/月</span></div><div class="cl-cell"><span class="ck">承销保荐人</span><span class="cv">海通证券等</span><span class="cn">超额配售选择权授予海通证券</span></div><div class="cl-cell"><span class="ck">首日表现</span><span class="cv">收盘 +202%</span><span class="cn">同期年内已有 46 只科创板新股首日涨幅超 100%</span></div></div>
+            </section>
+
+            <section class="cl-sec">
+              <h4 class="cl-h"><span class="cl-n">4</span>投行角色与业务职能</h4>
+              <ul class="cl-list"><li><span><strong>承销保荐</strong>：核查、推荐、组织询价与配售，并对招股说明书真实性负责。</span></li><li><span><strong>估值定价</strong>：科创板新股无市盈率上限约束，定价结果直接决定发行人融资额与投资者收益分配。</span></li><li><span><strong>稳定市场（绿鞋机制）</strong>：超额配售选择权使承销商可在上市后 30 日内平抑股价波动，兼顾发行人与投资者利益。</span></li></ul>
+            </section>
+
+            <section class="cl-sec">
+              <h4 class="cl-h"><span class="cl-n">5</span>争议与难点</h4>
+              <ul class="cl-list warn"><li><span><strong>首日大涨 202% 意味着什么</strong>：二级市场首日相对发行价大幅溢价，说明发行定价较为保守——对发行人而言，相当于把一部分可募集资金让渡给了打新投资者。</span></li><li><span><strong>红筹回归的架构问题</strong>：境外上市主体回归 A 股涉及股权架构、外汇、股东适格性等一系列跨境安排。</span></li><li><span><strong>注册制下的审核节奏</strong>：45 天的速度与「实质审核」时代形成鲜明对比，也把定价的责任更多交给市场。</span></li></ul>
+            </section>
+
+            <section class="cl-sec">
+              <h4 class="cl-h"><span class="cl-n">6</span>课堂讨论题</h4>
+              <ol class="cl-q"><li><span>科创板与主板在上市定位上有何不同？对中芯国际这类硬科技企业有何吸引力？</span></li><li><span>「超额配售选择权（绿鞋机制）」如何稳定上市初期的股价？它对承销商意味着什么风险？</span></li><li><span>首日大涨约 202%，说明发行定价可能存在什么问题？定价「偏低」对发行人意味着什么？</span></li><li><span>注册制下「审核提速」与「信息披露质量」如何平衡？</span></li></ol>
+            </section>
+
+            <div class="cl-take">
+              <span class="cl-take-h">结论与启示</span>
+              <p>科创板为硬科技企业提供了融资通道，投行在承销保荐中同时承担<strong>估值定价</strong>与<strong>稳定市场</strong>的双重职责。首日高涨幅既是对稀缺性的定价，也引发了对「发行定价合理性」的持续讨论。</p>
+            </div>
+
+            <div class="cl-src">资料来源：上交所上市公告书、中国经济网、人民日报、中国新闻网（2020-07-16）。</div>
+          </div>
+        </article>
+        <article class="case-item" id="case-08" data-chapter="第3章" data-search-key="阿里巴巴 9988 香港 二次上市 双重主要上市 同股不同权 同股同权 绿鞋 全球发售 中概股回归">
+          <button class="case-head" type="button" aria-expanded="false">
             <span class="case-idx">08</span>
-            <span class="case-title">蚂蚁集团 · 消费贷资产证券化（ABS）</span>
-            <span class="case-tag">资产证券化</span>
-            <span class="case-arrow">▾</span>
+            <span class="case-main">
+              <span class="case-title">阿里巴巴 · 港股二次上市</span>
+              <span class="case-sub">880 亿港元募资、2019 年全球最大新股发行｜二次上市的制度逻辑</span>
+            </span>
+            <span class="case-tag">境外上市</span>
+            <span class="case-meta">2019–2024<br />基础募资 880 亿港元</span>
+            <span class="case-arrow" aria-hidden="true">▾</span>
           </button>
           <div class="case-body">
-            <div class="sub-h">案例简介</div>
-            <div class="text-slot">蚂蚁集团旗下「花呗」「借呗」底层消费信贷通过<strong>资产证券化（ABS）</strong>打包为标准化证券发行：由受托人（信托）持有资产、发行资产支持证券，投资者按<strong>分层</strong>获得现金流。这是典型的信贷资产证券化交易结构。</div>
-            <div class="sub-h">关键数据</div>
-            <div class="text-slot">基础资产：消费信贷（花呗/借呗）；结构：<strong>优先级 / 次级分层</strong>、内部增信；循环购买机制。</div>
-            <div class="sub-h">思考题</div>
-            <ul class="q-list">
-              <li><span class="num">1</span><span>资产证券化如何把「非标债权」变为「可交易证券」？</span></li>
-              <li><span class="num">2</span><span>分层结构与信用增级分别起什么作用？</span></li>
-              <li><span class="num">3</span><span>为何基础资产质量才是 ABS 风险的核心？</span></li>
-            </ul>
-            <div class="sub-h">结论与启示</div>
-            <div class="text-slot">资产证券化的核心是「破产隔离 + 现金流重组 + 信用增级」，使缺乏流动性的资产获得融资。</div>
-          </div>
-        </div>
+            <div class="cl-kpis"><div class="cl-kpi"><span class="k">发行价</span><span class="v">176 港元/股</span><span class="n">全球发售 5 亿股新股</span></div><div class="cl-kpi"><span class="k">基础募资</span><span class="v">880 亿港元</span><span class="n">若绿鞋全额行使约 1,012 亿港元</span></div><div class="cl-kpi"><span class="k">上市首日</span><span class="v">收涨 6.59%</span><span class="n">市值约 4 万亿港元</span></div><div class="cl-kpi"><span class="k">时间</span><span class="v">2019-11-26</span><span class="n">当年全球最大新股发行</span></div></div>
 
-        <div class="case-item" id="case-09" data-chapter="第1章">
-          <button class="case-head">
+            <section class="cl-sec">
+              <h4 class="cl-h"><span class="cl-n">1</span>案例背景</h4>
+              <p class="cl-p">阿里巴巴集团 2019 年 11 月 26 日在香港联交所主板<strong>二次上市</strong>（股票代码 9988），发行价 176 港元，全球发售 5 亿股新股，基础募资约 880 亿港元，成为当年全球最大新股发行。</p><p class="cl-p">这次上市的背景是 2018 年 4 月港交所修改上市规则、<strong>允许同股不同权公司上市</strong>——制度松绑打开了中概股回归的通道，也为港股市场带来了标志性的巨型 IPO。</p>
+            </section>
+
+            <section class="cl-sec">
+              <h4 class="cl-h"><span class="cl-n">2</span>关键时间线</h4>
+              <ol class="cl-tl"><li><span class="tl-t">2014 年 9 月</span><span class="tl-d">阿里巴巴在纽约证券交易所上市，因当时的香港规则不接受同股不同权架构。</span></li><li><span class="tl-t">2018 年 4 月</span><span class="tl-d">港交所修订上市规则，允许同股不同权（WVR）公司上市，为二次上市与双重主要上市打开通道。</span></li><li><span class="tl-t">2019 年 11 月 26 日</span><span class="tl-d">阿里在港交所主板二次上市，发行价 176 港元，全球发售 5 亿股新股，基础募资约 880 亿港元。</span></li><li><span class="tl-t">上市首日</span><span class="tl-d">收涨约 6.59%，市值约 4 万亿港元，成为当时港股市值第一。</span></li><li><span class="tl-t">2024 年</span><span class="tl-d">完成由「二次上市」转为「香港、纽约双重主要上市」，进一步拓展投资者基础与指数纳入空间。</span></li></ol>
+            </section>
+
+            <section class="cl-sec">
+              <h4 class="cl-h"><span class="cl-n">3</span>关键数据</h4>
+              <div class="cl-grid"><div class="cl-cell"><span class="ck">二次上市（Secondary Listing）</span><span class="cv">保留主要上市地</span><span class="cn">可在主要上市地既有监管框架下获得部分豁免，流程更快</span></div><div class="cl-cell"><span class="ck">双重主要上市（Dual Primary）</span><span class="cv">两地均为主要上市地</span><span class="cn">需完全满足两地上市规则，但更易被纳入港股通等本地互联互通机制</span></div><div class="cl-cell"><span class="ck">全球发售规模</span><span class="cv">5 亿股新股</span><span class="cn">含 750 万股超额配股权（绿鞋）</span></div><div class="cl-cell"><span class="ck">发行价</span><span class="cv">176 港元/股</span><span class="cn">定价参考纽交所 ADS 价格</span></div><div class="cl-cell"><span class="ck">募资用途</span><span class="cv">业务扩张与创新</span><span class="cn">支持新零售、云计算等业务投入</span></div><div class="cl-cell"><span class="ck">同股不同权</span><span class="cv">合伙人制度</span><span class="cn">实现控制权与融资规模的解耦</span></div></div>
+            </section>
+
+            <section class="cl-sec">
+              <h4 class="cl-h"><span class="cl-n">4</span>投行角色与业务职能</h4>
+              <ul class="cl-list"><li><span><strong>跨境发行与全球配售</strong>：协调两地监管、组织国际配售与香港公开发售。</span></li><li><span><strong>定价与稳定价格</strong>：以纽交所 ADS 价格为锚定价，并用超额配股权平抑首日波动。</span></li><li><span><strong>架构与合规设计</strong>：同股不同权、二次上市/双重主要上市的选择，直接影响后续能否纳入互联互通。</span></li></ul>
+            </section>
+
+            <section class="cl-sec">
+              <h4 class="cl-h"><span class="cl-n">5</span>争议与难点</h4>
+              <ul class="cl-list warn"><li><span><strong>二次上市是否构成「监管套利」</strong>：豁免条款让已在成熟市场上市的公司更快落地，但也可能降低本地披露要求。</span></li><li><span><strong>同股不同权的治理争议</strong>：控制权集中的效率优势与中小股东保护之间存在张力。</span></li><li><span><strong>跨市场估值差</strong>：两地上市的同一资产可能出现定价差异，套利机制与流动性差异是核心变量。</span></li></ul>
+            </section>
+
+            <section class="cl-sec">
+              <h4 class="cl-h"><span class="cl-n">6</span>课堂讨论题</h4>
+              <ol class="cl-q"><li><span>什么是「二次上市」？它与「双重主要上市」在监管要求与投资者准入上有何区别？</span></li><li><span>阿里巴巴为什么选择回到香港上市？港交所 2018 年修规在其中起了什么作用？</span></li><li><span>全球发售中的「超额配股权（绿鞋）」如何起到稳定股价的作用？</span></li><li><span>同股不同权对中小股东意味着什么？投资者应如何评估这类公司治理结构？</span></li></ol>
+            </section>
+
+            <div class="cl-take">
+              <span class="cl-take-h">结论与启示</span>
+              <p>港股二次上市为大型科技企业提供了额外的融资渠道与风险分散方式，投行在其中承担<strong>跨境发行、定价与全球配售</strong>职能；而「二次上市 → 双重主要上市」的路径演进，也说明上市地的选择是一个动态的制度适配过程。</p>
+            </div>
+
+            <div class="cl-src">资料来源：阿里巴巴集团全球发售文件与上市公告（2019-11）、港交所上市规则修订说明（2018-04）、港交所与公司公告（2024 年双重主要上市）。</div>
+          </div>
+        </article>
+        <article class="case-item" id="case-09" data-chapter="第3章" data-search-key="蚂蚁集团 688688 6688 暂缓上市 询价 定价 68.8元 80港元 监管约谈 信息披露 打新 退款 回拨机制">
+          <button class="case-head" type="button" aria-expanded="false">
             <span class="case-idx">09</span>
-            <span class="case-title">雷曼兄弟 · 破产与风险失控</span>
-            <span class="case-tag">风险管理</span>
-            <span class="case-arrow">▾</span>
+            <span class="case-main">
+              <span class="case-title">蚂蚁集团 · A+H 同步 IPO 暂缓</span>
+              <span class="case-sub">定价完成、申购火爆，却在上市前 2 天被暂缓｜全球最大 IPO 的未完成时</span>
+            </span>
+            <span class="case-tag" data-t="risk">定价与监管</span>
+            <span class="case-meta">2020<br />拟募资约 345 亿美元</span>
+            <span class="case-arrow" aria-hidden="true">▾</span>
           </button>
           <div class="case-body">
-            <div class="sub-h">案例简介</div>
-            <div class="text-slot"><strong>雷曼兄弟（Lehman Brothers）</strong>2008 年因持有大量次级抵押贷款相关资产、高杠杆（约 30 倍）且流动性枯竭申请破产，成为金融危机的标志性事件。其风险来自市场风险、信用违约与流动性枯竭的叠加。</div>
-            <div class="sub-h">关键数据</div>
-            <div class="text-slot">破产时间 <strong>2008-09-15</strong>；杠杆约 <strong>30 倍</strong>；资产规模峰值超 6000 亿美元。</div>
-            <div class="sub-h">思考题</div>
-            <ul class="q-list">
-              <li><span class="num">1</span><span>高杠杆如何放大市场下跌对投行的冲击？</span></li>
-              <li><span class="num">2</span><span>流动性风险为何会在危机中变得「致命」？</span></li>
-              <li><span class="num">3</span><span>VaR 等量化工具为何仍未能预警尾部风险？</span></li>
-            </ul>
-            <div class="sub-h">结论与启示</div>
-            <div class="text-slot">投行风险管理须重视杠杆、流动性缓冲与压力测试，单一量化指标无法覆盖尾部风险。</div>
-          </div>
-        </div>
+            <div class="cl-kpis"><div class="cl-kpi"><span class="k">A 股发行价</span><span class="v">68.8 元/股</span><span class="n">股票代码 688688，总市值约 2.1 万亿元</span></div><div class="cl-kpi"><span class="k">H 股发行价</span><span class="v">80.00 港元/股</span><span class="n">股票代码 6688</span></div><div class="cl-kpi"><span class="k">拟募资规模</span><span class="v">约 345 亿美元</span><span class="n">将超越沙特阿美成为全球史上最大 IPO</span></div><div class="cl-kpi"><span class="k">最终结果</span><span class="v">2020-11-03 暂缓</span><span class="n">原定 11-05 上市，随后启动退款</span></div></div>
 
-        <div class="case-item" id="case-10" data-chapter="第3章">
-          <button class="case-head">
+            <section class="cl-sec">
+              <h4 class="cl-h"><span class="cl-n">1</span>案例背景</h4>
+              <p class="cl-p">蚂蚁集团原计划在上海证券交易所科创板与香港联交所<strong>A+H 同步上市</strong>。2020 年 10 月 26 日完成初步询价并定价：A 股 68.8 元/股、H 股 80 港元/股，两地合计拟募资约 345 亿美元，将超越沙特阿美成为全球史上最大 IPO。</p><p class="cl-p">但在 11 月 3 日晚，上交所发布《关于暂缓蚂蚁科技集团股份有限公司科创板上市的决定》，港交所当晚同步暂缓 H 股上市。此时 A 股申购已完成——散户投资者经历了「中签→退款」的完整流程。</p>
+            </section>
+
+            <section class="cl-sec">
+              <h4 class="cl-h"><span class="cl-n">2</span>关键时间线</h4>
+              <ol class="cl-tl"><li><span class="tl-t">2020 年 9 月 18 日</span><span class="tl-d">上交所科创板上市委审议通过首发申请。</span></li><li><span class="tl-t">2020 年 10 月 19 日</span><span class="tl-d">蚂蚁集团香港 IPO 获中国证监会批准。</span></li><li><span class="tl-t">2020 年 10 月 26 日</span><span class="tl-d">初步询价完成（近万个机构账户参与），A 股发行价确定为 68.8 元/股，总市值约 2.1 万亿元；H 股定价 80 港元/股。</span></li><li><span class="tl-t">2020 年 10 月 29 日</span><span class="tl-d">A 股开启申购：有效申购户数达 515.5 万户，创科创板历史纪录；启动回拨机制后初步中签率仅 0.12%，网上初步有效申购倍数 872.31 倍。</span></li><li><span class="tl-t">2020 年 11 月 2 日</span><span class="tl-d">中国人民银行、银保监会、证监会、外汇局对蚂蚁集团实际控制人马云、董事长井贤栋、首席执行官胡晓明进行<strong>监管约谈</strong>。</span></li><li><span class="tl-t">2020 年 11 月 3 日晚</span><span class="tl-d">上交所依据《科创板首次公开发行股票注册管理办法（试行）》第 26 条等规定决定暂缓上市；港交所同步暂缓 H 股。</span></li><li><span class="tl-t">2020 年 11 月 4—6 日</span><span class="tl-d">H 股、A 股先后启动退款程序，投资者认购股份注销。</span></li></ol>
+            </section>
+
+            <section class="cl-sec">
+              <h4 class="cl-h"><span class="cl-n">3</span>关键数据</h4>
+              <div class="cl-grid"><div class="cl-cell"><span class="ck">A 股有效申购户数</span><span class="cv">515.5 万户</span><span class="cn">创科创板历史纪录</span></div><div class="cl-cell"><span class="ck">网上初步有效申购倍数</span><span class="cv">872.31 倍</span><span class="cn">触发回拨机制</span></div><div class="cl-cell"><span class="ck">回拨规模</span><span class="cv">3,341.45 万股</span><span class="cn">由网下回拨至网上</span></div><div class="cl-cell"><span class="ck">网上中签号码</span><span class="cv">70.17 万个</span><span class="cn">每个中签号码对应认购 500 股</span></div><div class="cl-cell"><span class="ck">初步中签率</span><span class="cv">0.12%</span><span class="cn">回拨机制启动后</span></div><div class="cl-cell"><span class="ck">暂缓依据</span><span class="cv">科创板注册管理办法第 26 条</span><span class="cn">实控人及高管被监管约谈、所处监管环境发生重大变化</span></div><div class="cl-cell"><span class="ck">战略配售基金</span><span class="cv">5 只 / 600 亿元</span><span class="cn">支付宝渠道销售，累计超千万人认购</span></div></div>
+            </section>
+
+            <section class="cl-sec">
+              <h4 class="cl-h"><span class="cl-n">4</span>投行角色与业务职能</h4>
+              <ul class="cl-list"><li><span><strong>承销保荐与信息披露</strong>：发行人与联席主承销商须在定价完成后持续跟踪可能影响发行条件的重大事项并及时报告。</span></li><li><span><strong>定价与配售</strong>：近万个机构账户参与询价，A 股定价 68.8 元对应市值约 2.1 万亿元，是国内大型科技公司定价的标杆时刻。</span></li><li><span><strong>投资者保护</strong>：暂缓后以不计利息方式全额退还申请股款，是发行失败情形下的标准处置。</span></li></ul>
+            </section>
+
+            <section class="cl-sec">
+              <h4 class="cl-h"><span class="cl-n">5</span>争议与难点</h4>
+              <ul class="cl-list warn"><li><span><strong>「重大事项」报告义务的边界</strong>：定价完成、申购结束之后，哪些变化构成可以暂缓发行的「重大事项」？本案例给出了一个高标准的答案。</span></li><li><span><strong>制度环境变化的风险</strong>：金融科技监管框架的调整会直接改变企业的估值基础与上市条件——这是定价模型中难以量化的变量。</span></li><li><span><strong>散户利益的保护机制</strong>：退款不计利息，但投资者承担了「资金被占用 + 打新机会成本」的损失，说明发行失败的风险分担仍需完善。</span></li></ul>
+            </section>
+
+            <section class="cl-sec">
+              <h4 class="cl-h"><span class="cl-n">6</span>课堂讨论题</h4>
+              <ol class="cl-q"><li><span>在发行定价完成后、上市之前，发行人和承销商还有哪些法定的报告与核查义务？</span></li><li><span>为什么「金融科技监管环境变化」可以构成暂缓上市的理由？这对估值假设有何影响？</span></li><li><span>如果一笔 IPO 被暂缓，散户投资者的资金与机会成本应如何分担？现行制度还有哪些改进空间？</span></li><li><span>结合本案例，讨论「定价市场化」与「发行失败风险」之间的制度平衡。</span></li></ol>
+            </section>
+
+            <div class="cl-take">
+              <span class="cl-take-h">结论与启示</span>
+              <p>蚂蚁集团案说明：<strong>IPO 的最后一公里不是技术问题，而是合规与信息披露问题</strong>。定价、路演、申购全部完成的项目依然可能被按下暂停键——投行作为保荐与承销机构，其责任贯穿发行全过程，而非止于定价日。</p>
+            </div>
+
+            <div class="cl-src">资料来源：上交所《关于暂缓蚂蚁科技集团股份有限公司科创板上市的决定》（2020-11-03）、蚂蚁集团港交所公告、证监会答记者问、华夏时报、中国新闻网报道。</div>
+          </div>
+        </article>
+        <h3 class="case-chapter" data-ch="第4章">
+          <span class="cc-no">第4章</span>
+          <span class="cc-nm">上市公司再融资</span>
+          <span class="cc-cnt">3 个案例</span>
+        </h3>
+        <article class="case-item" id="case-10" data-chapter="第4章" data-search-key="宁德时代 300750 定增 向特定对象发行 询价 发行底价 折价 高瓴 摩根大通 过度融资 深交所问询函 再融资">
+          <button class="case-head" type="button" aria-expanded="false">
             <span class="case-idx">10</span>
-            <span class="case-title">从审批制到注册制 · 发行监管改革</span>
-            <span class="case-tag">监管</span>
-            <span class="case-arrow">▾</span>
+            <span class="case-main">
+              <span class="case-title">宁德时代 · 450 亿元定增</span>
+              <span class="case-sub">从 582 亿被问询「过度融资」到 450 亿落地：定价、配售与融资必要性的完整闭环</span>
+            </span>
+            <span class="case-tag">定向增发</span>
+            <span class="case-meta">2021–2022<br />募资 450 亿元</span>
+            <span class="case-arrow" aria-hidden="true">▾</span>
           </button>
           <div class="case-body">
-            <div class="sub-h">案例简介</div>
-            <div class="text-slot">我国股票发行制度历经「审批制 → 核准制 → 注册制」演变。2019 年科创板试点注册制，2023 年全面实行股票发行注册制，监管重心从「实质审核」转向「<strong>信息披露 + 形式审核</strong>」，并强化中介机构责任。</div>
-            <div class="sub-h">关键数据</div>
-            <div class="text-slot">科创板注册制 <strong>2019-07</strong>；全面注册制 <strong>2023-02</strong>；审核主体：交易所审核、证监会注册。</div>
-            <div class="sub-h">思考题</div>
-            <ul class="q-list">
-              <li><span class="num">1</span><span>核准制与注册制的核心区别是什么？</span></li>
-              <li><span class="num">2</span><span>注册制下「信息披露」为何成为监管核心？</span></li>
-              <li><span class="num">3</span><span>中介机构的「看门人」责任如何体现？</span></li>
-            </ul>
-            <div class="sub-h">结论与启示</div>
-            <div class="text-slot">发行监管改革以信息披露为核心，注册制提升融资效率，也压实了投行等中介的把关责任。</div>
-          </div>
-        </div>
+            <div class="cl-kpis"><div class="cl-kpi"><span class="k">募资总额</span><span class="v">450 亿元</span><span class="n">净额约 448.7 亿元</span></div><div class="cl-kpi"><span class="k">发行价</span><span class="v">410 元/股</span><span class="n">为发行底价的 120.71%</span></div><div class="cl-kpi"><span class="k">获配机构</span><span class="v">22 家（42 家报价）</span><span class="n">含摩根大通、巴克莱、国泰君安、高瓴等</span></div><div class="cl-kpi"><span class="k">定价过程</span><span class="v">582 亿 → 450 亿</span><span class="n">经深交所问询「是否过度融资」后下调</span></div></div>
 
-        <div class="case-item" id="case-11" data-chapter="第7章">
-          <button class="case-head">
+            <section class="cl-sec">
+              <h4 class="cl-h"><span class="cl-n">1</span>案例背景</h4>
+              <p class="cl-p">2021 年 8 月 12 日，宁德时代抛出不超过 <strong>582 亿元</strong>的定增方案，刷新当年 A 股定增募资额纪录。但公司当时持有货币资金 746.87 亿元、上半年经营性现金流净额 257.42 亿元，「手握巨额现金为何还要募资」引发广泛质疑。</p><p class="cl-p">2021 年 9 月 30 日深交所下发问询函；11 月 15 日公司将募资总额下调至不超过 <strong>450 亿元</strong>，删去 93 亿元补充流动资金，暂时搁置部分产能项目。2022 年 6 月 22 日定增结果落地。</p>
+            </section>
+
+            <section class="cl-sec">
+              <h4 class="cl-h"><span class="cl-n">2</span>关键时间线</h4>
+              <ol class="cl-tl"><li><span class="tl-t">2021 年 8 月 12 日</span><span class="tl-d">披露定增预案：拟募资不超过 582 亿元，主要用于扩产与新技术研发。</span></li><li><span class="tl-t">2021 年 9 月 30 日</span><span class="tl-d">深交所出具问询函，询问本次定增的必要性与规模合理性、是否存在过度融资。</span></li><li><span class="tl-t">2021 年 10 月 18 日</span><span class="tl-d">公司回复称不存在过度融资：仅 2020 年以来拟新增电池生产基地的建设资金需求就达约 1,100 亿元。</span></li><li><span class="tl-t">2021 年 11 月 15 日</span><span class="tl-d">调整方案：拟募资总额由不超过 582 亿元下调至不超过 450 亿元，<strong>完全删去 93 亿元补充流动资金</strong>。</span></li><li><span class="tl-t">2022 年 4 月 29 日</span><span class="tl-d">向特定对象发行申请获证监会同意注册批复。</span></li><li><span class="tl-t">2022 年 6 月 22 日</span><span class="tl-d">发行结果披露：发行价 410 元/股（为发行底价 120.71%），募资总额约 450 亿元，22 家机构获配。</span></li></ol>
+            </section>
+
+            <section class="cl-sec">
+              <h4 class="cl-h"><span class="cl-n">3</span>关键数据</h4>
+              <div class="cl-grid"><div class="cl-cell"><span class="ck">募资净额</span><span class="cv">448.7 亿元</span><span class="cn">发行费用约 1.3 亿元（不含增值税）</span></div><div class="cl-cell"><span class="ck">报价区间</span><span class="cv">339.89 — 462 元/股</span><span class="cn">最高与最低报价相差 122 元/股，分歧显著</span></div><div class="cl-cell"><span class="ck">发行价相对底价</span><span class="cv">120.71%</span><span class="cn">定价高于底价，体现机构对公司前景的认可</span></div><div class="cl-cell"><span class="ck">募投方向</span><span class="cv">4 大基地 + 研发</span><span class="cn">福鼎 152 亿、瑞庆一期 117 亿、江苏四期 65 亿、蕉城车里湾 46 亿、先进技术研发 70 亿</span></div><div class="cl-cell"><span class="ck">主要获配机构</span><span class="cv">国泰君安 46.6 亿 / 摩根大通 40.7 亿 / 巴克莱 33.6 亿</span><span class="cn">高瓴 HHLR 获配约 30 亿元</span></div><div class="cl-cell"><span class="ck">公司融资史</span><span class="cv">3 次募资</span><span class="cn">2018 首发 53.52 亿 → 2020 定增 196.18 亿 → 2022 定增 450 亿</span></div></div>
+            </section>
+
+            <section class="cl-sec">
+              <h4 class="cl-h"><span class="cl-n">4</span>投行角色与业务职能</h4>
+              <ul class="cl-list"><li><span><strong>发行方案设计</strong>：确定发行方式、定价基准日、底价、发行对象范围与募投项目，是定增成败的第一环。</span></li><li><span><strong>询价与配售</strong>：组织 42 家投资者报价、按价格优先与数量优先原则配售，平衡定价与投资者结构。</span></li><li><span><strong>监管沟通</strong>：回应交易所对融资必要性的问询，是大型再融资项目的关键工作。</span></li></ul>
+            </section>
+
+            <section class="cl-sec">
+              <h4 class="cl-h"><span class="cl-n">5</span>争议与难点</h4>
+              <ul class="cl-list warn"><li><span><strong>「过度融资」如何界定</strong>：在手现金与经营现金流充裕，但资本开支需求更大——融资必要性的判断，本质上是对未来投资计划可信度的评估。</span></li><li><span><strong>补充流动资金为何被删</strong>：93 亿元补流被完全删除，说明监管对「以募资补流改善报表」的容忍度极低，资金必须落到具体产能与研发项目。</span></li><li><span><strong>机构报价分歧 122 元</strong>：最高 462 元、最低 339.89 元，同一时点对同一资产的估值分歧如此之大，正是询价机制存在的意义。</span></li></ul>
+            </section>
+
+            <section class="cl-sec">
+              <h4 class="cl-h"><span class="cl-n">6</span>课堂讨论题</h4>
+              <ol class="cl-q"><li><span>什么是「过度融资」？从财务指标上看，可以用哪些方法判断一家公司是否需要募集资金？</span></li><li><span>定增的发行底价与最终发行价之间是什么关系？定价高于底价说明什么？</span></li><li><span>定向增发与公开发行、配股相比，在发行对象、稀释节奏与审核要求上有何不同？</span></li><li><span>为什么监管对「补充流动资金」的募投用途格外严格？</span></li></ol>
+            </section>
+
+            <div class="cl-take">
+              <span class="cl-take-h">结论与启示</span>
+              <p>定向增发是上市公司再融资的主力工具，但<strong>它的门槛不在发行环节，而在融资必要性的论证</strong>。宁德时代案给出的教学结论是：融资规模必须能逐项对应到具体的资本开支与研发计划，任何「说不清用途的钱」都会被砍掉。</p>
+            </div>
+
+            <div class="cl-src">资料来源：宁德时代向特定对象发行股票发行情况报告书（2022-06-22）、深交所问询函与公司回复（2021-09/10）、中国经济网、人民网、中国证券网。</div>
+          </div>
+        </article>
+        <article class="case-item" id="case-11" data-chapter="第4章" data-search-key="东方财富 300059 东财转3 可转债 强制赎回 有条件赎回 转股价 转股期 强赎 债性 股性 再融资">
+          <button class="case-head" type="button" aria-expanded="false">
             <span class="case-idx">11</span>
-            <span class="case-title">宝能 · 万科控制权之争</span>
-            <span class="case-tag">并购 / 反收购</span>
-            <span class="case-arrow">▾</span>
+            <span class="case-main">
+              <span class="case-title">东方财富 · 可转债与强制赎回</span>
+              <span class="case-sub">158 亿元「东财转3」：债性到股性的完整转换与 100.18 元的强赎博弈</span>
+            </span>
+            <span class="case-tag">可转债</span>
+            <span class="case-meta">2021–2022<br />发行总额 158 亿元</span>
+            <span class="case-arrow" aria-hidden="true">▾</span>
           </button>
           <div class="case-body">
-            <div class="sub-h">案例简介</div>
-            <div class="text-slot">2015–2017 年宝能系通过二级市场多次举牌增持<strong>万科</strong>成为第一大股东，引发控制权争夺；万科管理层引入深圳地铁等「白衣骑士」并筹划重组应对，最终深圳地铁入主。事件涵盖要约收购、举牌、反收购等典型并购博弈。</div>
-            <div class="sub-h">关键数据</div>
-            <div class="text-slot">宝能累计持股峰值约 <strong>25.4%</strong>；万科停牌筹划重组；最终深圳地铁持股约 <strong>29%</strong>。</div>
-            <div class="sub-h">思考题</div>
-            <ul class="q-list">
-              <li><span class="num">1</span><span>二级市场举牌收购与协议收购有何不同？</span></li>
-              <li><span class="num">2</span><span>目标公司可用哪些反收购策略（毒丸、白衣骑士等）？</span></li>
-              <li><span class="num">3</span><span>控制权之争对公司治理与中小股东意味着什么？</span></li>
-            </ul>
-            <div class="sub-h">结论与启示</div>
-            <div class="text-slot">并购不仅是交易结构问题，更是控制权、治理与监管的博弈；反收购安排须合法合规、兼顾各方利益。</div>
-          </div>
-        </div>
+            <div class="cl-kpis"><div class="cl-kpi"><span class="k">发行总额</span><span class="v">158 亿元</span><span class="n">15,800 万张，每张面值 100 元</span></div><div class="cl-kpi"><span class="k">当期转股价</span><span class="v">23.35 元/股</span><span class="n">强赎触发线为转股价的 130%</span></div><div class="cl-kpi"><span class="k">触发线</span><span class="v">30.36 元/股</span><span class="n">连续 15 个交易日收盘价不低于该价</span></div><div class="cl-kpi"><span class="k">强赎价格</span><span class="v">100.18 元/张</span><span class="n">面值 + 当期应计利息</span></div></div>
 
+            <section class="cl-sec">
+              <h4 class="cl-h"><span class="cl-n">1</span>案例背景</h4>
+              <p class="cl-p">东方财富 2021 年 4 月 7 日向不特定对象发行 15,800 万张可转换公司债券「东财转3」（代码 123111），每张面值 100 元，发行总额 <strong>158 亿元</strong>，4 月 23 日在深交所上市交易。</p><p class="cl-p">可转债兼具「债性」与「股性」：转股前是按期付息的债券，转股后成为普通股。<strong>有条件赎回条款（强赎）</strong>是推动「债转股」的关键机制——一旦股价持续高于转股价 130%，发行人即可按面值加利息赎回，迫使持有人尽快转股。</p>
+            </section>
+
+            <section class="cl-sec">
+              <h4 class="cl-h"><span class="cl-n">2</span>关键时间线</h4>
+              <ol class="cl-tl"><li><span class="tl-t">2021 年 4 月 7 日</span><span class="tl-d">发行「东财转3」158 亿元，每张面值 100 元。</span></li><li><span class="tl-t">2021 年 4 月 23 日</span><span class="tl-d">在深交所上市交易；10 月 13 日起进入转股期。</span></li><li><span class="tl-t">2021 年 11 月 2 日</span><span class="tl-d">首次触发有条件赎回条款；董事会决定 2021 年度内不行使提前赎回权利。</span></li><li><span class="tl-t">2021 年 12 月 13 日</span><span class="tl-d">正股股价创历史新高（盘中 39.35 元/股），远高于当期转股价。</span></li><li><span class="tl-t">2022 年 1 月 4—24 日</span><span class="tl-d">正股连续 15 个交易日收盘价不低于转股价 23.35 元的 130%（30.36 元），<strong>再次触发有条件赎回</strong>；董事会决定行使赎回权。</span></li><li><span class="tl-t">2022 年 2 月 28 日</span><span class="tl-d">最后一个交易日与转股日；未转股部分将被按 100.18 元/张强制赎回。</span></li><li><span class="tl-t">2022 年 3 月 1—8 日</span><span class="tl-d">停止交易和转股，赎回款划付至持有人账户。</span></li></ol>
+            </section>
+
+            <section class="cl-sec">
+              <h4 class="cl-h"><span class="cl-n">3</span>关键数据</h4>
+              <div class="cl-grid"><div class="cl-cell"><span class="ck">赎回价格 vs 市价</span><span class="cv">100.18 元 vs 约 113 元/张</span><span class="cn">未及时操作或面临约 11.46% 的损失</span></div><div class="cl-cell"><span class="ck">对照案例（正元转债）</span><span class="cv">强赎 100.67 元 vs 末日 162.88 元</span><span class="cn">未转股亏损或达 38.19%</span></div><div class="cl-cell"><span class="ck">触发计算规则</span><span class="cv">重新起算 15 个交易日</span><span class="cn">年度内不满 15 日的触发不计入</span></div><div class="cl-cell"><span class="ck">公告密度</span><span class="cv">26 次赎回提示</span><span class="cn">2022-01-25 至 02-28 共发布 21 次赎回公告</span></div><div class="cl-cell"><span class="ck">转股抛压</span><span class="cv">158 亿元规模</span><span class="cn">转股后形成正股抛压，2022-02-14 正股单日下跌 13.36%</span></div><div class="cl-cell"><span class="ck">融资用途</span><span class="cv">补充营运资金</span><span class="cn">用于发展融资融券与证券投资业务</span></div></div>
+            </section>
+
+            <section class="cl-sec">
+              <h4 class="cl-h"><span class="cl-n">4</span>投行角色与业务职能</h4>
+              <ul class="cl-list"><li><span><strong>可转债条款设计</strong>：票面利率、转股价、修正条款与赎回条款共同决定「债性」与「股性」的配比。</span></li><li><span><strong>承销与上市</strong>：向不特定对象公开发行，需完成注册、承销、登记上市全流程。</span></li><li><span><strong>存续期管理</strong>：触发赎回条件的判定、信息披露与投资者沟通，直接影响转股率与融资最终形态。</span></li></ul>
+            </section>
+
+            <section class="cl-sec">
+              <h4 class="cl-h"><span class="cl-n">5</span>争议与难点</h4>
+              <ul class="cl-list warn"><li><span><strong>强赎是「坑」还是「保护」</strong>：对发行人而言，强赎把债务转为权益、彻底免除还本义务；对投资者而言，错过操作窗口就会被迫接受远低于市价的赎回价。</span></li><li><span><strong>信息披露的有效性</strong>：东方财富在 1 个多月内发布了 26 次赎回提示，但仍有投资者未及时操作——「充分披露」与「实际触达」之间仍有距离。</span></li><li><span><strong>转股对股价的冲击</strong>：158 亿元规模转股意味着新增大量流通股，短期抛压是正股下跌的重要原因之一。</span></li></ul>
+            </section>
+
+            <section class="cl-sec">
+              <h4 class="cl-h"><span class="cl-n">6</span>课堂讨论题</h4>
+              <ol class="cl-q"><li><span>可转债与一般公司债相比，在融资成本与风险承担上有何不同？为什么可转债的票面利率可以极低？</span></li><li><span>「有条件赎回条款」的设计目的是什么？它对发行人与投资者的利益分配有什么影响？</span></li><li><span>转股条款如何实现「低成本融资」与「延迟稀释」之间的平衡？</span></li><li><span>如果你是投资者，面对已触发强赎的可转债，应该如何在转股、卖出与被赎回之间选择？</span></li></ol>
+            </section>
+
+            <div class="cl-take">
+              <span class="cl-take-h">结论与启示</span>
+              <p>可转债是再融资中<strong>平衡融资成本与稀释时点</strong>的巧妙工具：先用极低的票面利率拿到资金，再通过强赎条款把债券「赶」成股票，最终以权益形式完成融资。理解强赎机制，就理解了可转债定价与发行人行为逻辑的核心。</p>
+            </div>
+
+            <div class="cl-src">资料来源：东方财富《关于「东财转3」赎回结果的公告》（2022-03-09）及募集说明书、深交所信息披露、中国经济网、证券时报。</div>
+          </div>
+        </article>
+        <article class="case-item" id="case-12" data-chapter="第4章" data-search-key="中国银行 601988 优先股 中行优1 中行优2 一级资本 资本充足率 股息率 混合资本工具 其他一级资本 商业银行资本管理办法">
+          <button class="case-head" type="button" aria-expanded="false">
+            <span class="case-idx">12</span>
+            <span class="case-main">
+              <span class="case-title">中国银行 · 境内首单优先股</span>
+              <span class="case-sub">320 亿元、股息率 6.00%｜境内外双平台定价差异背后的资本工具逻辑</span>
+            </span>
+            <span class="case-tag">优先股</span>
+            <span class="case-meta">2013–2015<br />首期 320 亿元</span>
+            <span class="case-arrow" aria-hidden="true">▾</span>
+          </button>
+          <div class="case-body">
+            <div class="cl-kpis"><div class="cl-kpi"><span class="k">首期发行规模</span><span class="v">320 亿元</span><span class="n">3.2 亿股 × 面值 100 元平价发行</span></div><div class="cl-kpi"><span class="k">票面股息率</span><span class="v">6.00%</span><span class="n">询价区间 6.0%—6.3%，存续期内保持不变</span></div><div class="cl-kpi"><span class="k">认购对象</span><span class="v">30 名合格投资者</span><span class="n">41 份有效报价，含中国人寿、中国烟草、平安资产、泰康资产等</span></div><div class="cl-kpi"><span class="k">资金用途</span><span class="v">补充其他一级资本</span><span class="n">提高资本充足率，满足监管要求</span></div></div>
+
+            <section class="cl-sec">
+              <h4 class="cl-h"><span class="cl-n">1</span>案例背景</h4>
+              <p class="cl-p">2013 年银监会实施新的资本监管规则，对商业银行提出更高的资本充足率要求。同年 11 月 30 日《国务院关于开展优先股试点的指导意见》颁布，优先股成为 A 股市场的新型混合资本工具。</p><p class="cl-p">中国银行作为第一批试点发行的上市公司，2014 年 10 月 24 日先在香港发行 65 亿美元境外优先股并在港交所上市，成为<strong>第一家发行优先股的境内上市公司</strong>；2014 年 11 月 28 日完成境内首期 320 亿元优先股发行，成为首家在境内外双平台成功发行优先股的上市公司。</p>
+            </section>
+
+            <section class="cl-sec">
+              <h4 class="cl-h"><span class="cl-n">2</span>关键时间线</h4>
+              <ol class="cl-tl"><li><span class="tl-t">2013 年 11 月 30 日</span><span class="tl-d">《国务院关于开展优先股试点的指导意见》颁布。</span></li><li><span class="tl-t">2013 年</span><span class="tl-d">银监会实施全新资本监管规则，对商业银行资本充足率提出更高要求。</span></li><li><span class="tl-t">2014 年 10 月 24 日</span><span class="tl-d">境外 65 亿美元优先股在港交所上市，成为中国第一家发行优先股的境内上市公司。</span></li><li><span class="tl-t">2014 年 11 月 18 日</span><span class="tl-d">境内首期优先股询价：上午 9:30—11:30 收到 41 份有效《申购报价单》，据此簿记建档。</span></li><li><span class="tl-t">2014 年 11 月 28 日</span><span class="tl-d">境内首期 320 亿元优先股完成发行，票面股息率定为 6.00%（询价区间下沿）。</span></li><li><span class="tl-t">2014 年 12 月 8 日</span><span class="tl-d">在上交所综合业务平台挂牌转让，简称「中行优1」（代码 360002）。</span></li><li><span class="tl-t">2015 年 3 月 31 日</span><span class="tl-d">第二期 280 亿元优先股挂牌，简称「中行优2」（代码 360010），票面股息率 5.50%。</span></li></ol>
+            </section>
+
+            <section class="cl-sec">
+              <h4 class="cl-h"><span class="cl-n">3</span>关键数据</h4>
+              <div class="cl-grid"><div class="cl-cell"><span class="ck">核准规模</span><span class="cv">不超过 600 亿元</span><span class="cn">首期 320 亿元 + 第二期 280 亿元</span></div><div class="cl-cell"><span class="ck">境内 vs 境外股息率</span><span class="cv">6.00% vs 6.75%</span><span class="cn">境内股息免税，投资者实际收益率更高，故票面要求更低</span></div><div class="cl-cell"><span class="ck">信用等级</span><span class="cv">主体 AAA / 优先股 AA+</span><span class="cn">大公国际评级结果</span></div><div class="cl-cell"><span class="ck">发行方式</span><span class="cv">非公开发行</span><span class="cn">向不超过 200 名合格投资者定向发行</span></div><div class="cl-cell"><span class="ck">会计与监管属性</span><span class="cv">其他一级资本</span><span class="cn">计入权益工具，而非金融负债</span></div><div class="cl-cell"><span class="ck">流通场所</span><span class="cv">上交所综合业务平台</span><span class="cn">与普通股分开交易，流动性相对较弱</span></div></div>
+            </section>
+
+            <section class="cl-sec">
+              <h4 class="cl-h"><span class="cl-n">4</span>投行角色与业务职能</h4>
+              <ul class="cl-list"><li><span><strong>混合资本工具设计</strong>：优先股兼具债性（固定股息）与股性（计入权益），是补充一级资本的关键工具。</span></li><li><span><strong>询价与承销</strong>：以股息率区间询价、簿记建档定价，境外与境内分别定价。</span></li><li><span><strong>监管沟通与资本规划</strong>：工具的选择要与资本充足率目标、股息成本与股东结构一并考虑。</span></li></ul>
+            </section>
+
+            <section class="cl-sec">
+              <h4 class="cl-h"><span class="cl-n">5</span>争议与难点</h4>
+              <ul class="cl-list warn"><li><span><strong>优先股究竟是「债」还是「股」</strong>：从会计与监管看计入权益（补充一级资本），但固定股息使其具备债的性质——这个双重属性正是它被大量用于银行资本补充的原因。</span></li><li><span><strong>境内为什么比境外便宜</strong>：境内优先股股息免税，投资者实际收益率高于票面股息率，因此愿意接受更低的票面利率；境外因各地税制差异需要更高溢价。</span></li><li><span><strong>对普通股股东的影响</strong>：优先股股息在普通股分红前支付，会摊薄普通股股东可分配利润，但不稀释投票权。</span></li></ul>
+            </section>
+
+            <section class="cl-sec">
+              <h4 class="cl-h"><span class="cl-n">6</span>课堂讨论题</h4>
+              <ol class="cl-q"><li><span>优先股为什么可以被计入「其他一级资本」？它在会计与监管上分别如何认定？</span></li><li><span>中国银行境内优先股股息率 6.00%，低于境外 6.75%，请从税收与市场基准利率角度解释原因。</span></li><li><span>相比定向增发，用优先股补充资本对普通股股东的好处与代价分别是什么？</span></li><li><span>上市公司再融资工具（增发、配股、可转债、优先股）分别适合什么情形？</span></li></ol>
+            </section>
+
+            <div class="cl-take">
+              <span class="cl-take-h">结论与启示</span>
+              <p>优先股是资本市场中的<strong>「混合工具」典范</strong>：它不稀释控制权却能补充核心资本，代价是刚性的股息支出。中国银行案的教学价值，在于展示同一发行人在两个市场上为同一种资本工具定出两个价格的完整逻辑。</p>
+            </div>
+
+            <div class="cl-src">资料来源：中国银行公告（2014-11-28）、境内非公开发行优先股募集说明书概览、北京市金杜律师事务所法律意见书（2014-11-29）、金融时报。</div>
+          </div>
+        </article>
+        <h3 class="case-chapter" data-ch="第5章">
+          <span class="cc-no">第5章</span>
+          <span class="cc-nm">债券的发行与承销</span>
+          <span class="cc-cnt">3 个案例</span>
+        </h3>
+        <article class="case-item" id="case-13" data-chapter="第5章" data-search-key="抗疫特别国债 特别国债 国债 承销团 公开招标 投标倍数 记账式国债 政府性基金预算 直达机制 财政政策">
+          <button class="case-head" type="button" aria-expanded="false">
+            <span class="case-idx">13</span>
+            <span class="case-main">
+              <span class="case-title">2020 年抗疫特别国债 · 1 万亿元</span>
+              <span class="case-sub">16 期、39 个交易日发完｜特别国债的招标定价与跨市场流通</span>
+            </span>
+            <span class="case-tag">国债发行</span>
+            <span class="case-meta">2020<br />1 万亿元</span>
+            <span class="case-arrow" aria-hidden="true">▾</span>
+          </button>
+          <div class="case-body">
+            <div class="cl-kpis"><div class="cl-kpi"><span class="k">发行总额</span><span class="v">1 万亿元</span><span class="n">不列入财政赤字，纳入政府性基金预算管理</span></div><div class="cl-kpi"><span class="k">发行期数</span><span class="v">16 期</span><span class="n">6 月 18 日首发 → 7 月 30 日发行完毕</span></div><div class="cl-kpi"><span class="k">平均发行利率</span><span class="v">2.77%</span><span class="n">比前 5 日国债二级市场收益率平均低 10 个基点</span></div><div class="cl-kpi"><span class="k">平均投标倍数</span><span class="v">2.54 倍</span><span class="n">高于二季度一般记账式付息国债</span></div></div>
+
+            <section class="cl-sec">
+              <h4 class="cl-h"><span class="cl-n">1</span>案例背景</h4>
+              <p class="cl-p">2020 年为应对新冠肺炎疫情冲击，中央财政发行 <strong>1 万亿元抗疫特别国债</strong>，用于支持地方基础设施建设和抗疫相关支出，主要用于保居民就业、保基本民生、保市场主体。</p><p class="cl-p">与一般国债不同，抗疫特别国债<strong>不列入财政赤字，而是纳入政府性基金预算管理</strong>；本金由中央财政和地方财政共同偿还，利息全部由中央财政负担。资金通过特殊转移支付机制「中央切块、省级细化、备案同意、快速直达」直达市县基层。</p>
+            </section>
+
+            <section class="cl-sec">
+              <h4 class="cl-h"><span class="cl-n">2</span>关键时间线</h4>
+              <ol class="cl-tl"><li><span class="tl-t">2020 年 5 月</span><span class="tl-d">《政府工作报告》明确发行 1 万亿元抗疫特别国债。</span></li><li><span class="tl-t">2020 年 6 月 18 日</span><span class="tl-d">第一笔抗疫特别国债发行。</span></li><li><span class="tl-t">2020 年 6—7 月</span><span class="tl-d">为给特别国债腾出市场空间，适当减少 6、7 月一般国债与地方债发行量，按大体均衡原则平滑各周发行量。</span></li><li><span class="tl-t">2020 年 7 月 30 日</span><span class="tl-d">最后一笔发行完成，共发行 16 期。</span></li><li><span class="tl-t">2020 年 8 月 26 日</span><span class="tl-d">国务院政策例行吹风会通报：平均投标倍数 2.54 倍，平均发行利率 2.77%，认购主体多元、发行节奏平稳。</span></li><li><span class="tl-t">发行后</span><span class="tl-d">所筹资金已提前下达地方，地方正抓紧落实到具体项目，部分已形成实际支出。</span></li></ol>
+            </section>
+
+            <section class="cl-sec">
+              <h4 class="cl-h"><span class="cl-n">3</span>关键数据</h4>
+              <div class="cl-grid"><div class="cl-cell"><span class="ck">期限结构</span><span class="cv">5 年 2,000 亿 / 7 年 1,000 亿 / 10 年 7,000 亿</span><span class="cn">5 年期发行 4 次、7 年期 2 次、10 年期 10 次</span></div><div class="cl-cell"><span class="ck">发行方式</span><span class="cv">公开招标</span><span class="cn">全部面向记账式国债承销团成员市场化招标</span></div><div class="cl-cell"><span class="ck">流通场所</span><span class="cv">银行间 + 交易所 + 商业银行柜台</span><span class="cn">跨市场上市流通</span></div><div class="cl-cell"><span class="ck">偿还安排</span><span class="cv">本金中央与地方共担</span><span class="cn">利息全部由中央财政负担</span></div><div class="cl-cell"><span class="ck">资金投向</span><span class="cv">公共卫生基础设施 + 抗疫支出</span><span class="cn">主要用于有一定资产收益保障的项目建设</span></div><div class="cl-cell"><span class="ck">对照：地方专项债</span><span class="cv">2020 年新增 3.75 万亿元</span><span class="cn">比上年增加 1.6 万亿元</span></div></div>
+            </section>
+
+            <section class="cl-sec">
+              <h4 class="cl-h"><span class="cl-n">4</span>投行角色与业务职能</h4>
+              <ul class="cl-list"><li><span><strong>承销团招标发行</strong>：国债承销团成员以公开招标方式竞价，投标倍数与发行利率是市场需求与定价的直接体现。</span></li><li><span><strong>发行节奏管理</strong>：财政部与人民银行协调，通过减少同期一般国债与地方债发行量为特别国债腾出市场空间。</span></li><li><span><strong>跨市场流通安排</strong>：让银行间、交易所与柜台市场共同承接，扩大投资者基础。</span></li></ul>
+            </section>
+
+            <section class="cl-sec">
+              <h4 class="cl-h"><span class="cl-n">5</span>争议与难点</h4>
+              <ul class="cl-list warn"><li><span><strong>特别国债「特别」在哪</strong>：不列入赤字、纳入政府性基金预算、有特定用途与偿还安排，是财政工具在特殊时期的非常规使用。</span></li><li><span><strong>如何避免挤出效应</strong>：1 万亿元供给冲击可能推高整体利率，财政部通过平滑发行节奏与压缩一般债发行量来缓释。</span></li><li><span><strong>「直达市县」的机制意义</strong>：特殊转移支付机制减少了资金在中间层级的滞留，是财政资金使用效率的制度创新。</span></li></ul>
+            </section>
+
+            <section class="cl-sec">
+              <h4 class="cl-h"><span class="cl-n">6</span>课堂讨论题</h4>
+              <ol class="cl-q"><li><span>特别国债与一般国债、地方政府专项债在预算管理、用途与偿还来源上有何区别？</span></li><li><span>平均投标倍数 2.54 倍、发行利率低于二级市场 10 个基点，说明什么？</span></li><li><span>大规模国债发行如何避免对市场利率形成过度冲击？财政部采取了哪些具体措施？</span></li><li><span>国债承销团制度对承销机构意味着什么权利与义务？</span></li></ol>
+            </section>
+
+            <div class="cl-take">
+              <span class="cl-take-h">结论与启示</span>
+              <p>国债发行是债券承销业务规模最大、机制最标准化的一类：<strong>承销团招标 → 定价 → 跨市场流通</strong>。抗疫特别国债把这一标准流程与特殊时期的财政政策结合，是理解「债券一级市场如何服务宏观政策」的最佳样本。</p>
+            </div>
+
+            <div class="cl-src">资料来源：国务院政策例行吹风会实录（2020-08-26）、财政部对全国人大建议的答复（财建函〔2020〕59 号）、人民日报、中国政府网。</div>
+          </div>
+        </article>
+        <article class="case-item" id="case-14" data-chapter="第5章" data-search-key="超日债 11超日债 违约 刚性兑付 中信建投 鹏元资信 受托管理人 破产重整 信用评级 公司债">
+          <button class="case-head" type="button" aria-expanded="false">
+            <span class="case-idx">14</span>
+            <span class="case-main">
+              <span class="case-title">「11 超日债」违约 · 打破刚性兑付</span>
+              <span class="case-sub">8980 万元利息只付出 400 万元｜中国首例公募债券实质性违约</span>
+            </span>
+            <span class="case-tag" data-t="risk">信用风险</span>
+            <span class="case-meta">2012–2014<br />发行规模 10 亿元</span>
+            <span class="case-arrow" aria-hidden="true">▾</span>
+          </button>
+          <div class="case-body">
+            <div class="cl-kpis"><div class="cl-kpi"><span class="k">发行规模</span><span class="v">10 亿元</span><span class="n">期限 5 年，票面利率 8.98%</span></div><div class="cl-kpi"><span class="k">应付第二期利息</span><span class="v">8,980 万元</span><span class="n">每手面值 1,000 元应派息 89.80 元</span></div><div class="cl-kpi"><span class="k">实际按期支付</span><span class="v">400 万元</span><span class="n">付息比例仅 4.5%</span></div><div class="cl-kpi"><span class="k">违约日</span><span class="v">2014-03-07</span><span class="n">国内首例公募债券实质性违约</span></div></div>
+
+            <section class="cl-sec">
+              <h4 class="cl-h"><span class="cl-n">1</span>案例背景</h4>
+              <p class="cl-p">上海超日太阳能 2012 年 3 月 7 日发行「11 超日债」，规模 10 亿元、票面利率 8.98%，中信建投担任保荐机构、主承销商与债券受托管理人。值得注意的是，公司在 2011 年已经亏损 0.55 亿元，「11 超日债」正是在这样的经营背景下完成发行上市的。</p><p class="cl-p">2014 年 3 月 4 日晚，公司公告第二期利息 8,980 万元无法按期全额支付，仅能落实 400 万元。<strong>中国债券市场公募债「零违约」的历史就此终结</strong>，「刚性兑付」在最核心的领域被正式打破。</p>
+            </section>
+
+            <section class="cl-sec">
+              <h4 class="cl-h"><span class="cl-n">2</span>关键时间线</h4>
+              <ol class="cl-tl"><li><span class="tl-t">2010 年 10 月</span><span class="tl-d">*ST 超日在深交所中小板上市，募资 23 亿元。</span></li><li><span class="tl-t">2011 年</span><span class="tl-d">公司已出现亏损（-0.55 亿元）；光伏行业景气度剧烈波动、产能过剩压力剧增。</span></li><li><span class="tl-t">2012 年 3 月 7 日</span><span class="tl-d">发行「11 超日债」10 亿元，票面利率 8.98%，中信建投为主承销商与受托管理人；4 月 20 日上市。</span></li><li><span class="tl-t">2014 年 3 月 4 日</span><span class="tl-d">公告无法按期全额付息，仅落实 400 万元。</span></li><li><span class="tl-t">2014 年 3 月 7 日</span><span class="tl-d">付息日违约，成为国内首例公募债券违约案例。</span></li><li><span class="tl-t">2014 年 5 月 30 日</span><span class="tl-d">「11 超日债」终止上市；债权人向法院提出对公司进行破产重整的申请。</span></li><li><span class="tl-t">后续</span><span class="tl-d">公司通过破产重整引入战略投资者完成重组（协鑫系入主），债券持有人获得的清偿以重整方案为准。</span></li></ol>
+            </section>
+
+            <section class="cl-sec">
+              <h4 class="cl-h"><span class="cl-n">3</span>关键数据</h4>
+              <div class="cl-grid"><div class="cl-cell"><span class="ck">募集资金用途</span><span class="cv">4 亿还贷 + 6 亿补流</span><span class="cn">其中 8 亿元银行流动性贷款支持协议（广发 3 亿 + 中信 5 亿）未能兜底</span></div><div class="cl-cell"><span class="ck">评级机构处理</span><span class="cv">鹏元资信被出具警示函</span><span class="cn">未及时出具跟踪评级报告、未按已报备方法评级、档案未留存原始资料</span></div><div class="cl-cell"><span class="ck">受托管理人争议</span><span class="cv">投资者起诉中信建投</span><span class="cn">投资者主张其作为上市保荐机构与受托管理人过错严重</span></div><div class="cl-cell"><span class="ck">持有人会议</span><span class="cv">2014 年第一次会议</span><span class="cn">核心议案为提请持有人通过依法提起民事诉讼</span></div><div class="cl-cell"><span class="ck">公司基本面</span><span class="cv">2011 年末短期借款 22.08 亿元</span><span class="cn">较 2010 年末增长 105.27%</span></div><div class="cl-cell"><span class="ck">制度意义</span><span class="cv">打破公募债零违约</span><span class="cn">推动信用债定价回归信用风险本源</span></div></div>
+            </section>
+
+            <section class="cl-sec">
+              <h4 class="cl-h"><span class="cl-n">4</span>投行角色与业务职能</h4>
+              <ul class="cl-list"><li><span><strong>主承销商与债券受托管理人</strong>：发行阶段的尽调核查 + 存续期的持续监督、信息披露与持有人会议召集。</span></li><li><span><strong>评级机构的跟踪评级义务</strong>：在发行人经营环境与财务状况发生重大变化时须及时出具不定期跟踪评级报告。</span></li><li><span><strong>投资者保护机制</strong>：受托管理人代表持有人主张权利、提起诉讼或参与重整程序。</span></li></ul>
+            </section>
+
+            <section class="cl-sec">
+              <h4 class="cl-h"><span class="cl-n">5</span>争议与难点</h4>
+              <ul class="cl-list warn"><li><span><strong>「刚性兑付」打破后的定价重估</strong>：违约成为现实后，信用利差才开始真正反映违约概率与回收率，中国信用债市场的定价逻辑由此改变。</span></li><li><span><strong>受托管理人制度的有效性</strong>：受托管理人同时是保荐机构、主承销商与持续督导人，多重身份下的履职标准与利益冲突成为争议焦点。</span></li><li><span><strong>增信安排为何没兜住</strong>：8 亿元银行流动性贷款支持协议未能阻止违约，说明「意向性」增信与「可执行」担保之间存在巨大差距。</span></li></ul>
+            </section>
+
+            <section class="cl-sec">
+              <h4 class="cl-h"><span class="cl-n">6</span>课堂讨论题</h4>
+              <ol class="cl-q"><li><span>为什么「11 超日债」被称为中国债券市场的分水岭事件？它对信用利差与定价有何影响？</span></li><li><span>债券受托管理人的职责有哪些？当受托管理人同时是保荐机构时，如何避免利益冲突？</span></li><li><span>第三方增信（担保、流动性支持协议）在什么条件下才真正具备可执行性？</span></li><li><span>如果公司经营已在发行前出现亏损，主承销商应如何履行核查与信息披露义务？</span></li></ol>
+            </section>
+
+            <div class="cl-take">
+              <span class="cl-take-h">结论与启示</span>
+              <p>债券承销的本质是<strong>信用中介</strong>：票面利率是对信用风险的市场定价。「11 超日债」的教学价值在于，它用一个 4.5% 的付息比例，终结了「公募债不会违约」的市场共识，也让「主承销商与受托管理人到底该负什么责任」成为此后所有债券项目的必答题。</p>
+            </div>
+
+            <div class="cl-src">资料来源：*ST 超日公告（2014-03-04）、证监会通报与深圳证监局对鹏元资信的监管措施、经济参考报、人民网、中证网。</div>
+          </div>
+        </article>
+        <article class="case-item" id="case-15" data-chapter="第5章" data-search-key="永煤控股 20永煤SCP003 超短融 违约 交叉违约 中诚信国际 AAA BB 评级下调 国企信仰 逃废债 信用债">
+          <button class="case-head" type="button" aria-expanded="false">
+            <span class="case-idx">15</span>
+            <span class="case-main">
+              <span class="case-title">永煤控股 · 国企信用债违约</span>
+              <span class="case-sub">账上 469 亿现金却还不上 10 亿｜AAA 评级到 BB 的断崖式重定价</span>
+            </span>
+            <span class="case-tag" data-t="risk">信用评级</span>
+            <span class="case-meta">2020<br />违约本息 10.32 亿元</span>
+            <span class="case-arrow" aria-hidden="true">▾</span>
+          </button>
+          <div class="case-body">
+            <div class="cl-kpis"><div class="cl-kpi"><span class="k">违约本息</span><span class="v">10.32 亿元</span><span class="n">「20永煤SCP003」10 亿元、270 天超短融、票面 4.39%</span></div><div class="cl-kpi"><span class="k">主体评级变动</span><span class="v">AAA → BB</span><span class="n">中诚信国际于违约次日断崖式下调</span></div><div class="cl-kpi"><span class="k">触发交叉违约</span><span class="v">20 笔债券</span><span class="n">存续公开债务融资工具均设交叉保护条款</span></div><div class="cl-kpi"><span class="k">存续债券规模</span><span class="v">234.10 亿元</span><span class="n">一年内到期债券金额合计 120 亿元</span></div></div>
+
+            <section class="cl-sec">
+              <h4 class="cl-h"><span class="cl-n">1</span>案例背景</h4>
+              <p class="cl-p">永城煤电控股集团是河南省属大型煤炭企业，控股股东为河南能源化工集团，实际控制人为河南省国资委。2020 年 11 月 10 日，公司公告「20永煤SCP003」未能按期足额偿付本息，<strong>构成实质性违约</strong>。</p><p class="cl-p">让市场意外的不是违约本身，而是违约主体的「身份」与「账面」：一家 AAA 评级的省属国企，三季末账面货币资金高达 469.68 亿元，却在违约前 20 天刚刚发行了 10 亿元中期票据（利率 6%），最终连 10 亿元都拿不出来。</p>
+            </section>
+
+            <section class="cl-sec">
+              <h4 class="cl-h"><span class="cl-n">2</span>关键时间线</h4>
+              <ol class="cl-tl"><li><span class="tl-t">2020 年 10 月 23 日</span><span class="tl-d">永煤控股新发行一期 10 亿元中期票据，票面利率 6%。</span></li><li><span class="tl-t">2020 年 11 月 10 日</span><span class="tl-d">公告「20永煤SCP003」未能按期足额偿付本息，违约本息 10.32 亿元，构成实质性违约。</span></li><li><span class="tl-t">2020 年 11 月 11 日</span><span class="tl-d">中诚信国际将永煤控股主体信用等级由 AAA 下调至 BB，并列入可能降级的观察名单，相关债券评级同步下调。</span></li><li><span class="tl-t">2020 年 11 月 11—12 日</span><span class="tl-d">存续债券遭抛售：「18永煤MTN001」最新净价跌 94.61% 报 5 元，「20永煤CP001」跌 93.15% 报 6.79 元。</span></li><li><span class="tl-t">2020 年 11 月 12 日</span><span class="tl-d">作为发行人另有多笔债券触发<strong>交叉违约</strong>条款；煤企、城投、地方国企债券连锁下跌。</span></li><li><span class="tl-t">2020 年 11 月</span><span class="tl-d">国务院金融委表态对「逃废债」零容忍；紫光集团等其他高评级主体相继出现违约。</span></li></ol>
+            </section>
+
+            <section class="cl-sec">
+              <h4 class="cl-h"><span class="cl-n">3</span>关键数据</h4>
+              <div class="cl-grid"><div class="cl-cell"><span class="ck">违约债券要素</span><span class="cv">10 亿元 / 270 天 / 4.39%</span><span class="cn">主承销商：光大银行；联席主承销商：中原银行</span></div><div class="cl-cell"><span class="ck">资产负债率</span><span class="cv">77.84%</span><span class="cn">2020 年三季末：资产 1,726.5 亿、负债 1,343.95 亿</span></div><div class="cl-cell"><span class="ck">账面货币资金</span><span class="cv">469.68 亿元</span><span class="cn">2020 年 9 月 30 日，与「还不上 10 亿」形成强烈反差</span></div><div class="cl-cell"><span class="ck">盈利能力</span><span class="cv">归母净利润连年为负</span><span class="cn">2017—2019 年：0.22 亿 / -11.44 亿 / -13.17 亿元</span></div><div class="cl-cell"><span class="ck">流动负债占比</span><span class="cv">超 70%</span><span class="cn">流动负债 979.49 亿元，短期偿债压力集中</span></div><div class="cl-cell"><span class="ck">母公司与关联风险</span><span class="cv">河南能源存续债 255.30 亿元</span><span class="cn">其中 10 只债券存在交叉保护条款，涉及 115 亿元</span></div><div class="cl-cell"><span class="ck">债券价格冲击</span><span class="cv">单日跌逾 90%</span><span class="cn">净价报 5 元、6.79 元、8.61 元等极低水平</span></div></div>
+            </section>
+
+            <section class="cl-sec">
+              <h4 class="cl-h"><span class="cl-n">4</span>投行角色与业务职能</h4>
+              <ul class="cl-list"><li><span><strong>主承销商与联席主承销商</strong>：对发行人偿债能力与募集资金用途的核查义务，以及存续期信息披露的督导责任。</span></li><li><span><strong>信用评级机构的评级质量</strong>：评级从 AAA 到 BB 的「断崖式」调整，说明事前评级未能有效反映真实信用状况。</span></li><li><span><strong>投资者适当性与风险定价</strong>：打破「国企信仰」后，信用债定价需要真正回到基本面分析。</span></li></ul>
+            </section>
+
+            <section class="cl-sec">
+              <h4 class="cl-h"><span class="cl-n">5</span>争议与难点</h4>
+              <ul class="cl-list warn"><li><span><strong>「国企信仰」与隐性担保</strong>：市场为省属国企支付的信用溢价，本质上是对政府支持的定价；一旦支持不到位，溢价瞬间消失。</span></li><li><span><strong>评级为何滞后</strong>：违约前 20 天仍在正常发债、评级维持 AAA，说明评级的信息获取与调整机制存在系统性滞后。</span></li><li><span><strong>交叉违约条款的连锁效应</strong>：一只债券违约触发全部存续债券的交叉保护条款，风险从单点迅速扩散至整个集团乃至同类主体。</span></li><li><span><strong>账面现金为何不能偿债</strong>：货币资金可能存在受限、归集或与母公司资金深度捆绑等情形，报表数字不等于可动用资金。</span></li></ul>
+            </section>
+
+            <section class="cl-sec">
+              <h4 class="cl-h"><span class="cl-n">6</span>课堂讨论题</h4>
+              <ol class="cl-q"><li><span>结合永煤案，说明信用评级在债券定价中的作用，以及评级失效时的市场后果。</span></li><li><span>为什么「账上有 469 亿元货币资金」的公司会还不上 10 亿元？报表分析应关注哪些细节？</span></li><li><span>什么是交叉违约（交叉保护）条款？它对债券持有人是保护还是加速器？</span></li><li><span>「国企信仰」被打破后，投资者应如何重构信用债的定价框架？</span></li></ol>
+            </section>
+
+            <div class="cl-take">
+              <span class="cl-take-h">结论与启示</span>
+              <p>「永煤案」的教学价值在于：它把<strong>信用评级、承销商核查责任、交叉违约条款与投资者风险偏好</strong>四条线索串成一条完整的风险链。债券市场的成熟，不是从不违约，而是违约能够被提前定价。</p>
+            </div>
+
+            <div class="cl-src">资料来源：永煤控股违约公告（2020-11-10）、中诚信国际评级调整公告（2020-11-11）、上海证券报、人民网、中国经济网、中国能源报。</div>
+          </div>
+        </article>
+        <h3 class="case-chapter" data-ch="第6章">
+          <span class="cc-no">第6章</span>
+          <span class="cc-nm">资产证券化</span>
+          <span class="cc-cnt">2 个案例</span>
+        </h3>
+        <article class="case-item" id="case-16" data-chapter="第6章" data-search-key="资产证券化 ABS 小额贷款 循环购买 花呗 借呗 蚂蚁 破产隔离 专项计划 分层 信用增级 原始权益人 SPV">
+          <button class="case-head" type="button" aria-expanded="false">
+            <span class="case-idx">16</span>
+            <span class="case-main">
+              <span class="case-title">蚂蚁集团 · 花呗借呗 ABS 与循环购买</span>
+              <span class="case-sub">从 2013 年首单小额信贷 ABS 到万亿级消费信贷出表｜破产隔离与分层设计</span>
+            </span>
+            <span class="case-tag">消费贷 ABS</span>
+            <span class="case-meta">2013–2020<br />首单始于 2013 年</span>
+            <span class="case-arrow" aria-hidden="true">▾</span>
+          </button>
+          <div class="case-body">
+            <div class="cl-kpis"><div class="cl-kpi"><span class="k">国内首单小额信贷 ABS</span><span class="v">2013 年</span><span class="n">东证资管-阿里巴巴 1 号专项资产管理计划</span></div><div class="cl-kpi"><span class="k">结构创新</span><span class="v">国内首单循环结构 ABS</span><span class="n">同一产品同时创下两项「首单」</span></div><div class="cl-kpi"><span class="k">基础资产</span><span class="v">小额消费信贷</span><span class="n">花呗 / 借呗等消费信贷资产</span></div><div class="cl-kpi"><span class="k">核心结构</span><span class="v">优先/次级分层</span><span class="n">配套内部信用增级与循环购买机制</span></div></div>
+
+            <section class="cl-sec">
+              <h4 class="cl-h"><span class="cl-n">1</span>案例背景</h4>
+              <p class="cl-p">资产证券化的核心是三步：<strong>破产隔离 + 现金流重组 + 信用增级</strong>。蚂蚁集团旗下的花呗、借呗把底层消费信贷通过专项计划打包为标准化证券发行——由受托人（专项计划/信托）持有基础资产，投资者按<strong>分层</strong>获得现金流。</p><p class="cl-p">这条路径的起点是 2013 年的「东证资管-阿里巴巴 1 号专项资产管理计划」，它是国内首单小额信贷资产证券化产品，同时也是<strong>国内首单循环结构资产证券化产品</strong>。</p>
+            </section>
+
+            <section class="cl-sec">
+              <h4 class="cl-h"><span class="cl-n">2</span>关键时间线</h4>
+              <ol class="cl-tl"><li><span class="tl-t">2013 年</span><span class="tl-d">「东证资管-阿里巴巴 1 号专项资产管理计划」发行，成为国内首单小额信贷 ABS 与首单循环结构 ABS。</span></li><li><span class="tl-t">2013 年之后</span><span class="tl-d">消费金融 ABS 常态化发行，循环购买结构被广泛用于期限短、笔数多、持续产生的消费信贷资产。</span></li><li><span class="tl-t">业务放量期</span><span class="tl-d">花呗、借呗规模快速扩张，通过 ABS 将消费信贷资产「出表」融资，形成低成本、高周转的融资循环。</span></li><li><span class="tl-t">2020 年</span><span class="tl-d">网络小贷监管规则调整（联合贷款、出资比例、杠杆倍数等要求），并在蚂蚁集团 IPO 暂缓事件中被重点讨论——ABS 加杠杆的监管边界成为焦点。</span></li></ol>
+            </section>
+
+            <section class="cl-sec">
+              <h4 class="cl-h"><span class="cl-n">3</span>关键数据</h4>
+              <div class="cl-grid"><div class="cl-cell"><span class="ck">SPV 形式</span><span class="cv">专项计划 / 信托</span><span class="cn">中国法下由证券公司资管计划或信托承担特殊目的载体职能</span></div><div class="cl-cell"><span class="ck">破产隔离实现路径</span><span class="cv">信托 vs 专项计划</span><span class="cn">信托财产独立性更强；ABN 等不设 SPV 的产品隔离效果较弱</span></div><div class="cl-cell"><span class="ck">分层结构</span><span class="cv">优先级 / 次级</span><span class="cn">优先级优先获得现金流，次级承担首损、提供内部增信</span></div><div class="cl-cell"><span class="ck">循环购买机制</span><span class="cv">资产池动态置换</span><span class="cn">解决「资产期限短、证券期限长」的期限错配</span></div><div class="cl-cell"><span class="ck">现金流重组</span><span class="cv">按偿付顺序分配</span><span class="cn">资产包收益优先支付优先级利息，剩余积压至次级</span></div><div class="cl-cell"><span class="ck">监管关注点</span><span class="cv">资本占用与杠杆倍数</span><span class="cn">资产出表后的真实杠杆水平成为监管核心关切</span></div></div>
+            </section>
+
+            <section class="cl-sec">
+              <h4 class="cl-h"><span class="cl-n">4</span>投行角色与业务职能</h4>
+              <ul class="cl-list"><li><span><strong>计划管理人（券商资管 / 信托）</strong>：设立 SPV、受让基础资产、发行并管理资产支持证券。</span></li><li><span><strong>结构设计</strong>：分层比例、增信安排、循环购买条件与加速清偿触发事件的设计。</span></li><li><span><strong>尽调与存续管理</strong>：对底层资产的笔数、分散度、历史违约率与回收率做穿透核查，并持续监控资产池表现。</span></li></ul>
+            </section>
+
+            <section class="cl-sec">
+              <h4 class="cl-h"><span class="cl-n">5</span>争议与难点</h4>
+              <ul class="cl-list warn"><li><span><strong>中国法下的「破产隔离」</strong>：信托财产的独立性有明确法律基础，而专项计划模式的隔离效果在设计上更依赖合同安排，两者风险不同。</span></li><li><span><strong>循环购买与资产池质量</strong>：持续买入新资产意味着资产质量是动态的，必须设置合格标准与替换义务，否则资产池会「劣化」。</span></li><li><span><strong>出表与真实杠杆</strong>：资产出表能降低表内资本占用，但若发起人仍承担兜底责任，实际杠杆并未下降——这是监管关注的核心。</span></li></ul>
+            </section>
+
+            <section class="cl-sec">
+              <h4 class="cl-h"><span class="cl-n">6</span>课堂讨论题</h4>
+              <ol class="cl-q"><li><span>资产证券化如何把「非标债权」转变为「可交易证券」？三道关键步骤分别解决了什么问题？</span></li><li><span>分层结构与信用增级的作用是什么？为什么次级档通常由发起人自持？</span></li><li><span>为什么说基础资产质量才是 ABS 风险的核心？循环购买结构在其中如何放大或缓释风险？</span></li><li><span>对比信托型 SPV 与专项计划型 SPV，说明二者在破产隔离效果上的差异。</span></li></ol>
+            </section>
+
+            <div class="cl-take">
+              <span class="cl-take-h">结论与启示</span>
+              <p>资产证券化的工程学本质是<strong>「用结构换评级」</strong>：把缺乏流动性的资产，通过破产隔离、现金流重组与信用增级，转化为可交易证券。花呗借呗 ABS 展示了这一工具的极致应用，同时也把「出表融资与真实杠杆」的监管问题推到台前。</p>
+            </div>
+
+            <div class="cl-src">资料来源：中国资产证券化分析网「首单风云榜」（东证资管-阿里巴巴 1 号，2013）、蚂蚁集团相关 ABS 产品资料、央行/银保监网络小贷监管规则。</div>
+          </div>
+        </article>
+        <article class="case-item" id="case-17" data-chapter="第6章" data-search-key="开元信贷资产支持证券 建元个人住房抵押贷款 国家开发银行 建设银行 CLO RMBS 中诚信托 中信信托 信贷资产证券化试点 分层">
+          <button class="case-head" type="button" aria-expanded="false">
+            <span class="case-idx">17</span>
+            <span class="case-main">
+              <span class="case-title">2005 年开元 / 建元 · 中国资产证券化的起点</span>
+              <span class="case-sub">同日发行的首单 CLO 与首单 RMBS｜42 亿元资产池与两层、三层分档设计</span>
+            </span>
+            <span class="case-tag">首单 ABS</span>
+            <span class="case-meta">2005<br />41.77 亿元 + 30 亿元</span>
+            <span class="case-arrow" aria-hidden="true">▾</span>
+          </button>
+          <div class="case-body">
+            <div class="cl-kpis"><div class="cl-kpi"><span class="k">开元 2005-1</span><span class="v">41.7727 亿元</span><span class="n">国家开发银行发起，国内首单 CLO（企业贷款）</span></div><div class="cl-kpi"><span class="k">建元 2005-1</span><span class="v">约 30 亿元</span><span class="n">建设银行发起，国内首单 RMBS（个人住房抵押贷款）</span></div><div class="cl-kpi"><span class="k">发行日</span><span class="v">2005-12-15</span><span class="n">两只产品同日发行，标志信贷 ABS 正式面市</span></div><div class="cl-kpi"><span class="k">政策依据</span><span class="v">2005-04-20</span><span class="n">央行、银监会《信贷资产证券化试点管理办法》</span></div></div>
+
+            <section class="cl-sec">
+              <h4 class="cl-h"><span class="cl-n">1</span>案例背景</h4>
+              <p class="cl-p">2005 年 4 月 20 日，中国人民银行与银监会联合发布《信贷资产证券化试点管理办法》；12 月 15 日，两家试点单位<strong>同日</strong>完成发行：</p><p class="cl-p">国家开发银行发起「开元信贷资产支持证券」（ABS，以企业贷款为基础资产），中诚信托担任发行人，以公开招标方式发行；中国建设银行从上海、江苏、福建三家一级分行筛选 1.5 万余笔个人住房抵押贷款组成资产池，委托中信信托发行「建元个人住房抵押贷款资产支持证券」（MBS）。这一天成为中国信贷资产证券化的起点。</p>
+            </section>
+
+            <section class="cl-sec">
+              <h4 class="cl-h"><span class="cl-n">2</span>关键时间线</h4>
+              <ol class="cl-tl"><li><span class="tl-t">2005 年 4 月 20 日</span><span class="tl-d">央行与银监会发布《信贷资产证券化试点管理办法》。</span></li><li><span class="tl-t">2005 年 5 月 16 日</span><span class="tl-d">财政部发布《信贷资产证券化试点会计处理规定》。</span></li><li><span class="tl-t">2005 年 12 月 1 日</span><span class="tl-d">《金融机构信贷资产证券化试点监督管理办法》正式实施。</span></li><li><span class="tl-t">2005 年 12 月 6 日</span><span class="tl-d">国开行 78 家意向承销团完成协议签署。</span></li><li><span class="tl-t">2005 年 12 月 15 日</span><span class="tl-d">开元 2005-1（41.7727 亿元）与建元 2005-1（约 30 亿元）同日发行，标志信贷资产支持证券正式面市。</span></li><li><span class="tl-t">2008 年之后</span><span class="tl-d">受华尔街金融危机影响，监管层对资产证券化趋于审慎，试点未能继续扩大。</span></li><li><span class="tl-t">2012 年</span><span class="tl-d">信贷资产证券化试点重启，交银 2012-1、通元 2012-1 等产品相继发行。</span></li></ol>
+            </section>
+
+            <section class="cl-sec">
+              <h4 class="cl-h"><span class="cl-n">3</span>关键数据</h4>
+              <div class="cl-grid"><div class="cl-cell"><span class="ck">开元资产池</span><span class="cv">42.6 亿元 / 60 多笔贷款</span><span class="cn">涉及电力、城建、电信、铁路、公路等 12 个行业、横跨 19 个地区</span></div><div class="cl-cell"><span class="ck">开元分档</span><span class="cv">三层：优先 A（AAA）/ 优先 B（A）/ 次级 C</span><span class="cn">次级档不评级、无票息</span></div><div class="cl-cell"><span class="ck">开元发行方式</span><span class="cv">公开招标</span><span class="cn">通过中央国债登记结算公司招标系统发行，为国际证券化市场的创新做法</span></div><div class="cl-cell"><span class="ck">建元资产池</span><span class="cv">30.3 亿元 / 1.5 万余笔房贷</span><span class="cn">来自上海、江苏、福建三家一级分行</span></div><div class="cl-cell"><span class="ck">建元分档</span><span class="cv">四层：AAA / A / BBB / 不评级</span><span class="cn">不评级的次级证券由建行自己持有</span></div><div class="cl-cell"><span class="ck">受托机构</span><span class="cv">中诚信托 / 中信信托</span><span class="cn">分别担任开元与建元的受托人（SPV 角色）</span></div><div class="cl-cell"><span class="ck">首期合计规模</span><span class="cv">约 70 多亿元</span><span class="cn">规模不大但是零的突破</span></div></div>
+            </section>
+
+            <section class="cl-sec">
+              <h4 class="cl-h"><span class="cl-n">4</span>投行角色与业务职能</h4>
+              <ul class="cl-list"><li><span><strong>发起机构</strong>：筛选并打包基础资产，实现资产出表、提高资产流动性与资本充足率。</span></li><li><span><strong>受托机构（SPV）</strong>：由信托投资公司担任，持有基础资产并发行受益证券，实现破产隔离。</span></li><li><span><strong>承销团与中介</strong>：承销发行、信用评级、法律意见与会计处理，共同完成结构化设计。</span></li></ul>
+            </section>
+
+            <section class="cl-sec">
+              <h4 class="cl-h"><span class="cl-n">5</span>争议与难点</h4>
+              <ul class="cl-list warn"><li><span><strong>为什么要分档</strong>：开元分三层、建元分四层，是因为基础资产的现金流稳定性不同——RMBS 有抵押物与稳定还款，可支撑更多档位；企业贷款集中度更高，分层更保守。</span></li><li><span><strong>次级为何自持</strong>：建元不评级的次级证券由建行自己持有，这是最直接的内部增信——发起人「留一手」，向投资者证明对资产质量的信心。</span></li><li><span><strong>试点为何停滞</strong>：2008 年金融危机让监管层对资产证券化望而生畏，试点未能继续推进，直到 2012 年才重启——制度发展受外部危机的影响可见一斑。</span></li></ul>
+            </section>
+
+            <section class="cl-sec">
+              <h4 class="cl-h"><span class="cl-n">6</span>课堂讨论题</h4>
+              <ol class="cl-q"><li><span>开元（CLO）与建元（RMBS）的基础资产有何不同？这如何影响了它们的分层结构设计？</span></li><li><span>受托机构（信托）在资产证券化中承担什么角色？「破产隔离」是如何实现的？</span></li><li><span>为什么次级档证券通常由发起机构自己持有？这是哪一种信用增级方式？</span></li><li><span>资产证券化对商业银行的资产流动性、资本充足率与信贷风险分散分别有什么作用？</span></li></ol>
+            </section>
+
+            <div class="cl-take">
+              <span class="cl-take-h">结论与启示</span>
+              <p>开元与建元是中国资产证券化的「第 0 天」：<strong>同一天、两种基础资产、两种分层设计</strong>，把「破产隔离 + 现金流重组 + 信用增级」三件事一次性演示完整。理解这两只产品，就理解了中国信贷 ABS 的全部基本结构。</p>
+            </div>
+
+            <div class="cl-src">资料来源：中国新闻网（2005-12-16）、中国人民银行福州中心支行《资产支持证券简介》、中国资产证券化分析网「首单风云榜」、中国新闻网（2013-09-09）。</div>
+          </div>
+        </article>
+        <h3 class="case-chapter" data-ch="第7章">
+          <span class="cc-no">第7章</span>
+          <span class="cc-nm">公司并购</span>
+          <span class="cc-cnt">3 个案例</span>
+        </h3>
+        <article class="case-item" id="case-18" data-chapter="第7章" data-search-key="美的 库卡 KUKA 要约收购 跨境并购 MECCA 并购贷款 工银欧洲 反垄断 CFIUS 围栏协议 私有化 商誉">
+          <button class="case-head" type="button" aria-expanded="false">
+            <span class="case-idx">18</span>
+            <span class="case-main">
+              <span class="case-title">美的集团 · 要约收购库卡（KUKA）</span>
+              <span class="case-sub">115 欧元/股、48 倍市盈率｜一笔「天价」跨境要约收购的取舍与整合</span>
+            </span>
+            <span class="case-tag">跨境并购</span>
+            <span class="case-meta">2015–2022<br />37.07 亿欧元</span>
+            <span class="case-arrow" aria-hidden="true">▾</span>
+          </button>
+          <div class="case-body">
+            <div class="cl-kpis"><div class="cl-kpi"><span class="k">要约收购价</span><span class="v">115 欧元/股</span><span class="n">对应市盈率约 48 倍（欧洲制造业罕见）</span></div><div class="cl-kpi"><span class="k">交易金额</span><span class="v">37.07 亿欧元</span><span class="n">约合人民币 292 亿元</span></div><div class="cl-kpi"><span class="k">收购后持股</span><span class="v">94.55%</span><span class="n">接受要约股份 81.04%，此前已持有 13.51%</span></div><div class="cl-kpi"><span class="k">资金安排</span><span class="v">全部现金 + 并购贷款</span><span class="n">来源为工商银行（欧洲）巴黎分行与法兰克福分行</span></div></div>
+
+            <section class="cl-sec">
+              <h4 class="cl-h"><span class="cl-n">1</span>案例背景</h4>
+              <p class="cl-p">库卡与瑞士 ABB、日本发那科、安川并称全球机器人「四大家族」，是德国法兰克福交易所上市公司，总部位于奥格斯堡，2020 年营收 25.74 亿欧元、员工约 1.4 万人。</p><p class="cl-p">2015 年 8 月起美的开始在二级市场增持库卡股份，2016 年 2 月持股超 10% 成为第二大股东。2016 年 5 月起正式发出要约，以每股 115 欧元的价格收购库卡股份——这个报价对应约 48 倍市盈率，而库卡过去十年市盈率长期在 5—20 倍之间徘徊，因此被称为「天价」收购。</p>
+            </section>
+
+            <section class="cl-sec">
+              <h4 class="cl-h"><span class="cl-n">2</span>关键时间线</h4>
+              <ol class="cl-tl"><li><span class="tl-t">2015 年 8 月</span><span class="tl-d">美的开始陆续在二级市场收购库卡股份；2016 年 2 月持股超 10%，成为第二大股东。</span></li><li><span class="tl-t">2016 年 5 月 18 日</span><span class="tl-d">美的集团董事会审议通过《关于向库卡集团股东发起要约的议案》及融资议案。</span></li><li><span class="tl-t">2016 年 6 月 6 日</span><span class="tl-d">临时股东大会审议通过要约收购事项；6 月 15 日德国联邦金融监管局审核通过要约文件，6 月 16 日发出要约。</span></li><li><span class="tl-t">2016 年 10 月 6 日</span><span class="tl-d">签署「围栏协议」，美的承诺维持库卡德国上市公司地位、业务独立性与管理团队稳定。</span></li><li><span class="tl-t">2017 年 1 月 6 日</span><span class="tl-d">完成交割：接受要约股份 32,233,536 股（81.04%），此前 MECCA 已持 13.51%，合计持股 37,605,732 股 = <strong>94.55%</strong>；交易金额 37.07 亿欧元。</span></li><li><span class="tl-t">2017—2020 年</span><span class="tl-d">整合效果未及预期：库卡净利润由 0.89 亿欧元降至 0.10 亿欧元，2020 年亏损 1.03 亿欧元；美的机器人及自动化业务营收连续下滑、形成较大商誉压力。</span></li><li><span class="tl-t">2021 年 11 月 23 日</span><span class="tl-d">美的宣布全面收购剩余 5.45% 股权并<strong>私有化</strong>，库卡从法兰克福交易所退市——打破了 2016 年「不促使库卡退市」的承诺。</span></li></ol>
+            </section>
+
+            <section class="cl-sec">
+              <h4 class="cl-h"><span class="cl-n">3</span>关键数据</h4>
+              <div class="cl-grid"><div class="cl-cell"><span class="ck">要约结构</span><span class="cv">MECCA（BVI）为收购主体</span><span class="cn">美的国际控股 100% 持股，美的集团间接控制</span></div><div class="cl-cell"><span class="ck">收购前持股</span><span class="cv">13.51%</span><span class="cn">二级市场分次增持逐步建立</span></div><div class="cl-cell"><span class="ck">接受要约比例</span><span class="cv">81.04%（32,233,536 股）</span><span class="cn">含额外要约期</span></div><div class="cl-cell"><span class="ck">交易金额</span><span class="cv">3,706,856,640 欧元</span><span class="cn">每股 115 欧元 × 接受要约股份数</span></div><div class="cl-cell"><span class="ck">融资来源</span><span class="cv">中国工商银行（欧洲）贷款</span><span class="cn">巴黎分行与法兰克福分行提供；全部现金支付</span></div><div class="cl-cell"><span class="ck">库卡经营数据</span><span class="cv">2020 年营收 25.74 亿欧元</span><span class="cn">净利润 2017—2020：0.89 / 0.13 / 0.10 / -1.03 亿欧元</span></div><div class="cl-cell"><span class="ck">审批项目</span><span class="cv">德方 + 多国反垄断 + CFIUS</span><span class="cn">含德国联邦金融监管局、经济部，及中国、欧盟、美国、俄罗斯、巴西、墨西哥等反垄断审查</span></div></div>
+            </section>
+
+            <section class="cl-sec">
+              <h4 class="cl-h"><span class="cl-n">4</span>投行角色与业务职能</h4>
+              <ul class="cl-list"><li><span><strong>交易结构设计</strong>：以境外全资子公司 MECCA（BVI）作为收购主体，隔离风险并满足跨境持股与税务安排需要。</span></li><li><span><strong>融资安排</strong>：全额现金收购 + 并购贷款，资金来自工银欧洲——用银行并购贷款撬动 292 亿元人民币的交易。</span></li><li><span><strong>跨境监管沟通</strong>：多国反垄断审查 + 美国 CFIUS 审查，是跨境并购中决定交易成败的「隐形关卡」。</span></li><li><span><strong>交易保护与承诺设计</strong>：围栏协议、德国基地与研发投入承诺，换取德国政府与社会对交易的接受。</span></li></ul>
+            </section>
+
+            <section class="cl-sec">
+              <h4 class="cl-h"><span class="cl-n">5</span>争议与难点</h4>
+              <ul class="cl-list warn"><li><span><strong>48 倍市盈率值不值</strong>：独立自主研发到库卡的规模与技术水平需要很长时间，管理层称这是「最大战略投资，回报周期也许很漫长」。</span></li><li><span><strong>整合比收购更难</strong>：库卡保持德国上市公司独立运营，美的难以深度干预；2018—2020 年库卡业绩连续下滑，最终以私有化收场。</span></li><li><span><strong>CFIUS 的隐形门槛</strong>：库卡涉美业务被剥离后才通过美国外资投资委员会审查——这说明了「技术敏感型并购」的地缘约束。</span></li><li><span><strong>承诺的可信度</strong>：2016 年承诺维持库卡上市地位，2021 年却宣布私有化，跨境并购中「承诺」的有效期与法律约束力值得在教学上专门讨论。</span></li></ul>
+            </section>
+
+            <section class="cl-sec">
+              <h4 class="cl-h"><span class="cl-n">6</span>课堂讨论题</h4>
+              <ol class="cl-q"><li><span>跨境并购中「要约收购」与「协议收购」有何区别？美的为什么选择要约收购？</span></li><li><span>全部现金支付对买方的财务压力与好处分别是什么？并购贷款在其中扮演什么角色？</span></li><li><span>跨境并购需要面对哪些特殊的监管与合规问题（反垄断、外资安全审查、行业准入）？</span></li><li><span>结合库卡 2017—2020 年的业绩表现，评价「高溢价收购 + 保持独立运营」这一组合策略。</span></li></ol>
+            </section>
+
+            <div class="cl-take">
+              <span class="cl-take-h">结论与启示</span>
+              <p>跨境并购是投行的核心业务之一，其成败取决于三件事：<strong>估值是否合理、交易结构是否可行、监管与整合是否可控</strong>。美的库卡案完整展示了这三道关卡的难度——收购可以靠出价一步到位，整合却需要数年时间验证。</p>
+            </div>
+
+            <div class="cl-src">资料来源：美的集团《要约收购 KUKA Aktiengesellschaft 实施情况报告书》（2017-01-12）、美的集团公告（2021-11-23）、库卡官方公告、中国证券报、21 世纪经济报道。</div>
+          </div>
+        </article>
+        <article class="case-item" id="case-19" data-chapter="第7章" data-search-key="宝能 万科 举牌 控制权 白衣骑士 深圳地铁 前海人寿 险资 杠杆收购 反收购 毒丸 万能险 公司治理">
+          <button class="case-head" type="button" aria-expanded="false">
+            <span class="case-idx">19</span>
+            <span class="case-main">
+              <span class="case-title">宝能 vs 万科 · 控制权之争</span>
+              <span class="case-sub">4.2 倍杠杆的举牌、白衣骑士的引入与 29.38% 的终局</span>
+            </span>
+            <span class="case-tag" data-t="risk">控制权 / 反收购</span>
+            <span class="case-meta">2015–2017<br />宝能持股峰值 25.40%</span>
+            <span class="case-arrow" aria-hidden="true">▾</span>
+          </button>
+          <div class="case-body">
+            <div class="cl-kpis"><div class="cl-kpi"><span class="k">宝能持股峰值</span><span class="v">25.40%</span><span class="n">万科一季报口径，超过原第一大股东华润</span></div><div class="cl-kpi"><span class="k">收购资金杠杆</span><span class="v">约 4.2 倍</span><span class="n">借入资金与自有资金之比，超过当时监管警戒线</span></div><div class="cl-kpi"><span class="k">深铁最终持股</span><span class="v">29.38%</span><span class="n">受让华润 15.31% + 恒大 14.07% 后跃居第一大股东</span></div><div class="cl-kpi"><span class="k">恒大退出成本</span><span class="v">292 亿元转让 / 亏 70.7 亿元</span><span class="n">以 18.8 元/股转让，较停牌前收盘价折价 9.92%</span></div></div>
+
+            <section class="cl-sec">
+              <h4 class="cl-h"><span class="cl-n">1</span>案例背景</h4>
+              <p class="cl-p">万科长期是<strong>股权高度分散</strong>的公司，用创始人王石的话说：「万科的大股东就是中小股东」。这种结构在经营上是优势，在控制权上却是软肋。</p><p class="cl-p">2015 年 7 月，宝能系（前海人寿 + 钜盛华）通过二级市场首次举牌万科，此后连续增持，至 2015 年底持股超越原第一大股东华润。2016 年 8 月恒大也加入举牌，持股 14.07%。一场持续两年、涉及举牌、停牌重组、白衣骑士、监管处罚的控制权之争就此展开。</p>
+            </section>
+
+            <section class="cl-sec">
+              <h4 class="cl-h"><span class="cl-n">2</span>关键时间线</h4>
+              <ol class="cl-tl"><li><span class="tl-t">2015 年 7 月</span><span class="tl-d">宝能系首次举牌万科。7 月 24 日第二次举牌，持股比例达 10%。</span></li><li><span class="tl-t">2015 年 8 月 31 日</span><span class="tl-d">王石首次回应连续举牌，强调万科的股权分散传统。</span></li><li><span class="tl-t">2015 年 11 月</span><span class="tl-d">宝能系合计持股首次超过华润，成为第一大股东。</span></li><li><span class="tl-t">2015 年 12 月 18 日</span><span class="tl-d">万科停牌筹划重大资产重组（拟以发行股份方式购买深圳地铁前海国际 100% 股权，后终止）——典型的「白衣骑士」式反收购安排。</span></li><li><span class="tl-t">2016 年 8 月 8 日</span><span class="tl-d">恒大首次举牌万科，通过附属公司收购 15.53 亿股 A 股，占总股本 14.07%。</span></li><li><span class="tl-t">2016 年 11 月</span><span class="tl-d">清华国家金融研究院发布宝万之争杠杆收购研究报告：宝能系借入资金与自有资金之比高达<strong>约 4.2 倍</strong>。</span></li><li><span class="tl-t">2017 年 1 月 12 日</span><span class="tl-d">华润以 22 元/股将所持 15.31% 万科股权协议转让给深圳地铁集团，交易总额 371.71 亿元。</span></li><li><span class="tl-t">2017 年 2 月</span><span class="tl-d">保监会处罚前海人寿 80 万元，对姚振华等警告罚款，<strong>撤销任职资格并禁止进入保险业 10 年</strong>。</span></li><li><span class="tl-t">2017 年 6 月 9 日</span><span class="tl-d">恒大将所持 14.07% 万科股份以 292 亿元转让给深铁；深铁持股升至 29.38%，成为第一大股东。</span></li><li><span class="tl-t">2017 年 6 月 21 日</span><span class="tl-d">万科公告新一届董事会 11 名候选人（含 4 名独董），<strong>无一人来自宝能系</strong>；控制权之争落幕。</span></li></ol>
+            </section>
+
+            <section class="cl-sec">
+              <h4 class="cl-h"><span class="cl-n">3</span>关键数据</h4>
+              <div class="cl-grid"><div class="cl-cell"><span class="ck">股权结构（博弈期）</span><span class="cv">宝能 25.4% / 深铁 15.31% / 恒大 14.07%</span><span class="cn">另有安邦 6.18%、金鹏计划 4.14%、德赢资管 3.66%、万科工会 0.61%</span></div><div class="cl-cell"><span class="ck">华润转让</span><span class="cv">371.71 亿元 / 22 元每股</span><span class="cn">2017-01-12 协议转让 15.31%</span></div><div class="cl-cell"><span class="ck">恒大转让</span><span class="cv">292 亿元 / 18.8 元每股</span><span class="cn">较停牌前收盘价 20.87 元折价 9.92%，亏损 70.7 亿元</span></div><div class="cl-cell"><span class="ck">宝能资金来源</span><span class="cv">银行、证券、保险、信托</span><span class="cn">多牌照组合融资，杠杆倍数约 4.2 倍</span></div><div class="cl-cell"><span class="ck">行业背景</span><span class="cv">七大保险系举牌超 40 家上市公司</span><span class="cn">2016 年险资举牌成为现象级事件</span></div><div class="cl-cell"><span class="ck">反收购工具</span><span class="cv">白衣骑士 + 停牌重组</span><span class="cn">引入深圳地铁对抗宝能系</span></div></div>
+            </section>
+
+            <section class="cl-sec">
+              <h4 class="cl-h"><span class="cl-n">4</span>投行角色与业务职能</h4>
+              <ul class="cl-list"><li><span><strong>并购顾问（买方）</strong>：为举牌方设计资金结构、持股路径与信息披露节奏。</span></li><li><span><strong>反收购顾问（目标公司）</strong>：设计白衣骑士引入、股份发行购买资产等反收购方案。</span></li><li><span><strong>财务与法律尽调</strong>：在举牌与控制权争夺中评估股权结构、一致行动人关系与合规边界。</span></li></ul>
+            </section>
+
+            <section class="cl-sec">
+              <h4 class="cl-h"><span class="cl-n">5</span>争议与难点</h4>
+              <ul class="cl-list warn"><li><span><strong>万能险资金举牌的合规性</strong>：险资以高杠杆、短久期资金举牌长期股权，资产负债错配风险是监管介入的根本原因。</span></li><li><span><strong>为什么中国缺少「毒丸」</strong>：中国的股份发行需经股东大会与监管审批，毒丸/驱鲨条款等美式反收购工具的适用空间有限，目标公司更多依赖白衣骑士与停牌重组。</span></li><li><span><strong>股权分散的两面性</strong>：分散股权提升了治理制衡与职业经理人空间，却也降低了控制权门槛，使举牌成本大幅下降。</span></li><li><span><strong>控制权之争对中小股东的影响</strong>：二级市场博弈期间股价剧烈波动，中小股东既可能受益于溢价，也可能被停牌与重组的不确定性锁定。</span></li></ul>
+            </section>
+
+            <section class="cl-sec">
+              <h4 class="cl-h"><span class="cl-n">6</span>课堂讨论题</h4>
+              <ol class="cl-q"><li><span>二级市场举牌收购与协议收购相比，在成本、速度与信息披露上有何不同？</span></li><li><span>什么是「白衣骑士」？万科引入深圳地铁的方案为什么最终未能完成？</span></li><li><span>宝能系约 4.2 倍的杠杆是如何组织的？杠杆收购的监管边界应该划在哪里？</span></li><li><span>为什么「毒丸计划」等美式反收购工具在中国难以直接适用？替代工具是什么？</span></li><li><span>控制权之争对公司治理与中小股东利益意味着什么？</span></li></ol>
+            </section>
+
+            <div class="cl-take">
+              <span class="cl-take-h">结论与启示</span>
+              <p>并购不只是交易结构问题，更是<strong>控制权、公司治理与监管的博弈</strong>。万科案的教学价值在于，它同时呈现了「进攻方」（举牌 + 杠杆）、「防守方」（白衣骑士 + 停牌重组）与「监管方」（险资监管 + 处罚）三种角色的完整策略与边界。</p>
+            </div>
+
+            <div class="cl-src">资料来源：万科企业股份有限公司公告（2017-01-12、2017-06-09、2017-06-21）、保监会行政处罚决定（2017-02）、清华国家金融研究院《宝万之争杠杆收购研究报告》（2016-11）、人民网、央视财经。</div>
+          </div>
+        </article>
+        <article class="case-item" id="case-20" data-chapter="第7章" data-search-key="吉利 沃尔沃 福特 蛇吞象 跨境并购 并购融资 放虎归山 交割 斯德哥尔摩上市 品牌并购 中国汽车">
+          <button class="case-head" type="button" aria-expanded="false">
+            <span class="case-idx">20</span>
+            <span class="case-main">
+              <span class="case-title">吉利控股 · 收购沃尔沃轿车</span>
+              <span class="case-sub">18 亿美元收购、27 亿美元总融资｜一家年收入 20 亿美元的企业如何买下百亿美元品牌</span>
+            </span>
+            <span class="case-tag">蛇吞象</span>
+            <span class="case-meta">2008–2021<br />18 亿美元</span>
+            <span class="case-arrow" aria-hidden="true">▾</span>
+          </button>
+          <div class="case-body">
+            <div class="cl-kpis"><div class="cl-kpi"><span class="k">收购价款</span><span class="v">18 亿美元</span><span class="n">另按养老金义务与营运资本调整，最终低于 18 亿美元</span></div><div class="cl-kpi"><span class="k">支付方式</span><span class="v">现金 13 亿美元 + 票据 2 亿美元</span><span class="n">收购资金来自吉利控股、中资机构与国际资本市场</span></div><div class="cl-kpi"><span class="k">整体融资规模</span><span class="v">约 27 亿美元</span><span class="n">含约 9 亿美元营运资金筹备</span></div><div class="cl-kpi"><span class="k">卖出方成本对照</span><span class="v">福特 1999 年以 64.5 亿美元购入</span><span class="n">2010 年以不到三成价格出售</span></div></div>
+
+            <section class="cl-sec">
+              <h4 class="cl-h"><span class="cl-n">1</span>案例背景</h4>
+              <p class="cl-p">2008 年金融危机后，福特推行「One Ford」战略、急于剥离非核心品牌。沃尔沃 2009 年销量仅 33.5 万辆、营收 957 亿瑞典克朗、亏损高达 51.9 亿瑞典克朗（约 6.53 亿美元），成为福特手中的「烫手山芋」。</p><p class="cl-p">2010 年 3 月 28 日，浙江吉利控股与福特在瑞典哥德堡签署协议，以 18 亿美元收购沃尔沃轿车<strong>100% 股权及知识产权</strong>；8 月 2 日在伦敦完成资产交割。一家年销售收入约 20 亿美元的中国民营企业，买下了年销售收入超百亿美元的瑞典豪华品牌——「蛇吞象」由此成为跨境并购的经典案例。</p>
+            </section>
+
+            <section class="cl-sec">
+              <h4 class="cl-h"><span class="cl-n">2</span>关键时间线</h4>
+              <ol class="cl-tl"><li><span class="tl-t">2008 年</span><span class="tl-d">金融危机后福特推行「One Ford」战略，急于剥离非核心品牌，瑞典方面亦欢迎沃尔沃另寻东家。</span></li><li><span class="tl-t">2009 年</span><span class="tl-d">沃尔沃销量 33.5 万辆、营收 957 亿瑞典克朗、亏损 51.9 亿瑞典克朗。</span></li><li><span class="tl-t">2010 年 3 月 28 日</span><span class="tl-d">吉利与福特在哥德堡签署股权收购协议，价格 18 亿美元（2 亿美元票据 + 其余现金）。</span></li><li><span class="tl-t">2010 年 8 月 2 日</span><span class="tl-d">在伦敦完成资产交割，支付 13 亿美元现金并开出 2 亿美元票据；交易价格按养老金义务与营运资本调整，最终低于 18 亿美元。</span></li><li><span class="tl-t">交割后</span><span class="tl-d">沃尔沃保留瑞典总部与瑞典、比利时生产基地，李书福任董事长，前大众北美区 CEO 斯特凡·雅各比出任沃尔沃总裁兼 CEO；沃尔沃保持独立运营。</span></li><li><span class="tl-t">2021 年 10 月 29 日</span><span class="tl-d">沃尔沃在纳斯达克斯德哥尔摩交易所挂牌上市（代码 VOLCAR B），发行价 53 瑞典克朗，估值约 180 亿美元，募资约 23 亿美元，成为瑞典 20 年来最大 IPO。</span></li></ol>
+            </section>
+
+            <section class="cl-sec">
+              <h4 class="cl-h"><span class="cl-n">3</span>关键数据</h4>
+              <div class="cl-grid"><div class="cl-cell"><span class="ck">对价结构</span><span class="cv">「现金 + 票据」混合支付</span><span class="cn">约 16 亿美元现金、2 亿美元票据</span></div><div class="cl-cell"><span class="ck">资金来源</span><span class="cv">吉利 + 中资机构 + 国际资本市场</span><span class="cn">典型的「三方拼盘」式并购融资</span></div><div class="cl-cell"><span class="ck">福特的历史成本</span><span class="cv">1999 年 64.5 亿美元</span><span class="cn">最终以不到三成的价格出售</span></div><div class="cl-cell"><span class="ck">交割后治理</span><span class="cv">双总部、独立运营</span><span class="cn">保留瑞典总部与生产基地，管理层拥有执行商业计划的自主权</span></div><div class="cl-cell"><span class="ck">供应关系安排</span><span class="cv">沃尔沃与福特互相供应零部件</span><span class="cn">作为交易组成部分，确保过渡期平稳</span></div><div class="cl-cell"><span class="ck">上市退出</span><span class="cv">估值约 180 亿美元 / 募资 23 亿美元</span><span class="cn">2021-10-29 纳斯达克斯德哥尔摩，瑞典 20 年来最大 IPO</span></div></div>
+            </section>
+
+            <section class="cl-sec">
+              <h4 class="cl-h"><span class="cl-n">4</span>投行角色与业务职能</h4>
+              <ul class="cl-list"><li><span><strong>并购融资结构设计</strong>：以「现金 + 票据」组合降低一次性现金压力，并在吉利、中资机构与国际资本市场三方之间分摊出资。</span></li><li><span><strong>估值与定价</strong>：福特购入价 64.5 亿美元、卖出价 18 亿美元，巨大价差既是行业周期的结果，也反映品牌资产的估值弹性。</span></li><li><span><strong>治理与整合安排</strong>：保留被收购方的总部、生产基地与管理层自主权，是跨境品牌并购中降低摩擦的关键设计。</span></li><li><span><strong>退出路径设计</strong>：十一年后推动沃尔沃上市，把并购的投资收益转化为资本市场价值。</span></li></ul>
+            </section>
+
+            <section class="cl-sec">
+              <h4 class="cl-h"><span class="cl-n">5</span>争议与难点</h4>
+              <ul class="cl-list warn"><li><span><strong>18 亿美元是不是「抄底」</strong>：福特 1999 年花 64.5 亿美元买入、2010 年以不到三成价格卖出，但沃尔沃当时年亏 51.9 亿瑞典克朗，低价的另一面是持续的亏损与整合投入。</span></li><li><span><strong>融资规模为何远超收购价</strong>：整体融资规模约 27 亿美元（含 9 亿美元营运资金），说明并购的真实成本不只是「买价」，还包括并购后的运营资金需求。</span></li><li><span><strong>「放虎归山」式整合</strong>：吉利保留沃尔沃的独立运营而非强行接管，通过联合研发实现技术协同——与「深度整合」路线形成鲜明对比，值得对比讨论。</span></li><li><span><strong>对手方与外方利益协调</strong>：工会、瑞典与比利时政府、福特的供应关系都需要在交易中予以安排。</span></li></ul>
+            </section>
+
+            <section class="cl-sec">
+              <h4 class="cl-h"><span class="cl-n">6</span>课堂讨论题</h4>
+              <ol class="cl-q"><li><span>吉利收购沃尔沃的融资结构包含哪些组成部分？为什么不全部使用自有资金？</span></li><li><span>福特 1999 年以 64.5 亿美元购入、2010 年以 18 亿美元出售，请从行业周期与品牌资产估值的角度解释这一价差。</span></li><li><span>「18 亿美元收购价、27 亿美元融资规模」，多出的部分用于什么？这说明了并购的什么成本特征？</span></li><li><span>对比「放虎归山」（保留独立运营）与「深度整合」两种并购后整合路径的利弊。</span></li><li><span>十年后推动沃尔沃上市，对吉利而言意味着什么？请从并购退出（Exit）角度分析。</span></li></ol>
+            </section>
+
+            <div class="cl-take">
+              <span class="cl-take-h">结论与启示</span>
+              <p>「蛇吞象」式并购的关键不在出价，而在<strong>融资结构、治理安排与整合路径</strong>三件事的配合。吉利案的教学价值在于：它证明了跨境并购中「买得起」与「管得好」是两个独立命题，而后者往往更难。</p>
+            </div>
+
+            <div class="cl-src">资料来源：新华社/中工网（2010-08-03）、央视网（2010-08-03）、吉利控股与福特交割公告、沃尔沃汽车上市公告（2021-10-29）。</div>
+          </div>
+        </article>
+
+        <div class="cl-empty" id="cl-empty">没有匹配的案例。请更换关键词，或点击「全部」查看完整案例库。</div>
       </div>
     </section>
 
@@ -2460,27 +3386,121 @@
       chatPanel.classList.toggle('open');
     });
 
-    // ===== 案例库：手风琴展开 + 按章节筛选 =====
-    document.querySelectorAll('.case-head').forEach(function (head) {
-      head.addEventListener('click', function () {
-        head.parentElement.classList.toggle('open');
-      });
-    });
+    // ===== 案例库 v43：章节分组 + 检索 + 手风琴 =====
     (function () {
+      var root = document.getElementById('p-case');
       var bar = document.getElementById('case-filter');
-      if (!bar) return;
-      var items = Array.prototype.slice.call(document.querySelectorAll('#p-case .case-item'));
-      var chapters = [];
-      items.forEach(function (el) { var ch = el.getAttribute('data-chapter'); if (ch && chapters.indexOf(ch) === -1) chapters.push(ch); });
-      var all = [{ no: '全部', ch: null }].concat(chapters.map(function (c) { return { no: c, ch: c }; }));
-      bar.innerHTML = all.map(function (x) { return '<button class="cf-btn' + (x.ch === null ? ' active' : '') + '" data-ch="' + (x.ch || '') + '">' + x.no + '</button>'; }).join('');
+      var qEl = document.getElementById('cl-q');
+      var clr = document.getElementById('cl-q-clear');
+      var emptyEl = document.getElementById('cl-empty');
+      if (!root || !bar) return;
+
+      var items = Array.prototype.slice.call(root.querySelectorAll('.case-item'));
+      var groups = Array.prototype.slice.call(root.querySelectorAll('.case-chapter'));
+
+      // 检索索引：标题 + 标签 + 一句话摘要 + 关键词 + 章节
+      items.forEach(function (el) {
+        var g = function (s) { var n = el.querySelector(s); return n ? n.textContent : ''; };
+        el.setAttribute('data-search', (g('.case-title') + ' ' + g('.case-tag') + ' ' + g('.case-sub') + ' '
+          + (el.getAttribute('data-search-key') || '') + ' ' + (el.getAttribute('data-chapter') || '')).toLowerCase());
+      });
+
+      // 章节 chips：按「第N章」的数值排序（修原 DOM 顺序造成的第3/7/5/1…乱序）
+      var chs = [];
+      items.forEach(function (el) {
+        var ch = el.getAttribute('data-chapter');
+        if (ch && chs.indexOf(ch) === -1) chs.push(ch);
+      });
+      var numOf = function (ch) { var n = parseInt(String(ch).replace(/[^0-9]/g, ''), 10); return isNaN(n) ? 99 : n; };
+      chs.sort(function (a, b) { return numOf(a) - numOf(b); });
+      var cntOf = function (ch) {
+        var n = 0;
+        items.forEach(function (el) { if (el.getAttribute('data-chapter') === ch) n++; });
+        return n;
+      };
+      bar.innerHTML = '<button class="cf-btn active" type="button" data-ch="" aria-pressed="true">全部'
+        + '<span class="cf-n">' + items.length + '</span></button>'
+        + chs.map(function (ch) {
+            return '<button class="cf-btn" type="button" data-ch="' + ch + '" aria-pressed="false">' + ch
+              + '<span class="cf-n">' + cntOf(ch) + '</span></button>';
+          }).join('');
+
+      var state = { ch: '', q: '' };
+      function apply() {
+        var shown = 0;
+        items.forEach(function (el) {
+          var okCh = !state.ch || el.getAttribute('data-chapter') === state.ch;
+          var okQ = !state.q || (el.getAttribute('data-search') || '').indexOf(state.q) !== -1;
+          var vis = okCh && okQ;
+          el.style.display = vis ? '' : 'none';
+          if (vis) shown++;
+        });
+        groups.forEach(function (hd) {
+          var ch = hd.getAttribute('data-ch'), any = false;
+          items.forEach(function (el) {
+            if (el.getAttribute('data-chapter') === ch && el.style.display !== 'none') any = true;
+          });
+          hd.style.display = any ? '' : 'none';
+        });
+        if (emptyEl) emptyEl.style.display = shown ? 'none' : 'block';
+      }
+
       bar.addEventListener('click', function (e) {
         var b = e.target.closest('.cf-btn'); if (!b) return;
-        var ch = b.getAttribute('data-ch');
-        bar.querySelectorAll('.cf-btn').forEach(function (x) { x.classList.toggle('active', x === b); });
-        items.forEach(function (el) { el.style.display = (!ch || el.getAttribute('data-chapter') === ch) ? '' : 'none'; });
+        state.ch = b.getAttribute('data-ch') || '';
+        Array.prototype.forEach.call(bar.querySelectorAll('.cf-btn'), function (x) {
+          var on = x === b;
+          x.classList.toggle('active', on);
+          x.setAttribute('aria-pressed', on ? 'true' : 'false');
+        });
+        apply();
       });
+
+      if (qEl) {
+        qEl.addEventListener('input', function () {
+          state.q = qEl.value.trim().toLowerCase();
+          apply();
+        });
+      }
+      if (clr && qEl) {
+        clr.addEventListener('click', function () {
+          qEl.value = ''; state.q = ''; apply(); qEl.focus();
+        });
+      }
+
+      // 手风琴（事件委托挂容器，避免重绘丢监听）
+      root.addEventListener('click', function (e) {
+        var h = e.target.closest('.case-head'); if (!h) return;
+        var it = h.parentElement;
+        var open = it.classList.toggle('open');
+        h.setAttribute('aria-expanded', open ? 'true' : 'false');
+      });
+
+      // 章节页深链：先清空筛选与检索 → 展开 → 平滑定位（供 p-graph 章节页「案例拓展」调用）
+      window.__ibankCaseShow = function (id) {
+        state.ch = ''; state.q = '';
+        if (qEl) qEl.value = '';
+        Array.prototype.forEach.call(bar.querySelectorAll('.cf-btn'), function (x) {
+          var on = !x.getAttribute('data-ch');
+          x.classList.toggle('active', on);
+          x.setAttribute('aria-pressed', on ? 'true' : 'false');
+        });
+        apply();
+        var el = document.getElementById(id); if (!el) return;
+        el.classList.add('open');
+        var h = el.querySelector('.case-head'); if (h) h.setAttribute('aria-expanded', 'true');
+        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      };
+
+      // 默认展开第一个案例，保证首屏有内容
+      if (items[0]) {
+        items[0].classList.add('open');
+        var h0 = items[0].querySelector('.case-head');
+        if (h0) h0.setAttribute('aria-expanded', 'true');
+      }
+      apply();
     })();
+
 
     // ===== 宏观市场：情景推演 · 联动关系图 · 资产卡下钻详解（v38） =====
     const escM = function (t) { return String(t == null ? '' : t).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); };
@@ -2674,15 +3694,36 @@
       { keys: ['估值','市盈率','市净率','市销率','折现','dcf','现金流','pe','pb','定价'], ans: '常见估值方法：①相对估值（市盈率 PE、市净率 PB、市销率 PS、EV/EBITDA），与可比公司比较；②绝对估值（现金流折现 DCF），预测未来现金流并折现。成长型公司常用 PE/PS，金融重资产类常用 PB，DCF 适用于现金流稳定的公司。' },
       { keys: ['尽职调查','尽调','dd','调查'], ans: '尽职调查是投行在交易前对目标公司进行的全面核查，涵盖业务、财务、法律三大方面。目的是缓解信息不对称、发现风险、为估值与交易条款提供依据，是 IPO、并购等投行业务的必备环节。' },
       { keys: ['投行','投资银行','保荐','券商'], ans: '投资银行主要开展证券承销保荐、并购重组顾问、财务顾问、资产证券化等业务，核心是「信息中介」与「定价中枢」。保荐人是企业上市的「第一责任人」，负责推荐上市并持续督导。' },
-      { keys: ['案例','案例库','中芯国际','美的集团','中国中化','阿里巴巴'], ans: '本课程案例库收录：①中芯国际科创板 IPO（承销保荐）②美的集团收购库卡（并购重组）③中国中化公司债承销 ④阿里巴巴港股二次上市。可切换到「案例库」页查看完整内容。' },
+      { keys: ['案例','案例库','中芯国际','美的集团','阿里巴巴','五洋','欣泰','永煤','超日','宝万','库卡','沃尔沃','宁德时代','蚂蚁','抗疫特别国债'], dyn: true, ans: caseListAnswer },
       { keys: ['你好','您好','hi','hello','在吗','你是谁','谢谢','thanks'], ans: '你好，我是 iBank 助手 👋 可以问我美元、黄金、股票、美债等宏观话题，以及 IPO、并购、承销、估值、尽职调查等投行知识。' }
     ];
     const FALLBACK = '这个问题我暂时没收录。你可以换个关键词，或问我：美元 / 黄金 / 股票 / 美债 / IPO / 并购 / 承销 / 估值 / 尽职调查。也可以看「宏观市场」「案例库」和「股市模拟」页。';
+    // 案例库清单在运行时从 DOM 实时读取（v43 教训：此前硬编码 4 个案例名，案例增删后会指向已删除的条目）
+    function caseListAnswer() {
+      try {
+        var items = document.querySelectorAll('.case-item');
+        if (!items || !items.length) return '本课程案例库正在整理中，可切换到「案例库」页查看。';
+        var byCh = {}, order = [], n = 0;
+        for (var i = 0; i < items.length; i++) {
+          var ch = items[i].getAttribute('data-chapter') || '其他';
+          var t = items[i].querySelector('.case-title');
+          var title = t ? String(t.textContent || '').replace(/\s+/g, ' ').trim() : '';
+          if (!title) continue;
+          if (!byCh[ch]) { byCh[ch] = []; order.push(ch); }
+          byCh[ch].push(title); n++;
+        }
+        var lines = [];
+        for (var j = 0; j < order.length; j++) lines.push(order[j] + '：' + byCh[order[j]].join('、'));
+        return '本课程案例库共收录 ' + n + ' 个真实案例，按教学章节组织 —— ' + lines.join('；') + '。可切换到「案例库」页按章节筛选、检索关键词并展开阅读完整内容（每例含背景、时间轴、关键数据、投行角色、争议难点、讨论题与资料来源）。';
+      } catch (e) {
+        return '本课程案例库按教学章节组织（第0章导论至第7章），覆盖 IPO、再融资、债券承销、资产证券化与并购重组等真实事件。可切换到「案例库」页查看完整内容。';
+      }
+    }
     function answer(q) {
       const s = q.toLowerCase();
       for (let i = 0; i < KNOWLEDGE.length; i++) {
         if (KNOWLEDGE[i].keys.some(function (k) { return s.indexOf(k.toLowerCase()) !== -1; })) {
-          return KNOWLEDGE[i].ans;
+          return typeof KNOWLEDGE[i].ans === 'function' ? KNOWLEDGE[i].ans() : KNOWLEDGE[i].ans;
         }
       }
       return FALLBACK;
@@ -4949,7 +5990,7 @@
         const cases = casesOfChapter(no);
         const casesHtml = cases.length
           ? cases.map(function (x) { return '<a class="case-link" data-goto="p-case" data-case="' + x.id + '">' + esc(x.title) + '<span class="case-tag-mini">' + esc(x.tag) + '</span><span class="ext">↗</span></a>'; }).join('')
-          : '<div class="todo-note">本章真实案例正在补充中。可前往「案例库」页查看全部案例（中芯国际 IPO、美的并购、中化债券、蚂蚁 ABS 等）。</div>';
+          : '<div class="todo-note">本章暂无已归类的真实案例。可前往「案例库」页按章节筛选或检索关键词查看全部案例。</div>';
         const v = VIDEOS[no];
         const videoHtml = v
           ? '<a class="video-card" href="' + v.url + '" target="_blank" rel="noopener noreferrer"><span class="vc-play">▶</span><span class="vc-info"><b class="vc-title">' + esc(v.title) + '</b><span class="vc-meta">' + esc(v.up) + (v.duration ? ' · ' + esc(v.duration) : '') + ' · B 站外链 ↗</span></span></a>'
@@ -4988,7 +6029,10 @@
           if (t === 'p-case' && go.getAttribute('data-case')) {
             const cid = go.getAttribute('data-case');
             const b = document.querySelector('.tab-btn[data-page="p-case"]'); if (b) b.click();
-            setTimeout(function () { const el = document.getElementById(cid); if (el) { el.classList.add('open'); el.scrollIntoView({ behavior: 'smooth', block: 'start' }); } }, 80);
+            setTimeout(function () {
+              if (window.__ibankCaseShow) { window.__ibankCaseShow(cid); return; }
+              const el = document.getElementById(cid); if (el) { el.classList.add('open'); el.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+            }, 80);
             return;
           }
           const b2 = document.querySelector('.tab-btn[data-page="' + t + '"]'); if (b2) b2.click(); return;
