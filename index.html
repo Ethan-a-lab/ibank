@@ -1275,6 +1275,11 @@
       color: var(--muted); background: rgba(120,130,160,.06);
       border: 1px solid rgba(120,130,160,.22); border-radius: 9px; }
     #admin-scope { font-size: 13px; }
+    /* 一键清本机数据：与区间说明同区块内的次要操作 */
+    .ev-scope-tools { margin: 8px 0 0; }
+    .ev-scope-tools button { font: inherit; font-size: 12px; padding: 5px 12px; cursor: pointer;
+      color: var(--muted); background: transparent; border: 1px solid rgba(120,130,160,.35); border-radius: 8px; }
+    .ev-scope-tools button:hover { color: var(--text); border-color: var(--primary, #2563eb); }
     /* 图表空态：说明缺什么/为什么/怎么办。刻意不画 0% 柱子——0% 会被读成「学生全答错」 */
     .ev-nodata { padding: 14px 15px; border: 1px dashed rgba(120,130,160,.4);
       border-radius: 10px; background: rgba(120,130,160,.05); font-size: 12px; line-height: 1.75; }
@@ -3684,6 +3689,9 @@
       </div>
       <!-- 统计区间：与上方 KPI 同源同批事件算出，避免"光给数字看不出是哪段时间" -->
       <div class="ev-scope" id="ev-scope-range">统计区间：等待数据加载…</div>
+      <!-- 一键清本机埋点：本机答题记录会累加进 KPI，答辩前需要回到学期累计口径 -->
+      <div class="ev-scope-tools"><button type="button" id="ev-reset-local"
+        title="清空本机累计的学习行为记录，看板数字回到学期累计口径（不影响网址与云端）">清空本机数据</button></div>
 
       <div class="ev-grid">
         <div class="admin-panel"><h4>各章节平均掌握度</h4><div class="sub">按章统计完成学习的学生占比</div><div id="ev-chapter"></div></div>
@@ -3926,17 +3934,20 @@
       });
       document.addEventListener('click', function () { closeAll(null); });
 document.addEventListener('keydown', function (e) {
-        // Shift+D：打印数据自检（看板数字来源：基线 / 本机埋点 / 云端）
-        if (e.key === 'D' && e.shiftKey && typeof window.ibank_data_audit === 'function') {
-      window.ibank_data_audit();
-          return;
+        // Shift+D：**一键清理**本机埋点并刷新看板
+        // 为什么做成「直接清」而不是「打印」：清本机数据需开 DevTools 粘代码，
+        // 非技术用户容易卡在这一步。改成一个键即可完成，不必碰控制台。
+  if (e.key === 'D' && e.shiftKey) {
+    e.preventDefault();
+          if (typeof window.__ibankResetLocal === 'function') window.__ibankResetLocal(false);
+    return;
         }
-        if (e.key !== 'Escape') return;
+    if (e.key !== 'Escape') return;
         var open = document.querySelector('.nav-group.open');
      if (!open) return;
-      closeAll(null);
-        var t = open.querySelector('.nav-trigger');
-        if (t) t.focus();
+        closeAll(null);
+      var t = open.querySelector('.nav-trigger');
+  if (t) t.focus();
       });
       // 选中二级项后收起面板，并把一级项标为激活
       function syncGroupActive() {
@@ -9105,10 +9116,34 @@ window.ibank_use_design_stats = function (on) {
               + ' —— 若数字看起来偏大，先执行下方清理'
             : '无'
         };
-     console.log('%c[iBank 数据自检]', 'font-weight:bold', out);
-        console.log('清理本机埋点：localStorage.removeItem("ibank_events_local") 然后刷新');
-     return out;
+console.log('%c[iBank 数据自检]', 'font-weight:bold', out);
+        console.log('清理本机埋点：点看板上的「清空本机数据」按钮，或按 Shift+D');
+        return out;
       };
+      // 看板上的「清空本机数据」按钮
+      window.__ibankResetLocal = function (silent) {
+        var n = 0;
+        try {
+          var a = JSON.parse(localStorage.getItem('ibank_events_local') || '[]');
+          n = a.length;
+          localStorage.removeItem('ibank_events_local');
+        } catch (e) {}
+        localStorage.removeItem('ibank_stat_design');
+        if (!silent && n > 0) {
+          alert('已清空本机 ' + n + ' 条学习记录，正在重新加载…\n\n'
+            + '看板数字会回到学期累计口径：\n'
+            + 'AI 问答 3200 · 习题作答 5400 · 章节学习 436\n\n'
+            + '之后你在这台电脑上答题，数字会继续往上走 —— 这是正常的。');
+        }
+        window.ibank_data_audit && window.ibank_data_audit();
+        if (typeof loadEventStats === 'function') loadEventStats();
+        setTimeout(function () { location.reload(); }, (n > 0 && !silent) ? 500 : 0);
+        return n;
+      };
+      document.addEventListener('DOMContentLoaded', function () {
+        var btn = document.getElementById('ev-reset-local');
+        if (btn) btn.addEventListener('click', function () { window.__ibankResetLocal(false); });
+      });
 
       async function loadEventStats() {
         const kpiRow = document.getElementById('ev-kpi-row');
