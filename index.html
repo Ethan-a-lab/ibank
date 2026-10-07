@@ -3,6 +3,10 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <!-- ★favicon：内联 SVG data URI（零额外文件、零额外请求）。
+       此前未声明图标，浏览器自动请求 /favicon.ico 得到 404，
+       在控制台留一条红色报错，容易被当成功能故障。用内联 SVG 直接消掉。 -->
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%232563eb'/%3E%3Ctext x='32' y='43' font-family='Arial,Helvetica,sans-serif' font-size='30' font-weight='bold' fill='%23fff' text-anchor='middle'%3EiB%3C/text%3E%3C/svg%3E" />
   <title>iBank平台 · 投资银行学智慧课堂</title>
   <style>
     :root {
@@ -1992,23 +1996,30 @@
       </div>
 
       <!-- 登录面板 -->
-      <div id="panel-login">
-        <div class="login-methods">
-          <button class="active" data-m="password">密码登录</button>
-          <button data-m="sms">验证码登录</button>
+      <!-- ★登录面板包在<form> 内：浏览器要求 password 控件必须属于 form，
+否则控制台报「Password field is not contained in a form」，
+且 Enter 提交与浏览器密码管理器都失效。submit 由 JS 拦截并转发给原按钮逻辑，
+不触发页面刷新（e.preventDefault），行为与改动前完全一致。 -->
+    <form id="form-login" autocomplete="on" novalidate>
+   <div id="panel-login">
+<div class="login-methods">
+          <button type="button" class="active" data-m="password">密码登录</button>
+ <button type="button" data-m="sms">验证码登录</button>
         </div>
         <div class="lfield"><input id="login-phone" type="tel" placeholder="手机号" /></div>
-        <div class="lfield" id="login-pwd-field"><input id="login-password" type="password" placeholder="密码" /></div>
+ <div class="lfield" id="login-pwd-field"><input id="login-password" type="password" placeholder="密码" /></div>
         <div class="lfield hidden" id="login-sms-field">
-          <input id="login-sms-code" type="text" placeholder="短信验证码" />
-          <button id="login-sms-btn" type="button">获取验证码</button>
-        </div>
-        <button class="lprimary" id="login-btn">登录</button>
-        <p class="login-note">师生同一登录入口，登录后系统按身份自动进入学生端 / 教师端。<br>忘记密码？点上方「注册」，用手机验证码即可重设密码。</p>
+      <input id="login-sms-code" type="text" placeholder="短信验证码" />
+     <button id="login-sms-btn" type="button">获取验证码</button>
+     </div>
+        <button class="lprimary" id="login-btn" type="button">登录</button>
+<p class="login-note">师生同一登录入口，登录后系统按身份自动进入学生端 / 教师端。<br>忘记密码？点上方「注册」，用手机验证码即可重设密码。</p>
       </div>
+    </form>
 
       <!-- 注册面板 -->
-      <div id="panel-register" class="hidden">
+      <form id="form-register" autocomplete="on" novalidate>
+ <div id="panel-register" class="hidden">
         <div class="lfield"><input id="reg-name" type="text" placeholder="姓名（必填）" /></div>
         <div class="lfield">
           <select id="reg-class">
@@ -2021,12 +2032,13 @@
           <input id="reg-sms-code" type="text" placeholder="短信验证码" />
           <button id="reg-sms-btn" type="button">获取验证码</button>
         </div>
-        <div class="lfield"><input id="reg-password" type="password" placeholder="设置密码（8-32位，含字母和数字）" /></div>
-        <div class="lfield"><input id="reg-password2" type="password" placeholder="确认密码" /></div>
-        <button class="lprimary" id="register-btn">注册并登录</button>
+<div class="lfield"><input id="reg-password" type="password" placeholder="设置密码（8-32位，含字母和数字）" /></div>
+  <div class="lfield"><input id="reg-password2" type="password" placeholder="确认密码" /></div>
+ <button class="lprimary" id="register-btn" type="button">注册并登录</button>
         <p class="login-note">注册即学生账号；教师身份由课程管理员在后台授予。忘记密码？重走一遍本流程即可用手机验证码重置密码。</p>
         <p class="privacy-note"><strong>数据与隐私说明：</strong>本平台仅收集<strong>姓名、班级与学习行为数据</strong>（章节学习时长、习题作答正误、模块使用情况），用于课程教学分析与学情反馈，不对外公开、不用于商业用途。<strong>课程结束后</strong>，将对个人身份信息做<strong>匿名化处理</strong>（清除姓名等可识别信息），仅保留汇总统计数据用于教学研究。</p>
       </div>
+    </form>
 
       <div class="login-msg" id="login-msg"></div>
     </div>
@@ -10291,6 +10303,16 @@ const actSrc = login.length ? login : study.concat(quiz, mod, qa);
           startSmsCooldown(btn);
         } catch (e) { showMsg('发送失败：' + e.message, 'err'); btn.disabled = false; }
       });
+      // ★把外层 <form> 的 submit 转发到原按钮 click：按回车键等同点按钮，
+      //   preventDefault 防止页面刷新（表单无 action，浏览器默认行为是整页重载）。
+      (function () {
+        var pairs = [['form-login', 'login-btn'], ['form-register', 'register-btn']];
+        pairs.forEach(function (p) {
+          var f = document.getElementById(p[0]), b = document.getElementById(p[1]);
+          if (!f || !b) return;
+          f.addEventListener('submit', function (e) { e.preventDefault(); b.click(); });
+    });
+      })();
 
       document.getElementById('login-btn').addEventListener('click', async function () {
         const phone = document.getElementById('login-phone').value.trim();
