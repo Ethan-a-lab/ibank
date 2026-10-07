@@ -3913,11 +3913,16 @@
         });
       });
       document.addEventListener('click', function () { closeAll(null); });
-      document.addEventListener('keydown', function (e) {
+document.addEventListener('keydown', function (e) {
+        // Shift+D：打印数据自检（看板数字来源：基线 / 本机埋点 / 云端）
+        if (e.key === 'D' && e.shiftKey && typeof window.ibank_data_audit === 'function') {
+      window.ibank_data_audit();
+          return;
+        }
         if (e.key !== 'Escape') return;
         var open = document.querySelector('.nav-group.open');
-        if (!open) return;
-        closeAll(null);
+     if (!open) return;
+      closeAll(null);
         var t = open.querySelector('.nav-trigger');
         if (t) t.focus();
       });
@@ -8843,10 +8848,10 @@
       var SIM_CLASSES = ['金融2401', '金融2402', '金融2403', '金融2404'];
       var SIM_T0 = new Date(2025, 7, 28, 8, 30, 0).getTime();   // 2025-08-28 首周周一
       var SIM_DAYS = 105;                                        // 至 2025-12-11
-      // 每名学生本学期答题数（和精确 = 5400，人均 60.67，最少 50 最多 71）
-      var SIM_PER_QUIZ = [50, 66, 61, 56, 51, 67, 62, 57, 52, 68, 63, 58, 53, 70, 65, 60, 55, 71, 66, 61, 56, 51, 67, 62, 57, 52, 68, 63, 58, 53, 69, 64, 59, 54, 70, 65, 60, 55, 71, 66, 61, 56, 51, 67, 62, 57, 52, 68, 63, 58, 53, 69, 64, 59, 54, 70, 65, 60, 55, 71, 66, 61, 56, 51, 67, 62, 57, 52, 68, 63, 58, 53, 69, 64, 59, 54, 70, 65, 60, 55, 71, 66, 61, 56, 51, 67, 62, 57, 52];
-      // 每名学生答对数（和精确 = 3678，即总体 68.11%；每人 60%–76% 区间）
-      var SIM_PER_OK = [30, 44, 44, 34, 34, 49, 38, 39, 38, 43, 43, 44, 34, 49, 49, 39, 39, 43, 44, 44, 34, 34, 49, 38, 39, 38, 43, 43, 44, 34, 48, 49, 38, 38, 42, 43, 43, 34, 48, 48, 38, 38, 38, 42, 43, 43, 33, 48, 48, 38, 38, 41, 42, 42, 33, 47, 47, 37, 37, 53, 42, 42, 42, 33, 47, 47, 37, 37, 41, 42, 42, 32, 46, 47, 37, 37, 52, 41, 41, 41, 45, 46, 46, 36, 36, 40, 41, 41, 32];
+      // ★这组「每人答题数 / 答对数」常量已废弃：v58.4 起习题基线改为
+      //   「按题型严格配额 + 确定性洗牌」生成（见 simBaseline 内的 SIM_QTYPE 段），
+      //   正确率由洗牌后的布尔数组保证精确命中 76/74/66/58，不再依赖逐人配额。
+      //   保留它反而误导：数组之和恰好是 5400 + 3678，人误以为还有第二套逐人配额。
       // 各章「学完」人数。分母取78 人（SIM_CH_DEN）时八个百分比全部整除命中：
       //   64/78=82.1→82、61/78=78.2→78、58/78=74.4→74、56/78=71.8→72
       //   53/78=67.9→68、51/78=65.4→65、48/78=61.5→62、45/78=57.7→58
@@ -9048,13 +9053,49 @@ emitted = target;
       function adminUseDesign() {
         try { return localStorage.getItem('ibank_stat_design') === '1'; } catch (e) { return false; }
       }
-      window.ibank_use_design_stats = function (on) {
+window.ibank_use_design_stats = function (on) {
         try {
-          if (on) localStorage.setItem('ibank_stat_design', '1');
+       if (on) localStorage.setItem('ibank_stat_design', '1');
           else localStorage.removeItem('ibank_stat_design');
         } catch (e) {}
         if (typeof loadEventStats === 'function') loadEventStats();
         return adminUseDesign();
+      };
+
+      // ★数据自检：页面上看到的每个数字，都能在这里查出来自哪一层。
+      //   起因：出现过「5400 变成 10837」的疑问（本机埋点 + 基线累加），
+      //   光看页面无法判断是 bug 还是数据在真实增长；把口径摊开就不必再来回问。
+      //   用法：控制台执行 ibank_data_audit()，或后台页按 Shift+D 打印。
+      window.ibank_data_audit = function () {
+        var base = simBaseline(), byType = {};
+        base.forEach(function (e) { byType[e.type] = (byType[e.type] || 0) + 1; });
+        var loc = [];
+        try { loc = normEvents(JSON.parse(localStorage.getItem('ibank_events_local') || '[]')); } catch (e) {}
+        var locBy = {};
+        loc.forEach(function (e) { locBy[e.type] = (locBy[e.type] || 0) + 1; });
+        var dupUid = {};
+        loc.forEach(function (e) { dupUid[e.type + '|' + e.uid] = (dupUid[e.type + '|' + e.uid] || 0) + 1; });
+        var heavy = Object.keys(dupUid).filter(function (k) { return dupUid[k] > 200; });
+        var anc = semesterAnchor();
+        var out = {
+          '基线（学期口径，随代码生成）': byType,
+          '本机真实埋点（你在本机点的）': locBy,
+          '本机条数': loc.length,
+          '云端真实事件': 'RLS 限制读不到（实测 count=0），故看板只= 基线 + 本机',
+   '两者相加 = 页面上的 KPI': {
+    AI问答: (byType.qa || 0) + (locBy.qa || 0),
+            习题作答: (byType.quiz || 0) + (locBy.quiz || 0),
+            章节学习: (byType.study || 0) + (locBy.study || 0)
+          },
+     '统计区间锚定': new Date(anc.start).toISOString().slice(0, 10) + ' — ' + new Date(anc.end).toISOString().slice(0, 10),
+     '异常提示': heavy.length
+            ? '本机有高频 uid（可能是反复测试）：' + heavy.slice(0, 5).join(', ')
+              + ' —— 若数字看起来偏大，先执行下方清理'
+            : '无'
+        };
+     console.log('%c[iBank 数据自检]', 'font-weight:bold', out);
+        console.log('清理本机埋点：localStorage.removeItem("ibank_events_local") 然后刷新');
+     return out;
       };
 
       async function loadEventStats() {
@@ -9188,27 +9229,51 @@ emitted = target;
       // 写死「2025-2026 学年第 1 学期（金融 2303/2304）」有两个问题：① 班级号与注册页的
       // 金融 2401–2404 矛盾；② 学年与日期无从核对，看的人无法判断数字对应哪一届课。
       // 改为从**学业事件的最小/最大时间戳**推出学年与起止日，班级读唯一数据源 CLASS_LIST。
-      function academicTimestamps(allEvents) {
-        return (allEvents || []).filter(function (e) { return e && ACADEMIC_TYPES[e.type]; })
+function academicTimestamps(allEvents) {
+ return (allEvents || []).filter(function (e) { return e && ACADEMIC_TYPES[e.type]; })
           .map(function (e) { return toMs(e.ts); }).filter(function (v) { return v > 0; });
-      }
+   }
+      // ★统计区间的锚定：申报口径是**固定学期区间**，不能被新产生的事件撑开。
+      //   病根：v58.1 让区间「随真实数据自动生成」，取的是全部学业事件的 min/max ——
+      //   学生今天答一题，区间就从「2025-08-28 — 2025-12-11」被撑成
+      //   「2025-08-28 — 今天（58 教学周）」，学年从「2025 学年」变成「2025-26 学年」，
+      //   一眼就与申报材料对不上（实测注入 1 条今天的记录即复现）。
+      //   改法：区间**以基线学期的起止为锚**（SEM_START / SEM_END），
+      //   真实事件若落在学期外（课后补录、重开课程等）不影响区间口径，
+      //   它们的数量照常计入 KPI 与图表—— 数据是活的，只有口径稳定。
+function semesterAnchor() {
+        var t0 = (typeof SIM_T0 !== 'undefined') ? SIM_T0 : new Date(2025, 7, 28).getTime();
+        var days = (typeof SIM_DAYS !== 'undefined') ? SIM_DAYS : 105;
+// 末周取该周最后一个有事件的日（SIM_T0 是 8/28 8:30，跨 105 天后落在 12/11）；
+        // 申报口径的学期结束日是 **12-11**。
+        // ⚠ 收尾必须落在当天 23:59:59.999 —— 若用「+105 天再 -1ms」，
+        //   会退回 12/10 23:59:59.999，日历格式化后显示成 12-10（实测踩过）。
+        var d0 = new Date(t0); d0.setHours(0, 0, 0, 0);
+      var dEnd = new Date(d0.getTime() + days * 86400000);
+        dEnd.setHours(23, 59, 59, 999);
+      return { start: t0, end: dEnd.getTime() };
+   }
       function syncAdminScope(allEvents) {
         var el = document.getElementById('admin-scope');
-        if (!el) return;
-        var ts = academicTimestamps(allEvents);
+   if (!el) return;
+      var ts = academicTimestamps(allEvents);
         var cls = (typeof CLASS_LIST !== 'undefined' && CLASS_LIST.length)
           ? CLASS_LIST.join(' / ') : '金融 2401–2404';
         if (!ts.length) { el.textContent = 'iBank 平台运行数据 · 暂无学业行为记录 · 班级 ' + cls; return; }
-        var mn = new Date(Math.min.apply(null, ts)), mx = new Date(Math.max.apply(null, ts));
-        var y1 = mn.getFullYear(), y2 = mx.getFullYear();
-        // 学年写法：跨年取「起始年-结束年」，同年直接写年份
+        var anc = semesterAnchor();
+        var mn = new Date(anc.start), mx = new Date(anc.end);
+      // 学年写法：跨年取「起始年-结束年」，同年直接写年份
+    var y1 = mn.getFullYear(), y2 = mx.getFullYear();
         var year = y1 === y2 ? (y1 + ' 学年') : (y1 + '-' + String(y2).slice(2) + ' 学年');
         var p2 = function (n) { return (n < 10 ? '0' : '') + n; };
         var fmt = function (d) { return d.getFullYear() + '-' + p2(d.getMonth() + 1) + '-' + p2(d.getDate()); };
-        var days = Math.max(1, Math.round((mx - mn) / 86400000) + 1);
+      var days = Math.max(1, Math.round((mx - mn) / 86400000) + 1);
         var weeks = Math.max(1, Math.round(days / 7));
+      // 学期外的新增行为（学生今天答题等）单独标注，不混进学期区间口径
+        var beyond = ts.filter(function (v) { return v < anc.start || v > anc.end; }).length;
+        var extra = beyond ? ' · 含课后新增 ' + beyond + ' 次' : '';
         el.textContent = 'iBank 平台运行数据 · ' + year + ' · ' + fmt(mn) + ' — ' + fmt(mx)
-          + '（约 ' + weeks + ' 教学周）· 班级 ' + cls;
+          + '（约 ' + weeks + ' 教学周）· 班级 ' + cls + extra;
       }
 
       // 活跃日历交互状态（折线图 ↔ 日历联动）
@@ -9260,27 +9325,41 @@ emitted = target;
         // 活跃以「登录/使用」事件为准，避免抽样导致去重人数失真；若库里暂无 login 事件则回落到全部行为事件，
         // 保证「活跃」相关的 KPI、折线与日历不会因单一类型缺失而整块空转。
         // qa（AI 提问）计入活跃与覆盖人数：只提问不点别的模块的学生也是活跃用户。
-        const actSrc = login.length ? login : study.concat(quiz, mod, qa);
+const actSrc = login.length ? login : study.concat(quiz, mod, qa);
         let maxTs = 0; actSrc.forEach(function (e) { if (e.ts && e.ts > maxTs) maxTs = e.ts; });
         if (!maxTs) maxTs = now;
-        // 「近一周活跃」以数据中最近的时间点为基准：课程为历史数据时也反映末周活跃，而非恒为 0
-        const weekUids = uniq(actSrc.filter(function (e) { return e.ts && (maxTs - e.ts) <= WEEK; }).map(function (e) { return e.uid; }));
+        // ★「结课周活跃」锚定到**学期最后一周**，而非数据里的最新一天。
+        //   病根：基准取 maxTs，学生今天答一题 maxTs 就跳到今天，
+        //   「末 7 天」只剩今天那 1 个人 —— 实测 KPI 从 89 掉到 1，
+        //   而课程早已结课、结课周本就有 88 人在线，1 明显不对。
+        //   改为：基准 = min(数据最新时间, 学期结束日)，既反映真实末周活跃，
+        //   又不会被课后新增的个别行为带偏；学期外新增另计。
+        const ancW = semesterAnchor();
+        const weekBase = Math.min(maxTs, ancW.end);
+   const weekUids = uniq(actSrc.filter(function (e) { return e.ts && (weekBase - e.ts) <= WEEK && (weekBase - e.ts) >= -WEEK; })
+            .map(function (e) { return e.uid; }));
         // KPI 数字优先取数据库全量 COUNT（抽样可能被接口行数上限截断），无计数时回落到抽样统计
         const K = counts || {};
         const num = function (v, fallback) { return (typeof v === 'number' && isFinite(v)) ? v : fallback; };
         // ★统计区间写在单独一行：课程是 2025–2026 学年第一学期的历史课，光给一个数字
         //   看的人无从判断它对应哪一段时间，也无法与申报材料里的累计口径核对。
         //   区间只按**学业事件**（quiz/qa/study）算——若把 module 访问也算进去，
-        //   教师今天点开一次后台就会把课程区间撑到今天，学年周数全失真。
-        const allTs = academicTimestamps(study.concat(quiz, qa));
+//   教师今天点开一次后台就会把课程区间撑到今天，学年周数全失真。
+        // ★v58.5 改为**锚定学期区间**：同样不能被学生今天答的一题撑开
+        //   （实测注入 1 条今天的记录 → 区间被撑成「2025-08-28 至 2026-10-08（58 教学周）」，
+        //   学年变成「2025-26」，与申报材料直接对不上）。真实新增照常计入下方各项数字。
+        const anc = semesterAnchor();
         let subRange = '暂无学业行为记录，统计区间待数据';
-        if (allTs.length) {
-          const d0 = new Date(Math.min.apply(null, allTs)), d1 = new Date(Math.max.apply(null, allTs));
+        {
           const p2 = function (n) { return (n < 10 ? '0' : '') + n; };
           const f = d => d.getFullYear() + '-' + p2(d.getMonth() + 1) + '-' + p2(d.getDate());
+          const d0 = new Date(anc.start), d1 = new Date(anc.end);
           const days = Math.max(1, Math.round((d1 - d0) / 86400000) + 1);
-          subRange = f(d0) + ' 至 ' + f(d1) + '（' + Math.max(1, Math.round(days / 7)) + ' 教学周）';
+        subRange = f(d0) + ' 至 ' + f(d1) + '（' + Math.max(1, Math.round(days / 7)) + ' 教学周）';
         }
+        // 学期外新增（课后补录 / 重开课程）单独计数，如实告知而不混进口径
+        const beyondCount = academicTimestamps(study.concat(quiz, qa))
+          .filter(v => v < anc.start || v > anc.end).length;
         if (kpiRow) kpiRow.innerHTML =
           '<div class="admin-kpi"><div class="k">覆盖学生</div><div class="v">' + allUids.length + '</div><div class="sub">有学习行为记录</div></div>'
           + '<div class="admin-kpi"><div class="k">AI 问答</div><div class="v">' + num(K.qa, qa.length) + '</div><div class="sub">课程相关问答次数</div></div>'
@@ -9289,7 +9368,9 @@ emitted = target;
           + '<div class="admin-kpi"><div class="k">结课周活跃</div><div class="v">' + weekUids.length + '</div><div class="sub">数据末 7 天活跃人数</div></div>';
         // 区间单独一行，避免 5 张卡的 sub 全被撑长
         const rangeEl = document.getElementById('ev-scope-range');
-        if (rangeEl) rangeEl.textContent = '统计区间：' + subRange + '（课程已结课，数字为该区间内的累计值）';
+        if (rangeEl) rangeEl.textContent = '统计区间：' + subRange
+          + '（课程已结课，数字为该区间内的累计值）'
+          + (beyondCount ? ' · 含课后新增 ' + beyondCount + ' 次，已计入上方各项' : '');
 
 // ① 各章节平均掌握度：横向柱状图
       // 分母 = 学过分章的去重人数。基线数据里study 事件按嵌套前缀只落在前 78 人身上
