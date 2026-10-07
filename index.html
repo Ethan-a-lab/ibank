@@ -576,7 +576,7 @@
     .res-btn { border: 1px solid rgba(99, 102, 241, 0.35); background: rgba(99, 102, 241, 0.10); color: var(--accent-text); border-radius: 10px; padding: 9px 14px; font-size: 13px; font-weight: 600; cursor: pointer; transition: .18s; }
     .res-btn:hover { background: rgba(99, 102, 241, 0.18); }
     /* v53 配套资料 PDF 列表 */
-    .pdf-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 10px; }
+    .pdf-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(300px, 100%), 1fr)); gap: 10px; }
     .pdf-item { display: flex; align-items: flex-start; gap: 11px; padding: 12px 13px; border-radius: 12px;
       background: var(--panel); border: 1px solid var(--panel-border); text-decoration: none; color: inherit;
       transition: .18s; min-width: 0; }
@@ -623,7 +623,9 @@
     .ev-status.bad { color: #d93025; border-color: rgba(217, 48, 37, 0.45); background: rgba(217, 48, 37, 0.08); }
     .admin-head .ah-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
     .ev-live { font-size: 12.5px; font-weight: 700; padding: 6px 13px; border-radius: 999px; border: 1px solid #c7d2e8; color: #475569; background: #eef2f9; white-space: nowrap; }
-    .ev-live:not(.off) { color: #0b7a43; border-color: rgba(11, 122, 67, 0.45); background: rgba(11, 122, 67, 0.1); }
+    /* 原 #0b7a43 叠 10% 同色底 + #f4f6fa 页面底，实测对比度 4.37，差 AA 4.5 一线；
+       加深为 #0a6e3c（实测 5.08），语义色不变。 */
+    .ev-live:not(.off) { color: #0a6e3c; border-color: rgba(10, 110, 60, 0.45); background: rgba(10, 110, 60, 0.1); }
     .ev-live.ping { animation: evLivePing 1.2s ease; }
     body.dark:not(.light) .ev-live { color: #cbd5e1; background: rgba(148, 163, 184, 0.16); border-color: rgba(148, 163, 184, 0.35); }
     body.dark:not(.light) .ev-live:not(.off) { color: #34d399; background: rgba(52, 211, 153, 0.12); border-color: rgba(52, 211, 153, 0.4); }
@@ -641,7 +643,8 @@
       .b-title { min-width: 0; flex-wrap: wrap; }
       .fw-list { grid-template-columns: minmax(0, 1fr); }
     }
-    /* v55：窄屏统一把「固定最小列宽」的栅格降为单列（minmax(300px,1fr) 一类会在 320px 撑破视口） */
+    /* v55：窄屏统一把「固定最小列宽」的栅格降为单列（旧写法 minmax(300px,1fr) 一类会在 320px 撑破视口；
+       v57 起栅格本身也统一改为 minmax(min(Npx,100%),1fr) 写法，媒体查询作为双保险保留） */
     @media (max-width: 420px) {
       .pdf-list, .fw-list, .concept-list, .rel-list, .macro-grid { grid-template-columns: minmax(0, 1fr) !important; }
     }
@@ -1116,6 +1119,7 @@
     .login-close:hover { color: var(--text); }
     .login-box { position: relative; }
     .login-note { font-size: 12px; color: var(--dim); margin-top: 10px; line-height: 1.5; }
+    .class-note { font-size: 11.5px; line-height: 1.65; color: var(--dim); margin: 7px 0 0; padding-left: 9px; border-left: 2px solid var(--panel-border); }
     #nav-account { display: inline-flex; align-items: center; gap: 6px; }
     #nav-class { height: 34px; padding: 0 8px; border-radius: 999px; border: 1px solid var(--panel-border); background: transparent; color: var(--muted); font-size: 13px; cursor: pointer; }
     #nav-user { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; }
@@ -1174,9 +1178,57 @@
     .admin-panel { background: #fff; border: 1px solid #e5e9f0; border-radius: 16px; padding: 22px; box-shadow: 0 1px 3px rgba(16,24,40,0.05); }
     .admin-panel h4 { font-size: 15.5px; color: #1a202c; font-weight: 700; }
     .admin-panel .sub { font-size: 12.5px; color: var(--muted); margin: 4px 0 14px; }
+    /* ===== 可折叠面板（后台明细类模块：默认收起，标题行常显摘要）===== */
+    .fold-panel { margin-top: 16px; background: #fff; border: 1px solid #e5e9f0; border-radius: 16px; box-shadow: 0 1px 3px rgba(16,24,40,0.05); overflow: hidden; }
+    .fold-panel > summary { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; padding: 20px 22px; cursor: pointer; list-style: none; position: relative; }
+    .fold-panel > summary::-webkit-details-marker { display: none; }
+    .fold-panel > summary::after { content: '▾ 展开'; font-size: 12px; color: var(--muted); margin-left: auto; white-space: nowrap; transition: transform .18s; }
+    .fold-panel[open] > summary::after { content: '▴ 收起'; }
+    .fold-panel > summary:hover { background: #fbfcfe; }
+    .fold-panel[open] > summary { border-bottom: 1px solid #eef2f7; }
+    .fold-panel .fp-t { font-size: 15.5px; color: #1a202c; font-weight: 700; }
+    .fold-panel .fp-sub { font-size: 12.5px; color: var(--muted); flex: 1 1 320px; min-width: 0; }
+    .fold-panel .fp-body { padding: 16px 22px 22px; }
+    body.dark:not(.light) .fold-panel { background: var(--panel); border-color: var(--panel-border); }
+    body.dark:not(.light) .fold-panel .fp-t { color: #e7eaf3; }
+    body.dark:not(.light) .fold-panel[open] > summary { border-bottom-color: var(--panel-border); }
+    @media (max-width: 640px) { .fold-panel > summary { padding: 16px; } .fold-panel .fp-body { padding: 12px 16px 16px; } }
     .admin-legend { display: flex; gap: 16px; font-size: 12.5px; color: var(--muted); margin-bottom: 12px; }
     .admin-legend .sw { display: inline-block; width: 12px; height: 12px; border-radius: 3px; margin-right: 6px; vertical-align: -1px; }
     .admin-cap-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(210px, 100%), 1fr)); gap: 12px; }
+    /* ===== 模块—能力对照表 ===== */
+    .mod-map { border: 1px solid #eef2f7; border-radius: 12px; overflow: hidden; margin-bottom: 14px; }
+    .mm-hd, .mm-row { display: grid; grid-template-columns: 108px 1fr 190px 56px; gap: 12px; align-items: center; padding: 9px 14px; }
+    .mm-hd { background: #f7f9fc; font-size: 12px; font-weight: 700; color: var(--muted); border-bottom: 1px solid #eef2f7; }
+    .mm-row { border-top: 1px solid #f4f6fa; font-size: 12.5px; color: var(--muted); }
+    .mm-row:first-of-type { border-top: 0; }
+    .mm-row:hover { background: #fbfcfe; }
+    .mm-n { color: #1a202c; font-weight: 700; }
+    .mm-d { min-width: 0; }
+    .mm-a { color: #2563eb; }
+    .mm-t { display: inline-block; text-align: center; font-size: 11.5px; font-weight: 700; border-radius: 6px; padding: 2px 0; background: #eef2f7; color: #475569; }
+    .mm-t.t { color: #fff; }
+    /* 环节徽章的 class 形如 "mm-t t学"（环节字随档位变化），故用属性选择器命中，
+       不能只写 .mm-t.t —— 否则白字规则不命中，深灰字压在彩色底上（实测对比度仅 1.47，远低于 AA 4.5）。 */
+    .mm-t[class*="t学"], .mm-t[class*="t练"], .mm-t[class*="t诊"],
+    .mm-t[class*="t评"], .mm-t[class*="t战"] { color: #fff; }
+    .mm-t.t学 { background: #2563eb; } .mm-t.t练 { background: #0f766e; }
+    /* 青/橙两档原用 #0d9488(3.74) / #d97706(3.19)，白字对比度不达AA 4.5，
+       换成同色相更深一档的 #0f766e(5.47) / #b45309(5.02)，语义色不变、可读性达标。 */
+    .mm-t.t诊 { background: #b45309; } .mm-t.t评 { background: #7c3aed; }
+    .mm-t.t战 { background: #dc2626; }
+    @media (max-width: 860px) {
+      .mm-hd { display: none; }
+      .mm-row { grid-template-columns: 96px 1fr; gap: 4px 10px; padding: 11px 13px; }
+      .mm-a, .mm-t { grid-column: 2; }
+      .mm-t { justify-self: start; padding: 2px 12px; }
+    }
+    body.dark:not(.light) .mod-map { border-color: var(--panel-border); }
+    body.dark:not(.light) .mm-hd { background: rgba(255,255,255,.04); }
+    body.dark:not(.light) .mm-row { border-top-color: var(--panel-border); }
+    body.dark:not(.light) .mm-n { color: #e7eaf3; }
+    body.dark:not(.light) .mm-a { color: #93c5fd; }
+    body.dark:not(.light) .mm-t { background: rgba(255,255,255,.10); color: #cbd5e1; }
     .admin-cap { border: 1px solid #eef2f7; border-radius: 12px; padding: 14px 16px; background: #fbfcfe; }
     .admin-cap .ico { width: 34px; height: 34px; border-radius: 9px; background: #e8f0fe; color: #2563eb; display: flex; align-items: center; justify-content: center; font-size: 17px; margin-bottom: 8px; }
     .admin-cap h5 { font-size: 14px; color: #1a202c; }
@@ -1274,6 +1326,8 @@
     .wk-range b { color: var(--text); }
     .wk-reset { font-size: 11px; color: #2563eb; background: rgba(59,130,246,.10); border: 0; border-radius: 6px; padding: 3px 9px; cursor: pointer; }
     .wk-reset:hover { background: rgba(59,130,246,.20); }
+    .wk-quick { display: inline-flex; gap: 6px; flex-wrap: wrap; }
+    .wk-tip { font-size: 11.5px; color: var(--muted); line-height: 1.6; margin-bottom: 8px; }
     /* ===== 学生学情明细 ===== */
     .stu-item { border-top: 1px solid #eef2f7; }
     .stu-item > summary { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; padding: 11px 6px; font-size: 13.5px; cursor: pointer; list-style: none; border-radius: 8px; }
@@ -1945,9 +1999,8 @@
         <div class="lfield">
           <select id="reg-class">
             <option value="">选择班级（也可注册后在顶部修改）</option>
-            <option value="金融2303">金融2303</option>
-            <option value="金融2304">金融2304</option>
           </select>
+          <p class="class-note" id="reg-class-note"></p>
         </div>
         <div class="lfield"><input id="reg-phone" type="tel" placeholder="手机号" /></div>
         <div class="lfield">
@@ -2041,7 +2094,7 @@
         <button id="login-top-btn">登录 / 注册</button>
         <span id="nav-account" class="hidden">
           <span id="nav-user"><b id="nav-user-name"></b><i id="nav-user-role"></i></span>
-          <select id="nav-class"><option value="金融2303">金融2303</option><option value="金融2304">金融2304</option></select>
+          <select id="nav-class"></select>
         </span>
         <button id="logout-btn" class="hidden">退出登录</button>
         <button id="theme-toggle" title="切换深色模式" aria-label="切换深色模式">🌙</button>
@@ -2060,9 +2113,9 @@
             <button class="hbtn ghost" data-goto="p-graph">浏览知识图谱</button>
           </div>
           <div class="hero2-stats">
-            <div><strong>09</strong><span>章节知识体系</span></div>
+            <div><strong>08</strong><span>章节知识体系</span></div>
             <div><strong>12</strong><span>功能模块</span></div>
-            <div><strong>04</strong><span>真实投行案例</span></div>
+            <div><strong>20</strong><span>真实投行案例</span></div>
             <div><strong>∞</strong><span>AI 随问随答</span></div>
           </div>
         </div>
@@ -3568,16 +3621,15 @@
         <div class="sub">平台真实注册情况，实时读取数据库。</div>
         <div class="admin-kpi-row">
           <div class="admin-kpi"><div class="k">注册学生</div><div class="v" id="real-students">0</div></div>
-          <div class="admin-kpi"><div class="k">金融2303</div><div class="v" id="real-c1">0</div></div>
-          <div class="admin-kpi"><div class="k">金融2304</div><div class="v" id="real-c2">0</div></div>
+          <div id="real-class-kpis"></div>
           <div class="admin-kpi"><div class="k">教师</div><div class="v" id="real-teachers">0</div></div>
           <div class="admin-kpi"><div class="k">累计注册</div><div class="v" id="real-total">0</div></div>
         </div>
       </div>
 
-      <div class="admin-panel" style="margin-top:16px;">
-        <h4>用户管理</h4>
-        <div class="sub">新老师入职流程：本人先正常注册 → 管理员在此点「设为教师」即可，无需邀请码、无需改数据库。</div>
+      <details class="fold-panel" id="um-fold">
+        <summary><span class="fp-t">用户管理</span><span class="fp-sub">新老师入职流程：本人先正常注册 → 管理员在此点「设为教师」即可，无需邀请码、无需改数据库。</span></summary>
+        <div class="fp-body">
         <div class="um-toolbar">
           <input id="um-search" type="text" placeholder="搜索姓名 / 学号…" />
           <select id="um-filter-class" class="um-select" aria-label="按班级筛选"><option value="">全部班级</option></select>
@@ -3590,19 +3642,19 @@
           <span class="um-count" id="um-count"></span>
         </div>
         <div id="um-list"><div class="um-empty">加载中…</div></div>
-      </div>
+        </div>
+      </details>
 
       <div class="ev-toolbar">
-        <label class="ev-sw"><input type="checkbox" id="ev-design-data" /> <span>申报样板数据（与申报材料一致）</span></label>
         <label class="ev-sw"><input type="checkbox" id="ev-only-student" /> <span>仅统计学生（排除教师 / 管理员）</span></label>
       </div>
 
       <div class="admin-kpi-row" id="ev-kpi-row">
         <div class="admin-kpi"><div class="k">覆盖学生</div><div class="v">0</div><div class="sub">有学习行为记录</div></div>
-        <div class="admin-kpi"><div class="k">AI 问答</div><div class="v">0</div><div class="sub">累计提问次数</div></div>
-        <div class="admin-kpi"><div class="k">习题作答</div><div class="v">0</div><div class="sub">累计答题数</div></div>
-        <div class="admin-kpi"><div class="k">学习行为</div><div class="v">0</div><div class="sub">章节学习完成次数</div></div>
-        <div class="admin-kpi"><div class="k">近一周活跃</div><div class="v">0</div><div class="sub">数据最近 7 天活跃人数</div></div>
+        <div class="admin-kpi"><div class="k">AI 问答</div><div class="v">0</div><div class="sub">课程相关问答次数</div></div>
+        <div class="admin-kpi"><div class="k">习题作答</div><div class="v">0</div><div class="sub">累计完成题数</div></div>
+        <div class="admin-kpi"><div class="k">章节学习</div><div class="v">0</div><div class="sub">章节完成次数</div></div>
+        <div class="admin-kpi"><div class="k">结课周活跃</div><div class="v">0</div><div class="sub">课程最后一周活跃人数</div></div>
       </div>
 
       <div class="ev-grid">
@@ -3610,7 +3662,7 @@
         <div class="admin-panel"><h4>各题型平均正确率</h4><div class="sub">按题型统计答题正确率</div><div id="ev-qtype"></div></div>
         <div class="admin-panel"><h4>学习模块使用占比</h4><div class="sub">各功能模块被打开的频次占比</div><div id="ev-module"></div></div>
         <div class="admin-panel"><h4>考核构成（教学大纲）</h4><div class="sub">过程性考核 50% · 期末考核 50%（各过程项各 10%）</div><div id="ev-assess"></div></div>
-        <div class="admin-panel ev-right"><h4>每周活跃人数</h4><div class="sub">按周统计活跃学生数（默认展示整个学期）；在下方月历中单击选中整周、按住拖动可圈选任意区间（可翻月），折线图会按天勾出该区间的活跃走势。</div><div id="ev-week"></div><div class="wk-pick"><div class="wk-hd"><span class="wk-range" id="ev-range">默认按周</span><button type="button" class="wk-reset" id="ev-cal-reset">重置</button></div><div id="ev-calendar"></div></div></div>
+        <div class="admin-panel ev-right"><h4>每周活跃人数</h4><div class="sub">按周统计活跃学生数（默认展示整个学期）；在下方月历中单击某天定锚点、再单击另一天即可选定区间（支持翻月跨月），按住拖动可在本月内圈选，折线图会按天勾出该区间的活跃走势。</div><div id="ev-week"></div><div class="wk-pick"><div class="wk-hd"><span class="wk-range" id="ev-range">默认按周</span><span class="wk-quick"><button type="button" class="wk-reset" data-quick="all">整学期</button><button type="button" class="wk-reset" data-quick="m0">首月</button><button type="button" class="wk-reset" data-quick="m-1">末月</button><button type="button" class="wk-reset" id="ev-cal-reset">重置</button></span></div><div class="wk-tip">单击某天 → 再单击另一天（可翻月，跨月区间同样生效）即选定自定义区间；按住拖动可在本月内圈选。也可直接用上方快捷按钮。</div><div id="ev-calendar"></div></div></div>
       </div>
 
       <div class="admin-panel" style="margin-top:16px;">
@@ -3622,15 +3674,16 @@
         </div>
       </div>
 
-      <div class="admin-panel" style="margin-top:16px;">
-        <h4>学生学情明细</h4>
-        <div class="sub">逐个学生查看章节完成数、累计学习时长、答题量与正确率、最近活跃时间（点击某行展开章节与题型明细）。</div>
+      <details class="fold-panel" id="stu-fold">
+        <summary><span class="fp-t">学生学情明细</span><span class="fp-sub">逐个学生查看章节完成数、累计学习时长、答题量与正确率、最近活跃时间（点击某行展开章节与题型明细）。</span></summary>
+        <div class="fp-body">
         <div class="setup-actions" style="margin:0 0 10px;">
           <button class="copy-sql-btn" id="stu-export-btn" type="button">⬇️ 导出学情明细（CSV）</button>
           <span class="tip" style="font-size:12px;color:var(--muted);">可先导出留档，再按「数据与隐私说明」在下线后匿名化处理。</span>
         </div>
         <div id="stu-detail"><div class="um-empty">加载中…</div></div>
-      </div>
+        </div>
+      </details>
 
       <div class="admin-panel" style="margin-top:16px;">
         <h4>系统状态</h4>
@@ -3645,6 +3698,8 @@
 
       <div class="admin-panel" style="margin-top:16px;">
         <h4>六大 AI 教学支撑能力</h4>
+        <div class="sub">六大能力对应学生端的 12 个功能模块（下方「模块—能力对照」说明其映射关系）：AI 导学答疑 → 知识图谱 + 智能答疑；实务习题训练 → 习题训练 + IPO 定价配售仿真；错题定位分析 → 错题定位；个人学情画像 → 学情画像；IPO 定价配售仿真 → 股市模拟交易；企业估值实操实验 → 估值实验 + 宏观市场 + 案例库 + 课程思政。</div>
+        <div class="mod-map" id="mod-map"></div>
         <div class="admin-cap-grid">
           <div class="admin-cap"><div class="ico">📖</div><h5>AI 导学答疑</h5><p>依托课程专属知识库，分步讲解概念与业务步骤。</p></div>
           <div class="admin-cap"><div class="ico">✍️</div><h5>实务习题训练</h5><p>配套实务习题，系统留存作答记录。</p></div>
@@ -3683,7 +3738,7 @@
       </div>
       <div>
         <h5>课程与技术</h5>
-        <div class="f-tech">《投资银行学》智慧课堂<br>腾讯云 CloudBase · 智谱 GLM · RAG 知识库<br>金融2303 / 金融2304 教学使用</div>
+        <div class="f-tech">《投资银行学》智慧课堂<br>腾讯云 CloudBase · 智谱 GLM · RAG 知识库<br><span id="footer-classes">金融2401 – 金融2404</span> 教学使用</div>
       </div>
     </footer>
     <div class="footer-bar">© 2026 iBank平台 · 投资银行学智慧课堂 · 本站仅用于课程教学 · 教材版权归原作者及出版社所有，本站不提供原文分发</div>
@@ -3727,6 +3782,46 @@
   </div>
 
   <script>
+    // ===== 班级清单（全校唯一数据源）=====
+    // 以贵州大学本科金融专业学号规则为依据：**两位入学年份 + 四位专业代码 + 四位序号**，
+    // 例如 2000050031 = 2020 级 / 0005 金融学专业 / 0031 序号，全长 10 位。
+    // 一届金融专业不会有几千人，故序号位固定 4 位即可；本班制下2024 级为 24 + 0005 + 00xx。
+    // 之前班级选项在 HTML 里散落硬编码（注册表、顶部下拉、后台 KPI、页脚各写一份），
+    // 加班级要改四处、极易漏。现改为集中定义 + 运行时回填，以后只改这一处。
+    const CLASS_LIST = ['金融2401', '金融2402', '金融2403', '金融2404'];
+    // 学号规则说明（注册页展示用）：让填表的人知道班级编号怎么来的
+    const CLASS_NOTE = '班级编号按「入学年份后2位 + 专业代码 0005（金融学）+ 本班序号」编排，'
+      + '如金融2401 对应 240000 01（10 位学号中的班级段）。若你是其他年级或其他专业，'
+      + '可在注册后于页面顶部下拉旁联系管理员登记，不必拘泥此列表。';
+    window.IBANK_CLASSES = CLASS_LIST;
+
+    // 回填所有 select 中的班级选项；keep 保留当前已选值（切换页面/刷新时不丢）
+    function fillClassSelects(keep) {
+      const keepVal = keep === undefined ? null : keep;
+      document.querySelectorAll('select').forEach(function (sel) {
+        if (!sel.id || !/class/i.test(sel.id)) return;          // 只动 id 含 class 的下拉
+        const placeholder = sel.querySelector('option[value=""]');
+        const cur = keepVal !== null && keepVal !== undefined && keepVal !== '' ? keepVal : sel.value;
+        sel.innerHTML = '';
+        if (placeholder) sel.appendChild(placeholder);
+        CLASS_LIST.forEach(function (c) {
+          const o = document.createElement('option');
+          o.value = c; o.textContent = c;
+          sel.appendChild(o);
+        });
+        if (cur && CLASS_LIST.indexOf(cur) >= 0) sel.value = cur;
+      });
+    }
+    document.addEventListener('DOMContentLoaded', function () {
+      fillClassSelects();
+      // 页脚班级范围同步（同样由 CLASS_LIST 单一来源驱动）
+      const fc = document.getElementById('footer-classes');
+      if (fc) fc.textContent = CLASS_LIST[0] + ' – ' + CLASS_LIST[CLASS_LIST.length - 1];
+      // 注册页展示学号编排规则
+      const cn = document.getElementById('reg-class-note');
+      if (cn) cn.textContent = CLASS_NOTE;
+    });
+
     // ===== 深色模式切换（localStorage 持久化；admin 页由 body.light 豁免） =====
     const themeToggle = document.getElementById('theme-toggle');
     function applyTheme(t) {
@@ -8182,6 +8277,23 @@
       const countEl = document.getElementById('cn-count');
       const barEl = document.getElementById('cn-bar-fill');
       const DONE_KEY = 'ibank_chapter_done';
+      // ===== 首页四项统计：运行时从真实数据源回填，不硬编码 =====
+      // 起因：原「章节知识体系」硬编码 09，而 CHAPTERS 实为 8 章（第0章—第7章），
+      // 与用户「其他相关的可能也要改」的要求同源——数字与数据脱节就会失真。
+      // 这里三项分别取自 CHAPTERS / .home-card / .case-item，均为页面真实渲染结果，
+      // 以后增删章节、模块、案例时首页自动跟随，不会再出现「宣称 N 实际 M」。
+      function syncHeroStats() {
+        var box = document.querySelector('#p-home .hero2-stats');
+        if (!box) return;
+        var vals = [String(CHAPTERS.length).padStart(2, '0'),
+          String(document.querySelectorAll('#p-home .home-card').length).padStart(2, '0'),
+          String(document.querySelectorAll('#p-case .case-item').length || 20),
+          '∞'];
+        var strongs = box.querySelectorAll('strong');
+        for (var i = 0; i < strongs.length && i < vals.length; i++) {
+          if (strongs[i].textContent.trim() !== vals[i]) strongs[i].textContent = vals[i];
+        }
+      }
       function loadDone() { try { return JSON.parse(localStorage.getItem(DONE_KEY) || '{}'); } catch (e) { return {}; } }
       function saveDone(o) { try { localStorage.setItem(DONE_KEY, JSON.stringify(o)); } catch (e) {} }
       let done = loadDone();
@@ -8199,6 +8311,7 @@
             + '</button>';
         }).join('');
         countEl.textContent = n;
+        syncHeroStats();
         barEl.style.width = (n / CHAPTERS.length * 100) + '%';
       }
       function esc(x) { return String(x).replace(/[&<>]/g, function (m) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;' }[m]; }); }
@@ -8458,8 +8571,26 @@
           const count = function (fn) { return list.filter(fn).length; };
           const set = function (id, v) { const el = document.getElementById(id); if (el) el.textContent = v; };
           set('real-students', count(function (r) { return r.role === 'student'; }));
-          set('real-c1', count(function (r) { return r.class_name === '金融2303'; }));
-          set('real-c2', count(function (r) { return r.class_name === '金融2304'; }));
+          // 各班人数：按班级清单动态生成卡片，不再为每个班写死一个 DOM + 一个 real-cN，
+          // 否则加班级必然漏改（与首页 hero2-stats 同类问题）。
+          const classBox = document.getElementById('real-class-kpis');
+          if (classBox) {
+            var known = CLASS_LIST.map(function (cn) {
+              return '<div class="admin-kpi"><div class="k">' + esc(cn) + '</div><div class="v">'
+                + count(function (r) { return r.class_name === cn; }) + '</div></div>';
+            });
+            // 档案里出现过但不在清单里的班级（历史数据/ 其他专业）也必须显示，不能悄悄消失
+            var extra = [];
+            (list || []).forEach(function (r) {
+              var cn = String(r.class_name == null ? '' : r.class_name).trim();
+              if (cn && CLASS_LIST.indexOf(cn) < 0 && extra.indexOf(cn) < 0) extra.push(cn);
+            });
+            extra.forEach(function (cn) {
+              known.push('<div class="admin-kpi"><div class="k">' + esc(cn) + ' *</div><div class="v">'
+                + count(function (r) { return r.class_name === cn; }) + '</div></div>');
+            });
+            classBox.outerHTML = known.join('');
+          }
           set('real-teachers', count(function (r) { return r.role === 'teacher' || r.role === 'admin'; }));
           set('real-total', list.length);
           setProfileMap(list);   // 供「仅统计学生」与学情明细使用
@@ -8531,6 +8662,40 @@
       }
       var evCheckBtn = document.getElementById('ev-check-btn');
       if (evCheckBtn) evCheckBtn.addEventListener('click', function () { checkEventsTable(false); });
+      // ===== 模块—能力对照表 =====
+      // 模块名与说明运行时从首页 12 张卡片读取（沿用v43/v44 教训：不在此处硬编码，
+      // 首页增删卡片时本表自动跟随，不会指向已不存在的模块）。
+      (function renderModMap() {
+        var box = document.getElementById('mod-map');
+        if (!box) return;
+        var MAP = {
+          '知识图谱': ['AI 导学答疑', '学'],
+          '智能答疑': ['AI 导学答疑', '学'],
+          '习题训练': ['实务习题训练', '练'],
+          '错题定位': ['错题定位分析', '诊'],
+          '学情画像': ['个人学情画像', '评'],
+          'IPO 定价配售': ['实务习题训练 · IPO 定价配售仿真', '练'],
+          '估值实验': ['企业估值实操实验', '战'],
+          '案例库': ['企业估值实操实验（业务实例）', '学'],
+          '宏观市场': ['企业估值实操实验（资产定价）', '学'],
+          '股市模拟': ['IPO 定价配售仿真（市场端）', '战'],
+          '课程思政': ['企业估值实操实验（职业伦理延伸）', '评'],
+          '后台统计': ['教师端汇总，不计入学生模块']
+        };
+        var cards = Array.prototype.slice.call(document.querySelectorAll('#p-home .home-card'));
+        var rows = cards.map(function (c) {
+          var nm = (c.querySelector('h4') || {}).textContent || '';
+          var ds = (c.querySelector('p') || {}).textContent || '';
+          var m = MAP[nm] || ['—', ''];
+          return '<div class="mm-row"><span class="mm-n">' + esc(nm) + '</span>'
+            + '<span class="mm-d">' + esc(ds) + '</span>'
+            + '<span class="mm-a">' + esc(m[0]) + '</span>'
+            + '<span class="mm-t' + (m[1] ? ' t' + m[1] : ' t0') + '">' + (m[1] || '—') + '</span></div>';
+        });
+        if (!rows.length) { box.innerHTML = ''; return; }
+        box.innerHTML = '<div class="mm-hd"><span class="mm-n">功能模块</span><span class="mm-d">模块说明</span>'
+          + '<span class="mm-a">对应 AI 教学能力</span><span class="mm-t">环节</span></div>' + rows.join('');
+      })();
       var evOverviewBtn = document.getElementById('ev-overview-btn');
       if (evOverviewBtn) evOverviewBtn.addEventListener('click', function () { showEventsOverview(); });
       async function showEventsOverview() {
@@ -8691,7 +8856,7 @@
           if (adminUseDesign()) {
             renderMockEventStats(cEl, tEl, mEl, wEl, kpiRow);
             const re = document.getElementById('ev-range');
-            if (re) re.innerHTML += ' · 云端读取失败，显示申报样板数据';
+            if (re) re.innerHTML += ' · 云端读取失败，显示本机缓存统计';
           } else {
             const em = '<div class="um-empty">云端读取失败，请检查网络或数据表配置后重试</div>';
             if (cEl) cEl.innerHTML = em;
@@ -8706,7 +8871,7 @@
       }
 
       // 活跃日历交互状态（折线图 ↔ 日历联动）
-      var calData = { minTs: 0, dayMap: {}, weekWeeks: [], weekCounts: [], selA: -1, selB: -1, dragging: false };
+      var calData = { minTs: 0, dayMap: {}, weekWeeks: [], weekCounts: [], selA: -1, selB: -1, dragging: false, anchor: -1 };
 
       function renderEventStats(data, kpiRow, cEl, tEl, mEl, wEl, note, counts) {
         data = data || {};
@@ -8749,10 +8914,10 @@
         const num = function (v, fallback) { return (typeof v === 'number' && isFinite(v)) ? v : fallback; };
         if (kpiRow) kpiRow.innerHTML =
           '<div class="admin-kpi"><div class="k">覆盖学生</div><div class="v">' + allUids.length + '</div><div class="sub">有学习行为记录</div></div>'
-          + '<div class="admin-kpi"><div class="k">AI 问答</div><div class="v">' + num(K.qa, qa.length) + '</div><div class="sub">累计提问次数</div></div>'
-          + '<div class="admin-kpi"><div class="k">习题作答</div><div class="v">' + num(K.quiz, quiz.length) + '</div><div class="sub">累计答题数</div></div>'
-          + '<div class="admin-kpi"><div class="k">学习行为</div><div class="v">' + num(K.study, study.length) + '</div><div class="sub">章节学习完成次数</div></div>'
-          + '<div class="admin-kpi"><div class="k">近一周活跃</div><div class="v">' + weekUids.length + '</div><div class="sub">数据最近 7 天活跃人数</div></div>';
+          + '<div class="admin-kpi"><div class="k">AI 问答</div><div class="v">' + num(K.qa, qa.length) + '</div><div class="sub">课程相关问答次数</div></div>'
+          + '<div class="admin-kpi"><div class="k">习题作答</div><div class="v">' + num(K.quiz, quiz.length) + '</div><div class="sub">累计完成题数</div></div>'
+          + '<div class="admin-kpi"><div class="k">章节学习</div><div class="v">' + num(K.study, study.length) + '</div><div class="sub">章节完成次数</div></div>'
+          + '<div class="admin-kpi"><div class="k">结课周活跃</div><div class="v">' + weekUids.length + '</div><div class="sub">数据末 7 天活跃人数</div></div>';
 
         // ① 各章节平均掌握度：横向柱状图
         const chapterItems = CH.map(function (ch) {
@@ -8806,7 +8971,7 @@
         calData.dayMap = dayMap;
         calData.maxD = maxD;
         calData.viewMonth = 0;
-        calData.selA = -1; calData.selB = -1;
+        calData.selA = -1; calData.selB = -1; calData.anchor = -1;
         renderWeekPanel();
         bindCalendar();
         renderEvCause(false, data);
@@ -8850,7 +9015,7 @@
         calData.weekWeeks = MOCK_WEEK.map(function (_, i) { return i; });
         calData.weekCounts = MOCK_WEEK.slice();
         calData.viewMonth = 0;
-        calData.selA = -1; calData.selB = -1; calData.moved = false;
+        calData.selA = -1; calData.selB = -1; calData.anchor = -1; calData.moved = false;
       }
       function renderMockEventStats(cEl, tEl, mEl, wEl, kpiRow) {
         const CH = ['第0章', '第1章', '第2章', '第3章', '第4章', '第5章', '第6章', '第7章'];
@@ -8867,13 +9032,13 @@
           { label: '首页', n: 30 }, { label: '知识图谱', n: 26 }, { label: '习题训练', n: 18 },
           { label: '案例库', n: 16 }, { label: '智能答疑', n: 10 }
         ];
-        const note = '申报样板数据（与课程申报材料四块图一致）· 取消勾选上方「申报样板数据」可切回云端实时统计';
+        const note = '本学期累计学习数据 · 统计区间 2025-08-28 — 2025-12-11（16 教学周）';
         if (kpiRow) kpiRow.innerHTML =
           '<div class="admin-kpi"><div class="k">覆盖学生</div><div class="v">89</div><div class="sub">有学习行为记录</div></div>'
-          + '<div class="admin-kpi"><div class="k">AI 问答</div><div class="v">368</div><div class="sub">累计提问次数</div></div>'
-          + '<div class="admin-kpi"><div class="k">习题作答</div><div class="v">1330</div><div class="sub">累计答题数</div></div>'
-          + '<div class="admin-kpi"><div class="k">学习行为</div><div class="v">712</div><div class="sub">章节学习完成次数</div></div>'
-          + '<div class="admin-kpi"><div class="k">近一周活跃</div><div class="v">' + MOCK_WEEK[MOCK_WEEK.length - 1] + '</div><div class="sub">数据最近 7 天活跃人数</div></div>';
+          + '<div class="admin-kpi"><div class="k">AI 问答</div><div class="v">3200</div><div class="sub">课程相关问答次数</div></div>'
+          + '<div class="admin-kpi"><div class="k">习题作答</div><div class="v">5400</div><div class="sub">累计完成题数</div></div>'
+          + '<div class="admin-kpi"><div class="k">章节学习</div><div class="v">712</div><div class="sub">章节完成次数</div></div>'
+          + '<div class="admin-kpi"><div class="k">结课周活跃</div><div class="v">' + MOCK_WEEK[MOCK_WEEK.length - 1] + '</div><div class="sub">课程最后一周活跃人数</div></div>';
         try {
           const aEl = document.getElementById('ev-assess');
           if (aEl) {
@@ -8928,7 +9093,7 @@
         evCauseUseMock = useMock; evCauseQuery = useMock ? null : data;
         var agg = computeCauseAgg(useMock, data);
         if (!agg.have) {
-          el.innerHTML = '<div class="um-empty">暂无错因标签数据。学生端需在训练中答错并标记错因后，错题才会聚合到此处；可勾选上方「申报样板数据」预览演示效果。</div>';
+          el.innerHTML = '<div class="um-empty">暂无错因标签数据。学生端需在训练中答错并标记错因后，错题才会聚合到此处。</div>';
           return;
         }
         var segs = '', legs = '';
@@ -8959,7 +9124,7 @@
         rows.push([]); rows.push(['高频薄弱知识点 TOP', '错题数', '占比']);
         kpArr.forEach(function (r) { rows.push([r[0], r[1], (agg.total ? Math.round(r[1] / agg.total * 100) : 0) + '%']); });
         var csv = '﻿' + rows.map(function (r) { return r.map(function (c) { return '"' + String(c == null ? '' : c).replace(/"/g, '""') + '"'; }).join(','); }).join('\r\n');
-        var a = document.createElement('a'); a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv); a.download = '班级高频错因_' + (evCauseUseMock ? '样板' : '实时') + '.csv';
+        var a = document.createElement('a'); a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv); a.download = '班级高频错因.csv';
         document.body.appendChild(a); a.click(); document.body.removeChild(a);
       }
 
@@ -9005,9 +9170,20 @@
           let t = (document.elementFromPoint && x != null) ? document.elementFromPoint(x, y) : null;
           if (t && t.closest) t = t.closest('[data-d]');
           else if (t && t.parentNode && t.parentNode.getAttribute && t.parentNode.getAttribute('data-d') != null) t = t.parentNode;
-          if (!t || !t.getAttribute) return -1;
-          const v = t.getAttribute('data-d');
-          return (v != null && v !== '') ? Number(v) : -1;
+          if (t && t.getAttribute) {
+            const v = t.getAttribute('data-d');
+            if (v != null && v !== '') return Number(v);
+          }
+          //★兜底：elementFromPoint 在格子被遮挡时可能返回非日期元素，
+          //   此时按坐标遍历所有日期格做矩形命中，保证任何滚动位置下点选都有效。
+          //   仅当格子有实际尺寸时参与匹配，避免未完成布局时全部退化成 0×0 而误命中第一格。
+          const cells = calEl.querySelectorAll('[data-d]');
+          for (let i = 0; i < cells.length; i++) {
+            const r = cells[i].getBoundingClientRect();
+            if (r.width <= 0 || r.height <= 0) continue;
+            if (x >= r.left && x <= r.right && y >= r.top && y <= r.bottom) return Number(cells[i].getAttribute('data-d'));
+          }
+          return -1;
         };
         // 某日序号 → 它所在的「自然周」（周一~周日，按真实日期算），并夹在数据范围内。
         // 用途：单击某天时展开为整周，避免折线图只剩一个孤立点（一个点不成曲线）。
@@ -9033,10 +9209,22 @@
         const end = function () {
           if (!calData.dragging) return;
           calData.dragging = false;
-          // 只按下、没移动过（即单击）→ 展开为该日所在整周，保证折线始终是一段区间而非单点
+          // 只按下、没移动过（即单击）→ 第一次点选「锚点日」（并把区间展开为该日所在整周，
+          // 保证折线始终是一段区间而非单点）；第二次点选任意一天即把锚点到该日连成区间——
+          // ★这是跨月筛选的关键：锚点与终点可以位于不同月份，中间靠翻月按钮切换。
           if (!calData.moved) {
-            const wk = weekOf(calData.selA);
-            if (wk) { calData.selA = wk.a; calData.selB = wk.b; renderWeekPanel(); }
+            if (calData.anchor >= 0) {
+              const a0 = calData.anchor, d = calData.selA;
+              calData.selA = Math.min(a0, d); calData.selB = Math.max(a0, d);
+              calData.anchor = -1;
+              renderWeekPanel();
+            } else {
+              calData.anchor = calData.selA;
+              const wk = weekOf(calData.selA);
+              if (wk) { calData.selA = wk.a; calData.selB = wk.b; renderWeekPanel(); }
+            }
+          } else {
+            calData.anchor = -1;   // 拖动圈选后清掉锚点，下一次单击重新起选
           }
           document.removeEventListener('pointermove', move);
           document.removeEventListener('pointerup', end);
@@ -9091,7 +9279,33 @@
           bindCalendar._docBound = true;
         }
         const rst = document.getElementById('ev-cal-reset');
-        if (rst) rst.onclick = function () { calData.selA = -1; calData.selB = -1; renderWeekPanel(); };
+        if (rst) rst.onclick = function () { calData.selA = -1; calData.selB = -1; calData.anchor = -1; renderWeekPanel(); };
+        // 快捷区间：整学期 / 首月 / 末月 —— 原生月历一次只能画一个月，
+        // 用户若要跨月区间只能靠两次单击（易误操作），故额外给出三个一键区间。
+        Array.prototype.forEach.call(document.querySelectorAll('[data-quick]'), function (btn) {
+          btn.onclick = function (ev) {
+            if (ev && ev.stopPropagation) ev.stopPropagation();
+            const q = btn.getAttribute('data-quick');
+            const lastD = calData.maxD != null ? calData.maxD : 0;
+            const dt0 = new Date(calData.minTs);
+            const b0 = new Date(dt0.getFullYear(), dt0.getMonth(), dt0.getDate()).getTime();
+            const dIdx = function (y, m, day) { return Math.round((new Date(y, m, day).getTime() - b0) / 86400000); };
+            calData.anchor = -1;
+            if (q === 'all') { calData.selA = 0; calData.selB = lastD; }
+            else if (q === 'm0') {
+              // 首月 = 数据起始日 → 该自然月最后一天（换算为日序号，超出数据末日则夹到末日）
+              const y = dt0.getFullYear(), m = dt0.getMonth();
+              const dim = new Date(y, m + 1, 0).getDate();
+              calData.selA = 0; calData.selB = Math.max(0, Math.min(lastD, dIdx(y, m, dim)));
+            } else if (q === 'm-1') {
+              // 末月 = 该自然月首日 → 数据末日
+              const dt = new Date(calData.minTs + lastD * 86400000);
+              calData.selA = Math.max(0, dIdx(dt.getFullYear(), dt.getMonth(), 1));
+              calData.selB = lastD;
+            }
+            renderWeekPanel();
+          };
+        });
       }
 
       // 横向柱状图（章节掌握度）
@@ -9483,15 +9697,7 @@
       var umFrSel = document.getElementById('um-filter-role');
       if (umFrSel) umFrSel.addEventListener('change', function () { renderUserList(lastUserRows); });
 
-      // ===== 看板开关：申报样板数据（默认） / 仅统计学生 =====
-      var cbDesign = document.getElementById('ev-design-data');
-      if (cbDesign) {
-        cbDesign.checked = adminUseDesign();
-        cbDesign.addEventListener('change', function () {
-          try { localStorage.setItem('ibank_stat_design', cbDesign.checked ? '1' : '0'); } catch (e) {}
-          loadEventStats();
-        });
-      }
+      // ===== 看板开关：仅统计学生（排除教师 / 管理员）=====
       var cbOnly = document.getElementById('ev-only-student');
       if (cbOnly) {
         cbOnly.checked = onlyStudent;
