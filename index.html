@@ -860,13 +860,72 @@
     .ev-cause-grid .ev-cause-h { font-size: 12.5px; color: var(--muted); margin-bottom: 10px; }
     @media (max-width: 860px) { .ev-cause-grid { grid-template-columns: 1fr; } }
 
-    /* ===== 学情画像 ===== */
-    .profile-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-    .profile-bar { display: flex; align-items: center; gap: 10px; margin-bottom: 13px; }
-    .profile-bar .name { width: 76px; font-size: 13px; color: var(--muted); text-align: right; flex: 0 0 auto; }
-    .profile-bar .track { flex: 1; height: 18px; background: rgba(255,255,255,0.06); border-radius: 9px; overflow: hidden; }
-    .profile-bar .fill { height: 100%; border-radius: 9px; background: linear-gradient(90deg,#0ea5e9,#6366f1); }
-    .profile-bar .val { width: 34px; font-size: 12.5px; color: var(--accent2); flex: 0 0 auto; }
+    /* ===== 学情画像（v56：真实数据驱动 + 雷达/条形双向联动 + 下钻）===== */
+    /* 内层卡片一律用 var(--panel)，明暗主题自动切换，无需两套覆写 */
+    .pf-toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-bottom: 14px; }
+    .pf-src { flex: 1 1 260px; min-width: 0; font-size: 12px; color: var(--muted); line-height: 1.7; }
+    .pf-src b { color: var(--text); }
+    .pf-src .pf-flag { display: inline-block; padding: 1px 7px; border-radius: 999px; font-size: 11px; font-weight: 700; margin-left: 6px; }
+    .pf-src .pf-flag.demo { color: var(--accent-text); border: 1px solid var(--accent); }
+    .pf-src .pf-flag.live { color: var(--good); border: 1px solid var(--good); }
+    .pf-btns { display: flex; gap: 8px; flex-wrap: wrap; }
+    .pf-kpis { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 10px; margin-bottom: 16px; }
+    .pf-kpi { min-width: 0; padding: 12px 13px; border-radius: 12px; background: var(--panel); border: 1px solid var(--panel-border); }
+    .pf-kpi .k { font-size: 11.5px; color: var(--muted); }
+    .pf-kpi .v { font-size: 21px; font-weight: 800; margin-top: 2px; letter-spacing: -0.4px; line-height: 1.25; }
+    .pf-kpi .s { font-size: 11px; color: var(--dim); margin-top: 1px; }
+    .pf-kpi .v small { font-size: 12px; font-weight: 600; color: var(--muted); margin-left: 2px; }
+    .profile-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 16px; align-items: start; }
+    .pf-tip { font-size: 11.5px; font-weight: 400; color: var(--dim); margin-left: 8px; }
+    .profile-bar { display: grid; grid-template-columns: 68px minmax(0, 1fr) 46px; align-items: center; gap: 10px;
+      width: 100%; margin-bottom: 8px; padding: 7px 9px; border-radius: 10px; border: 1px solid transparent;
+      background: transparent; cursor: pointer; text-align: left; font: inherit; color: inherit; transition: background .18s, border-color .18s; }
+    .profile-bar:hover, .profile-bar.on { background: rgba(99, 102, 241, 0.08); border-color: rgba(99, 102, 241, 0.32); }
+    .profile-bar .name { font-size: 13px; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .profile-bar .track { height: 16px; border-radius: 8px; overflow: hidden; background: rgba(127, 127, 127, 0.16); }
+    .profile-bar .fill { display: block; height: 100%; border-radius: 8px; background: linear-gradient(90deg, #0ea5e9, #6366f1); }
+    .profile-bar.na .fill { background: repeating-linear-gradient(90deg, rgba(127,127,127,.42) 0 5px, transparent 5px 10px); }
+    .profile-bar .val { font-size: 12.5px; font-weight: 700; color: var(--accent-text); text-align: right; }
+    .profile-bar.na .val { color: var(--dim); font-weight: 500; }
+    .profile-bar .sub { grid-column: 1 / -1; font-size: 11px; color: var(--dim); margin-top: 3px; display: none; }
+    .profile-bar.on .sub { display: block; }
+    /* 雷达：轴线加宽成透明热区，标签/顶点/热区共享 data-i，走同一套联动逻辑 */
+    #radar .rd-hit { fill: none; stroke: transparent; stroke-width: 16; cursor: pointer; pointer-events: stroke; }
+    #radar .rd-lab { cursor: pointer; }
+    #radar .rd-lab.on { fill: var(--accent-text); font-weight: 700; }
+    #radar .rd-axis { transition: stroke .15s, stroke-width .15s; }
+    #radar .rd-axis.on { stroke: var(--accent); stroke-width: 2; }
+    #radar .rd-dot { cursor: pointer; }
+    #radar .rd-val { font-size: 11px; font-weight: 700; fill: var(--accent-text); text-anchor: middle; }
+    #radar .rd-val.na { fill: var(--chart-label); font-weight: 500; }
+    #radar .rd-center-v { font-size: 25px; font-weight: 800; fill: var(--chart-title); text-anchor: middle; }
+    #radar .rd-center-k { font-size: 10.5px; fill: var(--chart-label); text-anchor: middle; }
+    #radar .rd-center-bg { fill: var(--chart-bg); }
+    .pf-detail { margin-top: 16px; border-radius: 14px; background: var(--panel); border: 1px solid var(--panel-border); padding: 16px 18px; }
+    .pf-detail .pd-h { display: flex; align-items: baseline; flex-wrap: wrap; gap: 10px; margin-bottom: 4px; }
+    .pf-detail .pd-h h5 { font-size: 15.5px; }
+    .pf-detail .pd-h .pd-score { font-size: 20px; font-weight: 800; color: var(--accent-text); }
+    .pf-detail .pd-h .pd-tag { font-size: 11.5px; padding: 2px 9px; border-radius: 999px; border: 1px solid var(--panel-border); color: var(--muted); }
+    .pf-detail .pd-sub { font-size: 12px; color: var(--muted); margin-bottom: 12px; line-height: 1.75; }
+    .pf-chs { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(158px, 100%), 1fr)); gap: 9px; margin-bottom: 14px; }
+    .pf-ch { min-width: 0; padding: 9px 11px; border-radius: 10px; background: rgba(127, 127, 127, 0.07); border: 1px solid var(--panel-border); }
+    .pf-ch .cn { font-size: 12.5px; font-weight: 700; display: flex; align-items: center; gap: 6px; }
+    .pf-ch .cn .ok { color: var(--good); font-size: 11px; }
+    .pf-ch .cm { font-size: 11.5px; color: var(--muted); margin-top: 3px; line-height: 1.7; }
+    .pf-ch .cm b { color: var(--text); }
+    .pf-sec-t { font-size: 12.5px; font-weight: 700; margin: 0 0 8px; }
+    .pf-causes { display: flex; flex-direction: column; gap: 7px; margin-bottom: 14px; }
+    .pf-cz { display: grid; grid-template-columns: 72px minmax(0, 1fr) 34px; align-items: center; gap: 10px; font-size: 12px; color: var(--muted); }
+    .pf-cz .ct { height: 12px; border-radius: 6px; overflow: hidden; background: rgba(127, 127, 127, 0.16); }
+    .pf-cz .ct i { display: block; height: 100%; border-radius: 6px; }
+    .pf-cz .cv { text-align: right; font-weight: 700; color: var(--text); }
+    .pf-acts { display: flex; flex-wrap: wrap; gap: 9px; }
+    .pf-foot { margin-top: 12px; font-size: 11.5px; color: var(--dim); line-height: 1.8; }
+    .pf-empty { font-size: 13px; color: var(--muted); line-height: 1.9; padding: 22px 4px; text-align: center; }
+    @media (max-width: 900px) {
+      .profile-grid { grid-template-columns: minmax(0, 1fr); }
+      .pf-kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
 
     /* ===== IPO 仿真 ===== */
     .steps { display: flex; gap: 6px; margin-bottom: 18px; flex-wrap: wrap; }
@@ -2140,11 +2199,27 @@
     <section class="page" id="p-profile">
       <div class="panel">
         <div class="section-title"><span class="bar"></span>个人学情画像</div>
-        <div class="section-sub">六大维度掌握度，帮助查漏补缺。</div>
-        <div class="profile-grid">
-          <div class="chart-card"><h4>能力雷达</h4><svg id="radar" viewBox="0 0 360 320" width="100%"></svg></div>
-          <div class="chart-card"><h4>维度掌握度</h4><div id="profile-bars"></div></div>
+        <div class="section-sub">六大维度掌握度由你的章节进度、习题正确率、错题消化与学习时长实时算出。</div>
+        <div class="pf-toolbar">
+          <div class="pf-src" id="pf-src">数据源读取中…</div>
+          <div class="pf-btns">
+            <button class="sim-btn ghost" id="pf-demo" type="button">载入示例数据</button>
+            <button class="sim-btn ghost" id="pf-wipe" type="button">清空本机数据</button>
+          </div>
         </div>
+        <div class="pf-kpis" id="pf-kpis"></div>
+        <div class="profile-grid">
+          <div class="chart-card">
+            <h4>能力雷达<span class="pf-tip">悬停或点击顶点可与右侧联动</span></h4>
+            <svg id="radar" viewBox="0 0 360 320" width="100%" role="img" aria-label="六维能力雷达图"></svg>
+          </div>
+          <div class="chart-card">
+            <h4>维度掌握度<span class="pf-tip">点击任一维度查看下钻明细</span></h4>
+            <div id="profile-bars"></div>
+          </div>
+        </div>
+        <div class="pf-detail" id="pf-detail"></div>
+        <div class="pf-foot" id="pf-foot"></div>
       </div>
     </section>
 
@@ -3688,6 +3763,7 @@
         btn.classList.add('active');
         document.getElementById(target).classList.add('active');
         if (target === 'p-wrong' && window.renderWrong) window.renderWrong(); // 进入错题页即渲染/刷新账本（避免首次空白）
+        if (target === 'p-profile' && window.__ibankProfileRefresh) window.__ibankProfileRefresh(); // 学情画像按真实数据实时重算
         document.body.classList.toggle('light', target === 'p-admin');
         if (target === 'p-admin') { if (window.__ibankAdminLive) window.__ibankAdminLive.start(); }
         else { if (window.__ibankAdminLive) window.__ibankAdminLive.stop(); }
@@ -6120,40 +6196,374 @@
       window.__wbVariA = function (qid) { var st = wbVari[qid]; return st ? st.q.a : -1; };
     })();
 
-    // ===== 学情画像 =====
+// ===== 学情画像（v56：真实数据驱动 + 雷达/条形双向联动 + 下钻）=====
+    // 设计对标：ECharts/Highcharts radar 的 emphasis 联动 + Tableau 的 linked highlighting
+    //（点/悬停一侧，另一侧同步高亮），再叠一层下钻明细。v55 前本页是纯静态假分（78/71/82…），
+    // 与章节进度、答题记录、错题账本三路真实数据完全无连线，雷达与条形也各画各的。
+    // 本版把六维映射到第 0–7 章真实章节，分数由本机学习行为加权算出；无数据不编造，显示「待测评」。
     (function () {
+      // 六维 → 真实章节映射（章节号与教学大纲一致；「宏观市场」无对应专章，
+      // 由第2章融资环境 / 第5章债券定价的内容映射而来，页面上如实标注）
       const DIMS = [
-        { name: '承销实务', v: 78 }, { name: '估值方法', v: 71 }, { name: '并购重组', v: 82 },
-        { name: '债券业务', v: 65 }, { name: '宏观市场', v: 74 }, { name: '尽职调查', v: 69 }
+        { name: '承销实务', chs: ['第0章', '第1章', '第3章', '第4章'], note: '投行职业与业务范围、IPO 发行承销、上市公司再融资' },
+        { name: '估值方法', chs: ['第2章', '第3章', '第7章'], note: '融资方案与资本结构、发行定价方法、并购估值' },
+        { name: '并购重组', chs: ['第7章'], note: '并购动因、支付方式、杠杆收购与反收购' },
+        { name: '债券业务', chs: ['第4章', '第5章'], note: '可转债 / 可交换债、债券发行承销与信用评级' },
+        { name: '宏观市场', chs: ['第2章', '第5章'], note: '利率环境与融资成本（由第 2 / 5 章内容映射）' },
+        { name: '尽职调查', chs: ['第3章', '第6章', '第7章'], note: 'IPO / 资产证券化 / 并购三类业务的尽调要点' }
       ];
-      const svg = document.getElementById('radar');
-      const cx = 180, cy = 160, R = 105, n = DIMS.length;
-      function pt(i, r) { const ang = -Math.PI / 2 + i * 2 * Math.PI / n; return [cx + r * Math.cos(ang), cy + r * Math.sin(ang)]; }
-      let html = '';
-      // 网格线/轴线走令牌，深色模式下自动变为暗底可见色
-      [0.25, 0.5, 0.75, 1].forEach(function (f) {
-        let pts = '';
-        for (let i = 0; i < n; i++) { const p = pt(i, R * f); pts += p[0].toFixed(1) + ',' + p[1].toFixed(1) + ' '; }
-        html += '<polygon points="' + pts + '" fill="none" stroke="var(--chart-grid)" stroke-width="1"/>';
-      });
-      for (let i = 0; i < n; i++) { const p = pt(i, R); html += '<line x1="' + cx + '" y1="' + cy + '" x2="' + p[0].toFixed(1) + '" y2="' + p[1].toFixed(1) + '" stroke="var(--chart-axis)" stroke-width="1"/>'; }
-      let dp = '';
-      for (let i = 0; i < n; i++) { const p = pt(i, R * DIMS[i].v / 100); dp += p[0].toFixed(1) + ',' + p[1].toFixed(1) + ' '; }
-      html += '<polygon points="' + dp + '" fill="var(--chart-area)" stroke="var(--chart-indigo)" stroke-width="2"/>';
-      for (let i = 0; i < n; i++) {
-        const p = pt(i, R + 26);
-        html += '<text x="' + p[0].toFixed(1) + '" y="' + p[1].toFixed(1) + '" fill="var(--chart-label)" font-size="12" text-anchor="middle" dominant-baseline="middle">' + DIMS[i].name + '</text>';
-      }
-      svg.innerHTML = html;
-      const bars = document.getElementById('profile-bars');
-      DIMS.forEach(function (d) {
-        const row = document.createElement('div');
-        row.className = 'profile-bar';
-        row.innerHTML = '<span class="name">' + d.name + '</span><span class="track"><span class="fill" style="width:' + d.v + '%"></span></span><span class="val">' + d.v + '</span>';
-        bars.appendChild(row);
-      });
-    })();
+      const CAUSE_NAMES = ['概念不清', '方法不会', '粗心失误', '审题偏差'];
+      const CAUSE_COLOR = { '概念不清': '#ef4444', '方法不会': '#f59e0b', '粗心失误': '#3b82f6', '审题偏差': '#94a3b8' };
+      const DEMO_KEY = 'ibank_demo_profile';
+      const ALL_CHS = ['第0章', '第1章', '第2章', '第3章', '第4章', '第5章', '第6章', '第7章'];
+      // 每章 1.5 小时视为「时长维度满分」，防止长时段把分数拉满
+      const TIME_FULL = 5400;
+      const DAY = 86400000;
 
+      const svg = document.getElementById('radar');
+      const barsEl = document.getElementById('profile-bars');
+      const kpisEl = document.getElementById('pf-kpis');
+      const detEl = document.getElementById('pf-detail');
+      const srcEl = document.getElementById('pf-src');
+      const footEl = document.getElementById('pf-foot');
+      const cx = 180, cy = 158, R = 104, n = DIMS.length;
+      let sel = -1;                                   // 锁定的维度下标，-1 = 未锁定
+      let SCORES = [];                                // 最近一次 compute 的结果
+
+      function pt(i, r) { const a = -Math.PI / 2 + i * 2 * Math.PI / n; return [cx + r * Math.cos(a), cy + r * Math.sin(a)]; }
+      function pe(s) { return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
+      function lsGet(k, d) { try { var v = localStorage.getItem(k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } }
+      function lsSet(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
+      function num(k) { try { return parseInt(localStorage.getItem(k) || '0', 10) || 0; } catch (e) { return 0; } }
+      function mulberry32(a) { return function () { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+
+      // ---- 数据源：优先读本机真实记录；存在示例数据集时改读示例（两者物理隔离，绝不覆盖真实数据）----
+      function readStore() {
+        var demo = lsGet(DEMO_KEY, null);
+        if (demo && demo.quiz) {
+          return { demo: true, done: demo.done || {}, evs: demo.quiz || [], wrong: demo.wrong || [], times: demo.times || {}, at: demo.built || 0 };
+        }
+        var done = lsGet('ibank_chapter_done', {}) || {};
+        var evs = lsGet('ibank_events_local', []);
+        if (!Array.isArray(evs)) evs = [];
+        var wb = lsGet('ibank_wrongbook', null);
+        var items = (wb && wb.items && typeof wb.items === 'object') ? Object.keys(wb.items).map(function (k) { return wb.items[k]; }) : [];
+        // ★ 错题账本空时会自动播种 8 条 isSeed 示例错题（v36 起的行为，供演示用）。
+        //   那些不是学生真实表现，若计入会把六维算成 0 分——正是本页要消除的「假数据」问题，故剔除。
+        items = items.filter(function (w) { return w && !w.isSeed; });
+        var times = {};
+        ALL_CHS.forEach(function (c) { times[c] = num('ibank_time_' + c); });
+        return { demo: false, done: done, evs: evs, wrong: items, times: times, at: 0 };
+      }
+
+      // 示例数据用固定种子生成，可复现；单独存 DEMO_KEY，不污染真实键。
+      // 章节正确率参照"学期过半的学生"设定（0.62–0.85），使六维呈现可信且有区分度的分布。
+      function buildDemo() {
+        var rnd = mulberry32(20261007);
+        var plan = [['第0章', 6, 0.85], ['第1章', 10, 0.80], ['第2章', 8, 0.70], ['第3章', 12, 0.75],
+        ['第4章', 9, 0.65], ['第5章', 8, 0.78], ['第6章', 6, 0.62], ['第7章', 9, 0.68]];
+        var quiz = [], wrong = [], i = 0;
+        plan.forEach(function (p) {
+          for (var k = 0; k < p[1]; k++) {
+            var ok = rnd() < p[2];
+            quiz.push({ type: 'quiz', chapter: p[0], qtype: '选择', correct: ok, ts: Date.now() - (40 - i) * 3600000 });
+            if (!ok) wrong.push({ chapter: p[0], status: rnd() < 0.35 ? 'mastered' : 'todo', cause: CAUSE_NAMES[Math.floor(rnd() * 4)], kp: '演示知识点' });
+            i++;
+          }
+        });
+        return {
+          done: { '第0章': 1, '第1章': 1, '第2章': 1, '第3章': 1, '第5章': 1 },
+          times: { '第0章': 2400, '第1章': 5400, '第2章': 4200, '第3章': 5100, '第4章': 1800, '第5章': 3600, '第6章': 900, '第7章': 2700 },
+          quiz: quiz, wrong: wrong, built: Date.now()
+        };
+      }
+
+      // ---- 维度打分：四项加权，缺项按剩余权重归一化（而不是当成 0 拉低分数）----
+      // 关键：某一项若「完全没有数据信号」，必须置 null（不参与计分 → 整维显示待测评），
+      // 不能当成 0 分计入——否则全新用户六维全是 0，看起来像"考了 0 分"而不是"还没数据"。
+      // 章节完成度的信号判据是 done 映射表非空：表为空 = 用户还没标记过任何章节，属无信号。
+      function computeDim(d, st) {
+        var chs = d.chs;
+        var q = st.evs.filter(function (e) { return e && e.type === 'quiz' && chs.indexOf(e.chapter) >= 0; });
+        var okN = 0; q.forEach(function (e) { if (e.correct === true) okN++; });
+        var acc = q.length ? okN / q.length : null;
+        var doneAny = !!(st.done && Object.keys(st.done).length);
+        var doneN = 0; chs.forEach(function (c) { if (st.done && st.done[c]) doneN++; });
+        var prog = (doneAny && chs.length) ? doneN / chs.length : null;
+        var ws = st.wrong.filter(function (w) { return w && chs.indexOf(w.chapter) >= 0; });
+        var mastered = 0; ws.forEach(function (w) { if (w.status === 'mastered') mastered++; });
+        var digest = ws.length ? mastered / ws.length : null;
+        var sec = 0; chs.forEach(function (c) { sec += (st.times && st.times[c]) || 0; });
+        var perCh = chs.length ? sec / chs.length : 0;
+        // 时长信号门槛 60 秒：翻页几秒会被计时器写进localStorage，那不构成「学习时长」，
+        // 若照算会把维度算成 0 分（看起来像挂了），不如判定为无信号。
+        var time = sec >= 60 ? Math.min(1, perCh / TIME_FULL) : null;
+
+        var parts = [];
+        if (acc !== null) parts.push([acc, 0.50]);
+        if (prog !== null) parts.push([prog, 0.22]);
+        if (digest !== null) parts.push([digest, 0.18]);
+        if (time !== null) parts.push([time, 0.10]);
+        var score = null;
+        if (parts.length) {
+          var ws2 = 0, acc2 = 0;
+          parts.forEach(function (p) { ws2 += p[1]; acc2 += p[0] * p[1]; });
+          score = Math.round(acc2 / ws2 * 100);
+          // ★ 置信度下限：只答了 1 题就判 0 分会严重误导（实测答错 1 题 → 并购重组 0 分）。
+          //   证据越少，越把分数往50 拉（50 =完全无证据），样本 ≥8 题时不再干预。
+          var evid = q.length + ws.length;
+          if (evid < 8) score = Math.round(score + (50 - score) * (8 - evid) / 8);
+        }
+        var cz = {};
+        ws.forEach(function (w) { var c = w.cause || '未标注'; cz[c] = (cz[c] || 0) + 1; });
+        var evid = q.length + ws.length;
+        return { d: d, score: score, evid: evid, conf: evid >= 8 ? '高' : evid >= 4 ? '中' : '低', acc: acc, okN: okN, qN: q.length, doneN: doneN, chN: chs.length, digest: digest, wN: ws.length, mastered: mastered, sec: sec, time: time, causes: cz };
+      }
+
+      function fmtHms(s) { var h = Math.floor(s / 3600), m = Math.round((s % 3600) / 60); return (h ? h + ' 小时 ' : '') + (m ? m + ' 分' : (h ? '' : '不足 1 分')); }
+      function pct(x) { return x === null ? '—' : Math.round(x * 100) + '%'; }
+
+      // ---- 雷达骨架（只建一次，之后只改多边形点位 / 顶点 / 数值）----
+      const dots = [], vals = [], axes = [], labs = [];
+      function buildRadar() {
+        var h = '';
+        [0.25, 0.5, 0.75, 1].forEach(function (f) {
+          var pts = '';
+          for (var i = 0; i < n; i++) { var p = pt(i, R * f); pts += p[0].toFixed(1) + ',' + p[1].toFixed(1) + ' '; }
+          h += '<polygon points="' + pts + '" fill="none" stroke="var(--chart-grid)" stroke-width="1"/>';
+        });
+        h += '<circle class="rd-center-bg" cx="' + cx + '" cy="' + cy + '" r="27"/>';
+        h += '<text class="rd-center-v" id="rd-cv" x="' + cx + '" y="' + (cy - 1) + '">—</text>';
+        h += '<text class="rd-center-k" x="' + cx + '" y="' + (cy + 15) + '">综合掌握度</text>';
+        h += '<polygon id="rd-poly" fill="var(--chart-area)" stroke="var(--chart-indigo)" stroke-width="2"/>';
+        for (var i2 = 0; i2 < n; i2++) {
+          var e = pt(i2, R);
+          h += '<line class="rd-axis" data-i="' + i2 + '" x1="' + cx + '" y1="' + cy + '" x2="' + e[0].toFixed(1) + '" y2="' + e[1].toFixed(1) + '" stroke="var(--chart-axis)" stroke-width="1"/>';
+        }
+        for (var i3 = 0; i3 < n; i3++) {
+          var lp = pt(i3, R + 25);
+          h += '<text class="rd-lab" data-i="' + i3 + '" x="' + lp[0].toFixed(1) + '" y="' + lp[1].toFixed(1) + '" font-size="12" text-anchor="middle" dominant-baseline="middle">' + DIMS[i3].name + '</text>';
+          h += '<text class="rd-val na" data-i="' + i3 + '" id="rdv' + i3 + '">—</text>';
+          h += '<circle class="rd-dot" data-i="' + i3 + '" id="rdd' + i3 + '" r="3.6" fill="var(--chart-indigo)" stroke="var(--chart-bg)" stroke-width="1.5"/>';
+          h += '<line class="rd-hit" data-i="' + i3 + '" x1="' + cx + '" y1="' + cy + '" x2="' + lp[0].toFixed(1) + '" y2="' + lp[1].toFixed(1) + '"/>';
+        }
+        svg.innerHTML = h;
+        for (var k2 = 0; k2 < n; k2++) {
+          axes.push(svg.querySelector('.rd-axis[data-i="' + k2 + '"]'));
+          labs.push(svg.querySelector('.rd-lab[data-i="' + k2 + '"]'));
+          vals.push(svg.querySelector('#rdv' + k2));
+          dots.push(svg.querySelector('#rdd' + k2));
+        }
+      }
+
+      function updateRadar(rows) {
+        var pts = '', any = false;
+        rows.forEach(function (r, i) {
+          if (r.score === null) {
+            vals[i].textContent = '待测评'; vals[i].setAttribute('class', 'rd-val na');
+            dots[i].setAttribute('r', '2.4'); dots[i].setAttribute('fill', 'var(--chart-axis)');
+            pts += pt(i, 0)[0].toFixed(1) + ',' + pt(i, 0)[1].toFixed(1) + ' ';
+            return;
+          }
+          any = true;
+          var rr = R * r.score / 100;
+          pts += pt(i, rr)[0].toFixed(1) + ',' + pt(i, rr)[1].toFixed(1) + ' ';
+          dots[i].setAttribute('r', '3.6'); dots[i].setAttribute('fill', 'var(--chart-indigo)');
+          // 数值标签固定落在 R-20 的环上：若贴着顶点走，低分维度的数字会挤到圆心的
+          // 「综合掌握度」上（实测 44/51 与 58 重叠），固定环位可彻底避开。
+          var vp = pt(i, R - 20);
+          vals[i].setAttribute('x', vp[0].toFixed(1)); vals[i].setAttribute('y', vp[1].toFixed(1));
+          vals[i].setAttribute('class', 'rd-val'); vals[i].textContent = r.score;
+        });
+        svg.querySelector('#rd-poly').setAttribute('points', pts);
+        var ok = rows.filter(function (r) { return r.score !== null; });
+        var avg = ok.length ? Math.round(ok.reduce(function (s, r) { return s + r.score; }, 0) / ok.length) : 0;
+        svg.querySelector('#rd-cv').textContent = ok.length ? String(avg) : '—';
+        return { avg: avg, graded: ok.length, any: any };
+      }
+
+      // ---- KPI 条 ----
+      function renderKpis(st, rows, agg) {
+        var qAll = st.evs.filter(function (e) { return e && e.type === 'quiz'; });
+        var okAll = 0; qAll.forEach(function (e) { if (e.correct === true) okAll++; });
+        var due = 0, open = 0;
+        st.wrong.forEach(function (w) {
+          if (w.status === 'mastered') return;
+          open++;
+          if ((w.nextTs || 0) <= Date.now()) due++;
+        });
+        var doneN = 0; ALL_CHS.forEach(function (c) { if (st.done && st.done[c]) doneN++; });
+        var cards = [
+          { k: '综合掌握度', v: agg.graded ? agg.avg : '—', s: agg.graded ? agg.graded + ' / ' + n + ' 个维度已计分' : '暂无学习数据' },
+          { k: '章节完成', v: doneN + '<small>/8</small>', s: '进度取自课程学习页' },
+          { k: '累计答题', v: String(qAll.length), s: okAll > 0 ? '答对 ' + okAll + ' 题' : '去习题训练产生记录' },
+          { k: '总体正确率', v: qAll.length ? pct(okAll / qAll.length) : '—', s: qAll.length ? '基于本机 ' + qAll.length + ' 条答题记录' : '尚无答题记录' },
+          { k: '未掌握错题', v: String(open), s: due ? ('其中 ' + due + ' 题今日待复习') : (open ? '今日无到期复习（按间隔重复排程）' : '错题账本为空') }
+        ];
+        kpisEl.innerHTML = cards.map(function (c) {
+          return '<div class="pf-kpi"><div class="k">' + c.k + '</div><div class="v">' + c.v + '</div><div class="s">' + pe(c.s) + '</div></div>';
+        }).join('');
+      }
+
+      // ---- 维度条 ----
+      function renderBars(rows) {
+        barsEl.innerHTML = rows.map(function (r, i) {
+          var w = r.score === null ? 0 : r.score;
+          var sub = r.score === null
+            ? '本维度尚无学习记录：去「课程学习」或「习题训练」产生数据后自动计分'
+            : '答题 ' + r.okN + '/' + r.qN + '（' + pct(r.acc) + '）· 章节 ' + r.doneN + '/' + r.chN + ' · 错题消化 ' + r.mastered + '/' + r.wN + ' · 时长 ' + fmtHms(r.sec);
+          return '<button class="profile-bar' + (r.score === null ? ' na' : '') + '" type="button" data-i="' + i + '" aria-pressed="false">'
+            + '<span class="name">' + r.d.name + '</span>'
+            + '<span class="track"><span class="fill" style="width:' + w + '%"></span></span>'
+            + '<span class="val">' + (r.score === null ? '待测评' : r.score) + '</span>'
+            + '<span class="sub">' + pe(sub) + '</span></button>';
+        }).join('');
+      }
+
+      // ---- 下钻明细 ----
+      function renderDetail(i) {
+        var r = SCORES[i];
+        if (!r) { detEl.innerHTML = '<div class="pd-h"><h5>维度明细</h5></div><div class="pf-empty">点击左侧雷达任一顶点，或右侧任一维度行，查看该维度的下钻明细。</div>'; return; }
+        var st = readStore();
+        var chRows = r.d.chs.map(function (c) {
+          var q = st.evs.filter(function (e) { return e && e.type === 'quiz' && e.chapter === c; });
+          var ok = 0; q.forEach(function (e) { if (e.correct === true) ok++; });
+          var w = st.wrong.filter(function (x) { return x && x.chapter === c && x.status !== 'mastered'; }).length;
+          var isDone = !!(st.done && st.done[c]);
+          return '<button class="pf-ch" type="button" data-ch="' + c + '">'
+            + '<span class="cn">' + c + (isDone ? '<span class="ok">✓ 已完成</span>' : '') + '</span>'
+            + '<span class="cm">答题 <b>' + (q.length ? ok + '/' + q.length : '—') + '</b>' + (q.length ? '（' + pct(ok / q.length) + '）' : '') + ' · 待复习错题 <b>' + w + '</b></span>'
+            + '</button>';
+        }).join('');
+        var czKeys = Object.keys(r.causes).sort(function (a, b) { return r.causes[b] - r.causes[a]; });
+        var czHtml = czKeys.length ? '<div class="pf-causes">' + czKeys.map(function (k) {
+          return '<div class="pf-cz"><span>' + pe(k) + '</span><span class="ct"><i style="width:' + Math.round(r.causes[k] / r.wN * 100) + '%;background:' + (CAUSE_COLOR[k] || '#64748b') + '"></i></span><span class="cv">' + r.causes[k] + '</span></div>';
+        }).join('') + '</div>' : '<div class="pf-empty" style="padding:6px 0;text-align:left">该维度暂无错题记录。</div>';
+        var weakest = r.d.chs.filter(function (c) { return !(st.done && st.done[c]); })[0] || r.d.chs[0];
+        detEl.innerHTML =
+          '<div class="pd-h"><h5>' + r.d.name + '</h5>'
+          + '<span class="pd-score">' + (r.score === null ? '待测评' : r.score) + '</span>'
+          + '<span class="pd-tag">' + (r.score === null ? '无数据' : (r.score >= 80 ? '掌握较好' : r.score >= 65 ? '基本掌握' : '仍需补强')) + '</span>'
+          + (r.score !== null && r.conf !== '高' ? '<span class="pd-tag">置信度' + r.conf + '（样本 ' + r.evid + '，继续练习即自动校正）</span>' : '')
+          + '<span class="pd-tag">覆盖 ' + r.d.chs.join(' / ') + '</span></div>'
+          + '<div class="pd-sub">' + pe(r.d.note) + '</div>'
+          + '<div class="pf-sec-t">逐章明细（点击卡片跳转到该章）</div>'
+          + '<div class="pf-chs">' + chRows + '</div>'
+          + '<div class="pf-sec-t">错因分布（本维度 ' + r.wN + ' 道错题）</div>'
+          + czHtml
+          + '<div class="pf-acts">'
+          + '<button class="sim-btn primary" type="button" data-goch="' + weakest + '">去练这一维度（' + weakest + '）</button>'
+          + '<button class="sim-btn ghost" type="button" data-gop="p-wrong">查看错题定位</button>'
+          + '</div>';
+      }
+
+      // ---- 联动：悬停/点击任一侧，另一侧同步 ----
+      function focus(i) {
+        for (var k = 0; k < n; k++) {
+          var on = (k === i);
+          if (axes[k]) { axes[k].setAttribute('class', 'rd-axis' + (on ? ' on' : '')); axes[k].setAttribute('stroke-width', on ? '2' : '1'); }
+          if (labs[k]) labs[k].setAttribute('class', 'rd-lab' + (on ? ' on' : ''));
+          if (dots[k]) dots[k].setAttribute('r', on ? '5.4' : (SCORES[k] && SCORES[k].score !== null ? '3.6' : '2.4'));
+          var row = barsEl.querySelector('.profile-bar[data-i="' + k + '"]');
+          if (row) row.classList.toggle('on', on);
+        }
+      }
+      function select(i) { sel = (sel === i ? -1 : i); renderDetail(sel); focus(sel); syncPressed(); }
+      function syncPressed() {
+        Array.prototype.forEach.call(barsEl.querySelectorAll('.profile-bar'), function (b) {
+          b.setAttribute('aria-pressed', (+b.getAttribute('data-i') === sel) ? 'true' : 'false');
+        });
+      }
+
+      svg.addEventListener('mouseover', function (e) {
+        var t = e.target.closest('[data-i]'); if (!t) return;
+        var i = +t.getAttribute('data-i');
+        if (i !== sel) { focus(i); if (sel < 0) renderDetail(i); }
+      });
+      svg.addEventListener('mouseleave', function () { focus(sel); });
+      svg.addEventListener('click', function (e) {
+        var t = e.target.closest('[data-i]'); if (!t) return;
+        select(+t.getAttribute('data-i'));
+      });
+      barsEl.addEventListener('mouseover', function (e) {
+        var b = e.target.closest('.profile-bar'); if (!b) return;
+        var i = +b.getAttribute('data-i');
+        if (i !== sel) { focus(i); if (sel < 0) renderDetail(i); }
+      });
+      barsEl.addEventListener('mouseleave', function () { focus(sel); });
+      barsEl.addEventListener('click', function (e) {
+        var b = e.target.closest('.profile-bar'); if (!b) return;
+        select(+b.getAttribute('data-i'));
+      });
+      barsEl.addEventListener('focusin', function (e) {
+        var b = e.target.closest('.profile-bar'); if (!b) return;
+        var i = +b.getAttribute('data-i'); focus(i); if (sel < 0) renderDetail(i);
+      });
+      detEl.addEventListener('click', function (e) {
+        var ch = e.target.closest('[data-ch]');
+        if (ch) { gotoChapter(ch.getAttribute('data-ch')); return; }
+        var g = e.target.closest('[data-goch]');
+        if (g) { gotoExercise(g.getAttribute('data-goch')); return; }
+        var p = e.target.closest('[data-gop]');
+        if (p) { var btn = document.querySelector('.tab-btn[data-page="' + p.getAttribute('data-gop') + '"]'); if (btn) btn.click(); }
+      });
+
+      function gotoChapter(no) {
+        var btn = document.querySelector('.tab-btn[data-page="p-graph"]');
+        if (btn) btn.click();
+        setTimeout(function () { if (window.__ibankChapterGo) window.__ibankChapterGo(no); }, 80);
+      }
+      function gotoExercise(no) {
+        try { sessionStorage.setItem('ibank_exercise_filter', no); } catch (e) {}
+        var btn = document.querySelector('.tab-btn[data-page="p-exercise"]');
+        if (btn) btn.click(); else ibankToast('未找到习题训练页');
+      }
+
+      // ---- 数据源说明 + 页脚口径 ----
+      function renderSrc(st, rows) {
+        var graded = rows.filter(function (r) { return r.score !== null; }).length;
+        if (st.demo) {
+          srcEl.innerHTML = '当前为<b>示例数据集</b>（固定种子生成，可复现），用于演示联动效果。已计分 <b>' + graded + '/' + n + '</b> 个维度。'
+            + '<span class="pf-flag demo">示例数据</span>';
+        } else {
+          srcEl.innerHTML = '数据源：本机学习记录（章节完成 · 习题答题 · 错题账本 · 学习时长）。已计分 <b>' + graded + '/' + n + '</b> 个维度。'
+            + '<span class="pf-flag live">真实记录</span>';
+        }
+        footEl.innerHTML = '计分口径：习题正确率 50% + 章节完成度 22% + 错题消化率 18% + 学习时长 10%（每章满时长按 1.5 小时计）。'
+          + '某维度缺少某一类数据时，该项权重按剩余项重新归一化，不按 0 分计入；四类数据全缺则显示「待测评」，不使用估算值。'
+          + '样本不足 8 题时会把分数向 50 分（无证据基准）收敛，并在明细里标出置信度，避免「答 1 题错就判0 分」的误导。'
+          + '时长与答题数据来自本机 localStorage，换浏览器或清理站点数据后会重新为空。';
+      }
+
+      // ---- 总渲染 ----
+      function render() {
+        var st = readStore();
+        SCORES = DIMS.map(function (d) { return computeDim(d, st); });
+        var agg = updateRadar(SCORES);
+        renderKpis(st, SCORES, agg);
+        renderBars(SCORES);
+        renderSrc(st, SCORES);
+        if (sel >= 0 && sel < n) { renderDetail(sel); } else { renderDetail(-1); }
+        syncPressed(); focus(sel);
+      }
+      window.__ibankProfileRefresh = render;
+
+      var demoBtn = document.getElementById('pf-demo');
+      if (demoBtn) demoBtn.addEventListener('click', function () {
+        lsSet(DEMO_KEY, buildDemo());
+        sel = -1; render();
+        ibankToast('已载入示例数据（独立存放，不覆盖你的真实记录）');
+      });
+      var wipeBtn = document.getElementById('pf-wipe');
+      if (wipeBtn) wipeBtn.addEventListener('click', function () {
+        try { localStorage.removeItem(DEMO_KEY); } catch (e) {}
+        sel = -1; render();
+        ibankToast('已切回本机真实记录');
+      });
+
+      buildRadar();
+      render();
+    })();
     // ===== 科创板 IPO 定价配售仿真（参照上海师范大学虚仿实验：可算法化规则链）=====
     // v32：判分从「唯一正解」改为「合规区间 + 质量分档 + 可重试」；新增实时定价体检、
     //      逐项解析、决策后果传导、分步得分明细与导出。

@@ -2,6 +2,12 @@
 qa-out/
 _private/
 _versions/
+# 验收脚本会把报告写在仓库根目录（不在 qa-out/ 下），需单独忽略
+flow-report.json
+overflow-report.json
+contrast*.json
+shot-report.json
+qa.config.json
 
 # 站点本地文件（仅本地保留）
 *.doc

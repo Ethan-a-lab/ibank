@@ -1,0 +1,13 @@
+# 统一行尾，避免 Windows 上 core.autocrlf=true 把 LF 转成 CRLF
+# 背景：本项目要求四副本 MD5 一致作为同步校验手段，若检出时行尾被改写，
+# MD5 会随之变化，校验失效。故强制文本文件以 LF 存储与检出。
+* text=auto eol=lf
+
+# 二进制文件不做行尾转换
+*.pdf binary
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.mp4 binary
