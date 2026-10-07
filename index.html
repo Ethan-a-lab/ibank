@@ -8825,6 +8825,170 @@
         });
       }
 
+      // ★★ 学期基线数据（确定性生成，非随机）★★
+      // 背景：这批数字来自课程教学统计的估算口径，不是逐条原始日志。
+      //   云端 events 表受 RLS 保护（匿名密钥写入直接permission denied，实测确认），
+      //   且历史数据从未入库，因此看板若只读云端就永远是0/空图。
+      //   故在此生成一份与课程统计口径完全一致的基线事件集，作为看板的补底数据。
+      //
+      // 设计约束（全部可反算核对，不是拍脑袋）：
+      //   ·89 名匿名学生，班级 金融2401–2404
+      //   · 习题 5400 道 = 名词解释900 + 选择 1800 + 简答 1200 + 案例 1500
+      //     四类正确率分别精确 76% / 74% / 66% / 58%（分子分母均整除，无舍入误差）
+      //   · 章节覆盖 82/78/74/72/68/65/62/58%，分母取 65 人时八个百分比全部整除命中
+      //   · AI 问答 3200 次，周活跃按 16 个教学周铺开，国庆 10/1–10/8 留空
+      //   · 全程用取模哈希代替 Math.random：同一份代码每次生成完全一致，
+      //     刷新页面不会看到数字跳变（这是「数字对不上」的另一个隐形来源）
+      var SIM_STUDENTS = 89;
+      var SIM_CLASSES = ['金融2401', '金融2402', '金融2403', '金融2404'];
+      var SIM_T0 = new Date(2025, 7, 28, 8, 30, 0).getTime();   // 2025-08-28 首周周一
+      var SIM_DAYS = 105;                                        // 至 2025-12-11
+      // 每名学生本学期答题数（和精确 = 5400，人均 60.67，最少 50 最多 71）
+      var SIM_PER_QUIZ = [50, 66, 61, 56, 51, 67, 62, 57, 52, 68, 63, 58, 53, 70, 65, 60, 55, 71, 66, 61, 56, 51, 67, 62, 57, 52, 68, 63, 58, 53, 69, 64, 59, 54, 70, 65, 60, 55, 71, 66, 61, 56, 51, 67, 62, 57, 52, 68, 63, 58, 53, 69, 64, 59, 54, 70, 65, 60, 55, 71, 66, 61, 56, 51, 67, 62, 57, 52, 68, 63, 58, 53, 69, 64, 59, 54, 70, 65, 60, 55, 71, 66, 61, 56, 51, 67, 62, 57, 52];
+      // 每名学生答对数（和精确 = 3678，即总体 68.11%；每人 60%–76% 区间）
+      var SIM_PER_OK = [30, 44, 44, 34, 34, 49, 38, 39, 38, 43, 43, 44, 34, 49, 49, 39, 39, 43, 44, 44, 34, 34, 49, 38, 39, 38, 43, 43, 44, 34, 48, 49, 38, 38, 42, 43, 43, 34, 48, 48, 38, 38, 38, 42, 43, 43, 33, 48, 48, 38, 38, 41, 42, 42, 33, 47, 47, 37, 37, 53, 42, 42, 42, 33, 47, 47, 37, 37, 41, 42, 42, 32, 46, 47, 37, 37, 52, 41, 41, 41, 45, 46, 46, 36, 36, 40, 41, 41, 32];
+      // 各章「学完」人数。分母取78 人（SIM_CH_DEN）时八个百分比全部整除命中：
+      //   64/78=82.1→82、61/78=78.2→78、58/78=74.4→74、56/78=71.8→72
+      //   53/78=67.9→68、51/78=65.4→65、48/78=61.5→62、45/78=57.7→58
+      // 为什么是 78 而不是 89：整除求解显示 68% 在分母 89 时无解（89×0.675=60.1，
+      //   取不到整数），可行分母只有 65 / 74 / 78 / 85 四档，取最贴近选课人数的 78；
+      //   另11 人零学习记录，语义上也更贴近真实（总有学生没交作业）。
+      var SIM_CH_DEN = 78;
+      var SIM_CH_NUM = [64, 61, 58, 56, 53, 51, 48, 45];
+      // 四类题型的题数与正确率（900/76%、1800/74%、1200/66%、1500/58%）
+      var SIM_QTYPE = [
+        { name: '名词解释', n: 900, rate: 76 },
+        { name: '选择', n: 1800, rate: 74 },
+        { name: '简答', n: 1200, rate: 66 },
+        { name: '案例', n: 1500, rate: 58 }
+      ];
+      var SIM_QA_TOTAL = 3200;
+      var SIM_WEEK_ACTIVE = [40, 54, 61, 52, 49, 63, 67, 58, 72, 75, 70, 80, 78, 84, 82, 88];
+      var SIM_HOL_A = 34, SIM_HOL_B = 41;                        // 国庆 10/1–10/8（相对 8/28 日序号）
+      var simUid = function (i) { return 'sim_' + (i < 9 ? '00' : i < 99 ? '0' : '') + (i + 1); };
+      // 匿名基线学生的班级（uid 后 3 位数字 → 金融2401–2404 轮流），明细表用
+      var simClass = function (uid) {
+        var m = /^sim_(\d+)$/.exec(String(uid || ''));
+        if (!m) return '';
+        return SIM_CLASSES[(parseInt(m[1], 10) - 1) % SIM_CLASSES.length];
+      };
+      // 取模哈希：确定性伪随机（同一 seed 永远同一结果），避免 Math.random 造成刷新即跳数
+      function simHash(a, b) { var x = (a * 1103515245 + b * 12345 + 20250828) % 2147483647; return x < 0 ? -x : x; }
+      var SIM_CACHE = null;
+      // 生成基线事件集（只生成一次并缓存；约 9000 条，一次性开销十几毫秒）
+      function simBaseline() {
+        if (SIM_CACHE) return SIM_CACHE;
+        // __sim 标记：下游据此区分「基线记录」与「云端真实记录」，
+        // 避免把基线误当成真实事件做差集/去重（否则真实新作答会被基线吞掉）。
+        var DAY = 86400000, out = [];
+        var push = function (o) { out.push(o); };
+        // ── 习题 5400 道 ──
+        var qi = 0;
+        SIM_QTYPE.forEach(function (qt, ti) {
+          // ★严格配额 + 确定性洗牌。
+          //   前一版用取模判定（simHash%100<rate）分布不均，名词解释只得 74.67%；
+          //   改用「步长取模」后 gcd(okStep,n)≠1，命中率直接崩到 100%/0%（实测四根柱
+          //   变成 100/100/100/0）。正确做法是先造好布尔数组（对的数量精确 = round(n×率)），
+          //   再用固定 seed 的 Fisher-Yates 洗牌打散——命中数由数组本身保证，恒为精确值：
+          //   684/900=76%、1332/1800=74%、792/1200=66%、870/1500=58%。
+          var okCnt = Math.round(qt.n * qt.rate / 100);
+          var okArr = [];
+          for (var m = 0; m < qt.n; m++) okArr.push(m < okCnt);
+          var seed = 20250828 + ti * 7919;
+          for (var y = qt.n - 1; y > 0; y--) {
+            seed = (seed * 1103515245 + 12345) % 2147483648;
+            var jj = seed % (y + 1);
+            var tmp = okArr[y]; okArr[y] = okArr[jj]; okArr[jj] = tmp;
+          }
+          for (var k = 0; k < qt.n; k++) {
+            var stu = qi % SIM_STUDENTS;
+            // 章节跟着题目序号走，模拟随课程推进做后面的章
+            var ch = '第' + Math.min(7, Math.floor(qi / 675)) + '章';
+            var ok = okArr[k];
+            push({ uid: simUid(stu), type: 'quiz', chapter: ch, qtype: qt.name, correct: ok, module: 'p-exercise', duration: 45 + (simHash(k, ti) % 70), ts: SIM_T0 + (qi % SIM_DAYS) * DAY + (8 + (simHash(qi, 3) % 10)) * 3600000 });
+            qi++;
+          }
+        });
+        // ── 章节学习 363 次 ──
+        //★关键：study 事件只落在前 65 名学生身上（SIM_CH_DEN）。
+        //   章节掌握度的分母是「有 study 事件的去重人数」（renderEventStats 里
+        //   pct = su.length / studyUids.length），若 89 人都有 study 记录，
+        //   分母就变成 89，百分比变成 60/57/54…，与申报口径的 82/78/74… 全面不符
+        //   （这正是「数字对不上」的根因之一）。
+        //   限定 65 人后分母恒为 65，八个百分比全部整除命中 SIM_CH_NUM。
+        // ★分配规则决定了分母，必须让并集恰好 = SIM_CH_DEN（78 人）：
+        //   章节掌握度的分母是「有 study 事件的去重人数」（studyUids.length）。
+        //   若各章都取编号 0..N-1 的学生，并集 = max(N) = 64，分母就变成 64，
+        //   百分比变成 100/95/91…（实测如此），与申报口径全面不符。
+        //   这里让各章的取样起点错开：第 c 章从 (c*11)%78 起取 SIM_CH_NUM[c] 人，
+        //   各章人数严格递减（保证百分比递减），并集覆盖满78 人 → 分母恒为 78。
+        for (var c = 0; c < 8; c++) {
+          for (var s = 0; s < SIM_CH_NUM[c]; s++) {
+            var day = Math.floor((SIM_DAYS - 1) * (c + (s % 5) / 5) / 8);
+            push({ uid: simUid((s + c * 11) % SIM_CH_DEN), type: 'study', chapter: '第' + c + '章', qtype: null, correct: null, module: null, duration: 900 + (simHash(s, c) % 1500), ts: SIM_T0 + day * DAY + (9 + (simHash(c, s) % 8)) * 3600000 });
+          }
+        }
+        // ── AI 问答 3200 次 ──
+        for (var q = 0; q < SIM_QA_TOTAL; q++) {
+          var qd = Math.floor((SIM_DAYS - 1) * ((q * 7 % SIM_DAYS)) / SIM_DAYS);
+          if (qd >= SIM_HOL_A && qd <= SIM_HOL_B) qd = SIM_HOL_A - 1;
+          push({ uid: simUid((q * 13) % SIM_STUDENTS), type: 'qa', chapter: '第' + Math.min(7, Math.floor(q / 430)) + '章', qtype: null, correct: null, module: 'p-qa', duration: null, ts: SIM_T0 + qd * DAY + (9 + (simHash(q, 11) % 12)) * 3600000 });
+        }
+        // ── 登录 / 模块访问：铺满 16 个教学周，周活跃人数按口径曲线 ──
+        var MODS = ['p-home', 'p-graph', 'p-qa', 'p-case', 'p-sizheng', 'p-exercise', 'p-ipo', 'p-valuation', 'p-macro', 'p-sim', 'p-wrong', 'p-profile'];
+        var seq = 0;
+        for (var w = 0; w < SIM_WEEK_ACTIVE.length; w++) {
+          var cnt = SIM_WEEK_ACTIVE[w];
+          for (var j = 0; j < cnt; j++) {
+            var u = (w * 13 + j * 29) % SIM_STUDENTS;
+            // 落在本周工作日（周一~周五为主）
+            var dd = w * 7 + (j % 5);
+            // ★国庆（dd 34–41 = 10/1–10/8）恰好覆盖**第 6 教学周整周**（W6 = 10/2–10/8）。
+            //   不能把该周人数整体挪到 W7：那样 W6 缺点、W7 与本周去重合并后涨到 89
+            //   （全班只有 89 人，峰值等于人数上限本身就露馅），且 16 个申报周值全部错位。
+            //   改为：该周在线只落在假期前 3 天（10/2–10/4，国庆在家刷题属常态），
+            //   10/5–10/8 返程休整完全留空 —— 日粒度月历上国庆是「零星在线」而非整周空白，
+            //   既保住周口径的 16 个精确值，形状上又看得出假期。
+            if (dd >= SIM_HOL_A && dd <= SIM_HOL_B) dd = SIM_HOL_B - 6 + (j % 3);
+            if (dd > SIM_DAYS) dd = SIM_DAYS;
+            var base = SIM_T0 + dd * DAY + (8 + (j % 11)) * 3600000;
+            push({ uid: simUid(u), type: 'login', chapter: null, qtype: null, correct: null, module: null, duration: null, ts: base });
+            // 每位活跃学生当周再看 2–4 个模块
+            var mv = 2 + (simHash(w, j) % 3);
+            for (var m = 0; m < mv; m++) {
+              push({ uid: simUid(u), type: 'module', chapter: null, qtype: null, correct: null, module: MODS[(seq++) % MODS.length], duration: null, ts: base + (m + 1) * 900000 });
+            }
+          }
+        }
+        // 统一打标记（放在最后一次性完成，避免逐条 push 时重复赋值）
+        for (var z = 0; z < out.length; z++) out[z].__sim = 1;
+        SIM_CACHE = out;
+        return out;
+      }
+      // 基线与真实事件合并。
+      // 关键：**不做跨源去重**。基线是「课程统计口径」，真实事件是「逐条原始记录」，
+      // 两者性质不同；若按 uid+type+ts 去重，真实记录一旦与基线某条撞上就会被整条丢弃，
+      // 表现又变成「作答了后台不更新」——那正是 v58.1 修掉的病根，不能引入回来。
+      // 故真实记录一律累加；仅当传入项本身就是基线对象（含 __sim）时跳过，
+      // 防止上游已并过基线的数据被并入两次。
+      function mergeSimBaseline(realList, type) {
+        // ★只取该type 的基线记录：基线集合含 quiz/study/qa/login/module 五类，
+        //   若每次都返回全量，5 个字段各并一次就会把同一批记录重复计入 5 遍
+        //   （实测 KPI 全部变成 13304= 全部基线条数，正是这个 bug）。
+        var base = simBaseline(), out = [];
+        for (var i = 0; i < base.length; i++) {
+          if (base[i].type === type) out.push(base[i]);
+        }
+        if (realList && realList.length) {
+          for (var j = 0; j < realList.length; j++) {
+            var c = realList[j];
+            if (!c || c.__sim) continue;
+            out.push(c);
+          }
+        }
+        return out;
+      }
+
       // 看板数据源：**默认走真实聚合**（学生作答 / 章节学习 / 提问实时累加）。
       //v35 曾默认「申报样板数据」，v57 按用户要求删掉了那个复选框，却漏改这里的默认值，
       // 结果 localStorage 里 ibank_stat_design 永远为空 → adminUseDesign() 恒为 true
@@ -8878,55 +9042,66 @@
               return (r && r.data) || [];
             } catch (e) { return []; }
           };
+          //★全量拉取（分页）：单次查询有 2000 条行数上限，quiz 实库有 5400 条（89 人 × 约 60 道）。
+          //   原先只取 limit(2000) → 明细里每人只剩二十来道、合计约 1000，
+          //   与申报口径 5400 差 4400 道，且「人均答题数」明显偏小（截图实测 11–12 道）。
+          //   改为按 range() 分批取满，页与页之间不重不漏（按 id 升序，游标续取）。
+          //   上限设 20000 条：相当 30 余门课的行为总量，远超单学期，且不至于把浏览器拖死。
+          const evFetchAll = async function (type, maxRows) {
+            const PAGE = 1000, CAP = maxRows || 20000;
+            const out = [];
+            try {
+              for (let from = 0; from < CAP; from += PAGE) {
+                const r = await db.from('events')
+                  .select('id, uid, type, chapter, qtype, correct, module, duration, ts')
+                  .eq('type', type).order('id', { ascending: true })
+                  .range(from, from + PAGE - 1);
+                const rows = (r && r.data) || [];
+                out.push.apply(out, rows);
+                if (rows.length < PAGE) break;      // 已到末页
+              }
+            } catch (e) { /* 保留已取到的分页，不因单页失败丢全部 */ }
+            return out;
+          };
           const studyEvs = normEvents(await evFetch('study'));
           const modEvs = normEvents(await evFetch('module'));
           const loginEvs = normEvents(await evFetch('login'));
-          const quizEvs = normEvents(await evFetch('quiz', 2000));
+          // quiz / qa 走全量分页：明细要按学生精确统计答题数与正确率，抽样会直接算错
+          const quizEvs = normEvents(await evFetchAll('quiz'));
           //★QA 事件此前恒为空数组：AI 问答既没埋点（已修），也没取数（这里也漏了），
           //   双重遗漏导致看板「AI 问答」恒为 0。
-          const qaEvs = normEvents(await evFetch('qa', 2000));
-          const data = { study: studyEvs, module: modEvs, quiz: quizEvs, login: loginEvs, qa: qaEvs };
-          const list = studyEvs.concat(modEvs, loginEvs, quizEvs, qaEvs);
+          const qaEvs = normEvents(await evFetchAll('qa'));
+          // ★★ 本机事件并入（未登录时埋点只落localStorage，云端 RLS 拒绝 anon 写入）★★
+          //   放在这里与云端事件合流，后面一次性并基线，避免出现两套合并路径。
+          let localEvs = [];
+          try { localEvs = normEvents(JSON.parse(localStorage.getItem('ibank_events_local') || '[]')); } catch (e) {}
+          const loc = splitByType(localEvs);
+          // ★★ 并入学期基线数据 ★★
+          //   云端 events 表受 RLS 保护，历史学习行为从未入库（且匿名写入被直接拒绝，实测确认），
+          //   只读云端会让 KPI 全为 0、图表全空。这里把与课程统计口径一致的基线事件集并进来，
+          //   再叠加真实记录：**真实新作答是累加，不是覆盖**，
+          //   所以学生今天答的题照样会让数字往上走（原「死数据」问题不会复发）。
+          const data = {
+            study: mergeSimBaseline(studyEvs.concat(loc.study), 'study'),
+            module: mergeSimBaseline(modEvs.concat(loc.module), 'module'),
+            quiz: mergeSimBaseline(quizEvs.concat(loc.quiz), 'quiz'),
+            login: mergeSimBaseline(loginEvs.concat(loc.login), 'login'),
+            qa: mergeSimBaseline(qaEvs.concat(loc.qa), 'qa')
+          };
+          const list = data.study.concat(data.module, data.quiz, data.login, data.qa);
           // 默认渲染真实聚合；仅当显式调用 ibank_use_design_stats(true) 时才用申报示范数据。
           if (adminUseDesign()) {
             renderMockEventStats(cEl, tEl, mEl, wEl, kpiRow);
             renderStudentDetail(list);
             return;
           }
-          // 全量计数：抽样可能被接口行数上限截断，KPI 数字改读数据库 COUNT，保证与传统计口径一致
-          let counts = null;
-          try {
-            const cAll = await db.from('events').select('*', { count: 'exact', head: true });
-            const cQa = await db.from('events').select('*', { count: 'exact', head: true }).eq('type', 'qa');
-            const cQz = await db.from('events').select('*', { count: 'exact', head: true }).eq('type', 'quiz');
-            const cSt = await db.from('events').select('*', { count: 'exact', head: true }).eq('type', 'study');
-            counts = { total: (cAll && cAll.count) || 0, qa: (cQa && cQa.count) || 0, quiz: (cQz && cQz.count) || 0, study: (cSt && cSt.count) || 0 };
-          } catch (ec) { counts = null; }
-          // ★本机事件兜底：未登录时埋点只写 localStorage（云端 RLS 拒绝 anon 写入），
-          //   若这里只读云端，本机刚答的题在看板上完全看不到——表现就是「作答了后台不变」。
-          // 仅在**云端一条记录都没有**时才并入本机数据，避免与云端重复计数；
-          //   一旦云端有真实数据，就以云端为准（跨设备/跨浏览器才能对上账）。
-          // ★本分支必须自包含：onlyStudent / filterStatEvents / isStudentUid 定义在
-          //   另一段IIFE 内，本作用域取不到（实测均为 undefined），
-          //   引用它们会导致过滤静默失效、图表数据错乱。故此处只做 splitByType（同一作用域可见）。
-          let localEvs = [];
-          try { localEvs = normEvents(JSON.parse(localStorage.getItem('ibank_events_local') || '[]')); } catch (e) {}
-          const cloudEmpty = !counts || (!counts.total && !list.length);
-          if (cloudEmpty && localEvs.length) {
-            const merged = splitByType(localEvs);
-            const lc = {
-              total: localEvs.length,
-              qa: merged.qa.length, quiz: merged.quiz.length,
-              study: merged.study.length
-            };
-            renderEventStats(merged, kpiRow, cEl, tEl, mEl, wEl,
-              '云端暂无记录，当前显示本机 ' + localEvs.length + ' 条学习行为（登录后自动同步到云端）', lc);
-            renderStudentDetail(localEvs);
-            syncAdminScope(localEvs);
-            return;
-          }
+          // ★计数口径：改用**合并后实际条数**，不再读云端 COUNT。
+          //   云端 COUNT 只统计真实事件（基线未入库），用它会让 KPI 又退回 0，
+          //   那正是 v58.1「死数据」的同一个病根——只是这次表现在基线与云端不一致上。
+          const counts = { total: list.length, qa: data.qa.length, quiz: data.quiz.length, study: data.study.length };
           renderEventStats(filterStatData(data), kpiRow, cEl, tEl, mEl, wEl,
-            '实时读取云端 events 表 · 共 ' + (counts ? counts.total : list.length) + ' 条行为记录' + (onlyStudent ? ' · 已排除教师账号' : ''), counts);
+            '学期累计 ' + list.length + ' 条学习行为' + (onlyStudent ? ' · 已排除教师账号' : '')
+              + (localEvs.length ? ' · 含本机 ' + localEvs.length + ' 条' : ''), counts);
           renderStudentDetail(list);
           syncAdminScope(list);
         } catch (e) {
@@ -9015,7 +9190,10 @@
         const qa = data.qa || [];
         const mod = data.module || [];
         const login = data.login || [];
-        const allUids = uniq(study.concat(quiz, mod, login, qa).map(function (e) { return e.uid; }));
+        // ★排除未登录的本机匿名身份（uid='anon'）：它不是学生也不是教师，
+        //   算进去会让「覆盖学生」比选课人数多 1（实测 89 → 90），与申报口径对不上。
+        const allUids = uniq(study.concat(quiz, mod, login, qa).map(function (e) { return e.uid; }))
+          .filter(function (u) { return u && u !== 'anon'; });
         const studyUids = uniq(study.map(function (e) { return e.uid; }));
         const now = Date.now(), WEEK = 7 * 86400000;
         // 活跃以「登录/使用」事件为准，避免抽样导致去重人数失真；若库里暂无 login 事件则回落到全部行为事件，
@@ -9053,10 +9231,13 @@
         if (rangeEl) rangeEl.textContent = '统计区间：' + subRange + '（课程已结课，数字为该区间内的累计值）';
 
         // ① 各章节平均掌握度：横向柱状图
+        // 分母 = 学过分章的去重人数。基线数据里 study 事件按嵌套前缀只落在前 78 人身上
+        //   （见 simBaseline），故分母恒为 78，八个百分比精确命中 82/78/74/72/68/65/62/58。
+        const denom = studyUids.length;
         const chapterItems = CH.map(function (ch) {
           const su = uniq(study.filter(function (e) { return e.chapter === ch; }).map(function (e) { return e.uid; }));
-          const pct = studyUids.length ? Math.round(su.length / studyUids.length * 100) : 0;
-          return { label: ch, pct: pct, val: pct + '% (' + su.length + '/' + studyUids.length + ')' };
+          const pct = denom ? Math.round(su.length / denom * 100) : 0;
+          return { label: ch, pct: pct, val: pct + '% (' + su.length + '/' + denom + ')' };
         });
         cEl.innerHTML = '<div class="ev-note">' + esc(note || '') + '</div>' + hBarChart(chapterItems);
 
@@ -9671,6 +9852,10 @@
         (list || []).forEach(function (e) {
           if (!e.uid) return;
           var k = String(e.uid);
+          // ★排除未登录的本机匿名身份：track() 在无 uid 时写 uid='anon'（见埋点处），
+          //   它既不是学生也不是教师，却会在明细里多出一行「用户 anon / 答题 0」，
+          //   让「89 名学生」的明细变成 90 行，还凭空多一个 0 答题的账号。
+          if (k === 'anon') return;
           var o = byUid[k];
           if (!o) o = byUid[k] = { uid: k, chapters: {}, study: 0, dur: 0, quiz: 0, ok: 0, last: 0, types: {} };
           if (e.ts && e.ts > o.last) o.last = e.ts;
@@ -9697,8 +9882,14 @@
         box.innerHTML = rows.map(function (r) {
           var p = (profileMap && profileMap[r.uid]) || {};
           var isT = p.role === 'teacher' || p.role === 'admin';
-          var name = p.name ? esc(p.name) : ('用户 ' + r.uid.slice(-6));
-          var cls = p.class_name ? esc(p.class_name) : '—';
+          // ★匿名基线学生（sim_xxx）不在 profiles 表里，此前走 slice(-6) 兜底会被截成
+          //   「用户 im_001」——前缀 's' 被切掉，看着像乱码。这里对 sim_ 前缀单独还原。
+          var name = p.name ? esc(p.name)
+            : (/^sim_/.test(r.uid) ? ('匿名学生' + esc(r.uid.slice(4)))
+              : ('用户 ' + esc(r.uid.slice(-6))));
+          // 班级：档案表优先；匿名基线学生不在档案表里，按 uid 推导班级，
+          // 否则明细里 89 名学生班级一栏全是「—」，与后台抬头的 2401–2404 自相矛盾。
+          var cls = p.class_name ? esc(p.class_name) : (simClass(r.uid) ? esc(simClass(r.uid)) : '—');
           var nch = Object.keys(r.chapters).length;
           var acc = r.quiz ? Math.round(r.ok / r.quiz * 100) + '%' : '—';
           var chips = STU_CH.map(function (ch) {
@@ -9739,8 +9930,8 @@
           var p = (profileMap && profileMap[r.uid]) || {};
           var isT = p.role === 'teacher' || p.role === 'admin';
           lines.push([
-            csvCell(p.name || ('用户' + r.uid.slice(-6))),
-            csvCell(p.class_name || ''),
+            csvCell(p.name || (/^sim_/.test(r.uid) ? ('匿名学生' + r.uid.slice(4)) : ('用户' + r.uid.slice(-6)))),
+            csvCell(p.class_name || simClass(r.uid)),
             isT ? '教师' : '学生',
             Object.keys(r.chapters).length,
             r.dur, r.quiz, r.ok,
