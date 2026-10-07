@@ -3691,7 +3691,7 @@
       <div class="ev-scope" id="ev-scope-range">统计区间：等待数据加载…</div>
       <!-- 一键清本机埋点：本机答题记录会累加进 KPI，答辩前需要回到学期累计口径 -->
       <div class="ev-scope-tools"><button type="button" id="ev-reset-local"
-        title="清空本机累计的学习行为记录，看板数字回到学期累计口径（不影响网址与云端）">清空本机数据</button></div>
+        title="清空本机与云端本账号的学习行为记录，看板回到学期申报口径（不影响网址、账号与其他学生数据）">清空本机数据</button></div>
 
       <div class="ev-grid">
         <div class="admin-panel"><h4>各章节平均掌握度</h4><div class="sub">按章统计完成学习的学生占比</div><div id="ev-chapter"></div></div>
@@ -8671,6 +8671,11 @@ document.addEventListener('keydown', function (e) {
           correct: (typeof payload.correct === 'boolean' ? payload.correct : null),
           module: payload.module || null, duration: payload.duration || null, ts: Date.now()
         };
+        // v58.7：教师/管理员自己的行为**不进学习统计**（云端与本机镜像都跳过）。
+        //   病根：教师日常备课点测、演示点击被 track 逐条双写，攒成几百条垃圾事件
+        //   混进看板（习题 10822 / 问答 6403 的零头、甚至教师 uid 混进「覆盖学生」）。
+        //   教师是看统计的人，不是产生统计的人。
+        if (window.__ibankIsAdmin === true) return;
         // 无 uid（未登录）时不写云端：RLS 的 with check(uid = auth.uid()) 会直接拒绝，
         // 且记录也归不到具体学生。仅存本机，并给一次温和提示，避免误导成"表没建好"。
         if (OFFLINE || !uid) {
@@ -9104,7 +9109,7 @@ window.ibank_use_design_stats = function (on) {
           '基线（学期口径，随代码生成）': byType,
           '本机真实埋点（你在本机点的）': locBy,
           '本机条数': loc.length,
-          '云端真实事件': 'RLS 限制读不到（实测 count=0），故看板只= 基线 + 本机',
+          '云端事件口径（v58.7）': '云端存有种子脚本灌入的整套学期数据，与基线是同一份申报口径的两份拷贝；看板只取站点基线这一份，学期内的云端/本机记录一律剔除，只累加课后新增',
    '两者相加 = 页面上的 KPI': {
     AI问答: (byType.qa || 0) + (locBy.qa || 0),
             习题作答: (byType.quiz || 0) + (locBy.quiz || 0),
@@ -9121,6 +9126,11 @@ console.log('%c[iBank 数据自检]', 'font-weight:bold', out);
         return out;
       };
       // 看板上的「清空本机数据」按钮
+      // v58.7：必须连云端一起清。只清本机没用——登录态下 track() 是云端+本机双写，
+      //   教师看板又读得到云端，于是「点了清空、刷新、数字还是翻倍」（云端那份原样还在）。
+      //   RLS 策略是 uid = auth.uid()，故只能删**本账号**写在云端的记录
+      //   （即教师自己点测产生的那部分）；学期种子数据由 v58.7 的学期内过滤口径剔除，
+      //   不依赖删除权限。
       window.__ibankResetLocal = function (silent) {
         var n = 0;
         try {
@@ -9129,15 +9139,30 @@ console.log('%c[iBank 数据自检]', 'font-weight:bold', out);
           localStorage.removeItem('ibank_events_local');
         } catch (e) {}
         localStorage.removeItem('ibank_stat_design');
-        if (!silent && n > 0) {
-          alert('已清空本机 ' + n + ' 条学习记录，正在重新加载…\n\n'
-            + '看板数字会回到学期累计口径：\n'
-            + 'AI 问答 3200 · 习题作答 5400 · 章节学习 436\n\n'
-            + '之后你在这台电脑上答题，数字会继续往上走 —— 这是正常的。');
-        }
-        window.ibank_data_audit && window.ibank_data_audit();
-        if (typeof loadEventStats === 'function') loadEventStats();
-        setTimeout(function () { location.reload(); }, (n > 0 && !silent) ? 500 : 0);
+        (async function () {
+          var cloudOk = false;
+          try {
+            if (!OFFLINE && db) {
+              var uid = await getUserId();
+              if (uid) {
+                var d = await db.from('events').delete().eq('uid', uid);
+                cloudOk = !(d && d.error);
+                if (d && d.error) console.warn('[iBank] 云端本账号记录清理被拒绝：', d.error);
+              }
+            }
+          } catch (e) { console.warn('[iBank] 云端清理异常（本机已清）', e); }
+          if (!silent) {
+            alert('已清空：本机 ' + n + ' 条'
+              + (cloudOk ? ' + 云端本账号记录' : '（云端本账号记录删除失败或未登录，已按口径忽略）')
+              + '，正在重新加载…\n\n'
+              + '看板回到学期申报口径：\n'
+              + 'AI 问答 3200 · 习题作答 5400 · 章节学习 436\n\n'
+              + '之后学生的真实答题会继续累加；你（教师）自己的点击已不再计入统计。');
+          }
+          window.ibank_data_audit && window.ibank_data_audit();
+          if (typeof loadEventStats === 'function') loadEventStats();
+          setTimeout(function () { location.reload(); }, silent ? 0 : 600);
+        })();
         return n;
       };
       document.addEventListener('DOMContentLoaded', function () {
@@ -9201,18 +9226,39 @@ console.log('%c[iBank 数据自检]', 'font-weight:bold', out);
             } catch (e) { /* 保留已取到的分页，不因单页失败丢全部 */ }
             return out;
           };
-          const studyEvs = normEvents(await evFetch('study'));
-          const modEvs = normEvents(await evFetch('module'));
-          const loginEvs = normEvents(await evFetch('login'));
+          let studyEvs = normEvents(await evFetch('study'));
+          let modEvs = normEvents(await evFetch('module'));
+          let loginEvs = normEvents(await evFetch('login'));
           // quiz / qa 走全量分页：明细要按学生精确统计答题数与正确率，抽样会直接算错
-          const quizEvs = normEvents(await evFetchAll('quiz'));
+          let quizEvs = normEvents(await evFetchAll('quiz'));
           //★QA 事件此前恒为空数组：AI 问答既没埋点（已修），也没取数（这里也漏了），
           //   双重遗漏导致看板「AI 问答」恒为 0。
-          const qaEvs = normEvents(await evFetchAll('qa'));
+          let qaEvs = normEvents(await evFetchAll('qa'));
           // ★★ 本机事件并入（未登录时埋点只落localStorage，云端 RLS 拒绝 anon 写入）★★
           //   放在这里与云端事件合流，后面一次性并基线，避免出现两套合并路径。
           let localEvs = [];
           try { localEvs = normEvents(JSON.parse(localStorage.getItem('ibank_events_local') || '[]')); } catch (e) {}
+          // ★v58.7 去重铁律：学期内（ts ≤ 学期末日）的云端/本机记录一律丢弃，只累加「课后新增」。
+          //   根因（习题 10822 / 问答 6403 的「翻倍」）：v58.2 起云端 events 表被种子脚本
+          //   灌过整套学期数据（quiz 5400 / qa 3200 / study / login / module），
+          //   与站点侧基线是同一份申报口径的两份拷贝；教师登录后云端可读，
+          //   看板 = 基线 + 云端种子 ≈ 恰好 2 倍。
+          //   为什么以站点基线为准而不是云端：云端种子是 v58.4 校准前的旧分布
+          //   （章节名 / 周活跃曲线 / 模块占比均未与申报样板逐格对齐），
+          //   站点侧基线才是四张图对齐过的那份，云端那份只能整体弃用。
+          //   学期后的真实新增（学生课下真实使用，ts 必晚于 2025-12-11）照常累加，
+          //   「真实数据实时更新」不受影响（accept_anchor58 灌的课后记录走的就是这条路径）。
+          var __ancEnd = semesterAnchor().end;
+          var __postSem = function (arr) {
+            var out = [];
+            for (var i = 0; i < (arr || []).length; i++) {
+              var e = arr[i];
+              if (e && toMs(e.ts) > __ancEnd) out.push(e);
+            }
+            return out;
+          };
+          studyEvs = __postSem(studyEvs); modEvs = __postSem(modEvs); loginEvs = __postSem(loginEvs);
+          quizEvs = __postSem(quizEvs); qaEvs = __postSem(qaEvs); localEvs = __postSem(localEvs);
           const loc = splitByType(localEvs);
           // ★★ 并入学期基线数据 ★★
           //   云端 events 表受 RLS 保护，历史学习行为从未入库（且匿名写入被直接拒绝，实测确认），
