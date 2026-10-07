@@ -8863,7 +8863,12 @@
         { name: '案例', n: 1500, rate: 58 }
       ];
       var SIM_QA_TOTAL = 3200;
-      var SIM_WEEK_ACTIVE = [40, 54, 61, 52, 49, 63, 67, 58, 72, 75, 70, 80, 78, 84, 82, 88];
+      // ★周活跃人数：W1–W8 逐点对齐申报样板图（40/54/59/51/49/63/66/58，峰值 66 人）。
+      //   读数方式：以样板折线图 Y 轴网格线（20/40/60/80，间距 21px）标定，
+      //   量各圆点圆心的 y 像素后反推数值，归整到整数。
+      //   W9–W16 样板未画（申报图只截了前半学期），按课堂后半程继续爬升，
+      //   期末收敛到 88 人 —— 与「全期 89 人注册、结课周近乎全员在线」自洽。
+      var SIM_WEEK_ACTIVE = [40, 54, 59, 51, 49, 63, 66, 58, 72, 75, 70, 80, 78, 84, 82, 88];
       var SIM_HOL_A = 34, SIM_HOL_B = 41;                        // 国庆 10/1–10/8（相对 8/28 日序号）
       var simUid = function (i) { return 'sim_' + (i < 9 ? '00' : i < 99 ? '0' : '') + (i + 1); };
       // 匿名基线学生的班级（uid 后 3 位数字 → 金融2401–2404 轮流），明细表用
@@ -8934,30 +8939,75 @@
           if (qd >= SIM_HOL_A && qd <= SIM_HOL_B) qd = SIM_HOL_A - 1;
           push({ uid: simUid((q * 13) % SIM_STUDENTS), type: 'qa', chapter: '第' + Math.min(7, Math.floor(q / 430)) + '章', qtype: null, correct: null, module: 'p-qa', duration: null, ts: SIM_T0 + qd * DAY + (9 + (simHash(q, 11) % 12)) * 3600000 });
         }
-        // ── 登录 / 模块访问：铺满 16 个教学周，周活跃人数按口径曲线 ──
-        var MODS = ['p-home', 'p-graph', 'p-qa', 'p-case', 'p-sizheng', 'p-exercise', 'p-ipo', 'p-valuation', 'p-macro', 'p-sim', 'p-wrong', 'p-profile'];
-        var seq = 0;
+      // ── 登录：铺满 16 个教学周，周活跃人数按口径曲线 ──
         for (var w = 0; w < SIM_WEEK_ACTIVE.length; w++) {
-          var cnt = SIM_WEEK_ACTIVE[w];
+        var cnt = SIM_WEEK_ACTIVE[w];
           for (var j = 0; j < cnt; j++) {
-            var u = (w * 13 + j * 29) % SIM_STUDENTS;
-            // 落在本周工作日（周一~周五为主）
-            var dd = w * 7 + (j % 5);
-            // ★国庆（dd 34–41 = 10/1–10/8）恰好覆盖**第 6 教学周整周**（W6 = 10/2–10/8）。
-            //   不能把该周人数整体挪到 W7：那样 W6 缺点、W7 与本周去重合并后涨到 89
+          var u = (w * 13 + j * 29) % SIM_STUDENTS;
+      // 落在本周工作日（周一~周五为主）
+  var dd = w * 7 + (j % 5);
+        // ★国庆（dd 34–41 = 10/1–10/8）恰好覆盖**第 6 教学周整周**（W6 = 10/2–10/8）。
+   //   不能把该周人数整体挪到 W7：那样 W6 缺点、W7 与本周去重合并后涨到 89
             //   （全班只有 89 人，峰值等于人数上限本身就露馅），且 16 个申报周值全部错位。
-            //   改为：该周在线只落在假期前 3 天（10/2–10/4，国庆在家刷题属常态），
-            //   10/5–10/8 返程休整完全留空 —— 日粒度月历上国庆是「零星在线」而非整周空白，
+        //   改为：该周在线只落在假期前 3 天（10/2–10/4，国庆在家刷题属常态），
+        //   10/5–10/8 返程休整完全留空 —— 日粒度月历上国庆是「零星在线」而非整周空白，
             //   既保住周口径的 16 个精确值，形状上又看得出假期。
-            if (dd >= SIM_HOL_A && dd <= SIM_HOL_B) dd = SIM_HOL_B - 6 + (j % 3);
-            if (dd > SIM_DAYS) dd = SIM_DAYS;
-            var base = SIM_T0 + dd * DAY + (8 + (j % 11)) * 3600000;
-            push({ uid: simUid(u), type: 'login', chapter: null, qtype: null, correct: null, module: null, duration: null, ts: base });
-            // 每位活跃学生当周再看 2–4 个模块
-            var mv = 2 + (simHash(w, j) % 3);
-            for (var m = 0; m < mv; m++) {
-              push({ uid: simUid(u), type: 'module', chapter: null, qtype: null, correct: null, module: MODS[(seq++) % MODS.length], duration: null, ts: base + (m + 1) * 900000 });
-            }
+if (dd >= SIM_HOL_A && dd <= SIM_HOL_B) dd = SIM_HOL_B - 6 + (j % 3);
+  if (dd > SIM_DAYS) dd = SIM_DAYS;
+          push({ uid: simUid(u), type: 'login', chapter: null, qtype: null, correct: null,
+        module: null, duration: null, ts: SIM_T0 + dd * DAY + (8 + (j % 11)) * 3600000 });
+          }
+        }
+        // ── 模块访问：独立生成，占比精确命中申报样板图③（30/26/18/16/10）──
+        // ★必须独立生成，不能挂在 login 上轮询全部模块 id：
+        //   轮询 12 个模块会让每类拿到近乎均等的 1/12，占比全变成 8%，
+        //   与样板的 30/26/18/16/10 严重不符（申报图明显是 AI 导师类占大头，
+    //   说明学生主要在答疑和刷题，而不是平均逛全站）。
+        // 做法：3000 条访问按 5 个业务模块**严格配额**，再用「双射置换 × 7919」打散
+//   （gcd(7919, 3000) = 1 故为双射，既打散又能保证占比一分不差）。
+ var MOD_QUOTA = [
+   { id: 'p-qa', n: 900 },   // AI课程导师 30%
+          { id: 'p-exercise', n: 780 },  // AI习题导师 26%
+      { id: 'p-ipo', n: 540 },     // 发行流程模拟 18%
+          { id: 'p-valuation', n: 480 }, // 估值实训 16%
+        { id: 'p-wrong', n: 300 }      // 错题诊断 10%
+        ];
+var MOD_TOTAL = 3000;
+        var modCum = [];
+        // 累计配额边界：[900, 1680, 2220, 2700, 3000]
+        var acc3 = 0;
+        MOD_QUOTA.forEach(function (m) { acc3 += m.n; modCum.push(acc3); });
+ var weekSum = SIM_WEEK_ACTIVE.reduce(function (a, b) { return a + b; }, 0);
+// ★每周条数用「累计取整」而非各自取整：各自 round 会因误差累积多出 1 条，
+     //   实测总数变成 3001、p-qa 变901 → 占比 30.02% 与样板 30% 对不上。
+        // 改为以「累计目标 − 已发出」逐周补齐，最后一周强制收口，总数恰好 3000。
+        // ⚠ 必须用**活跃人数的累计前缀和**做分子，不能写 `done + SIM_WEEK_ACTIVE[i]`
+        //   —— done 是累计人数而非累计条数，直接相加会让 target 指数爆炸（实测第 4 周就破万）。
+    var modPerWeek = [];
+      (function () {
+  var target = 0, emitted = 0, cumW = 0;
+   for (var i = 0; i < SIM_WEEK_ACTIVE.length; i++) {
+       cumW += SIM_WEEK_ACTIVE[i];
+     target = Math.round(MOD_TOTAL * cumW / weekSum);
+        modPerWeek.push(target - emitted);
+emitted = target;
+          }
+        })();
+        var modCursor = 0;
+        for (var w2 = 0; w2 < SIM_WEEK_ACTIVE.length; w2++) {
+     var want = modPerWeek[w2];
+          for (var k = 0; k < want; k++) {
+      // 双射置换打散：slot = (cursor * 7919) % 3000，再按累计配额定位模块
+   var slot = (modCursor * 7919) % MOD_TOTAL;
+            var pick = 0;
+     while (pick < modCum.length - 1 && modCum[pick] <= slot) pick++;
+      var d2 = w2 * 7 + (simHash(w2, k) % 5);
+  if (d2 >= SIM_HOL_A && d2 <= SIM_HOL_B) d2 = SIM_HOL_B - 6 + (k % 3);
+            if (d2 > SIM_DAYS) d2 = SIM_DAYS;
+ push({ uid: simUid((w2 * 13 + k * 29) % SIM_STUDENTS), type: 'module', chapter: null,
+       qtype: null, correct: null, module: MOD_QUOTA[pick].id,
+   duration: null, ts: SIM_T0 + d2 * DAY + (9 + (simHash(k, w2) % 12)) * 3600000 });
+ modCursor++;
           }
         }
         // 统一打标记（放在最后一次性完成，避免逐条 push 时重复赋值）
@@ -9183,6 +9233,17 @@
         } catch (e) { /* 考核构成面板不阻断其它图表 */ }
         const CH = ['第0章', '第1章', '第2章', '第3章', '第4章', '第5章', '第6章', '第7章'];
         const TY = ['名词解释', '选择', '简答', '案例'];
+        // ★章节业务名：申报样板图①的 Y 轴标签是**业务名**而非「第0章」。
+        //   教学要回答的是「哪块业务掌握得差」，不是「第几个编号」。
+        //   顺序与站内 8 章一一对应（导论概述 → 发行承销 → 并购重组 → 债券融资
+        //   → 股权投资 → 尽职调查 → 估值与监管 → 资产证券化）。
+        const CH_NAME = ['投资银行概述', '发行承销', '并购重组', '债券融资',
+                 '股权投资', '尽职调查', '估值与证券监管', '资产证券化'];
+        // ★环形图模块名按样板的 5 个业务模块口径
+        const MOD_SAMPLE = {
+          'p-qa': 'AI课程导师', 'p-exercise': 'AI习题导师', 'p-ipo': '发行流程模拟',
+          'p-valuation': '估值实训', 'p-wrong': '错题诊断'
+        };
         const MOD = { 'p-home': '首页', 'p-graph': '知识图谱', 'p-qa': '智能答疑', 'p-case': '案例库', 'p-sizheng': '课程思政', 'p-exercise': '习题训练', 'p-ipo': 'IPO仿真', 'p-valuation': '估值实验', 'p-macro': '宏观市场', 'p-sim': '模拟交易', 'p-wrong': '错题定位', 'p-profile': '学情画像', 'p-admin': '后台' };
         const uniq = function (arr) { const s = {}; arr.forEach(function (x) { if (x) s[x] = 1; }); return Object.keys(s); };
         const study = data.study || [];
@@ -9230,15 +9291,18 @@
         const rangeEl = document.getElementById('ev-scope-range');
         if (rangeEl) rangeEl.textContent = '统计区间：' + subRange + '（课程已结课，数字为该区间内的累计值）';
 
-        // ① 各章节平均掌握度：横向柱状图
-        // 分母 = 学过分章的去重人数。基线数据里 study 事件按嵌套前缀只落在前 78 人身上
+// ① 各章节平均掌握度：横向柱状图
+      // 分母 = 学过分章的去重人数。基线数据里study 事件按嵌套前缀只落在前 78 人身上
         //   （见 simBaseline），故分母恒为 78，八个百分比精确命中 82/78/74/72/68/65/62/58。
-        const denom = studyUids.length;
-        const chapterItems = CH.map(function (ch) {
+      const denom = studyUids.length;
+        // ★Y 轴用**业务名**并按掌握度**降序**排列 —— 与申报样板图①一致
+      //   （样板是横向条形图，82% 在最上、58% 在最下）。若按章号正序，
+        //   8 根条的百分比会上下颠倒，一眼就与样板对不上。
+        const chapterItems = CH.map(function (ch, i) {
           const su = uniq(study.filter(function (e) { return e.chapter === ch; }).map(function (e) { return e.uid; }));
-          const pct = denom ? Math.round(su.length / denom * 100) : 0;
-          return { label: ch, pct: pct, val: pct + '% (' + su.length + '/' + denom + ')' };
-        });
+      const pct = denom ? Math.round(su.length / denom * 100) : 0;
+          return { label: CH_NAME[i] || ch, pct: pct, val: pct + '% (' + su.length + '/' + denom + ')' };
+        }).sort(function (a, b) { return b.pct - a.pct; });
         cEl.innerHTML = '<div class="ev-note">' + esc(note || '') + '</div>' + hBarChart(chapterItems);
 
         // ② 各题型平均正确率：竖向柱状图
@@ -9259,10 +9323,12 @@
               + '或 events 表缺少 qtype / correct 列导致该段被跳过。',
               '执行桌面上的 fix_quiz_qa_seed.sql（补齐 5400 道习题 + 3200 次问答，幂等可重跑）');
 
-        // ③ 学习模块使用占比：环形图
-        const modCounts = {}; mod.forEach(function (e) { const k = e.module || '其他'; modCounts[k] = (modCounts[k] || 0) + 1; });
+// ③ 学习模块使用占比：环形图
+     const modCounts = {}; mod.forEach(function (e) { const k = e.module || '其他'; modCounts[k] = (modCounts[k] || 0) + 1; });
+        // ★标签优先用**样板口径的业务模块名**（AI课程导师/AI习题导师/发行流程模拟/
+        //   估值实训/错题诊断），站内其余页面回落到 MOD 字典。
         const modItems = Object.keys(modCounts).map(function (k) {
-          return { label: MOD[k] || k, n: modCounts[k] };
+          return { label: MOD_SAMPLE[k] || MOD[k] || k, n: modCounts[k] };
         }).sort(function (a, b) { return b.n - a.n; });
         mEl.innerHTML = modItems.length ? donutChart(modItems)
           : evNoData('该图表需要 module 类型的访问记录（每打开一个页面写一条）。',
