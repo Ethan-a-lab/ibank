@@ -1,0 +1,31 @@
+# 验收产物与私有脚本（不入库）
+qa-out/
+_private/
+_versions/
+
+# 站点本地文件（仅本地保留）
+*.doc
+*.docx
+*.pptx
+*.sql
+
+# ===== 版权受限资料（v55 起一律不入库、不公开分发）=====
+# 教材《投资银行学：理论与案例》及其配套讲义均为受著作权保护的第三方作品。
+# 提交进公开仓库并经 GitHub Pages 对外提供，等于向不特定公众传播完整作品，
+# 教学用途不构成著作权法上的豁免，风险由发布方承担。因此：
+#   · assets/ 整个目录不纳入版本管理，仓库内不保留任何教材全文；
+#   · 站点在线版只展示书目信息与正版获取渠道；
+#   · 教师如需课堂阅读，把已获授权的 PDF 手动放入站点同目录 assets/ 即可
+#     （index.html 检测到本地 / 校内网络环境时会自动显示可点击入口）。
+# 误提交补救：未推送用 git rm -r --cached assets + commit --amend；
+# 已推送用 git filter-repo --path assets --invert-paths 后强推（GitHub 支持 24h 内强推）。
+assets/
+*.pdf
+
+# 系统与编辑器
+.DS_Store
+Thumbs.db
+desktop.ini
+*.tmp
+*.log
+~$*

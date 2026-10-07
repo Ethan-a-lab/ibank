@@ -73,7 +73,7 @@
 
     /* 一级：5 个分组 */
     .nav-menu { display: flex; align-items: center; gap: 2px; margin-left: auto; }
-    .nav-group { position: relative; }
+    .nav-group { position: relative; flex: 0 0 auto; }
     .nav-trigger {
       display: inline-flex; align-items: center; gap: 5px; font-family: inherit;
       border: 1px solid transparent; background: transparent; color: var(--muted);
@@ -575,6 +575,35 @@
     .res-row { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 14px; }
     .res-btn { border: 1px solid rgba(99, 102, 241, 0.35); background: rgba(99, 102, 241, 0.10); color: var(--accent-text); border-radius: 10px; padding: 9px 14px; font-size: 13px; font-weight: 600; cursor: pointer; transition: .18s; }
     .res-btn:hover { background: rgba(99, 102, 241, 0.18); }
+    /* v53 配套资料 PDF 列表 */
+    .pdf-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 10px; }
+    .pdf-item { display: flex; align-items: flex-start; gap: 11px; padding: 12px 13px; border-radius: 12px;
+      background: var(--panel); border: 1px solid var(--panel-border); text-decoration: none; color: inherit;
+      transition: .18s; min-width: 0; }
+    .pdf-item:hover { border-color: rgba(99, 102, 241, 0.5); background: var(--panel-solid); transform: translateY(-1px); }
+    .pdf-item .pi-ico { font-size: 20px; line-height: 1.3; flex: none; }
+    .pdf-item .pi-main { display: flex; flex-direction: column; gap: 3px; min-width: 0; flex: 1; }
+    .pdf-item .pi-name { font-size: 13.5px; font-weight: 600; line-height: 1.5; word-break: break-word; }
+    .pdf-item .pi-meta { font-size: 11.5px; color: var(--dim); }
+    .pdf-item .pi-note { font-size: 11.5px; color: var(--muted); line-height: 1.6; }
+    .pdf-item .pi-go { flex: none; color: var(--accent2); font-weight: 700; font-size: 13px; }
+    .pdf-tip { margin-top: 11px; font-size: 11.5px; color: var(--dim); line-height: 1.75; }
+    .pdf-tip code { background: var(--panel); border: 1px solid var(--panel-border); border-radius: 5px; padding: 1px 5px; font-size: 11px; }
+    /* v55 版权受限态：在线公开访问时不提供原文入口 */
+    .pdf-item.locked { cursor: default; border-style: dashed; opacity: .92; }
+    .pdf-item.locked:hover { border-color: var(--panel-border); background: var(--panel); transform: none; }
+    .pdf-item .pi-lock { flex: none; align-self: center; font-size: 10.5px; font-weight: 600; color: var(--dim);
+      border: 1px solid var(--panel-border); border-radius: 999px; padding: 2px 8px; white-space: nowrap; }
+    .buy-box { margin-top: 12px; padding: 13px 15px; border-radius: 12px;
+      background: var(--panel); border: 1px solid var(--panel-border); }
+    .buy-box .bb-title { font-size: 12.5px; font-weight: 700; margin-bottom: 7px; }
+    .buy-list { margin: 0; padding-left: 18px; font-size: 11.5px; color: var(--muted); line-height: 1.85; }
+    .buy-list b { color: var(--text); }
+    .cr-box { margin-top: 10px; padding: 11px 14px; border-radius: 12px; font-size: 11.5px; line-height: 1.8;
+      color: var(--muted); background: var(--panel); border: 1px solid var(--panel-border);
+      border-left: 3px solid var(--accent2); }
+    .cr-box b { color: var(--text); }
+    .cr-box code { background: var(--panel-solid); border: 1px solid var(--panel-border); border-radius: 5px; padding: 1px 5px; font-size: 11px; }
     .video-empty { font-size: 13px; color: var(--dim); line-height: 1.7; display: flex; align-items: flex-start; gap: 8px; }
     .video-empty .ext { color: var(--accent2); font-weight: 700; }
     .ch-done-btn { border: 1px solid rgba(99, 102, 241, 0.4); background: transparent; color: var(--accent-text); border-radius: 999px; padding: 8px 16px; font-size: 13px; font-weight: 700; cursor: pointer; transition: .18s; white-space: nowrap; }
@@ -601,10 +630,20 @@
     @keyframes evLivePing { 0% { box-shadow: 0 0 0 0 rgba(11, 122, 67, 0.45); } 100% { box-shadow: 0 0 0 9px rgba(11, 122, 67, 0); } }
     @media (max-width: 860px) {
       .learn-layout { grid-template-columns: 1fr; }
-      .chapter-nav { position: static; max-height: none; display: flex; gap: 8px; overflow-x: auto; padding: 10px; }
+      .chapter-nav { position: static; max-height: none; display: flex; gap: 8px; overflow-x: auto; padding: 10px;
+        min-width: 0; max-width: 100%; }
       .chapter-link { flex: 0 0 auto; min-width: 132px; margin-bottom: 0; }
       .cn-bar { display: none; }
       .block.two { grid-template-columns: 1fr; }
+      /* v55：窄屏（≤420px）正文列必须允许收缩，否则 grid 子项按内容最小宽度撑破视口 */
+      .learn-layout > *, .chapter-main, .ch-blocks { min-width: 0; }
+      .ch-blocks .block { padding: 13px 12px; min-width: 0; }
+      .b-title { min-width: 0; flex-wrap: wrap; }
+      .fw-list { grid-template-columns: minmax(0, 1fr); }
+    }
+    /* v55：窄屏统一把「固定最小列宽」的栅格降为单列（minmax(300px,1fr) 一类会在 320px 撑破视口） */
+    @media (max-width: 420px) {
+      .pdf-list, .fw-list, .concept-list, .rel-list, .macro-grid { grid-template-columns: minmax(0, 1fr) !important; }
     }
 
     /* ===== 视频卡片 / 计时器 / 习题分类 / 案例筛选（新增） ===== */
@@ -1318,7 +1357,7 @@
       .nav-brand .mini-robot { width: 34px; height: 34px; }
       .nav-actions { margin-left: auto; }
       .nav-menu {
-        order: 3; width: 100%; margin-left: 0;
+        order: 3; width: 100%; margin-left: 0; min-width: 0;
         /* safe center：内容放得下时居中，放不下时退回左对齐，避免第一项被裁掉且滚不回来 */
         justify-content: center;
         justify-content: safe center;
@@ -3564,11 +3603,15 @@
         <button class="f-link" data-goto="p-ipo">IPO 定价配售</button>
       </div>
       <div>
+        <h5>版权与合规</h5>
+        <div class="f-tech">站内教材及配套资料均为受著作权保护的第三方作品，<b>不提供在线全文下载</b>，仅展示书目信息与正版获取渠道。<br>案例数据引自公开监管文书、交易所公告与权威统计口径，逐条标注来源与时点。<br>行情为虚构种子数据，AI 回答仅供学习参考，不构成投资建议。</div>
+      </div>
+      <div>
         <h5>课程与技术</h5>
         <div class="f-tech">《投资银行学》智慧课堂<br>腾讯云 CloudBase · 智谱 GLM · RAG 知识库<br>金融2303 / 金融2304 教学使用</div>
       </div>
     </footer>
-    <div class="footer-bar">© 2026 iBank平台 · 投资银行学智慧课堂 · 本站仅用于课程教学</div>
+    <div class="footer-bar">© 2026 iBank平台 · 投资银行学智慧课堂 · 本站仅用于课程教学 · 教材版权归原作者及出版社所有，本站不提供原文分发</div>
   </div>
 
   <!-- ===== 悬浮机器人助手 ===== -->
@@ -6833,8 +6876,10 @@
       // 维护方式：新增视频先用 _private/verify_videos52c.cjs 核验，通过后再把 BV 号填入下方
       const VIDEOS = {
         '第0章': [
-          { bv: 'BV1Sj411u7wy', title: '我为什么劝退90%要去投行的同学？2023年投行真实生存现状解析！', up: '大红姐有点东西', duration: '6m38s', pages: 1, note: '投行真实生存现状，职业定位与门槛' },
-          { bv: 'BV1Aa411h7n1', title: '【投行】为什么我劝退了99%想干投行的大学生（上）', up: '陈思炜求职与职业规划', duration: '8m7s', pages: 1, note: '从择业视角反向理解投行的职业要求' }
+          { bv: 'BV1JK411R7Cu', title: '【北京大学】《投资银行学》主讲：冯科（全60讲）从业教授带你 风趣幽默看投行', up: '哔哩大学財经学院（搬运：北京大学公开课）', duration: '18小时27分', pages: 61, note: '国内最系统的高校投行学课程，从「投行是什么」讲起，61 分 P' },
+          { bv: 'BV1B7411d7oY', title: '【干货科普】投行业务全面介绍', up: '晓樵求职学院', duration: '46分2秒', pages: 3, note: '投行四大业务板块全景概览，3 分 P' },
+          { bv: 'BV1ni4y1C7NR', title: '投行中的承揽、承销、承做是什么？投行鄙视链大揭秘', up: '投行小魔女', duration: '3分56秒', pages: 1, note: '投行内部岗位分工，对应本章「职业种类」' },
+          { bv: 'BV1Sw411779M', title: '【北大·冯科】讲投资，大道至简，建议听听', up: '投资思维室', duration: '6分10秒', pages: 1, note: '从职业视角理解投行的价值定位与职业要求' }
         ],
         '第1章': [
           { bv: 'BV1mk2gB4EGL', title: '【耶鲁大学】公开课：金融市场', up: '迦南金融学院（搬运：耶鲁大学公开课）', duration: '28小时29分', pages: 25, note: '金融市场体系与投资银行功能（耶鲁公开课）' }
@@ -6860,7 +6905,8 @@
         '第7章': [
           { bv: 'BV16Q4y1B7pR', title: '巨树｜上市公司并购重组商业逻辑解读之典型案例剖析', up: '巨树课堂', duration: '21m57s', pages: 1, note: '上市公司并购重组的商业逻辑与典型案例' },
           { bv: 'BV19g4y1t795', title: '【硬核干货】经典案例详解并购重组之第一期', up: '小会计很自律', duration: '11m', pages: 1, note: '经典并购重组案例实操详解' },
-          { bv: 'BV1GF43zTEGn', title: '【估值进阶】【中英】华尔街估值之王 Aswath Damodaran - Valuation', up: 'Gelai_AI（搬运：Damodaran 估值课）', duration: '1小时17分', pages: 1, note: '估值方法：并购定价与相对/绝对估值' }
+          { bv: 'BV1GF43zTEGn', title: '【估值进阶】【中英】华尔街估值之王 Aswath Damodaran - Valuation', up: 'Gelai_AI（搬运：Damodaran 估值课）', duration: '1小时17分', pages: 1, note: '估值方法：并购定价与相对/绝对估值' },
+          { bv: 'BV1WEyoBkE8J', title: '【伊利诺伊大学】投资银行业务：并购和首次公开募股 Investment Banking: Mergers, Acquisitions, IPOs', up: 'Mindofuture（搬运：伊利诺伊大学公开课）', duration: '1小时52分', pages: 38, note: '英文并购实操课，38 分 P 讲并购与 IPO 业务全流程' }
         ]
       };
       const VIDEO_VERIFIED_ON = '2026-10-07';      const DETAIL = {
@@ -7645,6 +7691,82 @@
       }
 };
       const BOOK = { name: '投资银行学：理论与案例（第 4 版）', author: '马晓军', isbn: '978-7-111-76189-1', pub: '机械工业出版社', year: '2024' };
+      // ===== v55 版权整改 =====
+      // 原 v54 把 398 页教材扫描全文提交进公开 GitHub 仓库并经 GitHub Pages 对外提供，
+      // 任何人可匿名下载，属于著作权侵权（教学用途不构成豁免）。现已整改：
+      //   ① 全部 PDF 一律不随公开站点分发，.gitignore 排除 assets/；
+      //   ② 页面只展示书目信息与正版获取渠道，不再提供原书全文链接；
+      //   ③ 仅当站点在教师本机/校内服务器打开、且 assets/ 实际存在时，才显示可点击的本地文件入口；
+      //   ④ 在线访问时显示"版权受限，仅限校内分发"的明确状态与替代获取途径。
+      const ASSETS = 'assets/';
+      // isLocal：本地打开（file://）或校内服务器（内网 IP）才允许读本地文件
+      var IS_LOCAL_HOST = (function () {
+        // v55：可用 ?dist=local / ?dist=online 显式指定分发模式（课堂演示公开态时用）
+        var forced = /[?&]dist=(local|online)/.exec(location.search || '');
+        if (forced) return forced[1] === 'local';
+        var h = location.hostname;
+        return location.protocol === 'file:' || h === '' || h === 'localhost' || h === '127.0.0.1'
+          || /^192\.168\./.test(h) || /^10\./.test(h) || /^172\.(1[6-9]|2\d|3[01])\./.test(h);
+      })();
+      const PDFS = [
+        { file: '投资银行学_理论与案例_第3版.pdf', size: '71 MB', kind: '教材（第 3 版）',
+          name: '投资银行学：理论与案例（第 3 版）', by: '马晓军 · 机械工业出版社', pages: 398,
+          note: '本课程教材原版，398 页全彩扫描；受著作权保护，不随站点公开分发' },
+        { file: '投资银行学重点笔记_1.pdf', size: '3.9 MB', kind: '重点笔记',
+          name: '投资银行学重点笔记（1）', by: '', note: '章节要点整理' },
+        { file: '投资银行学重点笔记_2.pdf', size: '2.6 MB', kind: '重点笔记',
+          name: '投资银行学重点笔记（2）', by: '', note: '章节要点整理' },
+        { file: '投资银行学重点笔记_3.pdf', size: '1.8 MB', kind: '重点笔记',
+          name: '投资银行学重点笔记（3）', by: '', note: '章节要点整理' },
+        { file: '投资银行学知识点.pdf', size: '2.8 MB', kind: '知识点汇总',
+          name: '投资银行学知识点', by: '', note: '复习要点速查' },
+        { file: '投资银行学名词解释.pdf', size: '3.5 MB', kind: '名词解释',
+          name: '投资银行学名词解释（167 条）', by: '', note: '术语速查，已同步至智能答疑知识库' },
+        { file: '投资银行学试题及答案.pdf', size: '2.7 MB', kind: '习题',
+          name: '投资银行学试题及答案', by: '', note: '配套习题自测' }
+      ];
+      // 正版 / 合法获取渠道
+      function buyChannelsHtml() {
+        return '<div class="buy-box"><div class="bb-title">📚 正版与合法获取渠道</div>'
+          + '<ol class="buy-list">'
+          + '<li><b>课程主教材</b>（' + esc(BOOK.author) + '《' + esc(BOOK.name) + '》，ISBN ' + esc(BOOK.isbn) + '，' + esc(BOOK.pub) + '）：'
+          + '出版社官方渠道 / 京东、当当等正规图书电商按 ISBN 检索 / 学校图书馆超星·读秀馆藏检索。</li>'
+          + '<li><b>配套资料</b>（重点笔记、知识点、名词解释、习题答案）：由任课教师整理并随课堂发放，'
+          + '或存放于校内教学资料目录；本站不提供下载。</li>'
+          + '<li><b>需要在线预览教材</b>时：使用出版社电子书平台、学校图书馆电子资源或国家高等教育智慧教育平台检索本书。</li>'
+          + '</ol></div>';
+      }
+      function copyrightNoteHtml() {
+        return '<div class="cr-box">⚠ <b>版权与使用声明</b>：本站为课程教学演示站点，所有教材及配套资料均为'
+          + '<b>受著作权保护的第三方作品</b>，本站<b>不提供原文下载、不随站点公开分发</b>。'
+          + '在线版仅展示书目信息与获取渠道；教师可将已获授权的 PDF 置于站点同目录 <code>assets/</code>，'
+          + '此时下条目会变为可点击（仅限本机或校内网络）。案例数据均引自公开监管文书、交易所公告与权威统计口径，'
+          + '已在各案例底部标注来源与时点，<b>仅用于教学分析，不构成对任何主体的评价或投资建议</b>。'
+          + '<b>本课程主教材为第 4 版（' + esc(BOOK.isbn) + '），'
+          + '站内留存的历史扫描件为第 3 版，仅供教师教学参考。</b></div>';
+      }
+      function pdfListHtml() {
+        return '<div class="pdf-list">' + PDFS.map(function (p) {
+          var head = '<span class="pi-ico" aria-hidden="true">📕</span>'
+            + '<span class="pi-main"><b class="pi-name">' + esc(p.name) + '</b>'
+            + '<span class="pi-meta">' + esc(p.kind) + (p.by ? ' · ' + esc(p.by) : '') + (p.pages ? ' · ' + p.pages + ' 页' : '') + ' · ' + esc(p.size) + '</span>'
+            + (p.note ? '<span class="pi-note">' + esc(p.note) + '</span>' : '') + '</span>';
+          if (IS_LOCAL_HOST) {
+            return '<a class="pdf-item" href="' + ASSETS + encodeURIComponent(p.file) + '" target="_blank" rel="noopener noreferrer" data-pdf="' + esc(p.file) + '">'
+              + head + '<span class="pi-go" aria-hidden="true">↗</span></a>';
+          }
+          return '<div class="pdf-item locked" aria-disabled="true">'
+            + head + '<span class="pi-lock" title="版权受限，仅限校内或本机分发">🔒 校内</span></div>';
+        }).join('') + '</div>'
+        + (IS_LOCAL_HOST
+          ? '<div class="pdf-tip">当前在<b>本地/校内网络</b>打开，条目指向同目录 <code>assets/</code> 下的授权文件；'
+            + '网址结尾加 <code>#页码</code> 可直接分享到指定页（如 <code>…第3版.pdf#101</code>）。'
+            + '若链接打不开，请确认 <code>assets</code> 文件夹已随站点一起复制。</div>'
+          : '<div class="pdf-tip">当前为<b>在线公开访问</b>，出于著作权保护，教材与配套资料<b>不提供在线全文</b>。'
+            + '任课教师可将已获授权的文件放入站点同目录 <code>assets/</code>，本机打开时即可直接阅读。</div>')
+        + buyChannelsHtml()
+        + copyrightNoteHtml();
+      }
       const navEl = document.getElementById('chapter-list');
       const mainEl = document.getElementById('chapter-main');
       const countEl = document.getElementById('cn-count');
@@ -7741,7 +7863,8 @@
           + '<div class="ch-meta">教材对应：' + BOOK.author + '《' + BOOK.name + '》' + c.no + ' · ISBN ' + BOOK.isbn + '</div>'
           + '<div class="ch-blocks">'
           + (fwHtml ? '<div class="block"><div class="b-title"><span class="bar"></span>本章框架</div>' + fwHtml + '</div>' : '')
-          + '<div class="block"><div class="b-title"><span class="bar"></span>课题知识回顾</div>' + reviewHtml + '<div class="res-row"><button class="res-btn" data-res="pdf">📄 阅读教材 PDF</button></div></div>'
+          + '<div class="block"><div class="b-title"><span class="bar"></span>课题知识回顾</div>' + reviewHtml + '</div>'
+          + '<div class="block"><div class="b-title"><span class="bar"></span>配套资料（PDF）</div>' + pdfListHtml() + '</div>'
           + '<div class="block"><div class="b-title"><span class="bar"></span>配套视频</div>' + videoHtml + '</div>'
           + '<div class="block"><div class="b-title"><span class="bar"></span>案例拓展</div>' + casesHtml + '<div class="res-row"><button class="res-btn" data-goto="p-case">查看案例库 →</button></div></div>'
           + '<div class="block"><div class="b-title"><span class="bar"></span>本章重点</div><p class="b-text">' + esc(c.zhong) + '</p></div>'
@@ -7782,7 +7905,6 @@
         const rb = e.target.closest('.res-btn[data-res]');
         if (rb) {
           const res = rb.getAttribute('data-res');
-          if (res === 'pdf') { ibankToast('教材 PDF 待接入：拿到官方配套资源后开放'); return; }
           if (res === 'exercise') { try { sessionStorage.setItem('ibank_exercise_filter', current); } catch (e) {} const ex = document.querySelector('.tab-btn[data-page="p-exercise"]'); if (ex) ex.click(); return; }
         }
         const db = e.target.closest('.ch-done-btn');
