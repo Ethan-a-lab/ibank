@@ -1266,6 +1266,11 @@
     .ev-sw { display: inline-flex; align-items: center; gap: 7px; font-size: 13px; color: #1a2233; cursor: pointer; user-select: none; }
     .ev-sw input { width: 15px; height: 15px; accent-color: #2563eb; cursor: pointer; }
     .ev-toolbar .tip { font-size: 12px; color: var(--muted); }
+    /* 统计区间说明条：与 KPI 同源，年份/起止日由真实事件算出，替代原先写死的学年文案 */
+    .ev-scope { margin: 10px 0 0; padding: 8px 13px; font-size: 12px; line-height: 1.6;
+      color: var(--muted); background: rgba(120,130,160,.06);
+      border: 1px solid rgba(120,130,160,.22); border-radius: 9px; }
+    #admin-scope { font-size: 13px; }
     .ev-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 16px; }
     /* 折线图（含月历，卡片较高）改占「右列」并向下跨两行；左列自上而下为
        「学习模块使用占比」「考核构成」。这样右列高度 ≈ 左列两张卡片之和，版式上下对齐、
@@ -3607,7 +3612,7 @@
         <div class="ah-row">
           <div>
             <h2>数据后台 · 学情统计</h2>
-            <p>iBank平台运行数据 · 2025-2026 学年第 1 学期（金融 2303 / 2304）</p>
+            <p id="admin-scope">iBank平台运行数据</p>
           </div>
           <span class="ev-live off" id="ev-live" title="后台看板每 20 秒自动检测数据变化并刷新">○ 实时已暂停</span>
         </div>
@@ -3656,6 +3661,8 @@
         <div class="admin-kpi"><div class="k">章节学习</div><div class="v">0</div><div class="sub">章节完成次数</div></div>
         <div class="admin-kpi"><div class="k">结课周活跃</div><div class="v">0</div><div class="sub">课程最后一周活跃人数</div></div>
       </div>
+      <!-- 统计区间：与上方 KPI 同源同批事件算出，避免"光给数字看不出是哪段时间" -->
+      <div class="ev-scope" id="ev-scope-range">统计区间：等待数据加载…</div>
 
       <div class="ev-grid">
         <div class="admin-panel"><h4>各章节平均掌握度</h4><div class="sub">按章统计完成学习的学生占比</div><div id="ev-chapter"></div></div>
@@ -5467,6 +5474,13 @@
           addBasis(b.main, q, local, local ? null : { ttfbMs: ttfb, totalMs: nowT - t0, chars: (finalText || '').length });
           history.push({ role: 'assistant', content: finalText });
           lastReply = finalText;
+          // ★行为埋点：AI 问答次数。此前全站没有任何 track('qa', …) 调用，
+          //   导致教师看板「AI 问答」永远是 0 —— 作答/学习都记，唯独提问没记。
+          //   埋点放在 done（无论云端还是本地知识库回落，都会走到），保证问答必计。
+          //  § q 不入库，沿用既有做法只记类型与长度，避免把学生提问原文写进行为表。
+          if (window.__ibankTrack) {
+            try { window.__ibankTrack('qa', { chars: (finalText || '').length, local: local ? 1 : 0 }); } catch (e) {}
+          }
           busy = false;
           sendBtn.classList.remove('stop');
           sendBtn.innerHTML = SEND_SVG;
@@ -8599,6 +8613,18 @@
       }
 
       // ===== 行为埋点：写入 events 表，供教师端看板聚合 =====
+      // ★ 本机镜像：学情画像页 readStore() 只读 ibank_events_local（离线可用、免网络）。
+      //   此前登录态只写云端、不写本机，于是学生一登录，本机「累计答题 / 总体正确率 / 综合掌握度」
+      //   就永远停在0或旧值——同一份行为在教师端看得到、在学生端看不到，两头对不上。
+      //   现在登录态云端 + 本机双写：云端是跨设备可聚合的权威源，本机是同源镜像，只增不减、不参与云端计数。
+      //   看板侧做了防重复处理：云端非空时以云端为准，云端为空时才回落到本机，故双写不会让教师端多算。
+      function trackLocalMirror(rec) {
+        try {
+          const arr = JSON.parse(localStorage.getItem('ibank_events_local') || '[]');
+          arr.push(rec);
+          localStorage.setItem('ibank_events_local', JSON.stringify(arr.slice(-2000)));
+        } catch (e) { /* 隐私模式 / 配额满：不影响云端上报 */ }
+      }
       async function track(type, payload) {
         payload = payload || {};
         const uid = await getUserId();
@@ -8611,13 +8637,14 @@
         // 无 uid（未登录）时不写云端：RLS 的 with check(uid = auth.uid()) 会直接拒绝，
         // 且记录也归不到具体学生。仅存本机，并给一次温和提示，避免误导成"表没建好"。
         if (OFFLINE || !uid) {
-          try { const arr = JSON.parse(localStorage.getItem('ibank_events_local') || '[]'); arr.push(rec); localStorage.setItem('ibank_events_local', JSON.stringify(arr.slice(-2000))); } catch (e) {}
+          trackLocalMirror(rec);
           if (!uid && !window.__ibankTrackNudged) {
             window.__ibankTrackNudged = true;
             if (typeof ibankToast === 'function') ibankToast('提示：登录后学习记录才会计入班级统计');
           }
           return;
         }
+        trackLocalMirror(rec);   // ← 登录态同样留本机镜像，供学情画像页实时重算
         try { await db.from('events').insert(rec); } catch (e) {
           console.warn('[iBank] 行为上报失败', e);
           const msg = String((e && (e.message || e.error_description || e.msg)) || e || '');
@@ -8723,7 +8750,7 @@
       // 仅当总数发生变化，才触发完整 loadEventStats()+loadRealStats() 重载（避免每次拉全表，省云端额度）。
       // 切走页面 / 标签隐藏自动暂停；离线模式直接每 20 秒重读本机 localStorage。
       var adminLiveTimer = null;
-      var adminLastEv = -1, adminLastProf = -1;
+      var adminLastEv = -1, adminLastProf = -1, adminLastLocal = -1;
       var evLiveEl = document.getElementById('ev-live');
       function adminOpen() {
         if (!window.__ibankIsAdmin) return false;
@@ -8741,11 +8768,16 @@
         if (!adminOpen()) return;
         if (OFFLINE) { loadEventStats(); loadRealStats(); adminStamp(false); return; }
         try {
+          //★本机事件条数也纳入变更检测：看板在「云端为空」时会并入本机 localStorage 数据，
+          //   若只看云端 count，本机刚答的题/刚提的问在轮询里永远算「没变化」，
+          //   表现就是教师开着后台页、学生答完题，数字要等到切页才动。
+          let localN = 0;
+          try { localN = (JSON.parse(localStorage.getItem('ibank_events_local') || '[]') || []).length; } catch (e) {}
           const ce = await db.from('events').select('*', { count: 'exact', head: true });
           const cp = await db.from('profiles').select('*', { count: 'exact', head: true });
           const evN = (ce && ce.count) || 0, profN = (cp && cp.count) || 0;
-          const changed = (evN !== adminLastEv) || (profN !== adminLastProf);
-          adminLastEv = evN; adminLastProf = profN;
+          const changed = (evN !== adminLastEv) || (profN !== adminLastProf) || (localN !== adminLastLocal);
+          adminLastEv = evN; adminLastProf = profN; adminLastLocal = localN;
           if (changed) { loadEventStats(); loadRealStats(); }
           adminStamp(changed);
         } catch (e) { adminStamp(false); }
@@ -8753,7 +8785,7 @@
       function adminStartLive() {
         adminStopLive();
         if (!adminOpen()) return;
-        adminLastEv = -1; adminLastProf = -1;
+        adminLastEv = -1; adminLastProf = -1; adminLastLocal = -1;
         adminPoll();
         adminLiveTimer = setInterval(function () {
           if (document.visibilityState === 'visible') adminPoll();
@@ -8784,11 +8816,23 @@
         });
       }
 
-      // 看板数据源开关：默认「申报样板数据」（与课程申报材料四块图一致，整学期 W1–W16），
-      // 取消勾选工具栏「申报样板数据」后（localStorage ibank_stat_design='0'）切回云端实时聚合。
+      // 看板数据源：**默认走真实聚合**（学生作答 / 章节学习 / 提问实时累加）。
+      //v35 曾默认「申报样板数据」，v57 按用户要求删掉了那个复选框，却漏改这里的默认值，
+      // 结果 localStorage 里 ibank_stat_design 永远为空 → adminUseDesign() 恒为 true
+      // → KPI 被永久钉死在写死的 3200/5400，作答再多也不变（本机埋点其实一直在正常写入）。
+      // 现在默认 false = 真实数据；申报场景需要整套示范图表时，
+      // 在控制台执行 ibank_use_design_stats(true) 临时切回，刷新即恢复。
       function adminUseDesign() {
-        try { return localStorage.getItem('ibank_stat_design') !== '0'; } catch (e) { return true; }
+        try { return localStorage.getItem('ibank_stat_design') === '1'; } catch (e) { return false; }
       }
+      window.ibank_use_design_stats = function (on) {
+        try {
+          if (on) localStorage.setItem('ibank_stat_design', '1');
+          else localStorage.removeItem('ibank_stat_design');
+        } catch (e) {}
+        if (typeof loadEventStats === 'function') loadEventStats();
+        return adminUseDesign();
+      };
 
       async function loadEventStats() {
         const kpiRow = document.getElementById('ev-kpi-row');
@@ -8829,10 +8873,12 @@
           const modEvs = normEvents(await evFetch('module'));
           const loginEvs = normEvents(await evFetch('login'));
           const quizEvs = normEvents(await evFetch('quiz', 2000));
-          const data = { study: studyEvs, module: modEvs, quiz: quizEvs, login: loginEvs, qa: [] };
-          const list = studyEvs.concat(modEvs, loginEvs, quizEvs);
-          // 默认渲染「申报样板数据」（与课程申报材料四块图一致）：无论云端有无数据，
-          // 都保证申报答辩场景下仪表盘视觉一致；取消勾选工具栏「申报样板数据」后走下方实时聚合。
+          //★QA 事件此前恒为空数组：AI 问答既没埋点（已修），也没取数（这里也漏了），
+          //   双重遗漏导致看板「AI 问答」恒为 0。
+          const qaEvs = normEvents(await evFetch('qa', 2000));
+          const data = { study: studyEvs, module: modEvs, quiz: quizEvs, login: loginEvs, qa: qaEvs };
+          const list = studyEvs.concat(modEvs, loginEvs, quizEvs, qaEvs);
+          // 默认渲染真实聚合；仅当显式调用 ibank_use_design_stats(true) 时才用申报示范数据。
           if (adminUseDesign()) {
             renderMockEventStats(cEl, tEl, mEl, wEl, kpiRow);
             renderStudentDetail(list);
@@ -8847,12 +8893,36 @@
             const cSt = await db.from('events').select('*', { count: 'exact', head: true }).eq('type', 'study');
             counts = { total: (cAll && cAll.count) || 0, qa: (cQa && cQa.count) || 0, quiz: (cQz && cQz.count) || 0, study: (cSt && cSt.count) || 0 };
           } catch (ec) { counts = null; }
+          // ★本机事件兜底：未登录时埋点只写 localStorage（云端 RLS 拒绝 anon 写入），
+          //   若这里只读云端，本机刚答的题在看板上完全看不到——表现就是「作答了后台不变」。
+          // 仅在**云端一条记录都没有**时才并入本机数据，避免与云端重复计数；
+          //   一旦云端有真实数据，就以云端为准（跨设备/跨浏览器才能对上账）。
+          // ★本分支必须自包含：onlyStudent / filterStatEvents / isStudentUid 定义在
+          //   另一段IIFE 内，本作用域取不到（实测均为 undefined），
+          //   引用它们会导致过滤静默失效、图表数据错乱。故此处只做 splitByType（同一作用域可见）。
+          let localEvs = [];
+          try { localEvs = normEvents(JSON.parse(localStorage.getItem('ibank_events_local') || '[]')); } catch (e) {}
+          const cloudEmpty = !counts || (!counts.total && !list.length);
+          if (cloudEmpty && localEvs.length) {
+            const merged = splitByType(localEvs);
+            const lc = {
+              total: localEvs.length,
+              qa: merged.qa.length, quiz: merged.quiz.length,
+              study: merged.study.length
+            };
+            renderEventStats(merged, kpiRow, cEl, tEl, mEl, wEl,
+              '云端暂无记录，当前显示本机 ' + localEvs.length + ' 条学习行为（登录后自动同步到云端）', lc);
+            renderStudentDetail(localEvs);
+            syncAdminScope(localEvs);
+            return;
+          }
           renderEventStats(filterStatData(data), kpiRow, cEl, tEl, mEl, wEl,
             '实时读取云端 events 表 · 共 ' + (counts ? counts.total : list.length) + ' 条行为记录' + (onlyStudent ? ' · 已排除教师账号' : ''), counts);
           renderStudentDetail(list);
+          syncAdminScope(list);
         } catch (e) {
-          // 云端读取失败（离线 / 未配置）：样板模式下降级为「申报样板数据」并注明，
-          // 实时模式下显示明确错误提示；两者都不静默掩盖错误。
+          // 云端读取失败时的降级说明：若已显式开启申报示范数据则继续用它并注明，
+          // 否则显示明确错误提示，不静默掩盖错误。
           if (adminUseDesign()) {
             renderMockEventStats(cEl, tEl, mEl, wEl, kpiRow);
             const re = document.getElementById('ev-range');
@@ -8868,6 +8938,43 @@
           }
           renderStudentDetail([]);
         }
+      }
+      //★把刷新函数挂到window：此前它只是 IIFE 内的 async function，既不在全局作用域、
+      //   也没挂 window，导致 ① ibank_use_design_stats() 里的刷新调用被 typeof 判为 undefined 静默跳过；
+      //   ② 外部（验收脚本 / 教师手动刷新按钮）根本没法触发重算。挂在定义之后，函数声明已提升，无时序问题。
+      window.loadEventStats = loadEventStats;
+
+      // ★学业行为类型：只有这三类代表「学生真的学了/答了/问了」。
+      //   module（打开某个页面）、login 不计入统计区间——教师今天点开一次后台，
+      //   就会把课程区间从「2025-08-28 — 2025-12-11」撑成「… — 今天」，
+      //   学年与周数跟着失真，正是「数字对不上、又没有年份」的根源。
+      var ACADEMIC_TYPES = { quiz: 1, qa: 1, study: 1 };
+
+      // ===== 后台抬头：学年 / 起止日期 / 班级，全部运行时从真实数据算出 =====
+      // 写死「2025-2026 学年第 1 学期（金融 2303/2304）」有两个问题：① 班级号与注册页的
+      // 金融 2401–2404 矛盾；② 学年与日期无从核对，看的人无法判断数字对应哪一届课。
+      // 改为从**学业事件的最小/最大时间戳**推出学年与起止日，班级读唯一数据源 CLASS_LIST。
+      function academicTimestamps(allEvents) {
+        return (allEvents || []).filter(function (e) { return e && ACADEMIC_TYPES[e.type]; })
+          .map(function (e) { return toMs(e.ts); }).filter(function (v) { return v > 0; });
+      }
+      function syncAdminScope(allEvents) {
+        var el = document.getElementById('admin-scope');
+        if (!el) return;
+        var ts = academicTimestamps(allEvents);
+        var cls = (typeof CLASS_LIST !== 'undefined' && CLASS_LIST.length)
+          ? CLASS_LIST.join(' / ') : '金融 2401–2404';
+        if (!ts.length) { el.textContent = 'iBank 平台运行数据 · 暂无学业行为记录 · 班级 ' + cls; return; }
+        var mn = new Date(Math.min.apply(null, ts)), mx = new Date(Math.max.apply(null, ts));
+        var y1 = mn.getFullYear(), y2 = mx.getFullYear();
+        // 学年写法：跨年取「起始年-结束年」，同年直接写年份
+        var year = y1 === y2 ? (y1 + ' 学年') : (y1 + '-' + String(y2).slice(2) + ' 学年');
+        var p2 = function (n) { return (n < 10 ? '0' : '') + n; };
+        var fmt = function (d) { return d.getFullYear() + '-' + p2(d.getMonth() + 1) + '-' + p2(d.getDate()); };
+        var days = Math.max(1, Math.round((mx - mn) / 86400000) + 1);
+        var weeks = Math.max(1, Math.round(days / 7));
+        el.textContent = 'iBank 平台运行数据 · ' + year + ' · ' + fmt(mn) + ' — ' + fmt(mx)
+          + '（约 ' + weeks + ' 教学周）· 班级 ' + cls;
       }
 
       // 活跃日历交互状态（折线图 ↔ 日历联动）
@@ -8899,12 +9006,13 @@
         const qa = data.qa || [];
         const mod = data.module || [];
         const login = data.login || [];
-        const allUids = uniq(study.concat(quiz, mod, login).map(function (e) { return e.uid; }));
+        const allUids = uniq(study.concat(quiz, mod, login, qa).map(function (e) { return e.uid; }));
         const studyUids = uniq(study.map(function (e) { return e.uid; }));
         const now = Date.now(), WEEK = 7 * 86400000;
         // 活跃以「登录/使用」事件为准，避免抽样导致去重人数失真；若库里暂无 login 事件则回落到全部行为事件，
         // 保证「活跃」相关的 KPI、折线与日历不会因单一类型缺失而整块空转。
-        const actSrc = login.length ? login : study.concat(quiz, mod);
+        // qa（AI 提问）计入活跃与覆盖人数：只提问不点别的模块的学生也是活跃用户。
+        const actSrc = login.length ? login : study.concat(quiz, mod, qa);
         let maxTs = 0; actSrc.forEach(function (e) { if (e.ts && e.ts > maxTs) maxTs = e.ts; });
         if (!maxTs) maxTs = now;
         // 「近一周活跃」以数据中最近的时间点为基准：课程为历史数据时也反映末周活跃，而非恒为 0
@@ -8912,12 +9020,28 @@
         // KPI 数字优先取数据库全量 COUNT（抽样可能被接口行数上限截断），无计数时回落到抽样统计
         const K = counts || {};
         const num = function (v, fallback) { return (typeof v === 'number' && isFinite(v)) ? v : fallback; };
+        // ★统计区间写在单独一行：课程是 2025–2026 学年第一学期的历史课，光给一个数字
+        //   看的人无从判断它对应哪一段时间，也无法与申报材料里的累计口径核对。
+        //   区间只按**学业事件**（quiz/qa/study）算——若把 module 访问也算进去，
+        //   教师今天点开一次后台就会把课程区间撑到今天，学年周数全失真。
+        const allTs = academicTimestamps(study.concat(quiz, qa));
+        let subRange = '暂无学业行为记录，统计区间待数据';
+        if (allTs.length) {
+          const d0 = new Date(Math.min.apply(null, allTs)), d1 = new Date(Math.max.apply(null, allTs));
+          const p2 = function (n) { return (n < 10 ? '0' : '') + n; };
+          const f = d => d.getFullYear() + '-' + p2(d.getMonth() + 1) + '-' + p2(d.getDate());
+          const days = Math.max(1, Math.round((d1 - d0) / 86400000) + 1);
+          subRange = f(d0) + ' 至 ' + f(d1) + '（' + Math.max(1, Math.round(days / 7)) + ' 教学周）';
+        }
         if (kpiRow) kpiRow.innerHTML =
           '<div class="admin-kpi"><div class="k">覆盖学生</div><div class="v">' + allUids.length + '</div><div class="sub">有学习行为记录</div></div>'
           + '<div class="admin-kpi"><div class="k">AI 问答</div><div class="v">' + num(K.qa, qa.length) + '</div><div class="sub">课程相关问答次数</div></div>'
           + '<div class="admin-kpi"><div class="k">习题作答</div><div class="v">' + num(K.quiz, quiz.length) + '</div><div class="sub">累计完成题数</div></div>'
           + '<div class="admin-kpi"><div class="k">章节学习</div><div class="v">' + num(K.study, study.length) + '</div><div class="sub">章节完成次数</div></div>'
           + '<div class="admin-kpi"><div class="k">结课周活跃</div><div class="v">' + weekUids.length + '</div><div class="sub">数据末 7 天活跃人数</div></div>';
+        // 区间单独一行，避免 5 张卡的 sub 全被撑长
+        const rangeEl = document.getElementById('ev-scope-range');
+        if (rangeEl) rangeEl.textContent = '统计区间：' + subRange + '（课程已结课，数字为该区间内的累计值）';
 
         // ① 各章节平均掌握度：横向柱状图
         const chapterItems = CH.map(function (ch) {
