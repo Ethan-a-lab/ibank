@@ -1454,7 +1454,7 @@
       display: inline-flex; align-items: center; justify-content: center; flex: 0 0 auto; }
     #theme-toggle:hover { border-color: var(--accent); }
 
-    /* ===== 深色模式（admin 页自带浅色体系，通过 body.light 豁免） ===== */
+    /* ===== 深色模式（admin 页跟随全局主题，不再强制浅色） ===== */
     body.dark:not(.light) { --bg: #0d1020; --panel: rgba(24,28,50,0.88); --panel-border: rgba(148,163,184,0.16);
       --panel-solid: #181c32; --text: #e7eaf3; --muted: #9aa4bb; --dim: #8b93ab; background: var(--bg);
       --accent: #818cf8; --accent-text: #a5b4fc; --accent-solid: #4f46e5;
@@ -1495,6 +1495,16 @@
     body.dark:not(.light) .lfield input, body.dark:not(.light) .lfield select { background: rgba(255,255,255,0.05); color: #e7eaf3; }
     body.dark:not(.light) .lfield button { background: rgba(99,102,241,0.18); color: #a5b4fc; }
     body.dark:not(.light) .footer-bar { color: var(--muted); }
+    /* admin 页深色兜底（v58.8.2 取消 body.light 豁免后需要） */
+    body.dark:not(.light) .admin-kpi { background: rgba(255,255,255,0.05); border-color: rgba(148,163,184,0.15); }
+    body.dark:not(.light) .admin-kpi .v { color: #e7eaf3; }
+    body.dark:not(.light) .ev-toolbar { background: rgba(255,255,255,0.05); border-color: rgba(148,163,184,0.15); }
+    body.dark:not(.light) .ev-scope-note { background: rgba(129,140,248,0.12); border-color: rgba(129,140,248,0.25); color: #c7d2fe; }
+    body.dark:not(.light) .ev-scope { color: var(--muted); background: rgba(120,130,160,0.08); }
+    body.dark:not(.light) .um-row { background: rgba(255,255,255,0.04); border-color: rgba(148,163,184,0.12); }
+    body.dark:not(.light) .um-row:hover { background: rgba(255,255,255,0.07); }
+    body.dark:not(.light) .um-empty { color: var(--muted); }
+    body.dark:not(.light) .admin-chart-wrap { background: rgba(255,255,255,0.04); border-color: rgba(148,163,184,0.12); }
 
     /* 窄屏导航：品牌与账号一行、一级菜单独占一行，下拉挂到导航栏下方居中
        （断点 900px 而非 820px：登录态下整条导航单行需要 851px） */
@@ -2037,17 +2047,19 @@
       <form id="form-register" autocomplete="on" novalidate>
  <div id="panel-register" class="hidden">
         <div class="lfield"><input id="reg-name" type="text" placeholder="姓名（必填）" /></div>
+        <div class="lfield"><input id="reg-student-id" type="text" placeholder="学号（选填）" /></div>
         <div class="lfield">
           <select id="reg-class">
-            <option value="">选择班级（也可注册后在顶部修改）</option>
+            <option value="">选择班级（选填）</option>
           </select>
         </div>
-        <p class="class-note" id="reg-class-note"></p>
+        <p class="login-note reg-tip" style="margin-top:2px;margin-bottom:12px;font-size:12px;">学号与班级均为选填，注册后也可在页面顶部修改；二者仅用于学情统计。</p>
         <div class="lfield"><input id="reg-phone" type="tel" placeholder="手机号" /></div>
         <div class="lfield">
           <input id="reg-sms-code" type="text" placeholder="短信验证码" />
           <button id="reg-sms-btn" type="button">获取验证码</button>
         </div>
+        <p class="login-note reg-tip" style="margin-top:-4px;margin-bottom:10px;font-size:12px;">注册需两次短信验证：① 先点「获取验证码」完成手机验证；② 点「注册并登录」后，系统会自动发送第二条<strong>改密验证码</strong>，把它填回本框（替换原码）再点一次即可设置登录密码。</p>
 <div class="lfield"><input id="reg-password" type="password" placeholder="设置密码（8-32位，含字母和数字）" autocomplete="new-password" /></div>
   <div class="lfield"><input id="reg-password2" type="password" placeholder="确认密码" autocomplete="new-password" /></div>
  <button class="lprimary" id="register-btn" type="button">注册并登录</button>
@@ -3860,10 +3872,6 @@
     // 之前班级选项在 HTML 里散落硬编码（注册表、顶部下拉、后台 KPI、页脚各写一份），
     // 加班级要改四处、极易漏。现改为集中定义 + 运行时回填，以后只改这一处。
     const CLASS_LIST = ['金融2401', '金融2402', '金融2403', '金融2404'];
-    // 学号规则说明（注册页展示用）：让填表的人知道班级编号怎么来的
-    const CLASS_NOTE = '班级编号按「入学年份后2位 + 专业代码 0005（金融学）+ 本班序号」编排，'
-      + '如金融2401 对应 240000 01（10 位学号中的班级段）。若你是其他年级或其他专业，'
-      + '可在注册后于页面顶部下拉旁联系管理员登记，不必拘泥此列表。';
     window.IBANK_CLASSES = CLASS_LIST;
 
     // 回填所有 select 中的班级选项；keep 保留当前已选值（切换页面/刷新时不丢）
@@ -3888,15 +3896,13 @@
       // 页脚班级范围同步（同样由 CLASS_LIST 单一来源驱动）
       const fc = document.getElementById('footer-classes');
       if (fc) fc.textContent = CLASS_LIST[0] + ' – ' + CLASS_LIST[CLASS_LIST.length - 1];
-      // 注册页展示学号编排规则
-      const cn = document.getElementById('reg-class-note');
-      if (cn) cn.textContent = CLASS_NOTE;
     });
 
-    // ===== 深色模式切换（localStorage 持久化；admin 页由 body.light 豁免） =====
+    // ===== 深色模式切换（localStorage 持久化；全站统一跟随，admin 页不再强制浅色） =====
     const themeToggle = document.getElementById('theme-toggle');
     function applyTheme(t) {
       document.body.classList.toggle('dark', t === 'dark');
+      document.body.classList.remove('light'); // admin 页旧豁免已取消，body.light 不再残留
       if (themeToggle) themeToggle.textContent = (t === 'dark') ? '☀️' : '🌙';
       try { localStorage.setItem('ibank-theme', t); } catch (e) {}
     }
@@ -3930,7 +3936,7 @@
         document.getElementById(target).classList.add('active');
         if (target === 'p-wrong' && window.renderWrong) window.renderWrong(); // 进入错题页即渲染/刷新账本（避免首次空白）
         if (target === 'p-profile' && window.__ibankProfileRefresh) window.__ibankProfileRefresh(); // 学情画像按真实数据实时重算
-        document.body.classList.toggle('light', target === 'p-admin');
+        // v58.8.2：取消 admin 页强制浅色豁免，后台跟随全局主题切换
         if (target === 'p-admin') { if (window.__ibankAdminLive) window.__ibankAdminLive.start(); }
         else { if (window.__ibankAdminLive) window.__ibankAdminLive.stop(); }
         if (window.__ibankTrack) window.__ibankTrack('module', { module: target });
@@ -5335,34 +5341,53 @@ document.addEventListener('keydown', function (e) {
         if (cur) out.push(cur);
         return out.length ? out : [t];
       }
+      // 检测微信/QQ 等内嵌浏览器（它们常禁用或阉割 speechSynthesis）
+      function isInAppBrowser() {
+        var ua = (navigator.userAgent || '').toLowerCase();
+        return /micromessenger|wechat|qq\//.test(ua);
+      }
       var speakToken = 0;
+      var isSpeaking = false;
       function speak(text) {
         // 没有锁定中文音色时，若系统已有任意音色也允许朗读（用默认音色兜底，移动端首触发即可出声）
         if (!tts.voice) { try { var z = zhVoices(); if (z.length) tts.voice = pickVoice(); } catch (e) { } }
-        if (!ttsAvailable()) return;
+        if (!ttsAvailable()) {
+          if (isInAppBrowser()) ibankToast('微信内置浏览器不支持语音朗读，请用系统浏览器（Chrome/Safari/Edge）打开本页');
+          return;
+        }
         try {
-          window.speechSynthesis.cancel();
+          // 移动端取消必须在同一手势内，且不应在朗读未开始时就 cancel，否则 iOS 可能锁定音频
+          if (isSpeaking) { try { window.speechSynthesis.cancel(); } catch (e) { } }
           var raw = String(text || '').replace(/[#*>`]/g, '').slice(0, 3000);
           var chunks = chunkText(raw, 180);
           var my = ++speakToken;
+          isSpeaking = true;
           (function next(i) {
-            if (my !== speakToken) return;            // 已被新朗读 / 停止取代
-            if (i >= chunks.length) { tts.utter = null; return; }
+            if (my !== speakToken) { isSpeaking = false; return; } // 已被新朗读 / 停止取代
+            if (i >= chunks.length) { tts.utter = null; isSpeaking = false; return; }
             var u = new SpeechSynthesisUtterance(chunks[i]);
             if (tts.voice) u.voice = tts.voice;
             u.lang = (tts.voice && tts.voice.lang) || 'zh-CN';
             u.rate = vcfg.rate; u.pitch = vcfg.pitch; u.volume = 0.95;
             u.onend = function () { next(i + 1); };
-            u.onerror = function () { next(i + 1); };
+            u.onerror = function (e) {
+              isSpeaking = false;
+              if (isInAppBrowser()) ibankToast('当前浏览器不支持朗读，请用系统浏览器打开');
+              else next(i + 1);
+            };
             tts.utter = u;
             window.speechSynthesis.speak(u);
           })(0);
-        } catch (e) { /* 不支持则静默降级 */ }
+        } catch (e) {
+          isSpeaking = false;
+          if (isInAppBrowser()) ibankToast('当前浏览器不支持朗读，请用系统浏览器打开');
+        }
       }
       function stopSpeak() {
         speakToken++;                                 // 终止进行中的朗读链
         try { window.speechSynthesis.cancel(); } catch (e) { }
         tts.utter = null;
+        isSpeaking = false;
       }
       function syncVoiceBtn() {
         voiceBtn.classList.toggle('on', tts.on);
@@ -10530,6 +10555,7 @@ const actSrc = login.length ? login : study.concat(quiz, mod, qa);
 
       document.getElementById('register-btn').addEventListener('click', async function () {
         const name = document.getElementById('reg-name').value.trim();
+        const studentId = document.getElementById('reg-student-id').value.trim();
         const className = document.getElementById('reg-class').value;
         const phone = document.getElementById('reg-phone').value.trim();
         const token = document.getElementById('reg-sms-code').value.trim();
@@ -10579,12 +10605,43 @@ const actSrc = login.length ? login : study.concat(quiz, mod, qa);
             }
           }
 
-          // 资料写入：已有记录只更新姓名/班级，绝不覆盖 role（防止教师被降级）
-          const { data: existing } = await db.from('profiles').select('id, role').eq('id', uid);
-          if (existing && existing.length > 0) {
-            await db.from('profiles').update({ name: name, class_name: className || '' }).eq('id', uid);
+          // 资料写入：已有记录只更新姓名/班级/学号，绝不覆盖 role（防止教师被降级）
+          // 若 profiles 表暂无 student_id 列，则退落到本地存储，确保注册流程不中断
+          const profilePayload = { name: name, class_name: className || '', student_id: studentId || '' };
+          let wroteProfile = false, profileErr = null;
+          try {
+            const { data: existing } = await db.from('profiles').select('id, role').eq('id', uid);
+            if (existing && existing.length > 0) {
+              const { error } = await db.from('profiles').update(profilePayload).eq('id', uid);
+              if (error) throw error;
+            } else {
+              const { error } = await db.from('profiles').insert(Object.assign({ id: uid, role: 'student' }, profilePayload));
+              if (error) throw error;
+            }
+            wroteProfile = true;
+          } catch (e) {
+            profileErr = e;
+            // 如果报错指向 student_id 列不存在，重试不带该字段
+            if (/student_id|column|字段|列/.test(errText(e))) {
+              try {
+                const fallback = { name: name, class_name: className || '' };
+                const { data: existing } = await db.from('profiles').select('id, role').eq('id', uid);
+                if (existing && existing.length > 0) {
+                  const { error } = await db.from('profiles').update(fallback).eq('id', uid);
+                  if (error) throw error;
+                } else {
+                  const { error } = await db.from('profiles').insert(Object.assign({ id: uid, role: 'student' }, fallback));
+                  if (error) throw error;
+                }
+                wroteProfile = true;
+              } catch (e2) { profileErr = e2; }
+            }
+          }
+          if (wroteProfile) {
+            try { localStorage.setItem('ibank_student_id_' + uid, studentId); } catch (e) {}
+            if (profileErr) showMsg('注册成功：班级已保存；学号因云端配置暂未同步', 'ok');
           } else {
-            await db.from('profiles').insert({ id: uid, role: 'student', name: name, class_name: className || '' });
+            showMsg('资料保存失败：' + errText(profileErr), 'err'); return;
           }
           await onLoggedIn();
         } catch (e) { showMsg('注册失败：' + errText(e), 'err'); }
