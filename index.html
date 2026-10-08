@@ -289,7 +289,7 @@
     .chat-head b { font-size: 14px; }
     .chat-head span { font-size: 11.5px; color: var(--muted); display: block; }
     .chat-body { padding: 12px; max-height: 260px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; }
-    .msg { font-size: 13px; line-height: 1.55; padding: 9px 12px; border-radius: 12px; max-width: 88%; }
+    .msg { font-size: 13px; line-height: 1.55; padding: 9px 12px; border-radius: 12px; max-width: 88%; overflow-wrap: anywhere; word-break: break-word; }
     .msg.bot { background: rgba(99, 102, 241, 0.18); color: var(--muted); align-self: flex-start; }
     .msg.user { background: rgba(34, 211, 238, 0.14); color: var(--accent2); align-self: flex-end; }
     .chat-input { display: flex; gap: 8px; padding: 10px; border-top: 1px solid var(--panel-border); }
@@ -1832,7 +1832,7 @@
     /* v49 修复：气泡与附属区块改为纵向堆叠（原先并排导致被压成竖窄条） */
     .qa-main { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; align-items: stretch; }
     .qa-row.u .qa-main { align-items: flex-end; }
-    .qa-bub { max-width: 100%; border-radius: 14px; padding: 11px 13px;
+    .qa-bub { max-width: 100%; border-radius: 14px; padding: 11px 13px; overflow-wrap: anywhere; word-break: break-word;
       font-size: 13.5px; line-height: 1.75; }
     .qa-row.b .qa-bub { background: var(--bg); border: 1px solid var(--panel-border);
       border-top-left-radius: 5px; color: var(--text); }
@@ -2041,8 +2041,8 @@
           <select id="reg-class">
             <option value="">选择班级（也可注册后在顶部修改）</option>
           </select>
-          <p class="class-note" id="reg-class-note"></p>
         </div>
+        <p class="class-note" id="reg-class-note"></p>
         <div class="lfield"><input id="reg-phone" type="tel" placeholder="手机号" /></div>
         <div class="lfield">
           <input id="reg-sms-code" type="text" placeholder="短信验证码" />
@@ -3806,28 +3806,39 @@
 
   <!-- ===== 悬浮机器人助手 ===== -->
   <button class="float-btn" id="float-btn" aria-label="打开 iBank 助手" title="iBank 助手">
-    <svg viewBox="0 0 320 400" xmlns="http://www.w3.org/2000/svg">
-      <defs>
-        <linearGradient id="fBody" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#67e8f9"/><stop offset="1" stop-color="#6366f1"/></linearGradient>
-        <linearGradient id="fHead" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#232a4d"/><stop offset="1" stop-color="#11142e"/></linearGradient>
-      </defs>
-      <circle cx="160" cy="30" r="12" fill="#22d3ee"/>
-      <line x1="160" y1="80" x2="160" y2="44" stroke="#8b93b8" stroke-width="6" stroke-linecap="round"/>
-      <rect x="86" y="220" width="148" height="150" rx="30" fill="url(#fBody)"/>
-      <rect x="70" y="82" width="180" height="160" rx="26" fill="url(#fHead)" stroke="#3b4270" stroke-width="2"/>
-      <rect x="113" y="130" width="18" height="34" rx="9" fill="#a5f3fc"/>
-      <rect x="189" y="130" width="18" height="34" rx="9" fill="#a5f3fc"/>
-      <rect x="136" y="182" width="48" height="18" rx="9" fill="#a5f3fc"/>
-    </svg>
+      <svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="rbBody" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#67e8f9"/><stop offset="1" stop-color="#6366f1"/></linearGradient>
+        </defs>
+        <line x1="32" y1="11" x2="32" y2="5" stroke="#cbd5e1" stroke-width="2.4" stroke-linecap="round"/>
+        <circle cx="32" cy="4.5" r="3" fill="#fbbf24"/>
+        <rect x="15" y="11" width="34" height="27" rx="11" fill="#232a4d" stroke="#3b4270" stroke-width="2"/>
+        <circle cx="26" cy="23" r="4" fill="#67e8f9"/>
+        <circle cx="38" cy="23" r="4" fill="#67e8f9"/>
+        <circle cx="27.2" cy="21.8" r="1.3" fill="#fff"/>
+        <circle cx="39.2" cy="21.8" r="1.3" fill="#fff"/>
+        <circle cx="21" cy="28" r="2.2" fill="#fb7185" opacity="0.6"/>
+        <circle cx="43" cy="28" r="2.2" fill="#fb7185" opacity="0.6"/>
+        <path d="M26 29 Q32 34 38 29" stroke="#a5f3fc" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+        <rect x="19" y="39" width="26" height="21" rx="9" fill="url(#rbBody)"/>
+        <circle cx="32" cy="50" r="3.4" fill="#fff" opacity="0.9"/>
+        <rect x="10" y="42" width="7" height="15" rx="3.5" fill="#6366f1"/>
+        <rect x="47" y="42" width="7" height="15" rx="3.5" fill="#6366f1"/>
+      </svg>
   </button>
 
   <div class="chat-panel" id="chat-panel">
     <div class="chat-head">
       <div class="mini-robot">
-        <svg viewBox="0 0 320 400" xmlns="http://www.w3.org/2000/svg">
-          <rect x="86" y="214" width="148" height="150" rx="30" fill="#67e8f9"/>
-          <rect x="70" y="62" width="180" height="160" rx="26" fill="#232a4d"/>
-          <rect x="113" y="115" width="18" height="34" rx="9" fill="#a5f3fc"/><rect x="189" y="115" width="18" height="34" rx="9" fill="#a5f3fc"/>
+        <svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+          <line x1="32" y1="11" x2="32" y2="5" stroke="#cbd5e1" stroke-width="2.4" stroke-linecap="round"/>
+          <circle cx="32" cy="4.5" r="3" fill="#fbbf24"/>
+          <rect x="15" y="11" width="34" height="27" rx="11" fill="#232a4d" stroke="#3b4270" stroke-width="2"/>
+          <circle cx="26" cy="23" r="4" fill="#67e8f9"/>
+          <circle cx="38" cy="23" r="4" fill="#67e8f9"/>
+          <path d="M26 29 Q32 34 38 29" stroke="#a5f3fc" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+          <rect x="19" y="39" width="26" height="21" rx="9" fill="#6366f1"/>
+          <circle cx="32" cy="50" r="3.4" fill="#fff" opacity="0.9"/>
         </svg>
       </div>
       <div><b>iBank 助手</b><span>智能学伴 · 在线</span></div>
@@ -5276,7 +5287,7 @@ document.addEventListener('keydown', function (e) {
       // ---------- 语音朗读：浏览器内置 synthesis；不导出、不下载、不克隆真人 ----------
       // 参数持久化到 localStorage，用户可调出最满意的「轻柔感」
       var VKEY = 'ibank.qa.voice';
-      var vcfg = { voiceURI: '', rate: 0.95, pitch: 1.15 };
+      var vcfg = { voiceURI: '', rate: 0.95, pitch: 1.1 };
       try {
         var saved = JSON.parse(localStorage.getItem(VKEY) || '{}');
         if (saved.voiceURI != null) vcfg.voiceURI = String(saved.voiceURI);
@@ -5309,22 +5320,47 @@ document.addEventListener('keydown', function (e) {
         for (var i = 1; i < zh.length; i++) { var s2 = score(zh[i]); if (s2 > bs) { bs = s2; best = zh[i]; } }
         return best;
       }
-      function ttsAvailable() { return tts.ready && !!tts.voice; }
+      function ttsAvailable() {
+        if (!tts.ready) return false;
+        if (tts.voice) return true;
+        try { return window.speechSynthesis.getVoices().length > 0; } catch (e) { return false; }
+      }
+      // 长文本按标点断句，避免 iOS / 部分引擎长句被截断
+      function chunkText(t, size) {
+        var out = [], cur = '';
+        for (var i = 0; i < t.length; i++) {
+          cur += t[i];
+          if (cur.length >= size && /[。！？!?；;，,.]/.test(t[i])) { out.push(cur); cur = ''; }
+        }
+        if (cur) out.push(cur);
+        return out.length ? out : [t];
+      }
+      var speakToken = 0;
       function speak(text) {
+        // 没有锁定中文音色时，若系统已有任意音色也允许朗读（用默认音色兜底，移动端首触发即可出声）
+        if (!tts.voice) { try { var z = zhVoices(); if (z.length) tts.voice = pickVoice(); } catch (e) { } }
         if (!ttsAvailable()) return;
         try {
           window.speechSynthesis.cancel();
-          var u = new SpeechSynthesisUtterance(String(text || '').replace(/[#*>`]/g, '').slice(0, 3000));
-          if (tts.voice) u.voice = tts.voice;
-          u.lang = (tts.voice && tts.voice.lang) || 'zh-CN';
-          u.rate = vcfg.rate;
-          u.pitch = vcfg.pitch;
-          u.volume = 0.95;
-          tts.utter = u;
-          window.speechSynthesis.speak(u);
+          var raw = String(text || '').replace(/[#*>`]/g, '').slice(0, 3000);
+          var chunks = chunkText(raw, 180);
+          var my = ++speakToken;
+          (function next(i) {
+            if (my !== speakToken) return;            // 已被新朗读 / 停止取代
+            if (i >= chunks.length) { tts.utter = null; return; }
+            var u = new SpeechSynthesisUtterance(chunks[i]);
+            if (tts.voice) u.voice = tts.voice;
+            u.lang = (tts.voice && tts.voice.lang) || 'zh-CN';
+            u.rate = vcfg.rate; u.pitch = vcfg.pitch; u.volume = 0.95;
+            u.onend = function () { next(i + 1); };
+            u.onerror = function () { next(i + 1); };
+            tts.utter = u;
+            window.speechSynthesis.speak(u);
+          })(0);
         } catch (e) { /* 不支持则静默降级 */ }
       }
       function stopSpeak() {
+        speakToken++;                                 // 终止进行中的朗读链
         try { window.speechSynthesis.cancel(); } catch (e) { }
         tts.utter = null;
       }
@@ -5389,12 +5425,33 @@ document.addEventListener('keydown', function (e) {
           speak('你好，我是 iBank 学伴。可以问我投资银行、IPO、并购、承销、估值的任何问题。');
           ibankToast('正在试听（' + tts.voice.name + '）');
         });
+        // ★移动端解锁：iOS / 部分 Android 上 speechSynthesis 必须先在「用户手势」内触发一次，
+        //   否则 getVoices() 永远为空、tts.voice 恒为 null、speak() 静默返回 —— 这就是「手机听不到」的根因。
+        //   监听首次指针/键盘/触摸，静默预热一次空朗读加载音色并解锁音频通道，随后重填音色表，
+        //   保证桌面 / 移动双端都能拿到可用中文音色并出声。
+        var unlocked = false;
+        function unlock() {
+          if (unlocked) return; unlocked = true;
+          try {
+            if (!tts.voice) fillVoicePanel();
+            var u = new SpeechSynthesisUtterance(' ');
+            u.volume = 0; u.rate = 1; u.pitch = 1;
+            window.speechSynthesis.speak(u);
+          } catch (e) { }
+          setTimeout(function () { if (!tts.voice) fillVoicePanel(); }, 400);
+          window.removeEventListener('pointerdown', unlock);
+          window.removeEventListener('keydown', unlock);
+          window.removeEventListener('touchstart', unlock);
+        }
+        window.addEventListener('pointerdown', unlock);
+        window.addEventListener('keydown', unlock);
+        window.addEventListener('touchstart', unlock);
       }
       // 验收探针用：返回当前实际选中的音色名
       window.__qa46Voice = function () { return tts.voice ? tts.voice.name : ''; };
 
       // ---------- 渲染消息 ----------
-      var BOT_AV = '<svg viewBox="0 0 48 48" fill="none"><rect x="8" y="14" width="32" height="26" rx="9" fill="rgba(255,255,255,.94)"/><circle cx="18" cy="26" r="3.2" fill="#4f46e5"/><circle cx="30" cy="26" r="3.2" fill="#4f46e5"/><path d="M18.5 32.5c2.2 1.8 8.8 1.8 11 0" stroke="#4f46e5" stroke-width="2.2" stroke-linecap="round"/><path d="M24 14V9" stroke="rgba(255,255,255,.94)" stroke-width="2.4" stroke-linecap="round"/><circle cx="24" cy="6.6" r="2.6" fill="#fbbf24"/></svg>';
+      var BOT_AV = '<svg viewBox="0 0 48 48" fill="none"><line x1="24" y1="13" x2="24" y2="8" stroke="#fff" stroke-width="2.2" stroke-linecap="round"/><circle cx="24" cy="6.5" r="2.6" fill="#fbbf24"/><rect x="10" y="13" width="28" height="23" rx="10" fill="#fff"/><circle cx="19" cy="23" r="3" fill="#4f46e5"/><circle cx="29" cy="23" r="3" fill="#4f46e5"/><path d="M19 29 Q24 33 29 29" stroke="#4f46e5" stroke-width="2.2" fill="none" stroke-linecap="round"/><rect x="14" y="36" width="20" height="9" rx="4.5" fill="#a5b4fc"/><circle cx="16" cy="27" r="1.8" fill="#fb7185" opacity="0.55"/><circle cx="32" cy="27" r="1.8" fill="#fb7185" opacity="0.55"/></svg>';
       var USER_AV = '<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 5-5.5 8-5.5s6.5 1.5 8 5.5"/></svg>';
       function addRow(who) {
         var row = document.createElement('div');
