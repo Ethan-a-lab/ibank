@@ -368,7 +368,7 @@
             <div class="val-field"><label>盈利增长率 g（%）<span class="val-out" id="vo-g">10</span></label><input id="val-g" type="range" min="-5" max="30" step="0.5" value="10" /></div>
             <div class="val-field"><label>折现率 r（%）<span class="val-out" id="vo-r">15</span></label><input id="val-r" type="range" min="5" max="30" step="0.5" value="15" /></div>
             <div class="val-field"><label>市盈率 PE（倍）<span class="val-out" id="vo-pe">40</span></label><input id="val-pe" type="range" min="10" max="80" step="1" value="40" /></div>
-            <div class="val-field"><label>总股本（万股）<span class="val-out" id="vo-shares">10000</span></label><input id="val-shares" type="range" min="1000" max="50000" step="500" value="10000" /></div>
+            <div class="val-field"><label>总股本（万股）<span class="val-out" id="vo-shares">10000</span></label><input id="val-shares" type="range" min="1000" max="50000" step="50" value="10000" /></div>
             <div class="val-scenarios"><span>情景</span><button type="button" data-sc="pess">悲观</button><button type="button" data-sc="base" class="on">中性</button><button type="button" data-sc="opt">乐观</button></div>
           </div>
           <div class="chart-card">
@@ -376,6 +376,19 @@
             <div class="note">三种方法交叉验证，区间重叠越多、估值确定性越高。</div>
             <div id="val-result"></div>
           </div>
+        </div>
+        <!-- v61 · 4.3 可转债环节二：转股价值计算面板（四输入 → 四输出，实时联动） -->
+        <div class="chart-card val-wide cb-card">
+          <h4>可转债价值计算 · 东财转3</h4>
+          <div class="note">四个数字都可以改，下面的结果会实时重算。这就是《东财转3 条款卡》第二栏「转股价值」的算法：转股价值 = 面值 ÷ 转股价 × 正股股价。</div>
+          <div class="cb-grid">
+            <div class="val-field"><label for="cb-face">面值（元/张）</label><input id="cb-face" type="number" inputmode="decimal" min="1" step="1" value="100" /></div>
+            <div class="val-field"><label for="cb-conv">转股价（元/股）</label><input id="cb-conv" type="number" inputmode="decimal" min="0.01" step="0.01" value="23.35" /></div>
+            <div class="val-field"><label for="cb-price">正股股价（元/股）</label><input id="cb-price" type="number" inputmode="decimal" min="0" step="0.01" value="30.36" /></div>
+            <div class="val-field"><label for="cb-call">赎回价（元/张）</label><input id="cb-call" type="number" inputmode="decimal" min="0" step="0.01" value="100.18" /></div>
+          </div>
+          <div class="cb-out" id="cb-out"></div>
+          <div class="cb-tip" id="cb-tip"></div>
         </div>
         <div class="chart-card val-wide">
           <h4>足球场图 · 估值区间</h4>
@@ -974,6 +987,58 @@
           </button>
           <div class="case-body">
             <div class="cl-kpis"><div class="cl-kpi"><span class="k">发行总额</span><span class="v">158 亿元</span><span class="n">15,800 万张，每张面值 100 元</span></div><div class="cl-kpi"><span class="k">当期转股价</span><span class="v">23.35 元/股</span><span class="n">强赎触发线为转股价的 130%</span></div><div class="cl-kpi"><span class="k">触发线</span><span class="v">30.36 元/股</span><span class="n">连续 15 个交易日收盘价不低于该价</span></div><div class="cl-kpi"><span class="k">强赎价格</span><span class="v">100.18 元/张</span><span class="n">面值 + 当期应计利息</span></div></div>
+
+            <!-- v61 · 4.3 可转债环节一：八项条款表（学生照此填《东财转3 条款卡》，不必再翻公告） -->
+            <div class="cl-tbl-wrap">
+              <table class="cl-tbl">
+                <thead>
+                  <tr><th>条款</th><th>东财转3 的取值</th><th>这笔约束由谁承担</th></tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="ct">票面利率</td>
+                    <td>累进利率：第 1–6 年分别为 <strong>0.2%、0.3%、0.4%、0.8%、1.8%、2.0%</strong>；到期赎回价为面值的 107%（含最后一期利息）</td>
+                    <td class="cn">发行人（但成本远低于普通公司债）</td>
+                  </tr>
+                  <tr>
+                    <td class="ct">期限</td>
+                    <td>6 年，2021-04-07 发行，2027-04-06 到期</td>
+                    <td class="cn">——</td>
+                  </tr>
+                  <tr>
+                    <td class="ct">担保</td>
+                    <td>无担保，AA+ 信用发行<sup>①</sup></td>
+                    <td class="cn">持有人（自行承担信用风险）</td>
+                  </tr>
+                  <tr>
+                    <td class="ct">转股价</td>
+                    <td>初始 <strong>28.08 元/股</strong>；后因分红送转调整为当期 <strong>23.35 元/股</strong></td>
+                    <td class="cn">——</td>
+                  </tr>
+                  <tr>
+                    <td class="ct">转股期限</td>
+                    <td>发行满 6 个月后至到期日：2021-10-13 起至 2027-04-06</td>
+                    <td class="cn">持有人权利</td>
+                  </tr>
+                  <tr>
+                    <td class="ct">回售条款</td>
+                    <td>最后两个计息年度，连续 <strong>30</strong> 个交易日收盘价均低于当期转股价的 <strong>70%</strong> 时，持有人可回售</td>
+                    <td class="cn">持有人权利（对发行人构成回售压力）</td>
+                  </tr>
+                  <tr>
+                    <td class="ct">赎回条款</td>
+                    <td><strong>30</strong> 个交易日中至少 <strong>15</strong> 个收盘价不低于当期转股价的 <strong>130%</strong>（<strong>30.36 元</strong>）时，发行人可按面值加应计利息（约 100.18 元/张）赎回</td>
+                    <td class="cn">发行人权利（强赎促转股，债务转权益）</td>
+                  </tr>
+                  <tr>
+                    <td class="ct">修正条款</td>
+                    <td><strong>30</strong> 个交易日中至少 <strong>15</strong> 个收盘价低于当期转股价的 <strong>85%</strong> 时，董事会可提出转股价下修方案</td>
+                    <td class="cn">发行人权利（下修后强赎门槛同步下降）</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="cl-tbl-note">① 担保情况以《东财转3 募集说明书》为准。条款比例均为「触发天数 / 观察天数、价格比例」口径；强赎价 100.18 元为面值加当期应计利息，与到期赎回价 107 元是两个概念，不要混用。</div>
 
             <section class="cl-sec">
               <h4 class="cl-h"><span class="cl-n">1</span>案例背景</h4>

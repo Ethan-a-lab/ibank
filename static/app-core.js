@@ -686,6 +686,12 @@ document.addEventListener('keydown', function (e) {
         { day: 25, code: '601012', type: '条款提示', title: '股价跌破转股价 15%',
           cells: [['触发条款', '回售 / 下修'], ['发行人压力', '面临回售'], ['常见应对', '下修转股价']],
           note: '股价持续低于转股价一定幅度，持有人可按约定回售，发行人往往选择下修转股价以避免回售压力。' },
+        // v61：day25 跌破后发行人下修转股价（降至原转股价 67%），强赎线随之下降，
+        //      day26 股价才站得上去 —— 单日涨幅 3%，不虚构暴涨、不突破涨跌停。
+        //      真实机制：下修 → 强赎门槛同步下移 → 更容易触发强赎 → 债务转权益。
+        { day: 26, code: '601012', type: '强赎触发', title: '下修后股价站上强赎线', shock: 0.03, revise: 0.67,
+          cells: [['当期转股价', '下修至原转股价 67%'], ['强赎线', '当期转股价 × 130%'], ['持有人反应', '转股或卖出'], ['不操作后果', '按赎回价被赎回']],
+          note: '下修把强赎门槛一起拉低：转股价降到原值 67%，强赎线随之降到 1.3 × 0.67，股价稍有反弹就站了上去。发行人用「下修 + 强赎」的组合把债转成股，债务彻底转为权益。' },
         { day: 28, code: '300750', type: '风险提示', title: '股价跌破定增发行价',
           cells: [['后果', '新发股份难以售出'], ['承担方', '主承销商'], ['对应教材', '4.5 再融资的承销风险']],
           note: '再融资定价与现行股价存在比照关系，一旦破发，新发股份难以售出，未售出部分由主承销商包销——这就是承销风险。' }
@@ -916,15 +922,31 @@ document.addEventListener('keydown', function (e) {
         return out;
       }
 
-      // v59：纵轴范围。若该股有转债或可交换债，把转股价一并纳入，保证参考线落在可见区
+      // v61：可转债/可交换债的参考线口径 —— 当期转股价（已下修则取下修后）+ 强赎线（×130%）。
+      //      K 线纵轴范围、K 线画线、事件卡三处共用这一份，避免各算一遍数字对不上。
+      function convLinesOf(code, a) {
+        const ce = EVENTS.filter(function (x) {
+          return x.code === code && (x.type === '可转债' || x.type === '可交换债');
+        })[0];
+        if (!ce || !ce.convPct) return null;
+        const cp0 = a[ce.day - 2] * (1 + ce.convPct);          // 发行时设定的转股价
+        const isConv = ce.type === '可转债';
+        const rv = isConv ? EVENTS.filter(function (x) {
+          return x.code === code && x.type === '强赎触发' && x.revise;
+        })[0] : null;
+        const cp = rv ? cp0 * rv.revise : cp0;                  // 下修后的当期转股价
+        return { cp0: cp0, cp: cp, call: cp * 1.3, revised: !!rv, isConv: isConv };
+      }
+
+      // v59：纵轴范围。若该股有转债或可交换债，把转股价与强赎线一并纳入，保证参考线落在可见区
       function rangeOf(a) {
         let mn = Math.min.apply(null, a), mx = Math.max.apply(null, a);
         if (a === S.hist[S.selected]) {
-          EVENTS.filter(function (e) { return e.code === S.selected && e.convPct; }).forEach(function (ev) {
-            const cp = a[ev.day - 2] * (1 + ev.convPct);
-            if (cp > mx) mx = cp;
-            if (cp < mn) mn = cp;
-          });
+          const cl = convLinesOf(S.selected, a);
+          if (cl) {
+            const ys = cl.isConv ? [cl.cp, cl.call] : [cl.cp];
+            ys.forEach(function (v) { if (v > mx) mx = v; if (v < mn) mn = v; });
+          }
         }
         const pad = (mx - mn) * 0.14 || 1;
         return { mn: mn - pad, mx: mx + pad };
@@ -952,24 +974,36 @@ document.addEventListener('keydown', function (e) {
         const l5 = ma5(a).map(function (v, i) { return v === null ? '' : X(i).toFixed(1) + ',' + Y(v).toFixed(1); }).filter(Boolean).join(' ');
         g += '<polyline points="' + l5 + '" fill="none" stroke="var(--accent2)" stroke-width="1.4" stroke-dasharray="5 4" stroke-linejoin="round"/>';
         // v59：融资事件标记（竖虚线 + 圆点 + 类型标签）
-        let ei = 0;
+        // v61：标签按横向间距自动分层 —— day25/day26 只差 1 天，原来的 ei%2 会撞在一起
+        let ei = 0, lastX = -999, row = 0;
         EVENTS.filter(function (e) { return e.code === S.selected; }).forEach(function (ev) {
           const i = ev.day - 1; if (i < 0 || i >= DAYS) return;
           const x = X(i), y = Y(a[i]);
           g += '<line x1="' + x.toFixed(1) + '" y1="' + PT + '" x2="' + x.toFixed(1) + '" y2="' + (CH - PB) + '" stroke="var(--accent)" stroke-width="1" stroke-dasharray="2 3" opacity="0.5"/>';
           g += '<circle cx="' + x.toFixed(1) + '" cy="' + y.toFixed(1) + '" r="3.4" fill="var(--accent-solid)" stroke="var(--panel-solid)" stroke-width="1.4"/>';
-          g += '<text x="' + (x + 4).toFixed(1) + '" y="' + (PT + 11 + (ei % 2) * 12) + '" fill="var(--accent)" font-size="9.5" font-weight="600">' + ev.type + '</text>';
+          const tx = x + 4;
+          row = (tx - lastX < 46) ? (row + 1) % 3 : 0;
+          lastX = tx;
+          g += '<text x="' + tx.toFixed(1) + '" y="' + (PT + 11 + row * 12) + '" fill="var(--accent)" font-size="9.5" font-weight="600">' + ev.type + '</text>';
           ei++;
         });
-        // 转股价参考线（可转债 / 可交换债）
-        EVENTS.filter(function (e) { return e.code === S.selected && e.convPct; }).forEach(function (ev) {
-          const cp = a[ev.day - 2] * (1 + ev.convPct);
-          const yl = Y(cp);
-          if (yl > PT && yl < CH - PB) {
-            g += '<line x1="' + PL + '" y1="' + yl.toFixed(1) + '" x2="' + (CW - PR) + '" y2="' + yl.toFixed(1) + '" stroke="var(--down)" stroke-width="1" stroke-dasharray="6 4" opacity="0.75"/>';
-            g += '<text x="' + (CW - PR) + '" y="' + (yl - 5).toFixed(1) + '" fill="var(--down)" font-size="9.5" text-anchor="end">转股价 ' + fmt2(cp) + '</text>';
+        // v61：转股价参考线（可转债 / 可交换债）+ 强赎线（可转债，×130%），两条线各带标签
+        const cl = convLinesOf(S.selected, a);
+        if (cl) {
+          const cpY = Y(cl.cp);
+          if (cpY > PT && cpY < CH - PB) {
+            g += '<line x1="' + PL + '" y1="' + cpY.toFixed(1) + '" x2="' + (CW - PR) + '" y2="' + cpY.toFixed(1) + '" stroke="var(--down)" stroke-width="1" stroke-dasharray="6 4" opacity="0.75"/>';
+            g += '<text x="' + (CW - PR) + '" y="' + (cpY - 5).toFixed(1) + '" fill="var(--down)" font-size="9.5" text-anchor="end">转股价 ' + fmt2(cl.cp) + (cl.revised ? '（下修后）' : '') + '</text>';
           }
-        });
+          if (cl.isConv) {
+            const callY = Y(cl.call);
+            if (callY > PT && callY < CH - PB) {
+              // 强赎线紧贴股价时，标签放右侧会压住末尾价格与刻度，改到左端起始位置
+              g += '<line x1="' + PL + '" y1="' + callY.toFixed(1) + '" x2="' + (CW - PR) + '" y2="' + callY.toFixed(1) + '" stroke="var(--up)" stroke-width="1.1" stroke-dasharray="3 3" opacity="0.85"/>';
+              g += '<text x="' + (PL + 4) + '" y="' + (callY + 11).toFixed(1) + '" fill="var(--up)" font-size="9.5" text-anchor="start">强赎线 ' + fmt2(cl.call) + '</text>';
+            }
+          }
+        }
         g += '<text x="' + (CW - PR + 8) + '" y="' + (Y(a[DAYS - 1]) + 4).toFixed(1) + '" fill="' + col + '" font-size="12.5" font-weight="700">' + fmt2(a[DAYS - 1]) + '</text>';
         g += '<g id="sim-cursor" style="display:none">' +
           '<line id="sc-x" x1="0" y1="' + PT + '" x2="0" y2="' + (CH - PB) + '" stroke="var(--accent)" stroke-width="1" stroke-dasharray="4 3"/>' +
@@ -1165,6 +1199,17 @@ document.addEventListener('keydown', function (e) {
           const now = a[DAYS - 1];
           cells = [['转股价', fmt2(conv)], ['当前股价', fmt2(now)], ['低于转股价', ((1 - now / conv) * 100).toFixed(1) + '%'], ['触发条款', '回售 / 下修']];
           calc = '转股价 ' + fmt2(conv) + ' 高于现价，股价跌破转股价达到一定幅度即触发回售压力，发行人通常选择下修转股价。';
+        } else if (ev.type === '强赎触发') {
+          // v61：下修后的当期转股价与强赎线，与 K 线上画的两条线同口径
+          const cl = convLinesOf(ev.code, a);
+          const conv = cl ? cl.cp : prev, call = cl ? cl.call : prev * 1.3;
+          const now = a[i];
+          const shares = 100 / conv;
+          const val = shares * now;
+          cells = [['当期转股价', fmt2(conv) + (cl && cl.revised ? '（下修后）' : '')], ['强赎线', fmt2(call)], ['当日收盘', fmt2(now)], ['转股价值', fmt2(val)]];
+          calc = '下修后转股价 ' + fmt2(conv) + '，强赎线随之降到 <b>' + fmt2(call) + '</b> 元（= 转股价 × 130%）；当日收盘 ' + fmt2(now) +
+            ' 已站上该线，触发有条件赎回。每张可转 <b>' + shares.toFixed(4) + '</b> 股，转股价值 <b>' + fmt2(val) +
+            '</b> 元，高于赎回价 100.18 元 —— 理性持有人只能选择转股，债务就此转为权益。';
         }
         box.hidden = false;
         box.innerHTML =
@@ -3814,6 +3859,65 @@ document.addEventListener('keydown', function (e) {
       });
       ids.forEach(function (k) { els[k].addEventListener('input', function () { document.querySelectorAll('.val-scenarios button').forEach(function (x) { x.classList.remove('on'); }); calc(); }); });
       calc();
+    })();
+
+    // ===== v61 · 可转债价值计算（4.3 可转债 · 环节二）=====
+    // 转股价值 = 面值 ÷ 转股价 × 正股股价；再与赎回价比，判断「转股 / 被赎回 / 持有」
+    (function () {
+      const faceEl = document.getElementById('cb-face');
+      const convEl = document.getElementById('cb-conv');
+      const priceEl = document.getElementById('cb-price');
+      const callEl = document.getElementById('cb-call');
+      const outEl = document.getElementById('cb-out');
+      const tipEl = document.getElementById('cb-tip');
+      if (!faceEl || !convEl || !priceEl || !callEl || !outEl) return;   // 面板不在本页时静默跳过
+
+      const f4 = function (v) { return v.toFixed(4); };
+      const f2 = function (v) { return v.toFixed(2); };
+      const sgn2 = function (v) { return (v >= 0 ? '+' : '') + v.toFixed(2); };
+      const sgnPct = function (v) { return (v >= 0 ? '+' : '') + (v * 100).toFixed(1) + '%'; };
+      // 输入容错：空值 / 非法 / 非正数一律回退到安全默认值，避免 NaN、Infinity 上屏
+      const pos = function (el, dft) {
+        const n = parseFloat(el.value);
+        return isFinite(n) && n > 0 ? n : dft;
+      };
+
+      function paint() {
+        const face = pos(faceEl, 100), conv = pos(convEl, 23.35), call = pos(callEl, 100.18);
+        const pn = parseFloat(priceEl.value);
+        const price = isFinite(pn) && pn > 0 ? pn : 0;      // 股价允许为 0（极端下跌）
+
+        const shares = face / conv;          // 每张可转股数
+        const value = shares * price;        // 转股价值（元/张）
+        const diff = value - call;           // 与赎回价差额
+        const pct = call > 0 ? diff / call : 0;
+        const line = conv * 1.3;             // 强赎触发线 = 转股价 × 130%
+
+        // 三档判定，顺序不能换：先看强赎（硬性），再比转股价值与赎回价
+        let state, cls;
+        if (price >= line - 1e-9) { state = '已触发强赎线，必须转股'; cls = 'st-call'; }
+        else if (value >= call) { state = '转股优于被赎回'; cls = 'st-conv'; }
+        else { state = '债性保护生效，不转股'; cls = 'st-hold'; }
+
+        const cell = function (k, v, n, c) {
+          return '<div class="cb-o' + (c ? ' ' + c : '') + '">' +
+                   '<span class="k">' + k + '</span>' +
+                   '<span class="v">' + v + '</span>' +
+                   (n ? '<span class="n">' + n + '</span>' : '') +
+                 '</div>';
+        };
+        outEl.innerHTML =
+          cell('每张可转股数（股）', f4(shares), '面值 ÷ 转股价') +
+          cell('转股价值（元/张）', f2(value), '股数 × 正股股价') +
+          cell('与赎回价差额（元）', sgn2(diff), sgnPct(pct) + '，赎回价 ' + f2(call)) +
+          cell('状态判定', state, '', cls);
+
+        tipEl.innerHTML = '强赎线 = 转股价 × 130% = <b>' + f2(line) + '</b> 元。正股股价站上这条线，' +
+          '发行人就可按面值加应计利息（这里取 ' + f2(call) + ' 元）赎回；持有人不转股，只能按赎回价被赎回。';
+      }
+
+      [faceEl, convEl, priceEl, callEl].forEach(function (el) { el.addEventListener('input', paint); });
+      paint();
     })();
 
     // ===== 课程学习 · 章节式学习器（基于教学大纲 8 章：第0章导论 + 第1–7章） =====

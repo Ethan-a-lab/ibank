@@ -410,6 +410,25 @@
       // 取模哈希：确定性伪随机（同一 seed 永远同一结果），避免 Math.random 造成刷新即跳数
       function simHash(a, b) { var x = (a * 1103515245 + b * 12345 + 20250828) % 2147483647; return x < 0 ? -x : x; }
       var SIM_CACHE = null;
+      // v61：基线错题的知识点池与错因标签。
+      //   病根：错因面板（#ev-cause）读的是 quiz 事件的 kp / cause 两个字段，
+      //   而基线与 track() 都没写过它们 —— 缺字段时 computeCauseAgg 直接 return，
+      //   面板永远显示「暂无错因标签数据」。基线只在内存里、不写库，所以补字段不需要改表。
+      //   第 4 章只给 3 个知识点（而不是 4–5 个），让「转股价值计算」「赎回条款理解」
+      //   在「高频薄弱知识点 TOP」里稳定排进前八，课堂拍照时看得见。
+      var SIM_KP = {
+        '第0章': ['投行职业种类', '职业道德'],
+        '第1章': ['投行概念', '投行主要业务', '承销与并购', '投行监管'],
+        '第2章': ['内部融资', '销售百分比法', '融资方式选择', '资本结构'],
+        '第3章': ['IPO 流程', '发行定价', '借壳上市', '股份制改组'],
+        // 第 4 章只留课堂两个高频错因（池子越短，单个知识点的错题数越高）：
+        //   若按 5 个知识点摊分，每类只剩约 67 条，排不进 TOP8（门槛约 94），拍照时看不见。
+        '第4章': ['转股价值计算', '赎回条款理解'],
+        '第5章': ['债券定价', '信用评级', '承销方式', '受托管理'],
+        '第6章': ['资产证券化结构', '信用增级', '真实出售'],
+        '第7章': ['并购动因', '支付方式', '并购估值', '反收购']
+      };
+      var SIM_CAUSE = ['概念不清', '方法不会', '粗心失误', '审题偏差'];   // 与 app-core 的 window.CAUSES 同名同义
       // 生成基线事件集（只生成一次并缓存；约 9000 条，一次性开销十几毫秒）
       function simBaseline() {
         if (SIM_CACHE) return SIM_CACHE;
@@ -440,7 +459,15 @@
             // 章节跟着题目序号走，模拟随课程推进做后面的章
             var ch = '第' + Math.min(7, Math.floor(qi / 675)) + '章';
             var ok = okArr[k];
-            push({ uid: simUid(stu), type: 'quiz', chapter: ch, qtype: qt.name, correct: ok, module: 'p-exercise', duration: 45 + (simHash(k, ti) % 70), ts: SIM_T0 + (qi % SIM_DAYS) * DAY + (8 + (simHash(qi, 3) % 10)) * 3600000 });
+            // v61：带上知识点与错因标签（只给答错的记错因，答对的不归因）
+            //   注意不能用 (k + qi) % len —— k 与 qi 同步 +1，模 2 时结果恒定，
+            //   实测第 4 章 200 条错题会全部压在一个知识点上，另一个永远是 0 条。
+            var kpPool = SIM_KP[ch] || SIM_KP['第1章'];
+            push({ uid: simUid(stu), type: 'quiz', chapter: ch, qtype: qt.name, correct: ok, module: 'p-exercise',
+              duration: 45 + (simHash(k, ti) % 70),
+              kp: kpPool[simHash(qi, 17) % kpPool.length],
+              cause: ok ? null : SIM_CAUSE[(k + ti) % SIM_CAUSE.length],
+              ts: SIM_T0 + (qi % SIM_DAYS) * DAY + (8 + (simHash(qi, 3) % 10)) * 3600000 });
             qi++;
           }
         });
