@@ -4119,7 +4119,7 @@ document.addEventListener('keydown', function (e) {
     // ===== v62 · 4.3 实验记录卡：网页代替纸质表格 =====
     // 设计书原本让学生填在纸上（条款卡 / 两次测算 / 决策单），这里做成页面内可填、可留、可入教师端：
     //   ① 四个关键数：即时判对错（✓ / ✗）       ② 两次测算：复用转股面板，点「记录本次结果」入卡
-    //   ③ 赎回决策：二选一 + 理由（≥10 字），无标准答案，不做正误判定
+    //   ③ 赎回决策：发行人（董秘）视角二选一 + 理由（≥10 字），无标准答案，不做正误判定
     // 数据只落 localStorage（纯静态站无服务端），三段动作各上报一次埋点，教师端「4.3 三环节」面板聚合。
     (function () {
       const KEY = 'ibank_cb_record_v1';
@@ -4134,6 +4134,19 @@ document.addEventListener('keydown', function (e) {
         longi:   [{ price: 22.75, label: '已触发强赎线' }, { price: 10, label: '债性保护生效' }]
       };
       const NAME_OF = { dongcai: '东财转3', longi: '隆22转债' };
+      // v64：第三栏的立场从「持有人」改为「发行人（董秘）」。设计书环节三的原话是
+      //   「如果你是 2022 年 1 月的董秘，赎还是不赎」，而页面原来问的是持有人接不接受赎回，
+      //   主体与选项动词（赎回/不赎回）互相打架。改为发行人立场后，情境句也必须按标的写实。
+      const SITU_OF = {
+        dongcai: {
+          lead: '站到 2022 年 1 月董秘的位置：正股 30.36 元已站上强赎线，158 亿元债还挂在账上，未转股的按',
+          tail: '元/张被赎回。赎，还是不赎？选一边，并说清理由。'
+        },
+        longi: {
+          lead: '站到 2026 年 10 月董秘的位置：正股 10.99 元，强赎线 22.75 元，回售压力已起，未转股的按',
+          tail: '元/张回售。隆22 还没触发强赎 —— 真要赎，得先让股价站上 22.75 元；这一栏先留作对照。'
+        }
+      };
       let targetId = 'dongcai';
       let ANS = ANS_OF.dongcai;
       let NEED = NEED_OF.dongcai;
@@ -4399,7 +4412,7 @@ document.addEventListener('keydown', function (e) {
         S.calcs.forEach(function (c) {
           L.push('  股价 ' + f2(c.price) + ' → 转股价值 ' + f2(c.value) + ' · ' + c.state);
         });
-        L.push('③ 赎回决策：' + (S.decision ? CHOICE_TXT[S.decision.choice] : '（未提交）'));
+        L.push('③ 赎回决策（董秘视角）：' + (S.decision ? CHOICE_TXT[S.decision.choice] : '（未提交）'));
         if (S.decision && S.decision.reason) L.push('  理由：' + S.decision.reason);
         const f = doneFlags();
         L.push('完成度：' + f.n + '/3');
@@ -4515,6 +4528,12 @@ document.addEventListener('keydown', function (e) {
         if (n1) n1.textContent = f2(NEED[0].price);
         if (n2) n2.textContent = f2(NEED[1].price);
         if (cn) cn.textContent = f2(ANS.callPrice);
+        // v64：第三栏改成发行人（董秘）立场后，情境句也必须随标的换 ——
+        //   隆22 的股价离强赎线还有一倍，照抄东财那句「已站上强赎线」就是说假话。
+        const situ = SITU_OF[targetId] || SITU_OF.dongcai;
+        const ld = el('cbr-situ-lead'), tl = el('cbr-situ-tail');
+        if (ld) ld.textContent = situ.lead;
+        if (tl) tl.textContent = situ.tail;
       }
 
       function paintAll() { paintMarks(true); paintCalcs(); paintChoice(); paintFoot(); }
