@@ -389,6 +389,10 @@
           </div>
           <div class="cb-out" id="cb-out"></div>
           <div class="cb-tip" id="cb-tip"></div>
+          <div class="cb-actions">
+            <button type="button" class="cb-rec-btn" id="cb-record-btn">＋ 记录本次结果</button>
+            <span class="cb-rec-msg" id="cb-rec-msg">算完点这里，结果会存进案例页的「4.3 实验记录卡」。</span>
+          </div>
         </div>
         <div class="chart-card val-wide">
           <h4>足球场图 · 估值区间</h4>
@@ -1039,6 +1043,62 @@
               </table>
             </div>
             <div class="cl-tbl-note">① 担保情况以《东财转3 募集说明书》为准。条款比例均为「触发天数 / 观察天数、价格比例」口径；强赎价 100.18 元为面值加当期应计利息，与到期赎回价 107 元是两个概念，不要混用。</div>
+
+            <!-- v62 · 4.3 实验记录卡：网页代替纸质表格（填 → 本机保存 → 上报进教师端） -->
+            <div class="cbr" id="cb-record">
+              <div class="cbr-head">
+                <div class="cbr-h-l">
+                  <h5>4.3 实验记录卡 · 东财转3</h5>
+                  <p>三段都做完才算完整。填的内容自动存在本机，关掉页面再回来还在。</p>
+                </div>
+                <span class="cbr-save" id="cbr-save">本机自动保存</span>
+              </div>
+
+              <section class="cbr-sec">
+                <div class="cbr-sh"><span class="cbr-n">1</span><b>四个关键数</b><em id="cbr-c1">0 / 4</em></div>
+                <p class="cbr-sh-sub">从上方条款表里找，找到就填。填错不要紧，右边会立刻告诉你。</p>
+                <div class="cbr-fields">
+                  <div class="cbr-f"><label for="cbr-amount">发行总额（亿元）</label>
+                    <span class="cbr-in"><input id="cbr-amount" type="text" inputmode="decimal" autocomplete="off" placeholder="填数字" /><i class="cbr-m" id="cbr-m-amount"></i></span></div>
+                  <div class="cbr-f"><label for="cbr-conv">当期转股价（元/股）</label>
+                    <span class="cbr-in"><input id="cbr-conv" type="text" inputmode="decimal" autocomplete="off" placeholder="填数字" /><i class="cbr-m" id="cbr-m-conv"></i></span></div>
+                  <div class="cbr-f"><label for="cbr-callLine">强赎触发线（元/股）</label>
+                    <span class="cbr-in"><input id="cbr-callLine" type="text" inputmode="decimal" autocomplete="off" placeholder="填数字" /><i class="cbr-m" id="cbr-m-callLine"></i></span></div>
+                  <div class="cbr-f"><label for="cbr-callPrice">强赎价格（元/张）</label>
+                    <span class="cbr-in"><input id="cbr-callPrice" type="text" inputmode="decimal" autocomplete="off" placeholder="填数字" /><i class="cbr-m" id="cbr-m-callPrice"></i></span></div>
+                </div>
+              </section>
+
+              <section class="cbr-sec">
+                <div class="cbr-sh"><span class="cbr-n">2</span><b>两次测算</b><em id="cbr-c2">0 / 2</em></div>
+                <p class="cbr-sh-sub">到「企业估值实验」页的转股面板，把正股股价分别改成 <b>30.36</b> 和 <b>20</b>，各点一次「＋ 记录本次结果」。</p>
+                <div class="cbr-calcs" id="cbr-calcs"></div>
+                <div class="cbr-c2-foot">
+                  <button type="button" class="cbr-btn ghost" id="cbr-toval">去估值实验页测算 →</button>
+                  <span class="cbr-hint" id="cbr-c2hint"></span>
+                </div>
+              </section>
+
+              <section class="cbr-sec">
+                <div class="cbr-sh"><span class="cbr-n">3</span><b>赎回决策</b><em id="cbr-c3">未提交</em></div>
+                <p class="cbr-sh-sub">站在持有人一侧：接受 100.18 元/张的赎回，还是转成股票？选一边，并说清理由。</p>
+                <div class="cbr-choice" id="cbr-choice">
+                  <button type="button" data-choice="call" aria-pressed="false">赎回</button>
+                  <button type="button" data-choice="hold" aria-pressed="false">不赎回</button>
+                </div>
+                <textarea id="cbr-reason" rows="2" maxlength="200" placeholder="理由（不少于 10 个字）：先算转股能拿回多少，再和赎回价一比。"></textarea>
+                <div class="cbr-act">
+                  <button type="button" class="cbr-btn primary" id="cbr-submit">提交决策</button>
+                  <span class="cbr-msg" id="cbr-msg"></span>
+                </div>
+              </section>
+
+              <div class="cbr-foot">
+                <button type="button" class="cbr-btn" id="cbr-copy">复制本组结论卡</button>
+                <button type="button" class="cbr-btn ghost" id="cbr-reset">清空重填</button>
+                <span class="cbr-state" id="cbr-state"></span>
+              </div>
+            </div>
 
             <section class="cl-sec">
               <h4 class="cl-h"><span class="cl-n">1</span>案例背景</h4>
@@ -1811,6 +1871,17 @@
         <div id="ev-cause"></div>
         <div class="setup-actions" style="margin-top:10px;">
           <button class="copy-sql-btn" id="cause-export-btn" type="button">⬇️ 导出班级高频错因（CSV）</button>
+        </div>
+      </div>
+
+      <!-- v62 · 4.3 可转债「网页代替纸质表格」三环节完成情况（只统计真实埋点，不掺演示数据） -->
+      <div class="admin-panel" style="margin-top:16px;">
+        <h4>4.3 可转债 · 三环节完成情况</h4>
+        <div class="sub">记录卡三个动作的真实埋点（type = cb_terms / cb_calc / cb_decision，章节限第 4 章）。教师本人操作不入统计，需学生账号完成。</div>
+        <div id="cb43-body"><div class="um-empty">加载中…</div></div>
+        <div class="setup-actions" style="margin-top:10px;">
+          <button class="copy-sql-btn" id="cb43-export-btn" type="button">⬇️ 导出 4.3 记录卡（CSV）</button>
+          <span class="ev-status" id="cb43-status"></span>
         </div>
       </div>
 

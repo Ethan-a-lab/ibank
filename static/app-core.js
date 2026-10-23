@@ -3882,6 +3882,8 @@ document.addEventListener('keydown', function (e) {
         return isFinite(n) && n > 0 ? n : dft;
       };
 
+      let CUR = null;   // 当前一屏的输入与结果，供「记录本次结果」取用
+
       function paint() {
         const face = pos(faceEl, 100), conv = pos(convEl, 23.35), call = pos(callEl, 100.18);
         const pn = parseFloat(priceEl.value);
@@ -3898,6 +3900,8 @@ document.addEventListener('keydown', function (e) {
         if (price >= line - 1e-9) { state = '已触发强赎线，必须转股'; cls = 'st-call'; }
         else if (value >= call) { state = '转股优于被赎回'; cls = 'st-conv'; }
         else { state = '债性保护生效，不转股'; cls = 'st-hold'; }
+        // v62：三档各配一个几何符号。投影偏色 / 黑白打印时红黄绿会糊成一片，符号仍可辨
+        const sym = cls === 'st-call' ? '● ' : (cls === 'st-conv' ? '▲ ' : '■ ');
 
         const cell = function (k, v, n, c) {
           return '<div class="cb-o' + (c ? ' ' + c : '') + '">' +
@@ -3910,14 +3914,440 @@ document.addEventListener('keydown', function (e) {
           cell('每张可转股数（股）', f4(shares), '面值 ÷ 转股价') +
           cell('转股价值（元/张）', f2(value), '股数 × 正股股价') +
           cell('与赎回价差额（元）', sgn2(diff), sgnPct(pct) + '，赎回价 ' + f2(call)) +
-          cell('状态判定', state, '', cls);
+          cell('状态判定', sym + state, '', cls);
+
+        // 供「＋ 记录本次结果」读取当前这一屏的输入与结果（不重复计算）
+        CUR = { face: face, conv: conv, price: price, call: call, shares: shares, value: value, diff: diff, state: state, cls: cls };
 
         tipEl.innerHTML = '强赎线 = 转股价 × 130% = <b>' + f2(line) + '</b> 元。正股股价站上这条线，' +
           '发行人就可按面值加应计利息（这里取 ' + f2(call) + ' 元）赎回；持有人不转股，只能按赎回价被赎回。';
       }
 
-      [faceEl, convEl, priceEl, callEl].forEach(function (el) { el.addEventListener('input', paint); });
+      function markCalcStart() {
+        const api = window.__ibankCBRecord;
+        if (api && api.mark) api.mark('calc');
+      }
+      [faceEl, convEl, priceEl, callEl].forEach(function (el) {
+        el.addEventListener('input', function () { markCalcStart(); paint(); });
+      });
+
+      // v62：把这一屏的结果推进案例页的「4.3 实验记录卡」（最多留 3 条，可逐条删）
+      const recBtn = document.getElementById('cb-record-btn');
+      const recMsg = document.getElementById('cb-rec-msg');
+      if (recBtn) {
+        recBtn.addEventListener('click', function () {
+          const api = window.__ibankCBRecord;
+          if (!api || !CUR) return;
+          markCalcStart();
+          const r = api.record(CUR);
+          if (recMsg) {
+            recMsg.textContent = r.msg;
+            recMsg.className = 'cb-rec-msg ' + (r.ok ? 'ok' : 'bad');
+          }
+        });
+      }
+
       paint();
+    })();
+
+    // ===== v62 · 4.3 实验记录卡：网页代替纸质表格 =====
+    // 设计书原本让学生填在纸上（条款卡 / 两次测算 / 决策单），这里做成页面内可填、可留、可入教师端：
+    //   ① 四个关键数：即时判对错（✓ / ✗）       ② 两次测算：复用转股面板，点「记录本次结果」入卡
+    //   ③ 赎回决策：二选一 + 理由（≥10 字），无标准答案，不做正误判定
+    // 数据只落 localStorage（纯静态站无服务端），三段动作各上报一次埋点，教师端「4.3 三环节」面板聚合。
+    (function () {
+      const KEY = 'ibank_cb_record_v1';
+      // 答案常量集中这一处：不写进 DOM、不写进 data 属性（否则 F12 一眼看穿）
+      const ANS = { amount: 158, conv: 23.35, callLine: 30.36, callPrice: 100.18 };
+      const FIELDS = ['amount', 'conv', 'callLine', 'callPrice'];
+      const FIELD_LABEL = { amount: '发行总额（亿元）', conv: '当期转股价（元/股）', callLine: '强赎触发线（元/股）', callPrice: '强赎价格（元/张）' };
+      // 环节二要求的两个股价；label 只用于提示文案
+      const NEED = [{ price: 30.36, label: '已触发强赎线' }, { price: 20, label: '债性保护生效' }];
+      const MAXC = 3;          // 最多留 3 条测算（够两次，留一次改错的余量）
+      const CAP_SEC = 900;     // 耗时封顶，防挂机出现几万秒把班级均值拉坏
+      const REASON_MIN = 10;
+      const TOL = 0.01;
+
+      const root = document.getElementById('cb-record');
+      if (!root) return;       // 记录卡不在本页时静默跳过
+
+      const el = function (id) { return document.getElementById(id); };
+      const $save = el('cbr-save'), $c1 = el('cbr-c1'), $c2 = el('cbr-c2'), $c3 = el('cbr-c3');
+      const $calcs = el('cbr-calcs'), $c2hint = el('cbr-c2hint'), $choice = el('cbr-choice');
+      const $reason = el('cbr-reason'), $msg = el('cbr-msg'), $state = el('cbr-state');
+      const inputs = {};
+      FIELDS.forEach(function (k) { inputs[k] = el('cbr-' + k); });
+
+      const f2 = function (v) { return (Math.round(v * 100) / 100).toFixed(2); };
+      const SYM = { 'st-call': '● ', 'st-conv': '▲ ', 'st-hold': '■ ' };
+
+      // 学生可能直接粘「158亿元」「1,580」这类写法：先归一化再比
+      function num(v) {
+        let s = String(v == null ? '' : v).trim();
+        if (!s) return NaN;
+        s = s.replace(/[０-９]/g, function (c) { return String.fromCharCode(c.charCodeAt(0) - 0xFEE0); })
+             .replace(/[，,]/g, '')
+             .replace(/[。．]/g, '.')
+             .replace(/[^\d.\-]/g, '');
+        const n = parseFloat(s);
+        return isFinite(n) ? n : NaN;
+      }
+      function okOf(k) { const n = num(S.terms[k]); return isFinite(n) && Math.abs(n - ANS[k]) < TOL; }
+
+      const EMPTY = function () {
+        return { terms: { amount: '', conv: '', callLine: '', callPrice: '' },
+          calcs: [], decision: null, draftChoice: '', reasonText: '', started: {}, tracked: {}, wrong: [] };
+      };
+
+      function load() {
+        const base = EMPTY();
+        try {
+          const raw = JSON.parse(localStorage.getItem(KEY) || 'null');
+          if (!raw || typeof raw !== 'object') return base;
+          if (raw.terms && typeof raw.terms === 'object') {
+            FIELDS.forEach(function (k) { if (typeof raw.terms[k] === 'string') base.terms[k] = raw.terms[k]; });
+          }
+          if (Array.isArray(raw.calcs)) {
+            base.calcs = raw.calcs.filter(function (c) {
+              return c && isFinite(num(c.price)) && isFinite(num(c.value));
+            }).slice(0, MAXC).map(function (c) {
+              return { price: Number(c.price), conv: Number(c.conv), value: Number(c.value),
+                state: String(c.state || ''), cls: String(c.cls || ''), ts: Number(c.ts) || 0 };
+            });
+          }
+          if (raw.decision && typeof raw.decision === 'object' && raw.decision.choice) {
+            base.decision = { choice: raw.decision.choice === 'hold' ? 'hold' : 'call',
+              reason: String(raw.decision.reason || ''), ts: Number(raw.decision.ts) || 0 };
+          }
+          base.draftChoice = raw.draftChoice === 'hold' || raw.draftChoice === 'call' ? raw.draftChoice : '';
+          if (typeof raw.reasonText === 'string') base.reasonText = raw.reasonText;
+          if (raw.started && typeof raw.started === 'object') base.started = raw.started;
+          if (raw.tracked && typeof raw.tracked === 'object') base.tracked = raw.tracked;
+          if (Array.isArray(raw.wrong)) base.wrong = raw.wrong.filter(function (k) { return FIELDS.indexOf(k) >= 0; });
+        } catch (e) { /* 隐私模式 / 脏数据：退回空白卡，不白屏 */ }
+        return base;
+      }
+
+      let S = load();
+
+      function save(touch) {
+        try {
+          localStorage.setItem(KEY, JSON.stringify(S));
+          if (touch !== false && $save) {
+            const d = new Date();
+            const p2 = function (n) { return (n < 10 ? '0' : '') + n; };
+            $save.textContent = '已保存 ' + p2(d.getHours()) + ':' + p2(d.getMinutes()) + ' · 本机';
+          }
+        } catch (e) {
+          if ($save) $save.textContent = '本机保存不可用（隐私模式？）';
+        }
+      }
+
+      function mark(seg) {
+        if (!S.started[seg]) { S.started[seg] = Date.now(); save(false); }
+      }
+      function elapsed(seg) {
+        const t = Number(S.started[seg]) || 0;
+        if (!t) return 1;
+        const s = Math.round((Date.now() - t) / 1000);
+        return Math.max(1, Math.min(CAP_SEC, s));
+      }
+      function trackOnce(kind, type, payload) {
+        if (S.tracked[kind]) return;
+        S.tracked[kind] = true;
+        save(false);
+        if (typeof window.__ibankTrack === 'function') {
+          try { window.__ibankTrack(type, payload); } catch (e) { /* 上报失败不阻断填写 */ }
+        }
+      }
+
+      // ── ① 四个关键数 ─────────────────────────────
+      function paintMarks(forceJudge) {
+        let n = 0;
+        FIELDS.forEach(function (k) {
+          const raw = S.terms[k];
+          const ok = okOf(k);
+          const box = inputs[k].parentNode.parentNode;
+          const mk = el('cbr-m-' + k);
+          box.classList.remove('ok', 'bad');
+          if (!raw) { mk.textContent = ''; mk.className = 'cbr-m'; return; }
+          if (ok) {
+            n++;
+            box.classList.add('ok'); mk.textContent = '✓'; mk.className = 'cbr-m ok';
+          } else if (forceJudge) {
+            box.classList.add('bad'); mk.textContent = '✗'; mk.className = 'cbr-m bad';
+          } else {
+            // 正在输入时先不判错，避免「23」还没打完就被打叉
+            const was = mk.textContent === '✗';
+            mk.textContent = was ? '✗' : '';
+            mk.className = 'cbr-m' + (was ? ' bad' : '');
+            if (was) box.classList.add('bad');
+          }
+        });
+        $c1.textContent = n + ' / 4';
+        $c1.className = n === 4 ? 'done' : '';
+        if (n === 4) {
+          trackOnce('terms', 'cb_terms', { chapter: '第4章', module: '投行教学案例库', correct: true,
+            duration: elapsed('terms'), detail: JSON.stringify({ wrong: S.wrong.slice() }) });
+        }
+        paintFoot();
+      }
+
+      // ── ② 两次测算 ───────────────────────────────
+      function covered(p) {
+        return S.calcs.some(function (c) { return Math.abs(c.price - p) < TOL; });
+      }
+      function calcCount() { return NEED.filter(function (n) { return covered(n.price); }).length; }
+      function calcRight() {
+        const base = 100 / ANS.conv;   // 每张可转股数（按标准转股价）
+        return NEED.every(function (n) {
+          return S.calcs.some(function (c) {
+            return Math.abs(c.price - n.price) < TOL &&
+                   Math.abs(c.conv - ANS.conv) < 0.011 &&
+                   Math.abs(c.value - base * n.price) < 0.02;
+          });
+        });
+      }
+      function paintCalcs() {
+        const n = calcCount();
+        $c2.textContent = n + ' / 2';
+        $c2.className = n === 2 ? 'done' : '';
+
+        $calcs.innerHTML = S.calcs.length
+          ? S.calcs.map(function (c, i) {
+              return '<div class="cbr-calc">' +
+                       '<span class="cbr-calc-k">股价 ' + f2(c.price) + '</span>' +
+                       '<span class="cbr-calc-v">转股价值 ' + f2(c.value) + '</span>' +
+                       '<span class="cbr-calc-s ' + (c.cls || '') + '">' + (SYM[c.cls] || '') + c.state + '</span>' +
+                       '<button type="button" class="cbr-del" data-i="' + i + '">删</button>' +
+                     '</div>';
+            }).join('')
+          : '<div class="cbr-empty">还没有记录。先到「企业估值实验」页算一次，再点面板下方的「＋ 记录本次结果」。</div>';
+
+        if (n >= 2) {
+          $c2hint.textContent = S.calcs.length >= MAXC ? '两次已够（最多留 3 条，记满要先删一条）' : '两次已够 ✓';
+          $c2hint.className = 'cbr-hint ok';
+        } else {
+          const miss = NEED.filter(function (x) { return !covered(x.price); })
+            .map(function (x) { return '股价 ' + f2(x.price); }).join('、');
+          $c2hint.textContent = '还差 ' + (2 - n) + ' 次：' + miss;
+          $c2hint.className = 'cbr-hint';
+        }
+        if (n >= 2) {
+          trackOnce('calc', 'cb_calc', { chapter: '第4章', module: '企业估值实验', correct: calcRight(),
+            duration: elapsed('calc'),
+            detail: JSON.stringify({ prices: S.calcs.map(function (c) { return c.price; }) }) });
+        }
+        paintFoot();
+      }
+
+      // ── ③ 赎回决策 ───────────────────────────────
+      const CHOICE_TXT = { call: '赎回', hold: '不赎回' };
+      function paintChoice() {
+        Array.prototype.forEach.call($choice.querySelectorAll('button'), function (b) {
+          const on = b.getAttribute('data-choice') === S.draftChoice;
+          b.classList.toggle('on', on);
+          b.setAttribute('aria-pressed', on ? 'true' : 'false');
+        });
+        if (S.decision) {
+          $c3.textContent = '已提交 · ' + CHOICE_TXT[S.decision.choice]; $c3.className = 'done';
+        } else if (S.draftChoice) {
+          $c3.textContent = '待提交'; $c3.className = '';
+        } else {
+          $c3.textContent = '未提交'; $c3.className = '';
+        }
+      }
+
+      function submitDecision() {
+        if (!S.draftChoice) { setMsg('先选「赎回」或「不赎回」，再提交。', 'bad'); return; }
+        const reason = String($reason.value || '').trim();
+        const n = Array.from(reason).length;
+        if (n < REASON_MIN) { setMsg('再补几个字（现在 ' + n + ' 个字，至少 ' + REASON_MIN + ' 个字）。', 'bad'); $reason.focus(); return; }
+        S.decision = { choice: S.draftChoice, reason: reason, ts: Date.now() };
+        S.reasonText = reason;
+        save();
+        paintChoice();
+        paintFoot();
+        setMsg('已提交：' + CHOICE_TXT[S.decision.choice] + '。理由随时可改，改完再点一次提交即覆盖。', 'ok');
+        if (typeof window.__ibankTrack === 'function') {
+          try {
+            window.__ibankTrack('cb_decision', { chapter: '第4章', module: '投行教学案例库', correct: null,
+              duration: elapsed('decision'),
+              detail: JSON.stringify({ choice: S.decision.choice, reason: reason }) });
+          } catch (e) { /* 上报失败不影响本机留档 */ }
+        }
+      }
+      function setMsg(t, cls) { $msg.textContent = t; $msg.className = 'cbr-msg ' + (cls || ''); }
+
+      // ── 底部状态 ─────────────────────────────────
+      function doneFlags() {
+        const t = FIELDS.filter(okOf).length === 4;
+        const c = calcCount() >= 2;
+        const d = !!S.decision;
+        return { t: t, c: c, d: d, n: (t ? 1 : 0) + (c ? 1 : 0) + (d ? 1 : 0) };
+      }
+      function paintFoot() {
+        const f = doneFlags();
+        $state.innerHTML = '完成度 ' + f.n + '/3 · ' +
+          (f.t ? '四个数 ✓' : '四个数 —') + ' · ' +
+          (f.c ? '两次测算 ✓' : '两次测算 —') + ' · ' +
+          (f.d ? '决策 ✓' : '决策 —');
+      }
+
+      // ── 结论卡文本（复制到群 / 贴作业本）─────────────
+      function plainText() {
+        const L = [];
+        L.push('【4.3 实验记录卡 · 东财转3】');
+        L.push('① 四个关键数');
+        FIELDS.forEach(function (k) {
+          const v = String(S.terms[k] || '').trim();
+          L.push('  ' + FIELD_LABEL[k] + '：' + (v || '（未填）') + (v ? (okOf(k) ? ' ✓' : ' ✗') : ''));
+        });
+        L.push('② 两次测算');
+        if (!S.calcs.length) L.push('  （未记录）');
+        S.calcs.forEach(function (c) {
+          L.push('  股价 ' + f2(c.price) + ' → 转股价值 ' + f2(c.value) + ' · ' + c.state);
+        });
+        L.push('③ 赎回决策：' + (S.decision ? CHOICE_TXT[S.decision.choice] : '（未提交）'));
+        if (S.decision && S.decision.reason) L.push('  理由：' + S.decision.reason);
+        const f = doneFlags();
+        L.push('完成度：' + f.n + '/3');
+        return L.join('\n');
+      }
+
+      function copyText(t) {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          return navigator.clipboard.writeText(t).then(function () { return true; }, function () { return legacyCopy(t); });
+        }
+        return Promise.resolve(legacyCopy(t));
+      }
+      function legacyCopy(t) {
+        try {
+          const ta = document.createElement('textarea');
+          ta.value = t;
+          ta.setAttribute('readonly', '');
+          ta.style.cssText = 'position:fixed;top:-9999px;left:-9999px;opacity:0';
+          document.body.appendChild(ta);
+          ta.select();
+          const ok = document.execCommand('copy');
+          document.body.removeChild(ta);
+          return ok;
+        } catch (e) { return false; }
+      }
+
+      // ── 事件绑定 ─────────────────────────────────
+      FIELDS.forEach(function (k) {
+        const inp = inputs[k];
+        inp.value = S.terms[k] || '';
+        inp.addEventListener('focus', function () { mark('terms'); });
+        inp.addEventListener('input', function () {
+          S.terms[k] = inp.value;
+          mark('terms');
+          save(false);
+          paintMarks(false);
+        });
+        // blur / 回车才算「定稿」：这时才把 ✗ 记进 wrong[]，否则边打边判会把「一次全对」判死
+        inp.addEventListener('change', function () {
+          S.terms[k] = inp.value;
+          const raw = String(inp.value || '').trim();
+          if (raw && !okOf(k) && S.wrong.indexOf(k) < 0) { S.wrong.push(k); save(false); }
+          save();
+          paintMarks(true);
+        });
+        inp.addEventListener('blur', function () { paintMarks(true); });
+      });
+
+      $calcs.addEventListener('click', function (e) {
+        const b = e.target.closest ? e.target.closest('.cbr-del') : null;
+        if (!b) return;
+        const i = Number(b.getAttribute('data-i'));
+        if (!isFinite(i) || i < 0 || i >= S.calcs.length) return;
+        S.calcs.splice(i, 1);
+        save();
+        paintCalcs();
+      });
+
+      $choice.addEventListener('click', function (e) {
+        const b = e.target.closest ? e.target.closest('button[data-choice]') : null;
+        if (!b) return;
+        S.draftChoice = b.getAttribute('data-choice');
+        S.reasonText = $reason.value;
+        mark('decision');
+        save();
+        paintChoice();
+        setMsg('', '');
+      });
+
+      $reason.value = S.decision ? S.decision.reason : (S.reasonText || '');
+      $reason.addEventListener('focus', function () { mark('decision'); });
+      $reason.addEventListener('input', function () { S.reasonText = $reason.value; mark('decision'); save(false); });
+
+      el('cbr-submit').addEventListener('click', submitDecision);
+
+      el('cbr-toval').addEventListener('click', function () {
+        const b = document.querySelector('.tab-btn[data-page="p-valuation"]');
+        if (b) b.click();
+        setTimeout(function () {
+          const card = document.querySelector('.cb-card');
+          if (card && card.scrollIntoView) card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }, 120);
+      });
+
+      el('cbr-copy').addEventListener('click', function () {
+        copyText(plainText()).then(function (ok) {
+          setMsg(ok ? '结论卡已复制，可以直接粘进班级群或作业本。' : '复制失败，请手动选中文字复制。', ok ? 'ok' : 'bad');
+        });
+      });
+
+      el('cbr-reset').addEventListener('click', function () {
+        if (!window.confirm('确定清空这张记录卡？本机已填的内容会全部删除，且不能撤销。')) return;
+        S = EMPTY();
+        try { localStorage.removeItem(KEY); } catch (e) { }
+        FIELDS.forEach(function (k) { inputs[k].value = ''; });
+        $reason.value = '';
+        setMsg('', '');
+        $save.textContent = '本机自动保存';
+        paintAll();
+      });
+
+      function paintAll() { paintMarks(true); paintCalcs(); paintChoice(); paintFoot(); }
+
+      // ── 对外接口：供转股面板「记录本次结果」调用 ─────────
+      window.__ibankCBRecord = {
+        mark: function (seg) { mark(seg); },
+        record: function (cur) {
+          if (!cur || !isFinite(cur.price)) return { ok: false, msg: '当前没有可记录的结果' };
+          const price = Number(cur.price), value = Number(cur.value);
+          const item = { price: price, conv: Number(cur.conv) || 0, value: value,
+            state: String(cur.state || ''), cls: String(cur.cls || ''), ts: Date.now() };
+          // 同一股价重复记录时更新原条目，不占新名额（学生反复点不会把 3 个名额浪费在同一个数上）
+          const same = S.calcs.findIndex(function (c) { return Math.abs(c.price - price) < TOL; });
+          let msg;
+          if (same >= 0) {
+            S.calcs[same] = item;
+            msg = '已更新「股价 ' + f2(price) + '」的记录';
+          } else if (S.calcs.length >= MAXC) {
+            return { ok: false, msg: '已记录 ' + MAXC + ' 次，先删一条再记' };
+          } else {
+            S.calcs.push(item);
+            msg = '已记录：股价 ' + f2(price) + ' → 转股价值 ' + f2(value) + '（' + calcCount() + '/2）';
+          }
+          save();
+          paintCalcs();
+          return { ok: true, msg: msg };
+        },
+        // 测试与排障用：只读快照，不外泄答案
+        state: function () {
+          return { terms: JSON.parse(JSON.stringify(S.terms)), calcs: JSON.parse(JSON.stringify(S.calcs)),
+            decision: S.decision ? JSON.parse(JSON.stringify(S.decision)) : null,
+            draftChoice: S.draftChoice, tracked: JSON.parse(JSON.stringify(S.tracked)),
+            wrong: S.wrong.slice(), started: JSON.parse(JSON.stringify(S.started)) };
+        },
+        text: plainText
+      };
+
+      paintAll();
+      save(false);
     })();
 
     // ===== 课程学习 · 章节式学习器（基于教学大纲 8 章：第0章导论 + 第1–7章） =====

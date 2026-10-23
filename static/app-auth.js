@@ -159,6 +159,17 @@
           localStorage.setItem('ibank_events_local', JSON.stringify(arr.slice(-2000)));
         } catch (e) { /* 隐私模式 / 配额满：不影响云端上报 */ }
       }
+      // v62：events 表是否已有 detail 列 —— 懒探测一次，结果缓存；缺列时上报自动降级
+      let detailOK = null;
+      async function hasDetailColumn() {
+        if (detailOK !== null) return detailOK;
+        if (!db) { detailOK = false; return detailOK; }
+        try {
+          const r = await db.from('events').select('detail').limit(1);
+          detailOK = !(r && r.error);
+        } catch (e) { detailOK = false; }
+        return detailOK;
+      }
       async function track(type, payload) {
         payload = payload || {};
         const uid = await getUserId();
@@ -168,6 +179,9 @@
           correct: (typeof payload.correct === 'boolean' ? payload.correct : null),
           module: payload.module || null, duration: payload.duration || null, ts: Date.now()
         };
+        // v62：detail 承载「选了什么 / 写了什么理由」这类既有字段塞不下的自定义值。
+        //   需要 events 表有 detail 列；列不存在时下面的探测会把它摘掉，绝不因此丢掉整条记录。
+        if (payload.detail != null) rec.detail = String(payload.detail).slice(0, 500);
         // v58.7：教师/管理员自己的行为**不进学习统计**（云端与本机镜像都跳过）。
         //   病根：教师日常备课点测、演示点击被 track 逐条双写，攒成几百条垃圾事件
         //   混进看板（习题 10822 / 问答 6403 的零头、甚至教师 uid 混进「覆盖学生」）。
@@ -184,7 +198,14 @@
           return;
         }
         trackLocalMirror(rec);   // ← 登录态同样留本机镜像，供学情画像页实时重算
+        // v62：上云前探测 detail 列。列没加过就摘掉该字段再写，决策记录照样入库（只是少了选项与理由）
+        if (rec.detail != null && !(await hasDetailColumn())) delete rec.detail;
         try { await db.from('events').insert(rec); } catch (e) {
+          // 兜底：探测通过但插入仍失败时，去掉 detail 再试一次，避免一条决策记录整体丢失
+          if (rec.detail != null) {
+            const bare = Object.assign({}, rec); delete bare.detail;
+            try { await db.from('events').insert(bare); detailOK = false; return; } catch (e2) { e = e2; }
+          }
           console.warn('[iBank] 行为上报失败', e);
           const msg = String((e && (e.message || e.error_description || e.msg)) || e || '');
           // 区分病因：权限类报错多半是策略/GRANT 问题，而非表不存在
@@ -695,6 +716,203 @@ console.log('%c[iBank 数据自检]', 'font-weight:bold', out);
         if (btn) btn.addEventListener('click', function () { window.__ibankResetLocal(false); });
       });
 
+      // ===== v62 · 4.3 可转债「网页代替材料表格」三环节统计 =====
+      //   只读 type = cb_terms / cb_calc / cb_decision 的真实埋点，不掺学期基线、不掺演示数据。
+      //   教师本人操作在 track() 里就被拦掉了，所以老师自己演示不会让这里动——这是预期行为。
+      const CB43_TYPES = { cb_terms: 1, cb_calc: 1, cb_decision: 1 };
+      let cb43Rows = [];          // 最近一次聚合结果，供导出 CSV
+      let cb43Stamp = 0;
+      let cb43Src = '';
+
+      function parseDetail(v) {
+        if (!v) return null;
+        if (typeof v === 'object') return v;
+        try { const o = JSON.parse(String(v)); return o && typeof o === 'object' ? o : null; } catch (e) { return null; }
+      }
+
+      function cb43Aggregate(list) {
+        const seen = {};
+        const byUid = {};
+        let detailRows = 0, detailKnown = 0;
+        (list || []).forEach(function (e) {
+          if (!e || !CB43_TYPES[e.type]) return;
+          if (e.chapter && e.chapter !== '第4章') return;
+          const uid = String(e.uid || '');
+          if (!uid) return;
+          // 登录态是「云端 + 本机镜像」双写，同一事件 ts 完全相同，按 uid|type|ts 去重
+          const key = uid + '|' + e.type + '|' + (Number(e.ts) || 0);
+          if (seen[key]) return;
+          seen[key] = 1;
+          const det = parseDetail(e.detail);
+          if (det) detailRows++;
+          const o = byUid[uid] || (byUid[uid] = {
+            uid: uid, types: {}, terms: 0, termsRight: 0, firstKnown: 0, first: 0,
+            calc: 0, calcRight: 0, choice: '', reason: '', dur: {}, last: 0
+          });
+          o.types[e.type] = (o.types[e.type] || 0) + 1;
+          const d = Number(e.duration);
+          if (isFinite(d) && d > 0) {
+            const dd = Math.min(900, Math.round(d));
+            (o.dur[e.type] = o.dur[e.type] || []).push(dd);
+          }
+          const ts = Number(e.ts) || 0;
+          if (ts > o.last) o.last = ts;
+          if (e.type === 'cb_terms') {
+            o.terms++;
+            if (e.correct === true) o.termsRight++;
+            if (det && Array.isArray(det.wrong)) { o.firstKnown++; detailKnown++; if (!det.wrong.length) o.first++; }
+          } else if (e.type === 'cb_calc') {
+            o.calc++;
+            if (e.correct === true) o.calcRight++;
+          } else if (e.type === 'cb_decision') {
+            if (det && det.choice) {
+              o.choice = det.choice === 'hold' ? 'hold' : 'call';
+              o.reason = String(det.reason || '');
+            }
+          }
+        });
+
+        const uids = Object.keys(byUid);
+        const agg = { part: uids.length, done: 0, terms: 0, termsRight: 0, first: 0, firstKnown: 0,
+          calc: 0, calcRight: 0, dec: 0, call: 0, hold: 0, unknown: 0,
+          dur: { cb_terms: [], cb_calc: [], cb_decision: [] }, detailRows: detailRows, rows: [] };
+        uids.forEach(function (u) {
+          const o = byUid[u];
+          const all = !!(o.types.cb_terms && o.types.cb_calc && o.types.cb_decision);
+          if (all) agg.done++;
+          agg.terms += o.terms; agg.termsRight += o.termsRight;
+          agg.first += o.first; agg.firstKnown += o.firstKnown;
+          agg.calc += o.calc; agg.calcRight += o.calcRight;
+          if (o.types.cb_decision) {
+            agg.dec++;
+            if (o.choice === 'call') agg.call++;
+            else if (o.choice === 'hold') agg.hold++;
+            else agg.unknown++;
+          }
+          Object.keys(agg.dur).forEach(function (t) {
+            (o.dur[t] || []).forEach(function (x) { agg.dur[t].push(x); });
+          });
+          const p = (profileMap && profileMap[u]) || {};
+          agg.rows.push({
+            uid: u, name: p.name || (/^sim_/.test(u) ? ('匿名学生' + u.slice(4)) : ('用户' + u.slice(-6))),
+            cls: p.class_name || simClass(u),
+            terms: o.terms ? (o.termsRight ? '是' : '否') : '未做',
+            first: o.firstKnown ? (o.first ? '是' : '否') : '—',
+            calc: o.calc ? '已记录' + o.calc + '次' : '未做',
+            calcRight: o.calc ? (o.calcRight ? '是' : '否') : '—',
+            choice: o.choice === 'call' ? '赎回' : (o.choice === 'hold' ? '不赎回' : '—'),
+            reason: o.reason,
+            dur: [o.dur.cb_terms, o.dur.cb_calc, o.dur.cb_decision].map(function (a) {
+              return a && a.length ? Math.round(a.reduce(function (s, x) { return s + x; }, 0) / a.length) : '';
+            }),
+            last: o.last
+          });
+        });
+        return agg;
+      }
+
+      function meanOf(a) {
+        if (!a || !a.length) return null;
+        return Math.round(a.reduce(function (s, x) { return s + x; }, 0) / a.length);
+      }
+
+      function renderCb43(list, srcNote) {
+        const box = document.getElementById('cb43-body');
+        const st = document.getElementById('cb43-status');
+        if (!box) return;
+        const a = cb43Aggregate(list);
+        cb43Rows = a.rows;
+        cb43Src = srcNote || '';
+        if (st) st.textContent = srcNote || '';
+        if (!a.part) {
+          box.innerHTML = '<div class="um-empty">暂无 4.3 记录卡数据。需学生账号登录后完成记录卡三个环节；'
+            + '教师本人操作不计入统计，本机离线填写的记录会在联网上报后出现在这里。</div>';
+          return;
+        }
+        const pct = function (x, n) { return n ? Math.round(x / n * 100) : 0; };
+        const rateFirst = a.firstKnown ? pct(a.first, a.firstKnown) : null;
+        const kpi = function (k, v, n) {
+          return '<div class="cb43-kpi"><span class="k">' + k + '</span><span class="v">' + v + '</span><span class="n">' + n + '</span></div>';
+        };
+        const bar = function (t, n, total, cls) {
+          const w = total ? Math.round(n / total * 100) : 0;
+          return '<div class="cb43-bar"><span class="t">' + t + '</span>'
+            + '<span class="track"><span class="fill' + (cls ? ' ' + cls : '') + '" style="width:' + w + '%"></span></span>'
+            + '<span class="n">' + n + ' 人 · ' + w + '%</span></div>';
+        };
+        let html = '<div class="cb43-top">'
+          + kpi('参与人数', a.part, '三环节任一有记录')
+          + kpi('三环节完成', a.done, '三项齐全 ' + pct(a.done, a.part) + '%')
+          + kpi('四个数全对', a.termsRight + ' / ' + a.terms, '提交记录 ' + a.terms + ' 条')
+          + kpi('一次全对率', rateFirst === null ? '—' : rateFirst + '%', rateFirst === null ? '需 events.detail 列' : a.first + ' / ' + a.firstKnown + ' 人')
+          + '</div>';
+        html += '<div class="cb43-bars">'
+          + bar('赎回', a.call, a.dec)
+          + bar('不赎回', a.hold, a.dec, 'alt')
+          + bar('未记录选择', a.unknown, a.dec, 'gray')
+          + '</div>';
+        const dT = meanOf(a.dur.cb_terms), dC = meanOf(a.dur.cb_calc), dD = meanOf(a.dur.cb_decision);
+        html += '<div class="cb43-note">平均每环节耗时：四个数 <b>' + (dT === null ? '—' : dT + ' 秒') + '</b> · '
+          + '两次测算 <b>' + (dC === null ? '—' : dC + ' 秒') + '</b> · '
+          + '决策 <b>' + (dD === null ? '—' : dD + ' 秒') + '</b>（单条封顶 900 秒）。'
+          + (a.unknown ? ' 「未记录选择」说明决策记录已入库但没带 detail（events 表缺 detail 列时会降级为这种状态）。' : '')
+          + '</div>';
+        box.innerHTML = html;
+      }
+
+      async function loadCb43Stats(force) {
+        const box = document.getElementById('cb43-body');
+        if (!box) return;
+        if (!force && cb43Rows.length && Date.now() - cb43Stamp < 5000) return;
+        let local = [];
+        try { local = normEvents(JSON.parse(localStorage.getItem('ibank_events_local') || '[]')); } catch (e) {}
+        // 本机镜像先上屏：云端查询慢或被墙时，面板不会一直停在「加载中…」
+        if (local.some(function (e) { return e && CB43_TYPES[e.type]; })) {
+          renderCb43(local, '本机镜像 ' + local.filter(function (e) { return e && CB43_TYPES[e.type]; }).length + ' 条 · 云端同步中…');
+        }
+        if (OFFLINE || !db) {
+          cb43Stamp = Date.now();
+          renderCb43(local, '离线演示：仅统计本机镜像记录');
+          return;
+        }
+        let cloud = null;
+        try {
+          // 加超时：云端不可达时不能让 await 无限挂住（面板会永远停在加载态）
+          cloud = await Promise.race([
+            db.from('events').select('*').eq('chapter', '第4章').limit(5000).then(function (r) { return (r && r.data) || []; }),
+            new Promise(function (res) { setTimeout(function () { res(null); }, 8000); })
+          ]);
+        } catch (e) { cloud = null; }
+        cb43Stamp = Date.now();
+        if (!cloud) {
+          renderCb43(local, '云端读取超时，暂按本机 ' + local.filter(function (e) { return e && CB43_TYPES[e.type]; }).length + ' 条统计');
+          return;
+        }
+        const note = '云端 ' + cloud.filter(function (e) { return e && CB43_TYPES[e.type]; }).length + ' 条 · 本机 ' +
+          local.filter(function (e) { return e && CB43_TYPES[e.type]; }).length + ' 条 · ' + fmtDate(Date.now());
+        renderCb43(cloud.concat(local), note);
+      }
+
+      function causeExportCb43() {
+        if (!cb43Rows.length) { if (typeof ibankToast === 'function') ibankToast('暂无 4.3 记录卡数据可导出'); return; }
+        const head = ['姓名', '班级', '四个数全对', '一次全对', '两次测算', '测算结果都对', '决策', '理由',
+          '耗时·四个数(秒)', '耗时·测算(秒)', '耗时·决策(秒)', '最近操作'];
+        const lines = [head.join(',')];
+        cb43Rows.forEach(function (r) {
+          lines.push([
+            csvCell(r.name), csvCell(r.cls), csvCell(r.terms), csvCell(r.first), csvCell(r.calc),
+            csvCell(r.calcRight), csvCell(r.choice), csvCell(r.reason),
+            r.dur[0], r.dur[1], r.dur[2], r.last ? new Date(r.last).toLocaleString('zh-CN') : ''
+          ].join(','));
+        });
+        const blob = new Blob(['\ufeff' + lines.join('\r\n')], { type: 'text/csv;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url; a.download = 'iBank_4.3记录卡_' + new Date().toISOString().slice(0, 10) + '.csv';
+        document.body.appendChild(a); a.click(); document.body.removeChild(a);
+        setTimeout(function () { URL.revokeObjectURL(url); }, 1500);
+      }
+
       async function loadEventStats() {
         const kpiRow = document.getElementById('ev-kpi-row');
         const cEl = document.getElementById('ev-chapter');
@@ -702,6 +920,8 @@ console.log('%c[iBank 数据自检]', 'font-weight:bold', out);
         const mEl = document.getElementById('ev-module');
         const wEl = document.getElementById('ev-week');
         if (!cEl) return;
+        // v62：4.3 记录卡面板单独取数（自带 try/catch），失败不影响上面四张图
+        try { loadCb43Stats(); } catch (e) { /* 不阻断主看板 */ }
         if (OFFLINE) {
           let local = []; try { local = JSON.parse(localStorage.getItem('ibank_events_local') || '[]'); } catch (e) {}
           local = normEvents(local);
@@ -1818,6 +2038,9 @@ const actSrc = login.length ? login : study.concat(quiz, mod, qa);
       if (stuExportBtn) stuExportBtn.addEventListener('click', exportStuCsv);
       var causeExportBtn = document.getElementById('cause-export-btn');
       if (causeExportBtn) causeExportBtn.addEventListener('click', causeExport);
+      // v62：4.3 记录卡 CSV 导出
+      var cb43ExportBtn = document.getElementById('cb43-export-btn');
+      if (cb43ExportBtn) cb43ExportBtn.addEventListener('click', causeExportCb43);
 
       const adminTab = document.querySelector('.tab-btn[data-page="p-admin"]');
       if (adminTab) adminTab.addEventListener('click', function () { loadRealStats(); loadEventStats(); });
