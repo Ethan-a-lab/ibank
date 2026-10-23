@@ -364,11 +364,25 @@
           <div class="chart-card">
             <h4>参数设置</h4>
             <div class="note">拖动滑块调整假设，估值实时联动；点情景按钮一键切换悲观 / 中性 / 乐观三套假设。</div>
-            <div class="val-field"><label>净利润（万元）<span class="val-out" id="vo-profit">8000</span></label><input id="val-profit" type="range" min="1000" max="20000" step="100" value="8000" /></div>
+            <!-- v63 · 案例预设：净利润与股本量程跨 4 个数量级（0.05 亿 ~ 3000 亿），用对数滑块 + 可输入框 -->
+            <div class="val-preset-row">
+              <label for="val-preset">载入案例</label>
+              <select id="val-preset">
+                <option value="">自定义（教学虚拟公司）</option>
+                <option value="dfcf">东方财富 300059</option>
+                <option value="catl">宁德时代 300750</option>
+                <option value="smic">中芯国际 688981</option>
+                <option value="midea">美的集团 000333</option>
+                <option value="vanke">万科A 000002</option>
+                <option value="boc">中国银行 601988</option>
+              </select>
+              <span class="val-preset-note" id="val-preset-note">净利润、股本为 2021 年报实数；g / r / PE 是教学假设初值，可自行调。</span>
+            </div>
+            <div class="val-field has-num"><label for="vo-profit">净利润（亿元）</label><input class="val-num" id="vo-profit" type="number" step="0.01" min="0.01" value="0.8" /><input id="val-profit" type="range" min="0" max="1000" step="1" value="252" aria-label="净利润滑块（对数刻度）" /></div>
             <div class="val-field"><label>盈利增长率 g（%）<span class="val-out" id="vo-g">10</span></label><input id="val-g" type="range" min="-5" max="30" step="0.5" value="10" /></div>
             <div class="val-field"><label>折现率 r（%）<span class="val-out" id="vo-r">15</span></label><input id="val-r" type="range" min="5" max="30" step="0.5" value="15" /></div>
-            <div class="val-field"><label>市盈率 PE（倍）<span class="val-out" id="vo-pe">40</span></label><input id="val-pe" type="range" min="10" max="80" step="1" value="40" /></div>
-            <div class="val-field"><label>总股本（万股）<span class="val-out" id="vo-shares">10000</span></label><input id="val-shares" type="range" min="1000" max="50000" step="50" value="10000" /></div>
+            <div class="val-field"><label>市盈率 PE（倍）<span class="val-out" id="vo-pe">40</span></label><input id="val-pe" type="range" min="3" max="100" step="0.1" value="40" /></div>
+            <div class="val-field has-num"><label for="vo-shares">总股本（亿股）</label><input class="val-num" id="vo-shares" type="number" step="0.01" min="0.01" value="1" /><input id="val-shares" type="range" min="0" max="1000" step="1" value="223" aria-label="总股本滑块（对数刻度）" /></div>
             <div class="val-scenarios"><span>情景</span><button type="button" data-sc="pess">悲观</button><button type="button" data-sc="base" class="on">中性</button><button type="button" data-sc="opt">乐观</button></div>
           </div>
           <div class="chart-card">
@@ -379,8 +393,17 @@
         </div>
         <!-- v61 · 4.3 可转债环节二：转股价值计算面板（四输入 → 四输出，实时联动） -->
         <div class="chart-card val-wide cb-card">
-          <h4>可转债价值计算 · 东财转3</h4>
-          <div class="note">四个数字都可以改，下面的结果会实时重算。这就是《东财转3 条款卡》第二栏「转股价值」的算法：转股价值 = 面值 ÷ 转股价 × 正股股价。</div>
+          <h4 id="cb-title">可转债价值计算 · 东财转3</h4>
+          <div class="note" id="cb-note">四个数字都可以改，下面的结果会实时重算。这就是《东财转3 条款卡》第二栏「转股价值」的算法：转股价值 = 面值 ÷ 转股价 × 正股股价。</div>
+          <div class="cb-target-row">
+            <label for="cb-target">标的</label>
+            <select id="cb-target">
+              <option value="dongcai">东财转3 · 123111（强赎博弈）</option>
+              <option value="longi">隆22转债 · 113053（下修后仍价外）</option>
+              <option value="custom">自定义（自己填四个数）</option>
+            </select>
+            <span class="cb-src" id="cb-src">条款与股价来源：东财转3 募集说明书 / 赎回结果公告</span>
+          </div>
           <div class="cb-grid">
             <div class="val-field"><label for="cb-face">面值（元/张）</label><input id="cb-face" type="number" inputmode="decimal" min="1" step="1" value="100" /></div>
             <div class="val-field"><label for="cb-conv">转股价（元/股）</label><input id="cb-conv" type="number" inputmode="decimal" min="0.01" step="0.01" value="23.35" /></div>
@@ -1048,8 +1071,9 @@
             <div class="cbr" id="cb-record">
               <div class="cbr-head">
                 <div class="cbr-h-l">
-                  <h5>4.3 实验记录卡 · 东财转3</h5>
+                  <h5 id="cbr-title">4.3 实验记录卡 · 东财转3</h5>
                   <p>三段都做完才算完整。填的内容自动存在本机，关掉页面再回来还在。</p>
+                  <p class="cbr-target-hint" id="cbr-target-hint"></p>
                 </div>
                 <span class="cbr-save" id="cbr-save">本机自动保存</span>
               </div>
@@ -1071,7 +1095,7 @@
 
               <section class="cbr-sec">
                 <div class="cbr-sh"><span class="cbr-n">2</span><b>两次测算</b><em id="cbr-c2">0 / 2</em></div>
-                <p class="cbr-sh-sub">到「企业估值实验」页的转股面板，把正股股价分别改成 <b>30.36</b> 和 <b>20</b>，各点一次「＋ 记录本次结果」。</p>
+                <p class="cbr-sh-sub">到「企业估值实验」页的转股面板，把正股股价分别改成 <b id="cbr-need1">30.36</b> 和 <b id="cbr-need2">20</b>，各点一次「＋ 记录本次结果」。</p>
                 <div class="cbr-calcs" id="cbr-calcs"></div>
                 <div class="cbr-c2-foot">
                   <button type="button" class="cbr-btn ghost" id="cbr-toval">去估值实验页测算 →</button>
@@ -1081,7 +1105,7 @@
 
               <section class="cbr-sec">
                 <div class="cbr-sh"><span class="cbr-n">3</span><b>赎回决策</b><em id="cbr-c3">未提交</em></div>
-                <p class="cbr-sh-sub">站在持有人一侧：接受 100.18 元/张的赎回，还是转成股票？选一边，并说清理由。</p>
+                <p class="cbr-sh-sub">站在持有人一侧：接受 <b id="cbr-callnum">100.18</b> 元/张的赎回，还是转成股票？选一边，并说清理由。</p>
                 <div class="cbr-choice" id="cbr-choice">
                   <button type="button" data-choice="call" aria-pressed="false">赎回</button>
                   <button type="button" data-choice="hold" aria-pressed="false">不赎回</button>

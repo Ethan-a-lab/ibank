@@ -3735,11 +3735,91 @@ document.addEventListener('keydown', function (e) {
     })();
 
     // ===== 估值实验（完整版：滑块 + 情景 + 三方法 + 足球场 + 敏感性热力图） =====
+    // v63：净利润 / 总股本改「对数滑块 + 可直接输入的数字框」，并加案例预设。
+    //      原量程是净利润 ≤2 亿元、股本 ≤5 亿股，案例库 20 家公司（净利润几十亿到上千亿）一家都套不上。
     (function () {
       const ids = ['profit', 'g', 'r', 'pe', 'shares'];
       const els = {}; ids.forEach(function (k) { els[k] = document.getElementById('val-' + k); });
       const outs = {}; ids.forEach(function (k) { outs[k] = document.getElementById('vo-' + k); });
       const result = document.getElementById('val-result');
+      const presetEl = document.getElementById('val-preset');
+      const presetNote = document.getElementById('val-preset-note');
+
+      // 对数量程：净利润 0.05–3000 亿元、总股本 0.1–3000 亿股。上界按中国银行（2165.59 亿 / 2943.88 亿股）留余量。
+      const LOGCFG = { profit: { min: 0.05, max: 3000 }, shares: { min: 0.1, max: 3000 } };
+      function fromSlider(k, v) {
+        const c = LOGCFG[k], a = Math.log(c.min), b = Math.log(c.max);
+        return Math.exp(a + (v / 1000) * (b - a));
+      }
+      function toSlider(k, val) {
+        const c = LOGCFG[k], a = Math.log(c.min), b = Math.log(c.max);
+        const t = (Math.log(Math.max(c.min, Math.min(c.max, val))) - a) / (b - a);
+        return Math.round(Math.max(0, Math.min(1000, t * 1000)));
+      }
+      // 滑块拖出来的值四舍五入到「看得懂」的位数：0.05 亿不该显示成 0.0524376 亿
+      function roundNice(v) {
+        if (v < 1) return Math.round(v * 100) / 100;
+        if (v < 10) return Math.round(v * 10) / 10;
+        return Math.round(v);
+      }
+      function valOf(k) {
+        if (LOGCFG[k]) {
+          const n = parseFloat(outs[k].value);
+          return isFinite(n) && n > 0 ? n : (k === 'profit' ? 0.8 : 1);
+        }
+        const n = parseFloat(els[k].value);
+        return isFinite(n) ? n : 0;
+      }
+      function paintOut(k, v) {
+        const o = outs[k]; if (!o) return;
+        if (o.tagName === 'INPUT') o.value = v; else o.textContent = v;
+      }
+
+      // 案例预设：净利润与总股本取自 2021 年年报（实数），g / r / PE 是教学假设初值。
+      // 想改数据只改这张表：数值与 case 页正文的 2021 年报口径一致。
+      const CASE = {
+        dfcf:  { name: '东方财富', code: '300059', profit: 85.53,   shares: 110.12,  g: 20, r: 12, pe: 48,  detail: '归母净利润 85.53 亿元 / 总股本 110.12 亿股' },
+        catl:  { name: '宁德时代', code: '300750', profit: 159.31,  shares: 23.30,   g: 22, r: 12, pe: 86,  detail: '归母净利润 159.31 亿元 / 总股本 23.30 亿股' },
+        smic:  { name: '中芯国际', code: '688981', profit: 107.33,  shares: 79.00,   g: 15, r: 12, pe: 38,  detail: '归母净利润 107.33 亿元 / 总股本 79.00 亿股' },
+        midea: { name: '美的集团', code: '000333', profit: 285.74,  shares: 69.97,   g: 8,  r: 10, pe: 18,  detail: '归母净利润 285.74 亿元 / 总股本 69.97 亿股' },
+        vanke: { name: '万科A',    code: '000002', profit: 225.24,  shares: 116.25,  g: 3,  r: 11, pe: 10,  detail: '归母净利润 225.24 亿元 / 总股本 116.25 亿股' },
+        boc:   { name: '中国银行', code: '601988', profit: 2165.59, shares: 2943.88, g: 5,  r: 9,  pe: 4.5, detail: '归母净利润 2165.59 亿元 / 总股本 2943.88 亿股' }
+      };
+      // 情景按钮的基准：选案例后跟着换，自定义时是虚拟公司
+      const BASE = { profit: 0.8, shares: 1, g: 10, r: 15, pe: 40 };
+      const SCN = {
+        pess: { dp: -0.15, dg: -4, dr: 3,  kpe: 0.75 },
+        base: { dp: 0,     dg: 0,  dr: 0,  kpe: 1 },
+        opt:  { dp: 0.15,  dg: 4,  dr: -3, kpe: 1.25 }
+      };
+      function applyCase(id) {
+        const c = CASE[id];
+        if (!c) {
+          BASE.profit = 0.8; BASE.shares = 1; BASE.g = 10; BASE.r = 15; BASE.pe = 40;
+          if (presetNote) presetNote.textContent = '净利润、股本为 2021 年报实数；g / r / PE 是教学假设初值，可自行调。';
+        } else {
+          BASE.profit = c.profit; BASE.shares = c.shares; BASE.g = c.g; BASE.r = c.r; BASE.pe = c.pe;
+          if (presetNote) presetNote.textContent = c.detail + '（2021 年报）；g / r / PE 为教学假设初值。';
+        }
+        applyScenario('base');
+      }
+      function applyScenario(sc) {
+        const s = SCN[sc]; if (!s) return;
+        const p = Math.max(LOGCFG.profit.min, Math.min(LOGCFG.profit.max, BASE.profit * (1 + s.dp)));
+        const sh = Math.max(LOGCFG.shares.min, Math.min(LOGCFG.shares.max, BASE.shares));
+        const g = Math.max(-5, Math.min(30, BASE.g + s.dg));
+        const r = Math.max(5, Math.min(30, BASE.r + s.dr));
+        const pe = Math.max(3, Math.min(100, Math.round(BASE.pe * s.kpe * 2) / 2));
+        outs.profit.value = Math.round(p * 100) / 100;
+        outs.shares.value = Math.round(sh * 100) / 100;
+        els.profit.value = toSlider('profit', p);
+        els.shares.value = toSlider('shares', sh);
+        els.g.value = g; els.r.value = r; els.pe.value = pe;
+        document.querySelectorAll('.val-scenarios button').forEach(function (x) { x.classList.remove('on'); });
+        const b = document.querySelector('.val-scenarios button[data-sc="' + sc + '"]');
+        if (b) b.classList.add('on');
+        calc();
+      }
       const fieldEl = document.getElementById('val-field-chart');
       const heatEl = document.getElementById('val-heat');
       function fmt(n) { return Math.round(n).toLocaleString('zh-CN'); }
@@ -3750,8 +3830,11 @@ document.addEventListener('keydown', function (e) {
       }
 
       function calc() {
-        const p = +els.profit.value, g = +els.g.value / 100, r = +els.r.value / 100, pe = +els.pe.value, sh = +els.shares.value;
-        ids.forEach(function (k) { outs[k].textContent = els[k].value; });
+        // 输入统一按「亿元 / 亿股」读，内部一律换成万元 / 万股，跟原来的公式完全一致
+        const p = valOf('profit') * 10000, sh = valOf('shares') * 10000;
+        const g = valOf('g') / 100, r = valOf('r') / 100, pe = valOf('pe');
+        paintOut('g', els.g.value); paintOut('r', els.r.value); paintOut('pe', els.pe.value);
+        const yi = function (v) { return v >= 10000 ? '（合 ' + (v / 10000).toFixed(v >= 1e7 ? 0 : 1) + ' 亿元）' : ''; };
         const peLo = p * pe * 0.85, peHi = p * pe * 1.15, peMid = (peLo + peHi) / 2;
         const cLo = p * pe * 0.80, cHi = p * pe * 1.20, cMid = (cLo + cHi) / 2;
         const dcfDef = r > g;
@@ -3765,7 +3848,7 @@ document.addEventListener('keydown', function (e) {
         let html = '<div class="val-cards">';
         methods.forEach(function (m) {
           if (m.mid == null) { html += '<div class="val-item bad"><div class="m">' + m.name + '</div><div class="v">无意义</div><div class="note">需 r &gt; g，当前 r≤g，DCF 不成立</div></div>'; return; }
-          html += '<div class="val-item"><div class="m">' + m.name + '</div><div class="v">' + fmt(m.mid) + ' 万元</div><div class="note">区间 ' + fmt(m.lo) + ' ~ ' + fmt(m.hi) + ' 万元 · 每股 ' + (m.mid / sh).toFixed(2) + ' 元</div></div>';
+          html += '<div class="val-item"><div class="m">' + m.name + '</div><div class="v">' + fmt(m.mid) + ' 万元' + yi(m.mid) + '</div><div class="note">区间 ' + fmt(m.lo) + ' ~ ' + fmt(m.hi) + ' 万元 · 每股 ' + (m.mid / sh).toFixed(2) + ' 元</div></div>';
         });
         html += '</div>';
         const valid = methods.filter(function (m) { return m.mid != null; });
@@ -3773,7 +3856,7 @@ document.addEventListener('keydown', function (e) {
           const mids = valid.map(function (m) { return m.mid; });
           const chord = mids.reduce(function (a, b) { return a + b; }, 0) / mids.length;
           const ps = chord / sh;
-          html += '<div class="val-suggest">三法交叉验证中枢 <b>' + fmt(chord) + ' 万元</b>（每股 <b>' + ps.toFixed(2) + ' 元</b>）' + (valid.length < 3 ? '；DCF 因 r≤g 未纳入' : '') + '。三种方法区间重叠越多、估值确定性越高；分歧大时优先核查 g、r 与可比 PE 假设。</div>';
+          html += '<div class="val-suggest">三法交叉验证中枢 <b>' + fmt(chord) + ' 万元</b>' + yi(chord) + '（每股 <b>' + ps.toFixed(2) + ' 元</b>）' + (valid.length < 3 ? '；DCF 因 r≤g 未纳入' : '') + '。三种方法区间重叠越多、估值确定性越高；分歧大时优先核查 g、r 与可比 PE 假设。</div>';
         }
         result.innerHTML = html;
         fieldEl.innerHTML = footballField(methods, sh);
@@ -3846,19 +3929,38 @@ document.addEventListener('keydown', function (e) {
         return s;
       }
 
-      // 情景按钮：一键套用三套假设
-      const SCN = { pess: { profit: 6500, g: 6, r: 18, pe: 30 }, base: { profit: 8000, g: 10, r: 15, pe: 40 }, opt: { profit: 9500, g: 14, r: 12, pe: 50 } };
+      // 情景按钮：基于当前基准（案例或虚拟公司）按比例推演，不再写死 6500 / 8000 / 9500
       document.querySelectorAll('.val-scenarios button').forEach(function (b) {
-        b.addEventListener('click', function () {
-          const sc = SCN[b.dataset.sc]; if (!sc) return;
-          els.profit.value = sc.profit; els.g.value = sc.g; els.r.value = sc.r; els.pe.value = sc.pe;
-          document.querySelectorAll('.val-scenarios button').forEach(function (x) { x.classList.remove('on'); });
-          b.classList.add('on');
-          calc();
+        b.addEventListener('click', function () { applyScenario(b.dataset.sc); });
+      });
+
+      // 滑块 → 数字框；数字框 → 滑块。两侧都改值，任何一边动都能实时联动。
+      ['profit', 'shares'].forEach(function (k) {
+        els[k].addEventListener('input', function () {
+          outs[k].value = roundNice(fromSlider(k, +els[k].value));
+          clearScen(); calc();
+        });
+        outs[k].addEventListener('input', function () {
+          const n = parseFloat(outs[k].value);
+          if (isFinite(n) && n > 0) els[k].value = toSlider(k, n);
+          clearScen(); calc();
+        });
+        outs[k].addEventListener('blur', function () {
+          const n = parseFloat(outs[k].value);
+          if (!isFinite(n) || n <= 0) {           // 清空或填 0 时回到下限，别让整个估值面板变 NaN
+            const d = k === 'profit' ? 0.8 : 1;
+            outs[k].value = d; els[k].value = toSlider(k, d); calc();
+          }
         });
       });
-      ids.forEach(function (k) { els[k].addEventListener('input', function () { document.querySelectorAll('.val-scenarios button').forEach(function (x) { x.classList.remove('on'); }); calc(); }); });
-      calc();
+      ['g', 'r', 'pe'].forEach(function (k) {
+        els[k].addEventListener('input', function () { clearScen(); calc(); });
+      });
+      function clearScen() {
+        document.querySelectorAll('.val-scenarios button').forEach(function (x) { x.classList.remove('on'); });
+      }
+      if (presetEl) presetEl.addEventListener('change', function () { applyCase(presetEl.value); });
+      applyCase('');
     })();
 
     // ===== v61 · 可转债价值计算（4.3 可转债 · 环节二）=====
@@ -3871,6 +3973,62 @@ document.addEventListener('keydown', function (e) {
       const outEl = document.getElementById('cb-out');
       const tipEl = document.getElementById('cb-tip');
       if (!faceEl || !convEl || !priceEl || !callEl || !outEl) return;   // 面板不在本页时静默跳过
+
+      // v63：标的切换。原来标题、默认值、验证口径全写死东财转3，学生拿别的转债来算就对不上记录卡。
+      // 数据来源：东财转3 = 募集说明书 / 赎回结果公告；隆22转债 = 2026-10-20 回售核查意见。
+      const TARGETS = {
+        dongcai: {
+          name: '东财转3',
+          title: '可转债价值计算 · 东财转3',
+          note: '四个数字都可以改，下面的结果会实时重算。这就是《东财转3 条款卡》第二栏「转股价值」的算法：转股价值 = 面值 ÷ 转股价 × 正股股价。',
+          src: '来源：东财转3 募集说明书 / 赎回结果公告（初始转股价 28.08，分红送转后当期 23.35）',
+          face: 100, conv: 23.35, price: 30.36, call: 100.18
+        },
+        longi: {
+          name: '隆22转债',
+          title: '可转债价值计算 · 隆22转债',
+          note: '同样是「面值 ÷ 转股价 × 正股股价」。隆22转债把转股价从 82.65 元一路调到 17.5 元，股价却只有 10.99 元 —— 门槛降了七成，转股价值仍在赎回价下方。',
+          src: '来源：隆基绿能 2026-10-20 回售核查意见；转股价 17.5 元（2025-03-08 下修后）；股价 10.99 元（2026-10-21 收盘）',
+          face: 100, conv: 17.5, price: 10.99, call: 101.29
+        },
+        custom: {
+          name: '自定义',
+          title: '可转债价值计算 · 自定义',
+          note: '四个数字自己填，任意一只可转债都能用这个公式算：转股价值 = 面值 ÷ 转股价 × 正股股价。',
+          src: '自定义标的只算数，不写记录卡（记录卡对应具体条款卡）',
+          face: 100, conv: 20, price: 20, call: 100
+        }
+      };
+      const targetSel = document.getElementById('cb-target');
+      const titleEl = document.getElementById('cb-title');
+      const noteEl2 = document.getElementById('cb-note');
+      const srcEl = document.getElementById('cb-src');
+      const recBtnEl = document.getElementById('cb-record-btn');
+      const recMsgEl = document.getElementById('cb-rec-msg');
+      let curTarget = 'dongcai';
+
+      function applyTarget(id) {
+        const t = TARGETS[id] || TARGETS.dongcai;
+        curTarget = TARGETS[id] ? id : 'dongcai';
+        if (titleEl) titleEl.textContent = t.title;
+        if (noteEl2) noteEl2.textContent = t.note;
+        if (srcEl) srcEl.textContent = t.src;
+        faceEl.value = t.face; convEl.value = t.conv; priceEl.value = t.price; callEl.value = t.call;
+        const canRecord = curTarget !== 'custom';
+        if (recBtnEl) {
+          recBtnEl.disabled = !canRecord;
+          recBtnEl.classList.toggle('disabled', !canRecord);
+        }
+        if (recMsgEl) {
+          recMsgEl.textContent = canRecord
+            ? '算完点这里，结果会存进案例页的「4.3 实验记录卡」（当前标的：' + t.name + '）。'
+            : '自定义标的只算数，不写记录卡 —— 记录卡判对标准对应具体条款。';
+          recMsgEl.className = 'cb-rec-msg';
+        }
+        const api = window.__ibankCBRecord;
+        if (canRecord && api && api.setTarget) api.setTarget(curTarget);
+        paint();
+      }
 
       const f4 = function (v) { return v.toFixed(4); };
       const f2 = function (v) { return v.toFixed(2); };
@@ -3947,7 +4105,15 @@ document.addEventListener('keydown', function (e) {
         });
       }
 
-      paint();
+      if (targetSel) targetSel.addEventListener('change', function () { applyTarget(targetSel.value); });
+      // 恢复上次用的标的：与记录卡共用 localStorage 里的 target 字段，两边不会各说各话
+      let initT = 'dongcai';
+      try {
+        const raw = JSON.parse(localStorage.getItem('ibank_cb_record_v1') || 'null');
+        if (raw && raw.target === 'longi') initT = 'longi';
+      } catch (e) { /* 读不到就用东财转3 */ }
+      if (targetSel) targetSel.value = initT;
+      applyTarget(initT);
     })();
 
     // ===== v62 · 4.3 实验记录卡：网页代替纸质表格 =====
@@ -3958,11 +4124,21 @@ document.addEventListener('keydown', function (e) {
     (function () {
       const KEY = 'ibank_cb_record_v1';
       // 答案常量集中这一处：不写进 DOM、不写进 data 属性（否则 F12 一眼看穿）
-      const ANS = { amount: 158, conv: 23.35, callLine: 30.36, callPrice: 100.18 };
+      // v63：记录卡支持两个标的，答案与「两次测算」目标价各一套；存储按标的分桶，互不覆盖
+      const ANS_OF = {
+        dongcai: { amount: 158, conv: 23.35, callLine: 30.36, callPrice: 100.18 },
+        longi:   { amount: 70,  conv: 17.5,  callLine: 22.75, callPrice: 101.29 }
+      };
+      const NEED_OF = {
+        dongcai: [{ price: 30.36, label: '已触发强赎线' }, { price: 20, label: '债性保护生效' }],
+        longi:   [{ price: 22.75, label: '已触发强赎线' }, { price: 10, label: '债性保护生效' }]
+      };
+      const NAME_OF = { dongcai: '东财转3', longi: '隆22转债' };
+      let targetId = 'dongcai';
+      let ANS = ANS_OF.dongcai;
+      let NEED = NEED_OF.dongcai;
       const FIELDS = ['amount', 'conv', 'callLine', 'callPrice'];
       const FIELD_LABEL = { amount: '发行总额（亿元）', conv: '当期转股价（元/股）', callLine: '强赎触发线（元/股）', callPrice: '强赎价格（元/张）' };
-      // 环节二要求的两个股价；label 只用于提示文案
-      const NEED = [{ price: 30.36, label: '已触发强赎线' }, { price: 20, label: '债性保护生效' }];
       const MAXC = 3;          // 最多留 3 条测算（够两次，留一次改错的余量）
       const CAP_SEC = 900;     // 耗时封顶，防挂机出现几万秒把班级均值拉坏
       const REASON_MIN = 10;
@@ -3999,10 +4175,20 @@ document.addEventListener('keydown', function (e) {
           calcs: [], decision: null, draftChoice: '', reasonText: '', started: {}, tracked: {}, wrong: [] };
       };
 
-      function load() {
-        const base = EMPTY();
+      function readAllStores() {
         try {
           const raw = JSON.parse(localStorage.getItem(KEY) || 'null');
+          if (!raw || typeof raw !== 'object') return { target: 'dongcai', targets: {} };
+          if (raw.targets && typeof raw.targets === 'object') {
+            return { target: raw.target === 'longi' ? 'longi' : 'dongcai', targets: raw.targets };
+          }
+          // v1 旧格式是平铺的：整张卡归到东财转3 桶，学生已填内容不会因为升级丢掉
+          return { target: 'dongcai', targets: { dongcai: raw } };
+        } catch (e) { return { target: 'dongcai', targets: {} }; }
+      }
+      function hydrate(raw) {
+        const base = EMPTY();
+        try {
           if (!raw || typeof raw !== 'object') return base;
           if (raw.terms && typeof raw.terms === 'object') {
             FIELDS.forEach(function (k) { if (typeof raw.terms[k] === 'string') base.terms[k] = raw.terms[k]; });
@@ -4028,11 +4214,16 @@ document.addEventListener('keydown', function (e) {
         return base;
       }
 
-      let S = load();
+      const ALL = readAllStores();
+      targetId = ALL.target;
+      ANS = ANS_OF[targetId]; NEED = NEED_OF[targetId];
+      let S = hydrate(ALL.targets[targetId]);
 
       function save(touch) {
         try {
-          localStorage.setItem(KEY, JSON.stringify(S));
+          ALL.targets[targetId] = S;
+          ALL.target = targetId;
+          localStorage.setItem(KEY, JSON.stringify(ALL));
           if (touch !== false && $save) {
             const d = new Date();
             const p2 = function (n) { return (n < 10 ? '0' : '') + n; };
@@ -4197,7 +4388,7 @@ document.addEventListener('keydown', function (e) {
       // ── 结论卡文本（复制到群 / 贴作业本）─────────────
       function plainText() {
         const L = [];
-        L.push('【4.3 实验记录卡 · 东财转3】');
+        L.push('【4.3 实验记录卡 · ' + (NAME_OF[targetId] || '东财转3') + '】');
         L.push('① 四个关键数');
         FIELDS.forEach(function (k) {
           const v = String(S.terms[k] || '').trim();
@@ -4302,7 +4493,8 @@ document.addEventListener('keydown', function (e) {
       el('cbr-reset').addEventListener('click', function () {
         if (!window.confirm('确定清空这张记录卡？本机已填的内容会全部删除，且不能撤销。')) return;
         S = EMPTY();
-        try { localStorage.removeItem(KEY); } catch (e) { }
+        delete ALL.targets[targetId];
+        try { localStorage.setItem(KEY, JSON.stringify(ALL)); } catch (e) { }
         FIELDS.forEach(function (k) { inputs[k].value = ''; });
         $reason.value = '';
         setMsg('', '');
@@ -4310,11 +4502,44 @@ document.addEventListener('keydown', function (e) {
         paintAll();
       });
 
+      // 记录卡跟标的切了，但案例页上方的条款表永远是东财转3 的 —— 用一行黄字把这件事说清
+      function paintTargetHint() {
+        const h = el('cbr-target-hint');
+        if (h) {
+          h.textContent = targetId === 'longi'
+            ? '当前标的：隆22转债。上方条款表是东财转3 的，别照抄 —— 隆22 的条款见「企业估值实验」页的转股面板。'
+            : '';
+        }
+        // 两次测算的目标价、决策里的赎回价都跟着标的走 —— 原先把 30.36 / 20 / 100.18 写死在 HTML 里
+        const n1 = el('cbr-need1'), n2 = el('cbr-need2'), cn = el('cbr-callnum');
+        if (n1) n1.textContent = f2(NEED[0].price);
+        if (n2) n2.textContent = f2(NEED[1].price);
+        if (cn) cn.textContent = f2(ANS.callPrice);
+      }
+
       function paintAll() { paintMarks(true); paintCalcs(); paintChoice(); paintFoot(); }
 
       // ── 对外接口：供转股面板「记录本次结果」调用 ─────────
       window.__ibankCBRecord = {
         mark: function (seg) { mark(seg); },
+        // v63：转股面板切标的时调用 —— 记录卡跟着换一套判对标准，两套记录分开存
+        setTarget: function (id) {
+          if (id !== 'dongcai' && id !== 'longi') return { ok: false, msg: '记录卡只支持东财转3 / 隆22转债' };
+          if (id === targetId) return { ok: true, target: targetId };
+          targetId = id;
+          ANS = ANS_OF[id]; NEED = NEED_OF[id];
+          ALL.target = targetId;
+          S = hydrate(ALL.targets[id]);
+          FIELDS.forEach(function (k) { inputs[k].value = S.terms[k] || ''; });
+          $reason.value = S.decision ? S.decision.reason : (S.reasonText || '');
+          const t = el('cbr-title');
+          if (t) t.textContent = '4.3 实验记录卡 · ' + NAME_OF[id];
+          paintTargetHint();
+          paintAll();
+          save(false);
+          return { ok: true, target: targetId };
+        },
+        currentTarget: function () { return targetId; },
         record: function (cur) {
           if (!cur || !isFinite(cur.price)) return { ok: false, msg: '当前没有可记录的结果' };
           const price = Number(cur.price), value = Number(cur.value);
@@ -4346,6 +4571,10 @@ document.addEventListener('keydown', function (e) {
         text: plainText
       };
 
+      // v63：标题跟着当前标的走（localStorage 里可能停在隆22转债）
+      const titleEl0 = el('cbr-title');
+      if (titleEl0) titleEl0.textContent = '4.3 实验记录卡 · ' + (NAME_OF[targetId] || '东财转3');
+      paintTargetHint();
       paintAll();
       save(false);
     })();
