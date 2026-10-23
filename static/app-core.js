@@ -655,14 +655,43 @@ document.addEventListener('keydown', function (e) {
     (function () {
       // 名称/代码/板块/交易规则参照真实 A 股；base 为接近真实量级的取整基准价（v41 校准，原先比亚迪 250 与真实价差 3 倍）
       // 价格本身由 genSeed / nextDay 随机生成，非真实行情
+      // v59：股票池改为教材第 4 章的案例公司，五只票各挂一种再融资工具，招商银行作对照
       const STOCKS = [
-        { code: '688981', name: '中芯国际', base: 110.0, board: '科创板', limit: 0.20, beta: 1.30 },
-        { code: '000333', name: '美的集团', base: 80.0, board: '深主板', limit: 0.10, beta: 0.90 },
-        { code: '600036', name: '招商银行', base: 41.0, board: '沪主板', limit: 0.10, beta: 0.80 },
-        { code: '002594', name: '比亚迪', base: 83.0, board: '深主板', limit: 0.10, beta: 1.20 },
-        { code: '300750', name: '宁德时代', base: 290.0, board: '创业板', limit: 0.20, beta: 1.40 }
+        { code: '300750', name: '宁德时代', base: 290.0, board: '创业板', limit: 0.20, beta: 1.40, tool: '定向增发' },
+        { code: '601012', name: '隆基股份', base: 18.5, board: '沪主板', limit: 0.10, beta: 1.15, tool: '配股 · 可转债' },
+        { code: '300607', name: '拓斯达', base: 15.0, board: '创业板', limit: 0.20, beta: 1.30, tool: '公开增发' },
+        { code: '000488', name: '晨鸣纸业', base: 4.20, board: '深主板', limit: 0.10, beta: 0.95, tool: '优先股' },
+        { code: '002703', name: '浙江世宝', base: 11.0, board: '深主板', limit: 0.10, beta: 1.10, tool: '可交换债' },
+        { code: '600036', name: '招商银行', base: 41.0, board: '沪主板', limit: 0.10, beta: 0.80, tool: '对照' }
+      ];
+      // v59：第 4 章再融资事件（依据教材第 131–163 页改编）。day 为 30 日窗口内第几个交易日；
+      // shock 为当日冲击幅度；exDiv 表示配股除权按公式改写；convPct 表示转股价相对现价的溢价
+      const EVENTS = [
+        { day: 6, code: '300750', type: '定向增发', title: '定增预案公告', shock: 0.04,
+          cells: [['募资规模', '450 亿'], ['增发对象', '35 名以内特定对象'], ['折价率', '20%'], ['锁定期', '6 / 18 个月']],
+          note: '定增属非公开发行，向不超过 35 名特定对象折价发行，常与引入战投、收购资产等财务战略绑定；二级市场通常视为利好。' },
+        { day: 10, code: '300607', type: '公开增发', title: '公开增发公告', shock: -0.05,
+          cells: [['募资规模', '12 亿'], ['增发对象', '不特定对象'], ['原股东', '享有优先配售权'], ['教材结论', '股价往往下跌']],
+          note: '公开增发稀释原股东权益、发行条件更高，教材结论是二级市场股价往往下跌——与宁德时代定增形成正反对照。' },
+        { day: 12, code: '601012', type: '配股', title: '配股股权登记日', exDiv: true, ratio: 0.25, price: 0.75 },
+        { day: 15, code: '000488', type: '优先股', title: '优先股发行', shock: 0.008,
+          cells: [['发行规模', '20 亿'], ['股息率', '5.0% 固定'], ['表决权', '一般无'], ['清偿次序', '先于普通股']],
+          note: '优先股兼具股债特征：股息固定、清偿先于普通股、一般不摊薄表决权，因此对普通股股价影响中性。' },
+        { day: 18, code: '002703', type: '可交换债', title: '控股股东发行可交换债', shock: -0.03, convPct: 0.10,
+          cells: [['发行主体', '上市公司股东'], ['总股本', '不变（不增发）'], ['实质', '溢价减持'], ['标的股票', '所持上市公司股份']],
+          note: '可交换债用股东所持股票抵押发行，是现有股份转让，不增发股份；转股价高于市价，等于给股东一个溢价减持的通道。' },
+        { day: 22, code: '601012', type: '可转债', title: '可转换公司债发行', shock: 0.02, convPct: 0.15,
+          cells: [['发行规模', '30 亿'], ['期限', '5 年'], ['票面利率', '低于普通公司债'], ['转股价', '高于现价']],
+          note: '可转债是债券加买入看涨期权：票面利率低于普通公司债，转股价高于现价，股价走高后发行人可用赎回条款促使转股。' },
+        { day: 25, code: '601012', type: '条款提示', title: '股价跌破转股价 15%',
+          cells: [['触发条款', '回售 / 下修'], ['发行人压力', '面临回售'], ['常见应对', '下修转股价']],
+          note: '股价持续低于转股价一定幅度，持有人可按约定回售，发行人往往选择下修转股价以避免回售压力。' },
+        { day: 28, code: '300750', type: '风险提示', title: '股价跌破定增发行价',
+          cells: [['后果', '新发股份难以售出'], ['承担方', '主承销商'], ['对应教材', '4.5 再融资的承销风险']],
+          note: '再融资定价与现行股价存在比照关系，一旦破发，新发股份难以售出，未售出部分由主承销商包销——这就是承销风险。' }
       ];
       const DAYS = 30, START_CASH = 1000000, IDX_BASE = 3800, KEY = 'ibank_sim';
+      const DEFAULT_SEED = 20261023;   // v59：默认行情种子（可复现）
       const FEE = { comm: 0.00025, commMin: 5, stamp: 0.0005, transfer: 0.00001 };
       const CW = 560, CH = 240, PL = 50, PR = 56, PT = 16, PB = 30;
       const X = function (i) { return PL + i / (DAYS - 1) * (CW - PL - PR); };
@@ -737,7 +766,43 @@ document.addEventListener('keydown', function (e) {
           }
           hist[s.code] = a;
         });
+        applyEvents(hist);
         return { idx: idx, hist: hist };
+      }
+
+      // v59：把融资事件注入行情。冲击类改写当日并按同比例平移其后走势（缺口连续、不出现跳回）；
+      // 条款类用斜坡逼近目标价，避免单日涨跌幅突破涨跌停
+      function applyEvents(hist) {
+        const issueOf = {};
+        const ramp = function (a, i0, i1, target) {
+          const k = target / a[i1];
+          for (let j = i0 + 1; j <= i1; j++) a[j] *= 1 + (k - 1) * (j - i0) / (i1 - i0);
+          for (let j = i1 + 1; j < DAYS; j++) a[j] *= k;   // 之后的走势按终点比例平移，避免事件日之后跳回
+        };
+        EVENTS.forEach(function (ev) {
+          const a = hist[ev.code]; if (!a) return;
+          const i = ev.day - 1; if (i < 1 || i >= DAYS) return;
+          const prev = a[i - 1];
+          // 事件当日的涨跌幅由事件本身决定（除权按公式、其余按教材结论），不叠加当日市场因子
+          let t = null;
+          if (ev.exDiv) t = prev * (1 + ev.price * ev.ratio) / (1 + ev.ratio);
+          else if (ev.shock) t = prev * (1 + ev.shock);
+          if (t !== null) {
+            const k = t / a[i];
+            for (let j = i; j < DAYS; j++) a[j] *= k;
+          }
+          if (ev.type === '定向增发') issueOf[ev.code] = prev * 0.80;
+          // 破发：从定增日斜坡跌到发行价下方，保证「跌破」是真跌下去的，不是贴上去的标签
+          if (ev.type === '风险提示' && issueOf[ev.code]) {
+            const i0 = (EVENTS.filter(function (x) { return x.code === ev.code && x.type === '定向增发'; })[0] || {}).day - 1 || 5;
+            ramp(a, i0, i, issueOf[ev.code] * 0.985);
+          }
+          // 下修：从可转债发行日斜坡跌到转股价下方 15%
+          if (ev.type === '条款提示' && ev.day > 1) {
+            const ce = EVENTS.filter(function (x) { return x.code === ev.code && x.type === '可转债'; })[0];
+            if (ce) ramp(a, ce.day - 1, i, a[ce.day - 2] * (1 + ce.convPct) * 0.85);
+          }
+        });
       }
       function dateSeq() {
         const ds = [], d0 = new Date(2026, 8, 1), d = new Date(d0);
@@ -745,7 +810,9 @@ document.addEventListener('keydown', function (e) {
         return ds;
       }
       function fresh(seed, mode) {
-        const sd = seedOf(seed == null ? (100000 + Math.floor(Math.random() * 899999)) : seed);
+        // v59：未指定种子时用固定默认值，保证每次打开行情一致（拍照、课堂讲评、材料里的数字都对得上）；
+        // 想要换一组仍可点「随机换一组」
+        const sd = seedOf(seed == null ? DEFAULT_SEED : seed);
         const md = mode || 'rand';
         const g = genPath(sd, md);
         return { cash: START_CASH, holdings: {}, trades: [], day: DAYS, rule: true, selected: STOCKS[0].code,
@@ -768,6 +835,8 @@ document.addEventListener('keydown', function (e) {
       if (S.seed == null) S.seed = seedOf(20261007);
       if (!S.mode) S.mode = 'rand';
       if (S.step == null) S.step = 0;
+      // v59：股票池已换，旧存档里选中的代码可能不存在，回落到第一只
+      if (!STOCKS.some(function (s) { return s.code === S.selected; })) S.selected = STOCKS[0].code;
 
       const save = function () { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} };
       const px = function (c) { return S.hist[c][DAYS - 1]; };
@@ -806,7 +875,7 @@ document.addEventListener('keydown', function (e) {
           const hold = S.holdings[s.code], on = s.code === S.selected;
           return '<div class="sl-row' + (on ? ' active' : '') + '" data-code="' + s.code + '">' +
             '<button class="sl-name" data-code="' + s.code + '"' + (on ? ' aria-current="true"' : '') + ' aria-label="查看 ' + s.name + ' 走势">' +
-              '<span class="sl-n">' + s.name + '<span class="sl-live">正在查看</span></span>' +
+              '<span class="sl-n">' + s.name + '<span class="sl-tool">' + (s.tool || '对照') + '</span><span class="sl-live">正在查看</span></span>' +
               '<span class="sl-c">' + s.code + ' · ' + s.board + ' · 涨跌停 ±' + Math.round(s.limit * 100) + '%' + (hold ? ' · 持有 ' + hold.qty + ' 股' : '') + '</span>' +
             '</button>' +
             '<div class="sl-price"><span class="sl-p ' + cls + '">' + fmt2(px(s.code)) + '</span>' +
@@ -834,7 +903,7 @@ document.addEventListener('keydown', function (e) {
       // 切换走势图标的（点名称 / 买入 / 卖出 都走这里，做到「操作谁就看谁」）
       function selectStock(code) {
         if (!code || !stockOf(code)) return;
-        S.selected = code; save(); paintActive(); renderChart();
+        S.selected = code; save(); paintActive(); renderChart(); renderEventCard();
       }
 
       function ma5(a) {
@@ -847,6 +916,20 @@ document.addEventListener('keydown', function (e) {
         return out;
       }
 
+      // v59：纵轴范围。若该股有转债或可交换债，把转股价一并纳入，保证参考线落在可见区
+      function rangeOf(a) {
+        let mn = Math.min.apply(null, a), mx = Math.max.apply(null, a);
+        if (a === S.hist[S.selected]) {
+          EVENTS.filter(function (e) { return e.code === S.selected && e.convPct; }).forEach(function (ev) {
+            const cp = a[ev.day - 2] * (1 + ev.convPct);
+            if (cp > mx) mx = cp;
+            if (cp < mn) mn = cp;
+          });
+        }
+        const pad = (mx - mn) * 0.14 || 1;
+        return { mn: mn - pad, mx: mx + pad };
+      }
+
       let curG = null;
       function renderChart() {
         const s = stockOf(S.selected);
@@ -854,8 +937,7 @@ document.addEventListener('keydown', function (e) {
         if (tt) tt.textContent = s.name + ' ' + s.code + ' · ' + s.board + ' · 近 ' + DAYS + ' 个交易日';
         const svg = document.getElementById('sim-chart'); if (!svg) return;
         const a = S.hist[S.selected];
-        let mn = Math.min.apply(null, a), mx = Math.max.apply(null, a);
-        const pad = (mx - mn) * 0.14 || 1; mn -= pad; mx += pad;
+        const rg = rangeOf(a), mn = rg.mn, mx = rg.mx;
         const Y = function (v) { return PT + (1 - (v - mn) / (mx - mn)) * (CH - PT - PB); };
         let g = '';
         for (let k = 0; k <= 3; k++) {
@@ -869,6 +951,25 @@ document.addEventListener('keydown', function (e) {
         g += '<polyline points="' + a.map(function (v, i) { return X(i).toFixed(1) + ',' + Y(v).toFixed(1); }).join(' ') + '" fill="none" stroke="' + col + '" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round"/>';
         const l5 = ma5(a).map(function (v, i) { return v === null ? '' : X(i).toFixed(1) + ',' + Y(v).toFixed(1); }).filter(Boolean).join(' ');
         g += '<polyline points="' + l5 + '" fill="none" stroke="var(--accent2)" stroke-width="1.4" stroke-dasharray="5 4" stroke-linejoin="round"/>';
+        // v59：融资事件标记（竖虚线 + 圆点 + 类型标签）
+        let ei = 0;
+        EVENTS.filter(function (e) { return e.code === S.selected; }).forEach(function (ev) {
+          const i = ev.day - 1; if (i < 0 || i >= DAYS) return;
+          const x = X(i), y = Y(a[i]);
+          g += '<line x1="' + x.toFixed(1) + '" y1="' + PT + '" x2="' + x.toFixed(1) + '" y2="' + (CH - PB) + '" stroke="var(--accent)" stroke-width="1" stroke-dasharray="2 3" opacity="0.5"/>';
+          g += '<circle cx="' + x.toFixed(1) + '" cy="' + y.toFixed(1) + '" r="3.4" fill="var(--accent-solid)" stroke="var(--panel-solid)" stroke-width="1.4"/>';
+          g += '<text x="' + (x + 4).toFixed(1) + '" y="' + (PT + 11 + (ei % 2) * 12) + '" fill="var(--accent)" font-size="9.5" font-weight="600">' + ev.type + '</text>';
+          ei++;
+        });
+        // 转股价参考线（可转债 / 可交换债）
+        EVENTS.filter(function (e) { return e.code === S.selected && e.convPct; }).forEach(function (ev) {
+          const cp = a[ev.day - 2] * (1 + ev.convPct);
+          const yl = Y(cp);
+          if (yl > PT && yl < CH - PB) {
+            g += '<line x1="' + PL + '" y1="' + yl.toFixed(1) + '" x2="' + (CW - PR) + '" y2="' + yl.toFixed(1) + '" stroke="var(--down)" stroke-width="1" stroke-dasharray="6 4" opacity="0.75"/>';
+            g += '<text x="' + (CW - PR) + '" y="' + (yl - 5).toFixed(1) + '" fill="var(--down)" font-size="9.5" text-anchor="end">转股价 ' + fmt2(cp) + '</text>';
+          }
+        });
         g += '<text x="' + (CW - PR + 8) + '" y="' + (Y(a[DAYS - 1]) + 4).toFixed(1) + '" fill="' + col + '" font-size="12.5" font-weight="700">' + fmt2(a[DAYS - 1]) + '</text>';
         g += '<g id="sim-cursor" style="display:none">' +
           '<line id="sc-x" x1="0" y1="' + PT + '" x2="0" y2="' + (CH - PB) + '" stroke="var(--accent)" stroke-width="1" stroke-dasharray="4 3"/>' +
@@ -885,9 +986,8 @@ document.addEventListener('keydown', function (e) {
         if (!curG) return;
         const a = S.hist[S.selected], x = X(i), y = PT + 0;
         const yy = (function () {
-          let mn = Math.min.apply(null, a), mx = Math.max.apply(null, a);
-          const pad = (mx - mn) * 0.14 || 1; mn -= pad; mx += pad;
-          return PT + (1 - (a[i] - mn) / (mx - mn)) * (CH - PT - PB);
+          const rg = rangeOf(a);
+          return PT + (1 - (a[i] - rg.mn) / (rg.mx - rg.mn)) * (CH - PT - PB);
         })();
         curG.style.display = '';
         const lx = curG.querySelector('#sc-x'); lx.setAttribute('x1', x); lx.setAttribute('x2', x);
@@ -1026,7 +1126,62 @@ document.addEventListener('keydown', function (e) {
         toast('账户已重置：资金 100 万元、持仓与流水清空；行情仍为种子 ' + S.seed + '（要换行情请点「随机换一组」）');
       }
 
-      function renderAll() { renderStats(); renderStocks(); renderChart(); renderHoldings(); renderFlow(); }
+      function renderAll() { renderStats(); renderStocks(); renderChart(); renderEventCard(); renderHoldings(); renderFlow(); }
+
+      // v59：融资事件卡。选中股票若有多次融资，用卡头的芯片切换要看哪一次（拍照时按分镜点一下即可）
+      function renderEventCard() {
+        const box = document.getElementById('sim-ev-card'); if (!box) return;
+        const evs = EVENTS.filter(function (e) { return e.code === S.selected; })
+          .sort(function (x, y) { return x.day - y.day; });
+        if (!evs.length) { box.hidden = true; box.innerHTML = ''; return; }
+        let ev = evs[evs.length - 1];
+        const want = String(S.evSel || '').split('#');
+        if (want[0] === S.selected) {
+          const hit = evs.filter(function (e) { return String(e.day) === want[1]; })[0];
+          if (hit) ev = hit;
+        }
+        const a = S.hist[S.selected];
+        const i = Math.max(1, Math.min(DAYS - 1, ev.day - 1));
+        const prev = a[i - 1];
+        let cells = ev.cells || [], calc = ev.note || '';
+        if (ev.exDiv) {
+          const per = prev * ev.price;
+          const ex = prev * (1 + ev.price * ev.ratio) / (1 + ev.ratio);
+          cells = [['登记日收盘', fmt2(prev)], ['配股价', fmt2(per)], ['每股配股数', String(ev.ratio)], ['除权价', fmt2(ex)]];
+          calc = '除权价 =（登记日收盘价 ' + fmt2(prev) + ' + 配股价 ' + fmt2(per) + ' × 每股配股数 ' + ev.ratio + '）÷（1 + ' + ev.ratio + '）= <b>' + fmt2(ex) + '</b>，相当于登记日收盘价的 <b>' + (ex / prev * 100).toFixed(1) + '%</b>。图中第 ' + ev.day + ' 个交易日收盘 ' + fmt2(a[i]) + '，与公式结果一致。';
+        } else if (ev.type === '定向增发') {
+          const issue = prev * 0.80;
+          cells = [['募资规模', '450 亿'], ['发行价', fmt2(issue)], ['折价率', '20%'], ['锁定期', '6 / 18 个月']];
+          calc = '发行价取前 20 日均价八折，即 ' + fmt2(issue) + ' 元；公告当日上涨 ' + (ev.shock * 100).toFixed(1) + '%，是教材表 4-4 说的「股价往往受利好刺激而上升」。';
+        } else if (ev.type === '风险提示') {
+          const ie = EVENTS.filter(function (x) { return x.code === ev.code && x.type === '定向增发'; })[0];
+          const issue = ie ? a[ie.day - 2] * 0.80 : prev * 0.8;
+          const now = a[DAYS - 1];
+          cells = [['定增发行价', fmt2(issue)], ['当前股价', fmt2(now)], ['破发幅度', ((now / issue - 1) * 100).toFixed(1) + '%'], ['承担方', '主承销商']];
+          calc = '发行价 ' + fmt2(issue) + '，股价已跌到 ' + fmt2(now) + '。新发股份难以售出，未售出部分由主承销商包销，这就是教材 4.5 说的再融资承销风险。';
+        } else if (ev.type === '条款提示') {
+          const ce = EVENTS.filter(function (x) { return x.code === ev.code && x.type === '可转债'; })[0];
+          const conv = ce ? a[ce.day - 2] * (1 + ce.convPct) : prev;
+          const now = a[DAYS - 1];
+          cells = [['转股价', fmt2(conv)], ['当前股价', fmt2(now)], ['低于转股价', ((1 - now / conv) * 100).toFixed(1) + '%'], ['触发条款', '回售 / 下修']];
+          calc = '转股价 ' + fmt2(conv) + ' 高于现价，股价跌破转股价达到一定幅度即触发回售压力，发行人通常选择下修转股价。';
+        }
+        box.hidden = false;
+        box.innerHTML =
+          '<div class="ev-head">' +
+            '<span class="ev-tag">' + ev.type + '</span>' +
+            '<b class="ev-title">' + nameOf(ev.code) + ' · ' + ev.title + '</b>' +
+            '<span class="ev-day">第 ' + ev.day + ' 个交易日</span>' +
+          '</div>' +
+          (evs.length > 1 ? '<div class="ev-chips">' + evs.map(function (e) {
+            return '<button class="ev-chip' + (e.day === ev.day ? ' active' : '') + '" data-day="' + e.day + '" type="button">' + e.type + '</button>';
+          }).join('') + '</div>' : '') +
+          '<div class="ev-row">' + cells.map(function (c) {
+            return '<div class="ev-c"><span>' + c[0] + '</span><b>' + c[1] + '</b></div>';
+          }).join('') + '</div>' +
+          (calc ? '<div class="ev-calc">' + calc + '</div>' : '') +
+          '<div class="ev-note">融资事件依据《投资银行学》第 4 章改编，公司名取自教材案例，金额与比例均为教学模拟值，不代表该公司真实融资记录。</div>';
+      }
 
       // ===== v42 A/C：种子栏与情景切换 =====
       function renderSeedBar() {
@@ -1202,6 +1357,12 @@ document.addEventListener('keydown', function (e) {
         });
         svgEl.addEventListener('mouseleave', hideCursor);
       }
+      const evBox = document.getElementById('sim-ev-card');
+      if (evBox) evBox.addEventListener('click', function (e) {
+        const b = e.target.closest ? e.target.closest('.ev-chip') : null; if (!b) return;
+        const d = parseInt(b.getAttribute('data-day'), 10); if (!d) return;
+        S.evSel = S.selected + '#' + d; save(); renderEventCard();
+      });
       const btnNext = document.getElementById('sim-next'); if (btnNext) btnNext.addEventListener('click', nextDay);
       const btnReset = document.getElementById('sim-reset'); if (btnReset) btnReset.addEventListener('click', reset);
 
