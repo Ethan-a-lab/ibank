@@ -2327,7 +2327,7 @@ document.addEventListener('keydown', function (e) {
       function wbSave() { try { localStorage.setItem(WB_KEY, JSON.stringify(WB)); } catch (e) {} }
       function wbList() { return Object.keys(WB.items).map(function (k) { return WB.items[k]; }); }
       function isDue(it) { return it.status !== 'mastered' && (it.nextTs || 0) <= Date.now(); }
-      let curList = QUIZ.slice(), cur = 0, exCh = null, exType = null, listOpen = false;
+      let curList = QUIZ.slice(), cur = 0, exCh = null, exType = null, exKp = null, listOpen = false;
       const quizBox = document.getElementById('quiz-box');
 
       function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
@@ -2559,22 +2559,51 @@ document.addEventListener('keydown', function (e) {
         } catch (e) { if (typeof ibankToast === 'function') ibankToast('导出失败，请检查浏览器权限'); }
       }
 
+      // v65：知识点筛选。候选池跟着「章节 + 题型」一起收窄——
+      //   全站 62 个知识点（≥3 题的也有 17 个）一次铺出来会占掉两三行，未选章节时只给一句引导；
+      //   选了章节就把该章在当前题型下的知识点全部列出（第4章 9 个、第3章 11 个，一行放得下）。
+      //   计数口径 = 当前章节与题型条件下的题数，所以「第4章 + 选择 + 可转换公司债券」直接显示 3，即设计书要的那三道。
+      function kpPool() {
+        var base = QUIZ.filter(function (q) {
+          return (exCh === null || q.chapter === exCh) && (exType === null || q.type === exType);
+        });
+        var cnt = {};
+        base.forEach(function (q) { if (q.kp) cnt[q.kp] = (cnt[q.kp] || 0) + 1; });
+        var keys = Object.keys(cnt);
+        keys.sort(function (a, b) { return cnt[b] - cnt[a] || a.localeCompare(b, 'zh-Hans-CN'); });
+        return { keys: keys, cnt: cnt, base: base.length };
+      }
       function buildChips() {
-        const chBox = document.getElementById('ex-chips-ch'), typeBox = document.getElementById('ex-chips-type');
+        const chBox = document.getElementById('ex-chips-ch'), typeBox = document.getElementById('ex-chips-type'), kpBox = document.getElementById('ex-chips-kp');
         const chapters = []; QUIZ.forEach(function (x) { if (chapters.indexOf(x.chapter) === -1) chapters.push(x.chapter); });
         chapters.sort(function (a, b) { return chNum(a) - chNum(b); });
         chBox.innerHTML = '<button class="ex-chip' + (exCh === null ? ' active' : '') + '" data-ch="">全部<span class="cnt">' + QUIZ.length + '</span></button>' + chapters.map(function (c) { var n = QUIZ.filter(function (q) { return q.chapter === c; }).length; return '<button class="ex-chip' + (exCh === c ? ' active' : '') + '" data-ch="' + c + '">' + c + '<span class="cnt">' + n + '</span></button>'; }).join('');
         typeBox.innerHTML = '<button class="ex-chip' + (exType === null ? ' active' : '') + '" data-t="">全部<span class="cnt">' + QUIZ.length + '</span></button>' + TYPES.map(function (t) { var n = QUIZ.filter(function (q) { return q.type === t; }).length; return '<button class="ex-chip' + (exType === t ? ' active' : '') + '" data-t="' + t + '">' + t + '<span class="cnt">' + n + '</span></button>'; }).join('');
+        if (kpBox) {
+          // 没选章节时不铺按钮：全站 62 个知识点，17 个都有 3 题以上，铺出来反而找不到东西
+          if (exCh === null) {
+            exKp = null;
+            kpBox.innerHTML = '<span class="ex-kp-hint">先点上面的章节，再按知识点细筛</span>';
+          } else {
+            var p = kpPool();
+            // 换章节/题型后，原来选中的知识点可能已经不在候选池里 —— 自动退回「全部」，否则会停在 0 题的空列表上
+            if (exKp !== null && p.keys.indexOf(exKp) === -1) exKp = null;
+            kpBox.innerHTML = '<button class="ex-chip' + (exKp === null ? ' active' : '') + '" data-kp="">全部<span class="cnt">' + p.base + '</span></button>'
+              + p.keys.map(function (k) {
+                return '<button class="ex-chip' + (exKp === k ? ' active' : '') + '" data-kp="' + k + '">' + k + '<span class="cnt">' + p.cnt[k] + '</span></button>';
+              }).join('');
+          }
+        }
       }
       function applyFilter() {
-        curList = QUIZ.filter(function (q) { return (exCh === null || q.chapter === exCh) && (exType === null || q.type === exType); });
+        curList = QUIZ.filter(function (q) { return (exCh === null || q.chapter === exCh) && (exType === null || q.type === exType) && (exKp === null || q.kp === exKp); });
         cur = 0; renderQuiz();
       }
       function metaHtml() {
         const byType = {}; TYPES.forEach(function (t) { byType[t] = curList.filter(function (q) { return q.type === t; }).length; });
         const multiN = curList.filter(isMulti).length;
         const parts = TYPES.filter(function (t) { return byType[t]; }).map(function (t) { return t + ' ' + byType[t]; });
-        const scope = (exCh || '全部章节') + (exType ? ' · ' + exType : '');
+        const scope = (exCh || '全部章节') + (exType ? ' · ' + exType : '') + (exKp ? ' · ' + exKp : '');
         return '<div class="ex-meta">📍 当前：<b>' + scope + '</b> · 共 <b>' + curList.length + '</b> 题（' + parts.join(' / ') + (multiN ? '，其中多选 ' + multiN : '') + '）</div>';
       }
       function navHtml() {
@@ -2772,8 +2801,13 @@ document.addEventListener('keydown', function (e) {
       const chBox = document.getElementById('ex-chips-ch'), typeBox = document.getElementById('ex-chips-type');
       chBox.addEventListener('click', function (e) { const b = e.target.closest('.ex-chip'); if (!b) return; exCh = b.getAttribute('data-ch') || null; buildChips(); applyFilter(); });
       typeBox.addEventListener('click', function (e) { const b = e.target.closest('.ex-chip'); if (!b) return; exType = b.getAttribute('data-t') || null; buildChips(); applyFilter(); });
+      // v65：知识点是第三级筛选。切换章节/题型时由 buildChips() 负责把失效的 exKp 退回 null。
+      const kpBox = document.getElementById('ex-chips-kp');
+      if (kpBox) kpBox.addEventListener('click', function (e) { const b = e.target.closest('.ex-chip'); if (!b) return; exKp = b.getAttribute('data-kp') || null; buildChips(); applyFilter(); });
+      // 题库总数从 QUIZ 实算，避免以后加题又忘了改那段说明文字（原来写死「第 1–9 章共 157 题」，实为 7 章 133 题）
+      (function () { const t = document.getElementById('ex-total'); if (t) t.textContent = QUIZ.length; })();
       const exTab = document.querySelector('.tab-btn[data-page="p-exercise"]');
-      if (exTab) exTab.addEventListener('click', function () { let ch = null; try { ch = sessionStorage.getItem('ibank_exercise_filter'); } catch (e) {} exCh = ch || null; buildChips(); applyFilter(); });
+      if (exTab) exTab.addEventListener('click', function () { let ch = null; try { ch = sessionStorage.getItem('ibank_exercise_filter'); } catch (e) {} exCh = ch || null; exKp = null; buildChips(); applyFilter(); });
 
       const exDoneBtn = document.getElementById('ex-done-btn');
       function syncExDone() { let d = false; try { d = localStorage.getItem('ibank_exercise_done') === '1'; } catch (e) {} exDoneBtn.classList.toggle('done', d); exDoneBtn.textContent = d ? '✓ 本次训练完成' : '标记本次训练完成'; }

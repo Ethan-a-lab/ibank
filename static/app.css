@@ -689,7 +689,11 @@
     .ex-filters { flex: 1 1 100%; min-width: 0; display: flex; flex-direction: column; gap: 10px; }
     .ex-fgroup { display: flex; align-items: center; gap: 8px; min-width: 0; flex-wrap: wrap; }
     .ex-flbl { flex: 0 0 auto; font-size: 12.5px; color: var(--dim); }
-    #ex-chips-ch, #ex-chips-type { display: flex; flex-wrap: wrap; gap: 8px; min-width: 0; flex: 1 1 auto; }
+    #ex-chips-ch, #ex-chips-type, #ex-chips-kp { display: flex; flex-wrap: wrap; gap: 8px; min-width: 0; flex: 1 1 auto; }
+    /* v65：知识点候选最多 9 个（随章节收窄），独占一行，否则会把章节/题型挤变形 */
+    #ex-fgroup-kp { flex: 1 1 100%; align-items: flex-start; }
+    #ex-fgroup-kp .ex-flbl { padding-top: 6px; }
+    .ex-kp-hint { font-size: 12px; color: var(--dim); opacity: .8; padding-top: 5px; }
     .ex-timer-wrap { flex: 1 1 100%; min-width: 0; display: flex; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: flex-end; }
     .ex-filters { display: flex; flex-wrap: wrap; gap: 16px; flex: 1 1 320px; }
     .ex-fgroup { display: flex; flex-wrap: wrap; gap: 7px; align-items: center; }
