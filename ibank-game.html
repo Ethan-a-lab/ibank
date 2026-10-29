@@ -64,7 +64,7 @@
     background:var(--panel);transition:.2s;white-space:nowrap;
   }
   .back:hover{color:var(--accent-text);border-color:var(--accent);transform:translateX(-2px)}
-  .brand{display:flex;align-items:center;gap:8px;font-size:15px;font-weight:700;letter-spacing:.2px;margin-right:auto}
+  .brand{display:flex;align-items:center;gap:8px;font-size:15px;font-weight:700;letter-spacing:.2px;margin-right:auto;white-space:nowrap}
   .brand .dot{width:8px;height:8px;border-radius:50%;background:linear-gradient(135deg,#4f46e5,#7c3aed);box-shadow:0 0 0 4px rgba(99,102,241,.15)}
   .stat-chip{
     display:inline-flex;align-items:center;gap:5px;font-size:12.5px;font-weight:700;
@@ -127,10 +127,11 @@
   .lv.locked{opacity:.5;cursor:not-allowed;filter:saturate(.3)}
   .lv.locked:hover{transform:none;border-color:var(--panel-border);box-shadow:none}
   .lv-no{
-    width:38px;height:38px;border-radius:11px;flex:none;display:flex;align-items:center;justify-content:center;
+    width:38px;height:38px;border-radius:11px;flex:none;display:flex;flex-direction:column;align-items:center;justify-content:center;
     font-size:15px;font-weight:800;color:#fff;background:linear-gradient(135deg,#4f46e5,#7c3aed);
-    box-shadow:0 4px 12px rgba(99,102,241,.26);
+    box-shadow:0 4px 12px rgba(99,102,241,.26);line-height:1;
   }
+  .lv-no i{font-style:normal;font-size:9px;font-weight:700;opacity:.85;margin-top:2px}
   .lv.done .lv-no{background:linear-gradient(135deg,#0f766e,#059669)}
   .lv.locked .lv-no{background:var(--dim);box-shadow:none}
   .lv-body{flex:1;min-width:0}
@@ -154,6 +155,7 @@
   .daily p{font-size:11.5px;color:var(--muted);margin-top:2px}
   .pill{font-size:11px;font-weight:700;padding:3px 9px;border-radius:99px;background:var(--accent-solid);color:#fff;flex:none}
   .pill.ok{background:var(--good)}
+  .pill.retry{background:#f59e0b}
 
   /* ===== 答题 ===== */
   .qhead{display:flex;align-items:center;gap:10px;margin-bottom:14px}
@@ -221,6 +223,8 @@
   }
   .nextbtn:hover{transform:translateY(-1px);box-shadow:0 9px 26px rgba(99,102,241,.38)}
   .nextbtn:disabled{opacity:.4;cursor:not-allowed;transform:none;box-shadow:none}
+  .nextbtn.ghost{background:var(--panel-solid);color:var(--text);border:1px solid var(--panel-border);box-shadow:none}
+  .nextbtn.ghost:hover{transform:none;box-shadow:none;border-color:var(--muted)}
 
   /* ===== 结算 ===== */
   .res-head{text-align:center;padding:8px 0 4px}
@@ -310,10 +314,17 @@
     .wrap{padding:0 14px 50px}
     .levels{grid-template-columns:1fr}
     .ach-grid{grid-template-columns:1fr}
-    .brand > span:not(.dot){display:none}
+    .brand{font-size:13.5px}
     .stem{font-size:15px}
     .res-nums{grid-template-columns:repeat(3,1fr)}
     .dex-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  }
+  /* 小屏（≤372）：让「返回课程」收成箭头，把位置留给品牌名，品牌不再整段消失 */
+  @media(max-width:372px){
+    .back{padding:7px 10px}
+    .back .bt{display:none}
+    .brand{font-size:12.5px;gap:6px}
+    .stat-chip{font-size:12px;padding:5px 9px}
   }
 </style>
 </head>
@@ -323,7 +334,7 @@
 
 <div class="wrap">
   <div class="topbar">
-    <a class="back" href="./index.html">← 返回课程</a>
+    <a class="back" href="./index.html" aria-label="返回课程"><span class="ar">←</span><span class="bt">返回课程</span></a>
     <div class="brand"><span class="dot"></span><span>投行梗学闯关</span></div>
     <div class="stat-chip" id="c-gold">💰 0</div>
     <button class="icon-btn" id="c-theme" title="切换深浅色">🌙</button>
@@ -422,6 +433,7 @@
         <p id="r-card-d"></p>
       </div>
       <button class="nextbtn" id="r-again" style="margin-top:20px">再来一关</button>
+      <button class="nextbtn" id="r-next" style="margin-top:9px;display:none">下一关</button>
       <button class="nextbtn" id="r-home" style="margin-top:9px;background:var(--panel-solid);color:var(--text);border:1px solid var(--panel-border);box-shadow:none">回到地图</button>
     </div>
   </section>
@@ -914,14 +926,25 @@
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
-  function toast(ico, txt, gold) {
-    var t = el('div', 'toast' + (gold ? ' gold' : ''));
-    t.innerHTML = '<span class="ti">' + ico + '</span><div>' + txt + '</div>';
-    $('toasts').appendChild(t);
+  /* 弹窗排队：同屏最多 2 条，多出来的排队等空位，不再一条压一条糊住按钮 */
+  var toastQ = [];
+  function toast(ico, txt, gold, ms) {
+    toastQ.push({ ico: ico, txt: txt, gold: gold, ms: ms || 2600 });
+    pumpToast();
+  }
+  function pumpToast() {
+    var box = $('toasts');
+    if (!box) return;
+    if (box.children.length >= 2) return;
+    var job = toastQ.shift();
+    if (!job) return;
+    var t = el('div', 'toast' + (job.gold ? ' gold' : ''));
+    t.innerHTML = '<span class="ti">' + job.ico + '</span><div>' + job.txt + '</div>';
+    box.appendChild(t);
     setTimeout(function () {
       t.style.transition = '.3s'; t.style.opacity = '0'; t.style.transform = 'translateY(8px)';
-      setTimeout(function () { t.remove(); }, 320);
-    }, 2600);
+      setTimeout(function () { t.remove(); pumpToast(); }, 320);
+    }, job.ms);
   }
 
   /* ============ 首页 ============ */
@@ -955,7 +978,9 @@
       var d = el('button', 'lv' + (done ? ' done' : '') + (unlocked ? '' : ' locked'));
       var stars = '';
       for (var k = 0; k < 3; k++) stars += '<span class="s' + (k < st ? ' on' : '') + '">★</span>';
-      d.innerHTML = '<div class="lv-no">' + (unlocked ? (i + 1) : '🔒') + '</div>' +
+      /* 徽标直接显示章号（0–7），与下面「第0章…」对齐，不再出现「1」配「第0章」的错位 */
+      var cn = String(L.ch || '').replace(/[^0-9]/g, '');
+      d.innerHTML = '<div class="lv-no">' + (unlocked ? (cn + '<i>章</i>') : '🔒') + '</div>' +
         '<div class="lv-body"><h3>' + esc(L.name) + '</h3><p>' + esc(L.ch + ' · ' + L.desc) + '</p>' +
         '<div class="lv-stars">' + stars + '</div></div>';
       if (unlocked) {
@@ -970,9 +995,12 @@
     var dd = new Date();
     $('daily-date').textContent = (dd.getMonth() + 1) + ' 月 ' + dd.getDate() + ' 日';
     var doneToday = S.dailyDone === today();
-    $('d-pill').textContent = doneToday ? '已完成' : '开始';
-    $('d-pill').className = 'pill' + (doneToday ? ' ok' : '');
-    $('d-sub').textContent = doneToday ? '今天已完成，明天换一批新数字' : '题目由题模实时生成，同一考点换一组数字';
+    var failedToday = !doneToday && S.dailyFail === today();
+    $('d-pill').textContent = doneToday ? '已完成' : failedToday ? '再试一次' : '开始';
+    $('d-pill').className = 'pill' + (doneToday ? ' ok' : failedToday ? ' retry' : '');
+    $('d-sub').textContent = doneToday ? '今天已完成，明天换一批新数字'
+      : failedToday ? '今天还没过（答对 3 题算完成），可直接再试一次'
+      : '题目由题模实时生成，同一考点换一组数字';
 
     var an = 0;
     for (var a = 0; a < ACH.length; a++) if (S.ach[ACH[a].id]) an++;
@@ -997,15 +1025,18 @@
     var pool = [];
     for (var i = 0; i < BANK.length; i++) if (BANK[i].c === no) pool.push(BANK[i]);
     var qs = drawN(pool, LEVEL_QUESTIONS);
-    P = { mode: 'level', lv: no, qs: qs, i: 0, right: 0, combo: 0, t0: Date.now(), wrong: 0, gold: 0, answered: false, comeback: 0 };
-    $('p-lv').textContent = LEVELS[no].ch + '　·　第 ' + (no + 1) + ' 关';
+    /* 已通关的关卡算「复练」：每题承销费减半、通关奖励不再发放，堵住重复刷金币 */
+    var repeat = !!S.cleared[no];
+    P = { mode: 'level', lv: no, qs: qs, i: 0, right: 0, combo: 0, t0: Date.now(), wrong: 0, gold: 0, answered: false, comeback: 0, repeat: repeat, rate: repeat ? 0.5 : 1 };
+    $('p-lv').textContent = LEVELS[no].ch + '　·　第 ' + (no + 1) + ' 关' + (repeat ? '　·　复练' : '');
     show('play');
     renderQ();
   }
 
   function startDaily() {
     if (S.dailyDone === today()) { toast('✅', '今天的每日挑战已经完成，明天再来'); return; }
-    var qs = genQuestions(today(), 5);
+    /* 第一次用当天做种子；当天失败重试时带一个次数，换一组数字 */
+    var qs = genQuestions(today() + (S.dailyFail === today() ? '·' + (S.dailyTries || 1) : ''), 5);
     P = { mode: 'daily', lv: -1, qs: qs, i: 0, right: 0, combo: 0, t0: Date.now(), wrong: 0, gold: 0, answered: false, comeback: 0 };
     $('p-lv').textContent = '每日挑战 · ' + today();
     show('play');
@@ -1058,7 +1089,7 @@
       if (P.combo > S.comboMax) S.comboMax = P.combo;
       if (secs <= 3) { S.fastRight++; }
       if (P.comeback >= 4) S.comeback = (S.comeback || 0) + 1;
-      var gain = 10 + Math.min(P.combo - 1, 5) * 2;
+      var gain = Math.round((10 + Math.min(P.combo - 1, 5) * 2) * (P.rate || 1));
       P.gold += gain; S.gold += gain;
       fb.className = 'fb ok on';
       $('p-fbh').innerHTML = '✓ 答对了　<span style="color:var(--gold);font-size:12.5px">+' + gain + ' 承销费</span>';
@@ -1098,13 +1129,16 @@
     var isLevel = P.mode === 'level';
     var pass = acc >= 50;
     var stars = acc >= 100 ? 3 : acc >= 75 ? 2 : acc >= 50 ? 1 : 0;
+    var wasCleared = isLevel && !!S.cleared[P.lv];
+    var oldStars = isLevel ? (S.stars[P.lv] || 0) : 0;
+    /* 首通给通关奖励；复练只有「星级提升」才补差额，重复刷关不再产出金币 */
     var bonus = 0;
     if (isLevel && pass) {
-      bonus = stars * 20;
+      if (!wasCleared) bonus = stars * 20;
+      else if (stars > oldStars) bonus = (stars - oldStars) * 20;
       S.gold += bonus;
     }
 
-    var wasCleared = isLevel && !!S.cleared[P.lv];
     if (isLevel) {
       if (pass) {
         if (!wasCleared) S.cleared[P.lv] = 1;
@@ -1118,9 +1152,13 @@
         S.attemptedFailed[P.lv] = 1;
         if (P.right === 0) S.allWrong = 1;
       }
-    } else {
+    } else if (pass) {
       S.dailyDone = today();
       S.dailyCount = (S.dailyCount || 0) + 1;
+    } else {
+      /* 没通过不算完成：不写 dailyDone，当天可以再试 */
+      S.dailyFail = today();
+      S.dailyTries = (S.dailyTries || 0) + 1;
     }
 
     /* 连续天数 */
@@ -1133,8 +1171,12 @@
     S.days[td] = 1;
 
     $('r-em').textContent = acc === 100 ? '🏆' : pass ? '🎉' : '💪';
-    $('r-title').textContent = isLevel ? (pass ? '第 ' + (P.lv + 1) + ' 关通关' : '没过，再来一次') : (pass ? '今日挑战完成' : '今日挑战结束');
-    $('r-sub').textContent = isLevel ? LEVELS[P.lv].name : '每天换一组数字，明天还有';
+    $('r-title').textContent = isLevel
+      ? (pass ? (wasCleared ? '复练完成' : '第 ' + (P.lv + 1) + ' 关通关') : '没过，再来一次')
+      : (pass ? '今日挑战完成' : '今日挑战未通过');
+    $('r-sub').textContent = isLevel
+      ? LEVELS[P.lv].name + (wasCleared ? '　·　复练金币减半，通关奖励只在星级提升时补发' : '')
+      : (pass ? '明天换一组新数字，记得回来' : '答对 3 题以上才算完成，今天还能再试一次');
     $('r-acc').textContent = acc + '%';
     $('r-right').textContent = P.right + '/' + n;
     $('r-gold').textContent = '+' + (P.gold + bonus);
@@ -1155,8 +1197,27 @@
     $('r-chest').classList.add('shake');
     $('r-draw').className = 'draw';
 
-    $('r-again').textContent = isLevel ? '再打这一关' : '回到地图';
-    $('r-again').onclick = function () { if (isLevel) startLevel(P.lv); else show('home'); };
+    /* 按钮：通关后直接给「下一关」，不用退回地图再点 */
+    var curLv = isLevel ? P.lv : -1;
+    var hasNext = isLevel && pass && curLv < LEVELS.length - 1;
+    var nb = $('r-next');
+    if (hasNext) {
+      nb.style.display = '';
+      nb.textContent = '下一关 · ' + LEVELS[curLv + 1].name;
+      nb.onclick = (function (nx) { return function () { startLevel(nx); }; })(curLv + 1);
+      $('r-again').className = 'nextbtn ghost';
+      $('r-again').textContent = '重打这一关';
+    } else {
+      nb.style.display = 'none';
+      nb.onclick = null;
+      $('r-again').className = 'nextbtn';
+      $('r-again').textContent = isLevel ? '再打这一关' : (pass ? '回到地图' : '再试一次');
+    }
+    $('r-again').onclick = function () {
+      if (isLevel) startLevel(curLv);
+      else if (pass) show('home');
+      else startDaily();
+    };
 
     save();
     checkAch();
@@ -1203,10 +1264,15 @@
       if (pass) { S.ach[a.id] = Date.now(); got.push(a); }
     }
     save();
-    if (got.length) {
-      got.forEach(function (a, k) {
-        setTimeout(function () { toast(a.e, '成就解锁　<b>' + a.n + '</b>', true); }, k * 420);
-      });
+    if (!got.length) return;
+    /* 一次解锁多个只弹一条汇总，避免连弹十几条糊住界面 */
+    if (got.length === 1) {
+      toast(got[0].e, '成就解锁　<b>' + got[0].n + '</b>', true, 2400);
+    } else {
+      var names = [];
+      for (var g = 0; g < got.length && g < 3; g++) names.push(got[g].n);
+      toast('🏅', '一次解锁 <b>' + got.length + '</b> 个成就　' + names.join('、') +
+        (got.length > 3 ? ' 等' : ''), true, 3200);
     }
   }
 
@@ -1270,6 +1336,7 @@
     S.comeback = S.comeback || 0;
     S.fastPure = S.fastPure || 0;
     S.dailyCount = S.dailyCount || 0;
+    S.dailyTries = S.dailyTries || 0;
 
     initTheme();
     renderHome();
