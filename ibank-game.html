@@ -1,0 +1,1305 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>投行梗学闯关 · iBank</title>
+<meta name="description" content="iBank 投资银行学课程配套闯关游戏：8 关 120 题，每关随机抽题，本地成就系统，离线可玩。">
+<style>
+  :root{
+    --bg:#f6f7fb; --panel:rgba(255,255,255,.9); --panel-solid:#fff;
+    --panel-border:rgba(15,23,42,.10);
+    --text:#1a2233; --muted:#5b6478; --dim:#646b80;
+    --accent:#6366f1; --accent-text:#4f46e5; --accent-solid:#4f46e5;
+    --accent2:#0e7490; --accent3:#8b5cf6;
+    --good:#0f766e; --bad:#b91c1c; --warn:#b45309;
+    --gold:#b45309; --gold-bg:rgba(245,158,11,.14);
+    --radius:14px;
+    --shadow-sm:0 2px 10px rgba(15,23,42,.05);
+    --shadow-md:0 14px 40px rgba(15,23,42,.09);
+    --track:rgba(15,23,42,.07);
+    --ok-bg:rgba(15,118,110,.10); --err-bg:rgba(185,28,28,.08);
+  }
+  body.dark{
+    --bg:#0d1020; --panel:rgba(24,28,50,.88); --panel-solid:#181c32;
+    --panel-border:rgba(148,163,184,.16);
+    --text:#e7eaf3; --muted:#9aa4bb; --dim:#8b93ab;
+    --accent:#818cf8; --accent-text:#a5b4fc; --accent-solid:#4f46e5;
+    --accent2:#22d3ee; --accent3:#c084fc;
+    --good:#34d399; --bad:#fb7185; --warn:#fbbf24;
+    --gold:#fbbf24; --gold-bg:rgba(251,191,36,.14);
+    --shadow-sm:0 2px 10px rgba(0,0,0,.3);
+    --shadow-md:0 14px 40px rgba(0,0,0,.45);
+    --track:rgba(148,163,184,.14);
+    --ok-bg:rgba(52,211,153,.12); --err-bg:rgba(251,113,133,.12);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    font-family:"PingFang SC","Microsoft YaHei","Segoe UI",system-ui,sans-serif;
+    background:var(--bg); color:var(--text); min-height:100vh; line-height:1.7;
+    -webkit-font-smoothing:antialiased;
+  }
+  button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit}
+  a{color:var(--accent2);text-decoration:none}
+
+  .blob{position:fixed;border-radius:50%;filter:blur(90px);opacity:.42;z-index:0;pointer-events:none}
+  .blob-1{width:440px;height:440px;background:#c7d2fe;top:-150px;left:-120px}
+  .blob-2{width:400px;height:400px;background:#a5f3fc;bottom:-150px;right:-100px}
+  body.dark .blob{opacity:.16}
+
+  .wrap{position:relative;z-index:1;max-width:900px;margin:0 auto;padding:0 18px 60px}
+
+  /* ===== 顶栏 ===== */
+  .topbar{
+    position:sticky;top:0;z-index:40;display:flex;align-items:center;gap:10px;
+    padding:10px 0;margin-bottom:20px;
+    background:color-mix(in srgb,var(--bg) 86%,transparent);
+    border-bottom:1px solid var(--panel-border);
+    backdrop-filter:blur(14px);
+  }
+  .back{
+    display:inline-flex;align-items:center;gap:6px;font-size:13.5px;font-weight:600;
+    color:var(--muted);padding:7px 12px;border-radius:999px;border:1px solid var(--panel-border);
+    background:var(--panel);transition:.2s;white-space:nowrap;
+  }
+  .back:hover{color:var(--accent-text);border-color:var(--accent);transform:translateX(-2px)}
+  .brand{display:flex;align-items:center;gap:8px;font-size:15px;font-weight:700;letter-spacing:.2px;margin-right:auto}
+  .brand .dot{width:8px;height:8px;border-radius:50%;background:linear-gradient(135deg,#4f46e5,#7c3aed);box-shadow:0 0 0 4px rgba(99,102,241,.15)}
+  .stat-chip{
+    display:inline-flex;align-items:center;gap:5px;font-size:12.5px;font-weight:700;
+    padding:5px 11px;border-radius:999px;background:var(--gold-bg);color:var(--gold);
+    white-space:nowrap;
+  }
+  .stat-chip.rank{background:rgba(99,102,241,.12);color:var(--accent-text)}
+  .icon-btn{
+    width:34px;height:34px;border-radius:10px;border:1px solid var(--panel-border);
+    background:var(--panel);display:flex;align-items:center;justify-content:center;
+    font-size:15px;transition:.2s;flex:none;
+  }
+  .icon-btn:hover{border-color:var(--accent);transform:translateY(-1px)}
+
+  /* ===== 视图 ===== */
+  .view{display:none;animation:fade .32s ease}
+  .view.on{display:block}
+  @keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+  .card{
+    background:var(--panel);border:1px solid var(--panel-border);border-radius:var(--radius);
+    padding:20px;box-shadow:var(--shadow-sm);backdrop-filter:blur(14px);
+  }
+
+  /* ===== 段位卡 ===== */
+  .hero{
+    position:relative;overflow:hidden;border-radius:18px;padding:22px 24px;margin-bottom:18px;
+    background:linear-gradient(135deg,rgba(79,70,229,.10),rgba(124,58,237,.06));
+    border:1px solid var(--panel-border);
+  }
+  .hero-top{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+  .rank-badge{
+    width:56px;height:56px;border-radius:16px;flex:none;
+    background:linear-gradient(135deg,#4f46e5,#7c3aed);color:#fff;
+    display:flex;align-items:center;justify-content:center;font-size:24px;
+    box-shadow:0 8px 22px rgba(99,102,241,.32);
+  }
+  .hero-tt{flex:1;min-width:150px}
+  .hero-tt h1{font-size:19px;font-weight:800;letter-spacing:.2px}
+  .hero-tt p{font-size:12.5px;color:var(--muted);margin-top:2px}
+  .progress{height:8px;border-radius:99px;background:var(--track);overflow:hidden;margin-top:12px}
+  .progress i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,#4f46e5,#8b5cf6);transition:width .5s cubic-bezier(.3,1,.4,1)}
+  .hero-foot{display:flex;justify-content:space-between;font-size:11.5px;color:var(--muted);margin-top:6px}
+
+  /* ===== 区块标题 ===== */
+  .sec{display:flex;align-items:center;gap:9px;margin:24px 0 12px}
+  .sec .bar{width:3px;height:16px;border-radius:2px;background:linear-gradient(180deg,#4f46e5,#8b5cf6)}
+  .sec h2{font-size:15.5px;font-weight:700}
+  .sec .more{margin-left:auto;font-size:12.5px;color:var(--muted);font-weight:600}
+  .sec .more:hover{color:var(--accent-text)}
+
+  /* ===== 关卡网格 ===== */
+  .levels{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+  .lv{
+    position:relative;text-align:left;padding:15px 16px;border-radius:14px;
+    background:var(--panel);border:1px solid var(--panel-border);
+    transition:.2s;display:flex;gap:13px;align-items:flex-start;overflow:hidden;
+  }
+  .lv:hover{transform:translateY(-2px);border-color:var(--accent);box-shadow:var(--shadow-md)}
+  .lv.locked{opacity:.5;cursor:not-allowed;filter:saturate(.3)}
+  .lv.locked:hover{transform:none;border-color:var(--panel-border);box-shadow:none}
+  .lv-no{
+    width:38px;height:38px;border-radius:11px;flex:none;display:flex;align-items:center;justify-content:center;
+    font-size:15px;font-weight:800;color:#fff;background:linear-gradient(135deg,#4f46e5,#7c3aed);
+    box-shadow:0 4px 12px rgba(99,102,241,.26);
+  }
+  .lv.done .lv-no{background:linear-gradient(135deg,#0f766e,#059669)}
+  .lv.locked .lv-no{background:var(--dim);box-shadow:none}
+  .lv-body{flex:1;min-width:0}
+  .lv-body h3{font-size:14px;font-weight:700;line-height:1.4}
+  .lv-body p{font-size:11.5px;color:var(--muted);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .lv-stars{display:flex;gap:2px;margin-top:6px;font-size:11px;letter-spacing:1px}
+  .lv-stars .s{color:var(--dim);opacity:.35}
+  .lv-stars .s.on{color:#f59e0b;opacity:1}
+  .lv-lock{position:absolute;right:12px;top:12px;font-size:12px;color:var(--dim)}
+
+  /* ===== 每日挑战 ===== */
+  .daily{
+    display:flex;align-items:center;gap:14px;padding:16px 18px;border-radius:14px;
+    background:linear-gradient(120deg,rgba(14,116,144,.10),rgba(99,102,241,.07));
+    border:1px solid var(--panel-border);transition:.2s;width:100%;text-align:left;
+  }
+  .daily:hover{border-color:var(--accent2);transform:translateY(-2px)}
+  .daily .d-ico{width:42px;height:42px;border-radius:12px;flex:none;display:flex;align-items:center;justify-content:center;font-size:19px;background:var(--panel-solid);border:1px solid var(--panel-border)}
+  .daily .d-body{flex:1;min-width:0}
+  .daily h3{font-size:14px;font-weight:700}
+  .daily p{font-size:11.5px;color:var(--muted);margin-top:2px}
+  .pill{font-size:11px;font-weight:700;padding:3px 9px;border-radius:99px;background:var(--accent-solid);color:#fff;flex:none}
+  .pill.ok{background:var(--good)}
+
+  /* ===== 答题 ===== */
+  .qhead{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+  .qhead .lvname{font-size:12.5px;font-weight:700;color:var(--accent-text)}
+  .qhead .qn{margin-left:auto;font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}
+  .qhead .quit{font-size:11.5px;font-weight:700;color:var(--muted);padding:3px 10px;border-radius:99px;border:1px solid var(--panel-border);transition:.2s}
+  .qhead .quit:hover{color:var(--bad);border-color:var(--bad)}
+  .qbar{height:5px;border-radius:99px;background:var(--track);overflow:hidden;margin-bottom:20px}
+  .qbar i{display:block;height:100%;background:linear-gradient(90deg,#4f46e5,#8b5cf6);transition:width .35s}
+
+  .meme{
+    font-size:13px;color:var(--muted);line-height:1.75;padding:11px 14px;margin-bottom:14px;
+    border-left:3px solid var(--accent3);border-radius:0 10px 10px 0;
+    background:rgba(139,92,246,.06);
+  }
+  .meme b{color:var(--accent3);font-weight:700}
+  .stem{font-size:16px;font-weight:600;line-height:1.75;margin-bottom:18px;letter-spacing:.1px}
+
+  .opts{display:flex;flex-direction:column;gap:9px}
+  .opt{
+    display:flex;align-items:flex-start;gap:11px;padding:13px 15px;border-radius:12px;text-align:left;
+    background:var(--panel-solid);border:1.5px solid var(--panel-border);transition:.16s;font-size:14px;line-height:1.65;
+  }
+  .opt:hover:not(.dis){border-color:var(--accent);background:rgba(99,102,241,.05)}
+  .opt .k{
+    width:23px;height:23px;border-radius:7px;flex:none;display:flex;align-items:center;justify-content:center;
+    font-size:11.5px;font-weight:800;background:var(--track);color:var(--muted);margin-top:1px;transition:.16s;
+  }
+  .opt.sel{border-color:var(--accent);background:rgba(99,102,241,.08)}
+  .opt.right{border-color:var(--good);background:var(--ok-bg)}
+  .opt.right .k{background:var(--good);color:#fff}
+  .opt.wrong{border-color:var(--bad);background:var(--err-bg)}
+  .opt.wrong .k{background:var(--bad);color:#fff}
+  .opt.dis{cursor:default}
+  .opt .tag{margin-left:auto;font-size:11px;font-weight:700;flex:none;align-self:center}
+
+  .fb{margin-top:16px;border-radius:12px;padding:0 16px;max-height:0;overflow:hidden;transition:.3s ease;opacity:0}
+  .fb.on{max-height:420px;padding:15px 16px;opacity:1}
+  .fb.ok{background:var(--ok-bg);border:1px solid rgba(15,118,110,.28)}
+  .fb.no{background:var(--err-bg);border:1px solid rgba(185,28,28,.25)}
+  .fb .fb-h{font-size:13.5px;font-weight:800;margin-bottom:5px;display:flex;align-items:center;gap:7px}
+  .fb.ok .fb-h{color:var(--good)}
+  .fb.no .fb-h{color:var(--bad)}
+  .fb .fb-t{font-size:13px;line-height:1.8;color:var(--text)}
+  .fb .kp{display:inline-block;margin-top:9px;font-size:11px;font-weight:700;padding:2px 9px;border-radius:6px;background:rgba(99,102,241,.12);color:var(--accent-text)}
+
+  .combo{
+    position:fixed;left:50%;top:22%;transform:translate(-50%,-50%) scale(.6);z-index:60;
+    font-size:34px;font-weight:900;letter-spacing:-1px;
+    background:linear-gradient(135deg,#f59e0b,#f43f5e);-webkit-background-clip:text;background-clip:text;color:transparent;
+    opacity:0;pointer-events:none;
+  }
+  .combo.pop{animation:comboPop .9s cubic-bezier(.2,1.2,.4,1)}
+  @keyframes comboPop{
+    0%{opacity:0;transform:translate(-50%,-50%) scale(.5)}
+    30%{opacity:1;transform:translate(-50%,-50%) scale(1.15)}
+    70%{opacity:1;transform:translate(-50%,-70%) scale(1)}
+    100%{opacity:0;transform:translate(-50%,-100%) scale(.9)}
+  }
+
+  .nextbtn{
+    margin-top:16px;width:100%;padding:13px;border-radius:12px;font-size:14.5px;font-weight:700;color:#fff;
+    background:linear-gradient(135deg,#4f46e5,#7c3aed);box-shadow:0 6px 20px rgba(99,102,241,.3);
+    transition:.2s;
+  }
+  .nextbtn:hover{transform:translateY(-1px);box-shadow:0 9px 26px rgba(99,102,241,.38)}
+  .nextbtn:disabled{opacity:.4;cursor:not-allowed;transform:none;box-shadow:none}
+
+  /* ===== 结算 ===== */
+  .res-head{text-align:center;padding:8px 0 4px}
+  .res-head .em{font-size:44px;line-height:1.2}
+  .res-head h2{font-size:21px;font-weight:800;margin-top:6px}
+  .res-head p{font-size:13px;color:var(--muted);margin-top:3px}
+  .res-nums{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:20px 0}
+  .rn{text-align:center;padding:14px 8px;border-radius:12px;background:var(--panel);border:1px solid var(--panel-border)}
+  .rn .v{font-size:20px;font-weight:800;font-variant-numeric:tabular-nums}
+  .rn .l{font-size:11px;color:var(--muted);margin-top:1px}
+  .rn.hi .v{color:var(--gold)}
+  .res-star{display:flex;justify-content:center;gap:5px;font-size:24px;margin:6px 0 4px}
+  .res-star .s{color:var(--dim);opacity:.3;transition:.3s}
+  .res-star .s.on{color:#f59e0b;opacity:1;transform:scale(1.1)}
+
+  /* 开箱 */
+  .chest{text-align:center;margin:18px 0 4px}
+  .chest-box{
+    width:88px;height:88px;margin:0 auto;border-radius:22px;display:flex;align-items:center;justify-content:center;
+    font-size:40px;background:linear-gradient(135deg,rgba(245,158,11,.18),rgba(244,63,94,.12));
+    border:1px solid rgba(245,158,11,.3);cursor:pointer;transition:.2s;
+  }
+  .chest-box:hover{transform:scale(1.05)}
+  .chest-box.shake{animation:shake .5s ease infinite}
+  @keyframes shake{0%,100%{transform:rotate(0)}25%{transform:rotate(-7deg) scale(1.04)}75%{transform:rotate(7deg) scale(1.04)}}
+  .chest p{font-size:12px;color:var(--muted);margin-top:9px}
+
+  .draw{
+    margin-top:14px;border-radius:14px;padding:18px;text-align:center;
+    border:2px dashed rgba(245,158,11,.4);background:rgba(245,158,11,.05);
+    opacity:0;transform:scale(.94);transition:.35s;display:none;
+  }
+  .draw.on{opacity:1;transform:none;display:block}
+  .draw .rar{font-size:11px;font-weight:800;letter-spacing:1.5px;padding:2px 10px;border-radius:99px;display:inline-block}
+  .rar.r{background:#94a3b8;color:#fff}
+  .rar.sr{background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff}
+  .rar.ssr{background:linear-gradient(135deg,#f59e0b,#f43f5e);color:#fff}
+  .draw h3{font-size:16px;font-weight:800;margin:8px 0 3px}
+  .draw p{font-size:12.5px;color:var(--muted);line-height:1.7}
+
+  /* ===== 成就墙 ===== */
+  .ach-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+  .ach{
+    display:flex;gap:11px;align-items:flex-start;padding:13px 14px;border-radius:12px;
+    background:var(--panel);border:1px solid var(--panel-border);transition:.2s;
+  }
+  .ach.off{opacity:.45}
+  .ach .a-ico{
+    width:36px;height:36px;border-radius:10px;flex:none;display:flex;align-items:center;justify-content:center;
+    font-size:17px;background:var(--track);
+  }
+  .ach.on .a-ico{background:linear-gradient(135deg,#f59e0b,#f43f5e)}
+  .ach .a-b h4{font-size:13px;font-weight:700}
+  .ach .a-b p{font-size:11px;color:var(--muted);line-height:1.6;margin-top:1px}
+  .ach .a-b .a-t{font-size:10px;font-weight:700;color:var(--accent-text);margin-top:3px;display:block}
+
+  /* ===== 图鉴 ===== */
+  .dex-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+  .dex{
+    padding:14px 10px;border-radius:12px;text-align:center;background:var(--panel);
+    border:1px solid var(--panel-border);transition:.2s;
+  }
+  .dex.off{opacity:.35;filter:grayscale(1)}
+  .dex .d-r{font-size:9.5px;font-weight:800;letter-spacing:1px;padding:1px 7px;border-radius:99px;display:inline-block}
+  .dex .d-r.r{background:#94a3b8;color:#fff}
+  .dex .d-r.sr{background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff}
+  .dex .d-r.ssr{background:linear-gradient(135deg,#f59e0b,#f43f5e);color:#fff}
+  .dex .d-e{font-size:26px;margin:6px 0 2px}
+  .dex h4{font-size:11.5px;font-weight:700;line-height:1.4}
+  .dex p{font-size:10px;color:var(--muted);margin-top:1px;line-height:1.5}
+
+  /* ===== toast ===== */
+  .toasts{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);z-index:80;display:flex;flex-direction:column;gap:8px;align-items:center;width:calc(100% - 32px);max-width:400px;pointer-events:none}
+  .toast{
+    display:flex;align-items:center;gap:10px;padding:11px 16px;border-radius:12px;
+    background:var(--panel-solid);border:1px solid var(--panel-border);box-shadow:var(--shadow-md);
+    font-size:13px;animation:tin .3s ease;width:100%;
+  }
+  .toast .ti{font-size:18px;flex:none}
+  .toast b{font-weight:800}
+  .toast.gold{border-color:rgba(245,158,11,.5);background:linear-gradient(120deg,rgba(245,158,11,.12),var(--panel-solid))}
+  @keyframes tin{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+
+  .empty{text-align:center;padding:40px 20px;color:var(--muted);font-size:13px}
+
+  @media(max-width:640px){
+    .wrap{padding:0 14px 50px}
+    .levels{grid-template-columns:1fr}
+    .ach-grid{grid-template-columns:1fr}
+    .brand > span:not(.dot){display:none}
+    .stem{font-size:15px}
+    .res-nums{grid-template-columns:repeat(3,1fr)}
+    .dex-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  }
+</style>
+</head>
+<body>
+<div class="blob blob-1"></div>
+<div class="blob blob-2"></div>
+
+<div class="wrap">
+  <div class="topbar">
+    <a class="back" href="./index.html">← 返回课程</a>
+    <div class="brand"><span class="dot"></span><span>投行梗学闯关</span></div>
+    <div class="stat-chip" id="c-gold">💰 0</div>
+    <button class="icon-btn" id="c-theme" title="切换深浅色">🌙</button>
+  </div>
+
+  <!-- 首页 -->
+  <section class="view on" id="v-home">
+    <div class="hero">
+      <div class="hero-top">
+        <div class="rank-badge" id="h-rank-ico">🎓</div>
+        <div class="hero-tt">
+          <h1 id="h-rank">实习生</h1>
+          <p id="h-sub">一关一个梗，把投行概念嚼碎</p>
+        </div>
+        <div class="stat-chip rank" id="h-total">已答 0 题</div>
+      </div>
+      <div class="progress"><i id="h-bar" style="width:0%"></i></div>
+      <div class="hero-foot"><span id="h-foot-l">距下一段位还需 500 金币</span><span id="h-foot-r">0%</span></div>
+    </div>
+
+    <div class="sec"><span class="bar"></span><h2>关卡地图</h2><span class="more" id="h-cleared">0 / 8 关</span></div>
+    <div class="levels" id="levels"></div>
+
+    <div class="sec"><span class="bar"></span><h2>每日挑战</h2><span class="more" id="daily-date"></span></div>
+    <button class="daily" id="btn-daily">
+      <div class="d-ico">🎲</div>
+      <div class="d-body">
+        <h3>今日 5 题 · 数字每天都不一样</h3>
+        <p id="d-sub">题目由题模实时生成，同一考点换一组数字</p>
+      </div>
+      <span class="pill" id="d-pill">开始</span>
+    </button>
+
+    <div class="sec"><span class="bar"></span><h2>我的收藏</h2></div>
+    <div class="daily" style="cursor:default">
+      <div class="d-ico">🏆</div>
+      <div class="d-body">
+        <h3 id="ach-mini">成就 0 / 32</h3>
+        <p id="ach-mini-sub">全部存在本机，不联网也能攒</p>
+      </div>
+      <button class="pill" style="background:var(--accent-solid)" onclick="GM.show('ach')">查看</button>
+    </div>
+    <div style="height:10px"></div>
+    <div class="daily" style="cursor:default">
+      <div class="d-ico">🃏</div>
+      <div class="d-body">
+        <h3 id="dex-mini">项目卡 0 / 12</h3>
+        <p id="dex-mini-sub">每关通关开一次箱，R / SR / SSR</p>
+      </div>
+      <button class="pill" style="background:var(--accent-solid)" onclick="GM.show('dex')">查看</button>
+    </div>
+  </section>
+
+  <!-- 答题 -->
+  <section class="view" id="v-play">
+    <div class="card">
+      <div class="qhead">
+        <span class="lvname" id="p-lv"></span>
+        <span class="qn" id="p-n"></span>
+        <button class="quit" id="p-quit">退出</button>
+      </div>
+      <div class="qbar"><i id="p-bar" style="width:0%"></i></div>
+      <div class="meme" id="p-meme"></div>
+      <div class="stem" id="p-stem"></div>
+      <div class="opts" id="p-opts"></div>
+      <div class="fb" id="p-fb">
+        <div class="fb-h" id="p-fbh"></div>
+        <div class="fb-t" id="p-fbt"></div>
+        <span class="kp" id="p-kp"></span>
+      </div>
+      <button class="nextbtn" id="p-next" disabled>下一题</button>
+    </div>
+  </section>
+
+  <!-- 结算 -->
+  <section class="view" id="v-res">
+    <div class="card">
+      <div class="res-head">
+        <div class="em" id="r-em">🎉</div>
+        <h2 id="r-title">通关</h2>
+        <p id="r-sub"></p>
+        <div class="res-star" id="r-stars"></div>
+      </div>
+      <div class="res-nums">
+        <div class="rn"><div class="v" id="r-acc">0%</div><div class="l">正确率</div></div>
+        <div class="rn"><div class="v" id="r-right">0/8</div><div class="l">答对题数</div></div>
+        <div class="rn hi"><div class="v" id="r-gold">+0</div><div class="l">承销费</div></div>
+      </div>
+      <div class="chest">
+        <div class="chest-box shake" id="r-chest">📦</div>
+        <p id="r-chest-t">点一下开箱</p>
+      </div>
+      <div class="draw" id="r-draw">
+        <span class="rar r" id="r-rar">R</span>
+        <h3 id="r-card">—</h3>
+        <p id="r-card-d"></p>
+      </div>
+      <button class="nextbtn" id="r-again" style="margin-top:20px">再来一关</button>
+      <button class="nextbtn" id="r-home" style="margin-top:9px;background:var(--panel-solid);color:var(--text);border:1px solid var(--panel-border);box-shadow:none">回到地图</button>
+    </div>
+  </section>
+
+  <!-- 成就墙 -->
+  <section class="view" id="v-ach">
+    <div class="sec" style="margin-top:0"><span class="bar"></span><h2>成就墙</h2><span class="more" id="ach-cnt">0 / 32</span></div>
+    <div class="ach-grid" id="ach-list"></div>
+    <button class="nextbtn" style="background:var(--panel-solid);color:var(--text);border:1px solid var(--panel-border);box-shadow:none" onclick="GM.show('home')">回到地图</button>
+  </section>
+
+  <!-- 图鉴 -->
+  <section class="view" id="v-dex">
+    <div class="sec" style="margin-top:0"><span class="bar"></span><h2>项目卡图鉴</h2><span class="more" id="dex-cnt">0 / 12</span></div>
+    <div class="dex-grid" id="dex-list"></div>
+    <button class="nextbtn" style="background:var(--panel-solid);color:var(--text);border:1px solid var(--panel-border);box-shadow:none" onclick="GM.show('home')">回到地图</button>
+  </section>
+</div>
+
+<div class="combo" id="combo"></div>
+<div class="toasts" id="toasts"></div>
+
+<script>
+(function () {
+  'use strict';
+
+  /* ============ 存储 ============ */
+  var KEY = 'ibank_game_v1';
+  var S = null;
+
+  function blank() {
+    return {
+      gold: 0, best: {}, cleared: {}, stars: {}, qTotal: 0, qRight: 0,
+      comboMax: 0, perClear: 0, ach: {}, cards: {}, days: {}, dayStreak: 0,
+      lastDay: '', dailyDone: '', fastRight: 0,
+      attemptedFailed: {}, allWrong: 0, retried: 0, fastPure: 0, comeback: 0, dailyCount: 0
+    };
+  }
+  function load() {
+    try {
+      var raw = localStorage.getItem(KEY);
+      if (raw) {
+        var o = JSON.parse(raw);
+        var b = blank();
+        /* 先把存档里的全部字段搬进来，再用默认值补缺，避免动态新增字段被丢 */
+        for (var k in o) if (o[k] !== undefined && o[k] !== null) b[k] = o[k];
+        for (var d in blank()) if (b[d] === undefined) b[d] = blank()[d];
+        return b;
+      }
+    } catch (e) {}
+    return blank();
+  }
+  function save() {
+    try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {}
+  }
+
+  /* ============ 工具 ============ */
+  function $(id) { return document.getElementById(id); }
+  function el(tag, cls, html) {
+    var d = document.createElement(tag);
+    if (cls) d.className = cls;
+    if (html != null) d.innerHTML = html;
+    return d;
+  }
+  function esc(s) {
+    return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  }
+  function today() {
+    var d = new Date();
+    return d.getFullYear() + '-' + (d.getMonth() + 1 < 10 ? '0' : '') + (d.getMonth() + 1) + '-' + (d.getDate() < 10 ? '0' : '') + d.getDate();
+  }
+  function dayKey(off) {
+    var d = new Date();
+    d.setDate(d.getDate() - off);
+    return d.getFullYear() + '-' + (d.getMonth() + 1 < 10 ? '0' : '') + (d.getMonth() + 1) + '-' + (d.getDate() < 10 ? '0' : '') + d.getDate();
+  }
+
+  /* 打乱选项：每 4 题恰好覆盖 A/B/C/D 各一次，块内顺序再哈希打乱。
+     既保证整体答案分布严格均衡（不会「答案全是 B」），又不会呈现简单循环。 */
+  function h32(n) {
+    n = Math.imul(n ^ (n >>> 16), 0x45d9f3b);
+    n = Math.imul(n ^ (n >>> 16), 0x45d9f3b);
+    n = n ^ (n >>> 16);
+    return n >>> 0;
+  }
+  function shuffleOpts(q, idx) {
+    var block = Math.floor(idx / 4), base = idx % 4;
+    var perm = [0, 1, 2, 3], s = h32(block * 2654435761 + 11);
+    for (var i = 3; i > 0; i--) {
+      s = h32(s + i * 0x9e3779b9);
+      var j = s % (i + 1);
+      var t = perm[i]; perm[i] = perm[j]; perm[j] = t;
+    }
+    var target = perm[base];
+    var others = [0, 1, 2, 3].filter(function (x) { return x !== q.a; });
+    var s2 = h32(block * 97 + base * 13 + 5);
+    for (var m = others.length - 1; m > 0; m--) {
+      s2 = h32(s2 + m * 7);
+      var j2 = s2 % (m + 1);
+      var t2 = others[m]; others[m] = others[j2]; others[j2] = t2;
+    }
+    var order = []; order[target] = q.a;
+    var k = 0;
+    for (var z = 0; z < 4; z++) if (z !== target) order[z] = others[k++];
+    var opts = [];
+    for (var y = 0; y < 4; y++) opts.push(q.o[order[y]]);
+    return { o: opts, a: target };
+  }
+
+  /* ============ 段位 ============ */
+  var RANKS = [
+    { n: '实习生', ico: '🎓', need: 0 },
+    { n: '分析师', ico: '📐', need: 500 },
+    { n: '经理', ico: '📋', need: 1500 },
+    { n: '副总裁', ico: '💼', need: 3500 },
+    { n: '董事', ico: '🧭', need: 7000 },
+    { n: '合伙人', ico: '👑', need: 12000 }
+  ];
+  function rankOf(g) {
+    var r = RANKS[0], i;
+    for (i = 0; i < RANKS.length; i++) if (g >= RANKS[i].need) r = RANKS[i];
+    return r;
+  }
+  function rankNext(g) {
+    for (var i = 0; i < RANKS.length; i++) if (g < RANKS[i].need) return RANKS[i];
+    return null;
+  }
+
+  /* ============ 关卡 ============ */
+  var LEVELS = [
+    { no: 0, ch: '第0章', name: '导论 · 投行是干什么的', desc: '中介、直接融资、看门人' },
+    { no: 1, ch: '第1章', name: '投资银行概述', desc: '业务版图、分业混业、防火墙' },
+    { no: 2, ch: '第2章', name: '企业融资方案设计', desc: '啄食顺序、摊薄、融资时机' },
+    { no: 3, ch: '第3章', name: '首次公开发行 IPO', desc: '询价定价、绿鞋、战略配售' },
+    { no: 4, ch: '第4章', name: '上市公司再融资', desc: '定增、配股、可转债、可交换债' },
+    { no: 5, ch: '第5章', name: '债券发行与承销', desc: '信用债、评级、包销' },
+    { no: 6, ch: '第6章', name: '资产证券化', desc: 'SPV、破产隔离、分层增级' },
+    { no: 7, ch: '第7章', name: '公司并购', desc: '要约、换股、控制权溢价' }
+  ];
+
+  /* ============ 题库：8 关 × 8 题，全部新写 ============ */
+  var LEVEL_QUESTIONS = 8;   /* 每次进关抽几题（题池为每关 15 题） */
+
+  var BANK = [
+    /* --- 第 0 关 导论 --- */
+    /* 扩充题：第 0 关补充 7 题（题池 8 → 15） */
+    { c: 0, kp: '一级市场与二级市场', m: '开发商把新房卖给业主，和业主之间再转手，是两笔完全不同的生意。', q: '证券市场中的「一级市场」指的是？', o: ['投资者之间相互买卖已发行证券的市场', '发行人向投资者出售新发行证券的市场', '银行之间调剂资金头寸的市场', '企业之间进行产权交易的市场'], a: 1, w: '一级市场即发行市场，发行人通过承销把新证券卖给投资者，募集资金流入发行人；二级市场是流通市场，交易在投资者之间完成，钱不进发行人口袋。' },
+    { c: 0, kp: '投行起源', m: '欧洲一些做贸易的老商号，后来不怎么贩货了，改替政府和企业张罗借钱。', q: '现代投资银行的雏形主要起源于？', o: ['欧洲的商人银行', '美国的储蓄银行', '日本的信托银行', '中国的钱庄'], a: 0, w: '19 世纪欧洲的商人银行（Merchant Bank）由贸易融资转向为政府和铁路等企业发行证券，是投资银行的直接前身；美国投行多由证券承销商演变而来。' },
+    { c: 0, kp: '金融中介功能', m: '你不懂看财报，也不敢把钱交给陌生人，宁可找个懂行的中间人替你把关。', q: '金融中介存在的重要经济功能之一是？', o: ['消除全部投资风险', '保证投资者获得固定收益', '降低资金供求双方的信息不对称', '替代监管机构执法'], a: 2, w: '中介凭专业能力与规模优势降低信息搜集核实成本，缓解逆向选择与道德风险；但它不消除风险、不保证收益，也不能替代监管。' },
+    { c: 0, kp: '发行方式', m: '同样是募集，有的在广场上对着所有人吆喝，有的只给名单上的人打电话。', q: '证券公开发行与非公开发行的核心区别在于？', o: ['发行规模的大小', '是否向不特定对象发行', '发行价格如何确定', '是否在交易所挂牌'], a: 1, w: '公开发行面向不特定对象（或超过规定人数的特定对象），须严格履行披露义务；非公开发行只面向符合条件的特定投资者，披露要求相对简化。' },
+    { c: 0, kp: '投行业务范围', m: '帮人卖、替人买、拿自己的钱下场，三件事收的钱不一样，担的风险也不一样。', q: '投资银行传统的三大业务不包括？', o: ['证券承销', '证券经纪', '证券自营', '吸收公众存款'], a: 3, w: '承销、经纪、自营是投行传统三大业务；吸收公众存款是商业银行的特许业务，投行不得经营。' },
+    { c: 0, kp: '信息披露责任', m: '材料是谁写的，谁就得对上面每个字负责，不能推给最后审批的那一方。', q: '注册制下，发行上市申请文件的信息披露责任主要由谁承担？', o: ['证券交易所', '中国证监会', '发行人和中介机构', '证券登记结算机构'], a: 2, w: '发行人承担信息披露第一责任，保荐机构、会所、律所对各自专业意见负责；交易所和证监会履行审核注册职责，不能代替发行人保证信息真实。' },
+    { c: 0, kp: '风险类型', m: '放贷的怕借款人跑路，做承销的怕货砸在自己手里、行情说变就变。', q: '与商业银行相比，投资银行主要承担的风险类型是？', o: ['以信用风险为主', '以市场风险和操作风险为主', '只有流动性风险', '不承担任何经营风险'], a: 1, w: '商业银行的核心是信用风险（借款人违约）；投行不做存贷，主要承担承销包销的市场风险、自营交易的市场风险以及操作与合规风险。' },
+    { c: 0, kp: '投行职能', m: '小区里有人想开店缺钱，有人手里有闲钱想生息，两人互不相识。', q: '投资银行在资本市场中最核心的职能是？', o: ['吸收公众存款并发放贷款', '提供保本保收益的理财产品给客户', '作为资金供需双方的中介，促成直接融资', '替企业记账和编制报表'], a: 2, w: '投行不吸存、不放贷，它是把「有钱的」和「缺钱的」拉到一起并设计证券的中介，属于直接融资环节。' },
+    { c: 0, kp: '直接融资', m: '你把钱直接借给开店的邻居，中间没有银行过手。', q: '下列属于直接融资的是？', o: ['企业向银行申请流动资金贷款', '居民购买某公司公开发行的公司债券', '企业将闲置资金存入银行定期', '商业银行购买国债'], a: 1, w: '直接融资是资金盈余方直接购买资金短缺方发行的证券。贷款和存款都要经过银行这个信用中介，属间接融资。' },
+    { c: 0, kp: '本源业务', m: '婚介所最老的本事就是牵线，不是自己结婚。', q: '投资银行最传统、最本源的业务是？', o: ['证券承销', '自营证券投资', '资产管理', '融资租赁'], a: 0, w: '承销——帮发行人把证券卖出去——是投行的立身之本，其余业务都是在此之上长出来的。' },
+    { c: 0, kp: '卖方与买方', m: '房产中介有替卖家挂牌的，也有替买家找房的，收费对象完全不同。', q: '投行的「卖方业务」指的是？', o: ['为买方机构提供投资研究与交易服务', '用自有资金买卖证券', '代客管理资产组合', '为发行人或资产出售方提供融资与交易服务'], a: 3, w: '卖方 = 服务「卖东西的人」（发行人、出售方），收入来自承销费、顾问费；买方业务则是替资金方投资。' },
+    { c: 0, kp: '收入结构', m: '办一场婚礼，策划公司收的是策划费；卖一套房，中介收的是佣金。', q: '投行在 IPO 项目中收取的主要费用是？', o: ['存贷款利差', '资产管理费', '承销保荐费', '资产托管费'], a: 2, w: 'IPO 中投行既保荐又承销，收取承销费与保荐费，通常按募集资金的一定比例计。' },
+    { c: 0, kp: '牌照准入', m: '开车要驾照，做手术要执业医师证，没有资质不能上手。', q: '在我国，企业公开发行股票并上市，必须聘请哪类机构？', o: ['具有证券承销与保荐业务资格的证券公司', '任何一家商业银行', '只需聘请会计师事务所即可完成', '只需律师事务所即可'], a: 0, w: '股票发行上市必须由具备证券承销与保荐资格的证券公司保荐承销；会所、律所是必需的中介，但不能替代保荐机构。' },
+    { c: 0, kp: '注册制', m: '以前考驾照要考官点头，现在按标准自查、事后抽查，但材料造假照样重罚。', q: '与核准制相比，注册制的核心变化是？', o: ['监管机构不再做任何审核把关，完全交由市场自行决定', '以信息披露为中心，监管重点从实质判断转向信息披露质量把关', '取消保荐人制度', '发行价格改由政府定价'], a: 1, w: '注册制不是「不审」，而是把判断权交给市场，监管专注信息披露是否真实完整；保荐制度不但保留，责任还更重。' },
+    { c: 0, kp: '看门人', m: '婚礼主持人不能既当司仪又当新郎，角色混在一起就没人把关了。', q: '注册制下，投行的角色更强调？', o: ['只负责把证券卖出去，不承担核查责任', '替投资者做投资决策，代为选股', '代替监管机构审批发行，行使审核权', '充当「看门人」，对信息披露质量负核查责任'], a: 3, w: '注册制把实质判断交给市场，投行的核查把关就成了第一道防线，这也是中介责任被大幅加重的原因。' },
+
+    /* --- 第 1 关 投资银行概述 --- */
+    /* 扩充题：第 1 关补充 7 题（题池 8 → 15） */
+    { c: 1, kp: '组织形式', m: '早年几个人合伙，亏了要拿自家房子赔；后来发现，不上市根本凑不出那么多本钱。', q: '国际大型投资银行的组织形式演变趋势是？', o: ['由上市公司退回合伙制', '由合伙制转为上市的股份有限公司', '始终维持合伙制不变', '由国家独资经营'], a: 1, w: '合伙制下合伙人承担无限责任，约束强但资本有限；20 世纪后期高盛、摩根士丹利等相继改制上市，以补充资本并分散合伙人风险。' },
+    { c: 1, kp: '经纪与自营', m: '同在交易所下单，一个赚的是手续费，一个赚的是差价，账本完全不同。', q: '证券经纪业务与证券自营业务的根本区别是？', o: ['是否收取费用', '是否以自有资金买卖并承担交易损益', '是否需要经营牌照', '是否通过交易所集中撮合成交'], a: 1, w: '经纪是代理客户交易、赚取佣金，不承担价格风险；自营是公司以自有资金买卖、自负盈亏。两者都需牌照，也都在交易所进行。' },
+    { c: 1, kp: '净资本监管', m: '监管查券商，不只看赚了多少，还要看扣掉各种风险之后，家底还剩多厚。', q: '我国对证券公司实施净资本监管的主要目的是？', o: ['限制从业人员数量', '确保公司有足够资本抵御风险并约束业务规模', '统一各项业务的收费标准与佣金水平', '规定营业部的最低面积'], a: 1, w: '净资本是经风险调整后的净资产。监管以净资本为核心约束业务规模与风险敞口，防止过度扩张导致偿付能力不足。' },
+    { c: 1, kp: '监管机构', m: '球场上有裁判，规则由他解释，犯规由他吹哨，球员不能自己定规矩。', q: '我国证券市场的核心监管机构是？', o: ['中国人民银行', '中国证券监督管理委员会', '国家金融监督管理总局', '财政部'], a: 1, w: '证监会依法对证券期货市场实施监管，负责发行注册、市场监管与稽查执法；人民银行管货币政策，金融监管总局管银行业保险业。' },
+    { c: 1, kp: '混业经营', m: '同一部法案，1933 年立的，1999 年被取代，中间管了六十多年。', q: '1999 年美国《金融服务现代化法案》的主要影响是？', o: ['进一步强化了原有的分业经营限制', '废除了分业经营限制，允许混业经营', '建立了存款保险制度', '撤销了证券监管机构'], a: 1, w: '该法案废止了 1933 年《格拉斯-斯蒂格尔法案》对银行与证券业分离的限制，金融控股公司得以同时经营银行、证券、保险业务。' },
+    { c: 1, kp: '研究独立性', m: '同一家公司，一边靠它赚承销费，一边给它的股票写评级，这话就不好说了。', q: '投行研究部门与投资银行业务部门之间设置隔离的主要原因是？', o: ['提高研究报告的产出效率', '防止承销利益影响研究报告的独立性', '降低研究部门的人力成本', '便于内部共享客户名单'], a: 1, w: '若分析师因承销关系给出偏乐观评级，会误导投资者。隔离要求研究独立于投行业务，禁止把承销项目收入与分析师评价挂钩。' },
+    { c: 1, kp: '资本市场开放', m: '两地的交易所牵了一根线，钱不用真的搬过境，账却在两边都能下。', q: '我国资本市场对外开放中，「沪深港通」机制的作用是？', o: ['允许境内外投资者买卖规定范围内的对方市场股票', '取消全部外资持股比例限制，实现完全自由化', '允许企业自由跨境发行债券', '统一两地全部交易规则'], a: 0, w: '沪深港通通过两地交易所与结算机构互联，让境外投资者买卖 A 股、境内投资者买卖港股，额度和标的范围均受监管限定。' },
+    { c: 1, kp: '业务部门', m: '一家公司里，有人卖新股，有人卖债券，还有人专门张罗「谁跟谁合并」。', q: '投行内部负责股票发行承销的部门通常称为？', o: ['DCM（债务资本市场部）', 'ECM（股权资本市场部）', '自营交易部', '资产管理部'], a: 1, w: 'ECM 管股权（Equity），DCM 管债务（Debt），M&A 管并购顾问，自营和资管属于买方性质业务。' },
+    { c: 1, kp: '分业经营', m: '1933 年的美国把「管存钱」和「炒股票」硬生生拆成两家，怕的是拿老百姓的存款去冒险。', q: '1933 年美国《格拉斯-斯蒂格尔法案》的核心内容是？', o: ['允许商业银行自由从事证券业务', '建立存款保险制度', '确立银行业与证券业分业经营', '设立证券交易委员会'], a: 2, w: '该法案在大萧条后切断了商业银行与投资银行的混业链条，分业格局延续了大半个世纪，1999 年才被废除。' },
+    { c: 1, kp: '投行与银行', m: '一个是「你把钱存我这，我借给别人」，一个是「你直接买他的股票」。', q: '关于投资银行与商业银行的区别，下列说法正确的是？', o: ['投资银行以吸收存款为主要资金来源', '投资银行主要服务于资本市场的直接融资', '商业银行完全不承担风险', '两者业务范围完全相同'], a: 1, w: '投行不吸存，靠自有资本和资本市场融资运作，核心是直接融资服务；商业银行则以存贷业务为主、承担信用风险。' },
+    { c: 1, kp: '保荐制度', m: '担保人要在合同上签字，签了字出了事就得担责。', q: '我国保荐制度中，保荐代表人的主要职责是？', o: ['负责发行人日常财务管理与账务处理', '对发行文件的真实性、准确性、完整性负责', '代表中小股东行使投票权与提案权', '为发行人股票提供持续做市服务'], a: 1, w: '保荐代表人在发行文件上签字，即对核查结论负责，上市后还有持续督导义务，责任是法定的、可追责的。' },
+    { c: 1, kp: '收入结构', m: '投行像按项目抽成的：项目过一笔，收一笔。', q: '投行收入结构中，通常波动最大、周期性最强的是？', o: ['承销费收入', '经纪业务佣金', '资产管理费', '利息收入'], a: 0, w: '承销费随发行市场冷暖剧烈波动，牛年暴增、熊年冰封；经纪和资管相对稳定，这也是投行强调收入结构多元的原因。' },
+    { c: 1, kp: '信息隔离', m: '同一栋楼里，知道内情的人不能随便把消息递给交易的人。', q: '投行设置「信息隔离墙」的主要目的是？', o: ['防止员工跳槽带走客户资源', '降低办公与运营的管理成本', '防止内幕信息跨部门流动', '提高承销费率以增加收入'], a: 2, w: '投行同时掌握发行人内幕信息和交易业务，不隔离就可能内幕交易。隔离墙是合规底线，不是管理便利。' },
+    { c: 1, kp: '买方业务', m: '卖方替人卖东西，买方拿自己的钱买东西。', q: '下列属于投行「买方性质」业务的是？', o: ['为拟上市企业做保荐', '承销企业债券', '担任并购交易的卖方顾问', '用自有资金进行证券投资'], a: 3, w: '用自有资金投资即自营，属于买方行为；前三项都是替客户（发行人、出售方）提供服务，是卖方业务。' },
+    { c: 1, kp: '经营模式', m: '一个集团下面既有银行又有券商，但各自持牌、各自受管。', q: '我国金融业目前的经营与监管格局是？', o: ['完全混业经营', '分业经营、分业监管，同时允许集团控股多种牌照', '完全自由经营，不设任何牌照与准入门槛', '只有银行业，证券业已并入'], a: 1, w: '我国实行分业经营、分业监管，但允许金融控股集团持有银行、证券、保险等多张牌照，形成「集团混业、法人分业」。' },
+
+    /* --- 第 2 关 企业融资方案设计 --- */
+    /* 扩充题：第 2 关补充 7 题（题池 8 → 15） */
+    { c: 2, kp: '优先股', m: '公司清算时先还债，再分给股东；股东队伍里，还分前后排。', q: '优先股相比普通股的主要特征是？', o: ['享有优先表决权', '优先分配利润和剩余财产，通常表决权受限', '收益随公司利润无限上浮', '持有人可随时要求公司按原价回购'], a: 1, w: '优先股在分红和剩余财产分配上顺序先于普通股，代价是通常不参与表决（特定事项除外），兼具债与股的部分特征。' },
+    { c: 2, kp: '税盾效应', m: '同样赚 100 块，借钱经营和用自有资金经营，最后交的税不一样。', q: '债务融资具有「税盾效应」，原因是？', o: ['利息支出可在税前扣除，降低实际税负', '偿还本金可抵减所得税', '债权人免征利息所得税', '债务融资不产生任何成本与费用'], a: 0, w: '利息作为财务费用在税前扣除，减少应纳税所得额，故税后债务成本 = 利率 ×(1−所得税率)，这是债务融资相对便宜的重要原因。' },
+    { c: 2, kp: 'MM 定理', m: '一张饼，切成八块还是四块，饼本身一点没变大。', q: '在无税、无摩擦的完美市场假设下，MM 定理认为？', o: ['负债越多企业价值越高', '企业价值与资本结构无关', '股权成本恒定不变', '资本结构由行业惯例决定'], a: 1, w: 'MM 第一定理指出，完美市场下企业价值取决于资产盈利能力，与融资方式无关；引入税与破产成本后，才存在最优资本结构问题。' },
+    { c: 2, kp: '财务杠杆', m: '借来的钱赚得比利息多，多出来的全归股东；要是赚得比利息少，缺口也得股东自己补。', q: '当企业资产回报率高于债务利率时，提高负债比例对每股收益的影响是？', o: ['降低每股收益', '提高每股收益', '没有影响', '无法判断'], a: 1, w: '这就是财务杠杆的正效应：资产收益率高于债务成本时，举债创造的超额收益归股东所有，EPS 上升；反之则放大亏损。' },
+    { c: 2, kp: '融资租赁', m: '一台设备几百万，一次掏不出来，有人就按月付着先用起来。', q: '融资租赁相比直接购买设备的特点不包括？', o: ['分期支付，缓解一次性资金压力', '租赁期内通常不得随意解约', '租金总额一般高于设备价款', '租赁期满设备必然归承租人所有'], a: 3, w: '融资租赁兼具融资与融物，租金总额高于价款体现资金时间价值；但期满设备归属依合同约定，可能是留购、续租或退回，并非必然归承租人。' },
+    { c: 2, kp: '信贷配给', m: '有些时候，银行宁可不做这笔生意，也不愿意加息放款。', q: '信贷配给现象指的是？', o: ['银行按利率高低把贷款分配给所有人', '借款人愿意付更高利率，银行仍限制放贷数量', '企业主动放弃借款计划', '政府强制分配贷款额度'], a: 1, w: '提高利率会吸引更高风险的借款人（逆向选择）并诱使借款人冒险（道德风险），银行因此宁可用数量配给，而不是靠价格出清。' },
+    { c: 2, kp: '融资信号', m: '你肯把自家股份让出去，外面的人就会猜：是不是你觉得现在的价格不低。', q: '信息不对称下，企业发行新股常被市场解读为负面信号，原因是？', o: ['增发会降低公司在市场上的知名度', '看好前景时更倾向债务而非出让股份', '增发必然导致当期出现经营亏损', '监管要求必须披露负面财务信息'], a: 1, w: '这是啄食顺序理论的信号逻辑：内部人比外部投资者更了解公司价值，高位增发对老股东有利，市场因而把增发读作「股价不低」的信号。' },
+    { c: 2, kp: '啄食顺序', m: '缺钱时先掏自己口袋，再找亲戚借，最后才舍得卖股份分家产。', q: '啄食顺序理论（Pecking Order）认为企业融资的优先次序是？', o: ['股权融资 → 债权融资 → 内部留存', '内部留存 → 债权融资 → 股权融资', '债权融资 → 股权融资 → 内部留存', '三者无差异，随机选择'], a: 1, w: '由于信息不对称，企业先用内部资金，再发债，最后才发股——发股往往被市场解读为「股价高估」的信号。' },
+    { c: 2, kp: '股债权衡', m: '借钱要还本付息，卖股份不用还，但家里的份额要分出去。', q: '与债权融资相比，股权融资的特点是？', o: ['有固定的还本付息义务', '综合成本一定低于债权融资的成本', '会稀释原股东控制权，但没有固定偿付压力', '不会影响资产负债率'], a: 2, w: '股权融资不还本、不付固定利息，压力小，但摊薄控制权和每股收益；债权融资成本通常可税前列支，反而更「便宜」。' },
+    { c: 2, kp: '资本成本', m: '一半钱是借的、一半是自己的，整体成本得加权算。', q: '加权平均资本成本（WACC）反映的是？', o: ['企业债务的票面利率', '企业全部资金来源的综合成本', '股票市盈率的倒数', '银行给企业的贷款利率'], a: 1, w: 'WACC 按资本结构对债务成本和股权成本加权，是评估项目是否值得投的门槛收益率。' },
+    { c: 2, kp: '摊薄效应', m: '原来 10 个人分一个蛋糕，又来 2 个人，每人那份就小了。', q: '某公司发行前总股本 4 亿股，拟非公开发行 1 亿股，原股东持股比例被摊薄约？', o: ['10%', '15%', '20%', '25%'], a: 2, w: '发行后总股本 5 亿股，新股东占 1/5 = 20%，原股东由 100% 降至 80%，即摊薄 20%。' },
+    { c: 2, kp: '融资规模', m: '先算清缺口有多大，再决定借多少，不然借多了白付利息。', q: '测算外部融资需求时，通常不需要直接考虑的因素是？', o: ['销售增长带来的资金占用增加', '内部留存收益可提供的资金', '现有员工的平均年龄', '可动用的银行授信额度'], a: 2, w: '外部融资需求 = 资金占用增加 − 内部留存 − 可动用授信等，员工年龄与资金缺口无直接关系。' },
+    { c: 2, kp: '可转债', m: '一张债券，附赠一张「以后能按约定价换成股票」的兑换券。', q: '可转换公司债券的本质是？', o: ['纯股权工具', '纯债务工具', '债券与看涨期权的组合', '债券与看跌期权的组合'], a: 2, w: '可转债 = 普通债券 + 投资者的转股选择权（看涨期权），所以票面利率低于同评级普通债。' },
+    { c: 2, kp: '融资时机', m: '行情好的时候卖家多，行情差的时候没人愿意出手。', q: '从融资时机看，企业通常在什么市场环境下更倾向股权融资？', o: ['股价被低估、市场低迷时', '股价处于高位、市场情绪乐观时', '市场利率大幅上行时', '监管暂停 IPO 期间'], a: 1, w: '高位发股能以更少股份换更多资金，摊薄最小；市场低迷时发股，等于贱卖。' },
+    { c: 2, kp: '资本结构', m: '借太多，每月利息压得喘不过气，一笔货款收不回来就断链。', q: '企业负债率过高最直接的风险是？', o: ['股东分红必然增加，回报更稳定', '财务费用上升、偿债压力加大', '股票市盈率必然上升，估值走高', '融资成本必然下降，发债更便宜'], a: 1, w: '高杠杆放大财务风险：利息刚性支出叠加到期集中兑付，一旦现金流断裂就会连锁违约。' },
+
+    /* --- 第 3 关 IPO --- */
+    /* 扩充题：第 3 关补充 7 题（题池 8 → 15） */
+    { c: 3, kp: 'IPO 动机', m: '上市不只是为了拿一笔钱，还为了让更多人知道你是谁、让员工手里的期权能变成真钱。', q: '企业选择 IPO 的动机不包括？', o: ['筹集长期权益资本', '提升公司知名度与信用水平', '为员工股权激励提供退出渠道', '免于履行信息披露义务'], a: 3, w: '上市带来融资、品牌、激励、并购支付手段等好处；代价恰恰是要持续、公开、合规地披露信息，不可能免除披露义务。' },
+    { c: 3, kp: '板块定位', m: '不是所有企业都往同一个板走：有的要求技术过硬，有的看成长速度，有的门槛更低、介入更早。', q: '我国北交所主要服务的企业类型是？', o: ['超大型国有企业', '创新型中小企业', '外商投资企业', '金融租赁公司'], a: 1, w: '北交所定位服务创新型中小企业，与沪深主板、科创板、创业板错位发展；科创板强调硬科技，创业板强调成长型创新创业企业。' },
+    { c: 3, kp: '招股说明书', m: '大件商品买之前先看说明书，写错了、瞒了事，是要担责任的。', q: '招股说明书的核心作用是？', o: ['作为承销商的内部工作底稿', '向投资者全面披露发行人的经营、财务与风险信息', '完全替代会计师事务所出具的审计报告', '确定股票上市后的交易价格'], a: 1, w: '招股书是发行的法定信息披露文件，须真实、准确、完整地披露公司情况与风险，既是投资者判断的依据，也是虚假陈述责任的载体。' },
+    { c: 3, kp: '路演', m: '上市之前，管理层要带着团队跑几个城市，一间屋子一间屋子地见人、回答问题。', q: 'IPO 路演的主要目的是？', o: ['决定发行审核能否通过', '向投资者推介发行人以促成认购和合理定价', '确定股票上市交易的具体日期与时间安排', '取代网下询价程序'], a: 1, w: '路演是管理层与投资者面对面沟通的推介活动，帮助投资者理解公司价值，是询价定价的重要环节；能否发行由审核注册决定，不靠路演。' },
+    { c: 3, kp: '网上与网下', m: '同一只新股有两条通道：一条按报价分，一条按运气抽，互不相通。', q: 'IPO 中网上发行与网下发行的主要区别是？', o: ['网上面向公众，网下面向机构投资者', '网上发行的价格低于网下', '网下发行不需要经过询价', '两者配售数量完全相同'], a: 0, w: '网下由机构投资者报价获配，是价格发现的主要来源；网上对社会公众投资者按市值申购、摇号配号，两者配售比例由发行方案确定。' },
+    { c: 3, kp: '承销团', m: '一单太大的生意，一家接不住，几家分着做，谁负责哪一块都得写清楚。', q: '规模较大的证券发行常组建承销团，主要原因是？', o: ['规避监管审批程序', '分散包销风险并扩大销售网络', '压低发行价格', '延长发行期限'], a: 1, w: '承销团由主承销商牵头、分承销商参与，既分散单家机构的包销风险，也借助各家渠道覆盖更多投资者，提高发行成功率。' },
+    { c: 3, kp: '重组上市', m: '等不及排长队的人，会去打那些「空着」的上市公司的主意。', q: '借壳上市（重组上市）与 IPO 的主要区别是？', o: ['完全不需要任何监管审核', '通过取得已上市公司控制权并注入资产实现上市', '发行价格由证监会直接核定并组织包销', '只能在境外市场操作'], a: 1, w: '借壳绕开 IPO 排队，通过重组已上市公司实现资产上市；但构成重组上市的仍须符合上市条件并接受严格审核，并非免审。' },
+    { c: 3, kp: '上市条件', m: '摆摊要办证，但不同市场的摊位要求不一样，有的看本钱，有的看手艺。', q: '企业在科创板首次公开发行股票，必须满足的条件之一是？', o: ['最近三年连续盈利且累计净利润不低于 3000 万元', '符合科创板定位，具备相应科创属性', '必须由国有企业控股', '必须已在境外市场上市'], a: 1, w: '科创板允许未盈利企业上市，核心门槛是「科创属性」而非盈利；连续盈利是主板等板块的标准之一。' },
+    { c: 3, kp: '询价定价', m: '拍卖会上不是卖家定价，是台下举牌的人一轮轮叫出来的。', q: 'A 股 IPO 向网下投资者「询价」的目的是？', o: ['确定本次发行的股票数量', '通过机构投资者报价发现发行价格', '确定上市日期', '选择保荐机构'], a: 1, w: '询价是价格发现机制：机构按自己的估值报出价格和数量，再据此确定发行价区间与最终价格。' },
+    { c: 3, kp: '市盈率定价', m: '小店估值常按「一年赚的钱乘几倍」来谈。', q: '某公司发行后总股本 1.25 亿股，预计发行当年净利润 1.5 亿元。若按 30 倍市盈率定价，发行价约为？', o: ['24 元', '30 元', '36 元', '45 元'], a: 2, w: '每股收益 = 1.5 亿 ÷ 1.25 亿 = 1.2 元，发行价 = 1.2 × 30 = 36 元。注意要用发行后股本算 EPS。' },
+    { c: 3, kp: '绿鞋机制', m: '开自助餐怕来的人多，宁可多备一点，也别让来的人没得吃。', q: '超额配售选择权（「绿鞋」）的常见比例上限是？', o: ['5%', '10%', '15%', '30%'], a: 2, w: '境内规定超额配售比例不超过发行规模的 15%。行使时可多发股票平抑股价，未行使则用于稳定后市。' },
+    { c: 3, kp: '战略配售', m: '演唱会有一批票不对外卖，专门留给赞助商，代价是一年内不能转手。', q: 'IPO 战略配售的对象通常是？', o: ['所有参与网上申购的中小散户投资者', '具有战略合作关系或长期投资意愿的特定投资者', '承销商全体员工', '发行人高管家属'], a: 1, w: '战略配售面向能带来资源、愿意长期持有的机构（产业资本、保荐机构跟投等），并有锁定期约束。' },
+    { c: 3, kp: '保荐与承销', m: '中间人既要替买家验货担保，又要帮着把货卖出去。', q: 'IPO 中「保荐」与「承销」的关系是？', o: ['两者是同一件事的两个叫法，完全等同', '保荐侧重核查推荐与持续督导，承销侧重证券销售', '承销包含保荐，范围更大', '保荐只在上市之后才发生'], a: 1, w: '保荐是「核查+推荐+督导」，承销是「卖出去」，两者常由同一家券商承担，但法律含义和责任完全不同。' },
+    { c: 3, kp: '审核注册', m: '比赛分两道评审：初评由专业评委逐项打分，终评由组委会确认最终名单。', q: '注册制下，交易所与证监会的分工是？', o: ['交易所负责注册，证监会负责审核', '交易所负责审核，证监会履行注册程序', '两者都不审核，完全由发行人自主决定', '由保荐机构决定是否准予注册'], a: 1, w: '交易所承担发行上市审核的主体责任，证监会负责注册并对交易所审核进行监督，形成「审核—注册」两级架构。' },
+    { c: 3, kp: '破发', m: '开张第一天就卖得比进货价还便宜。', q: '新股上市首日跌破发行价，通常说明？', o: ['公司一定存在严重的财务造假与违规行为', '发行定价可能偏高，或市场情绪阶段性转弱', '承销商必然构成违约', '交易所会强制其退市'], a: 1, w: '破发是市场化定价的正常结果，反映的是定价与市场预期的偏离，不等于造假，更不触发退市。' }
+    ,
+
+    /* --- 第 4 关 再融资 --- */
+    /* 扩充题：第 4 关补充 7 题（题池 8 → 15） */
+    { c: 4, kp: '公开增发', m: '同样是发新股，有的向所有人敞开，有的只跟事先谈好的人做。', q: '上市公司公开增发与定向增发的区别是？', o: ['公开增发只面向原有股东定向配售', '公开增发面向不特定对象，定增面向特定对象', '公开增发不需要承销', '公开增发不受价格约束'], a: 1, w: '公开增发向社会公众投资者发行，须承销且价格贴近市价；定增只面向符合条件的特定投资者，有底价约束和锁定期。' },
+    { c: 4, kp: '赎回条款', m: '公司有时并不希望这笔债一直挂着，会想办法让持有人早点把手里的票换成股票。', q: '可转债的「提前赎回条款」通常在什么情况下被触发？', o: ['股价持续大幅高于转股价时', '股价跌破转股价时', '公司当年出现亏损时', '债券到期前一个月内'], a: 0, w: '赎回条款是发行人的促转股工具：股价远高于转股价时，发行人按约定价格赎回，迫使投资者转股，从而减少还本付息压力。' },
+    { c: 4, kp: '回售条款', m: '同样是可转债里的条款，有的向着发行人，有的向着掏钱的那一方。', q: '可转债的「回售条款」保护的是？', o: ['发行人利益', '债券持有人利益', '承销商利益', '评级机构利益'], a: 1, w: '回售是投资者的卖出选择权：股价长期低迷或发生约定事项时，持有人可要求发行人按约定价格回购，是投资者一侧的保护条款。' },
+    { c: 4, kp: '转股溢价率', m: '一张可转债，既有一个「换成股票值多少」的数，也有一个「现在市场卖多少」的数，两个数常常对不上。', q: '可转债的转股溢价率越高，通常意味着？', o: ['转股越划算', '债券价格相对其转股价值越贵', '发行人违约风险越低', '票面利率越高'], a: 1, w: '转股溢价率 =（转债价格 ÷ 转股价值 − 1）×100%。溢价高说明市场为期权部分支付了更多对价，即时转股的套利空间小。' },
+    { c: 4, kp: '配股除权', m: '配股之后，行情软件上的股价会「凭空」少掉一块，很多人第一次见以为亏了。', q: '配股实施后需要对股价进行除权处理，原因是？', o: ['公司盈利能力下降导致估值走低', '配股价低于市价，需调整股价', '监管强制要求下调股票价格', '股东人数增加，股权被分散'], a: 1, w: '配股价通常低于市价，实施后每股含权价值被摊薄。若不作除权处理，股价会虚高；除权就是把这块价值从价格中剔除。' },
+    { c: 4, kp: '再融资间隔', m: '上一次募的钱还没花完，不可能马上再开口要一笔。', q: '监管对上市公司再融资设置间隔期要求，主要目的是？', o: ['限制公司规模扩张的速度与节奏', '防止频繁融资，督促用好募集资金', '提高承销费率以增加中介收入', '压制二级市场股价的过快上涨'], a: 1, w: '间隔期约束促使公司合理规划资金需求、提高募集资金使用效率，避免「重融资、轻使用」，保护中小投资者利益。' },
+    { c: 4, kp: '转股价格', m: '换股的价格定高了没人愿意换，定低了老股东吃亏，这个数怎么定很讲究。', q: '可转债的初始转股价格通常以什么为基准确定？', o: ['募集说明书公告前一段时间的股票均价', '发行人最近一期的每股净资产', '债券面值', '同行业平均股价'], a: 0, w: '初始转股价通常不低于募集说明书公告日前 20 个交易日公司股票均价和前一个交易日均价，以此防止转股价过低损害老股东利益。' },
+    { c: 4, kp: '定向增发', m: '老同学聚会，每人再认一份新增出资，不对外招募。', q: '上市公司非公开发行股票（定向增发）的特点是？', o: ['面向不特定社会公众公开发行', '面向规定数量以内的特定对象发行，通常设有锁定期', '不需要履行注册程序', '发行价完全由二级市场竞价决定，无任何底价约束'], a: 1, w: '定增对象是特定投资者（通常不超过 35 名），价格有底价约束且股份需锁定一段时间，本质是「小范围谈成的公开发行替代方案」。' },
+    { c: 4, kp: '配股', m: '按人头分份额，你不要，你那份就被别人低价拿走。', q: '配股的特点是？', o: ['向全体股东按持股比例配售，股东可自愿放弃认购', '只向机构投资者发行', '不需要做除权处理', '发行价格通常高于二级市场的交易价格'], a: 0, w: '配股按比例向老股东配售，价格低于市价，放弃认购会因除权而受损，所以带有一定「强制性」。' },
+    { c: 4, kp: '可转债条款', m: '股票一直跌，那张「以后换股」的兑换券就没人要了。', q: '可转债「转股价格向下修正条款」的作用是？', o: ['提高债券票面利率以吸引投资者', '股价低迷时下调转股价，促成转股', '强制投资者持有至债券到期日', '增加发行人的还本付息压力'], a: 1, w: '股价长期低于转股价就没人转股，发行人还本压力大。下修条款让转股价跟着下来，促成转股、减轻偿付压力。' },
+    { c: 4, kp: '可交换债', m: '拿手里别人家的股票去做抵押发债，到期可以用那些股票还。', q: '可交换债券与可转换债券的关键区别是？', o: ['标的为发行人持有的其他公司股票，而非自身股票', '两者在结构上完全相同，只是名称不同', '可交换债不能上市交易，只能协议转让', '可转债只能由非上市公司发行'], a: 0, w: '可转债转成「自己的」新股，会增加总股本；可交换债换的是「手里别人的」老股，不摊薄发行人股本。' },
+    { c: 4, kp: '发行方式', m: '公开摆摊谁都能买，小范围定向募集只找符合条件的机构。', q: '再融资中「公开发行」与「非公开发行」的区别，不包括？', o: ['发行对象是否特定', '是否需履行更严格的信息披露', '是否受发行对象数量限制', '是否需要聘请保荐机构'], a: 3, w: '无论公开还是非公开发行股票，都需要保荐机构保荐承销，这一点没有区别；差异在于对象、披露和人数限制。' },
+    { c: 4, kp: '锁定期', m: '便宜买进来的东西，规定一段时间内不许转手。', q: '定增股份设置锁定期的主要目的是？', o: ['限制短期套利减持，稳定股价预期', '人为提高发行价格以多募资金', '降低发行成本与中介费用', '增加交易所的佣金收入'], a: 0, w: '定增价通常低于市价，若可立即卖出就是无风险套利。锁定期把认购方与公司绑在一起，抑制套利和短期抛压。' },
+    { c: 4, kp: '摊薄', m: '一锅汤多加了水，喝起来还是那锅汤，但味道淡了。', q: '上市公司大比例定增对原股东的影响是？', o: ['持股比例上升', '持股比例被摊薄，每股收益可能同步被摊薄', '每股收益必然上升', '不影响任何财务指标与股东权益'], a: 1, w: '股本变大，原股东比例下降；若募投项目短期不产生等比例利润，每股收益也会被摊薄，这也是市场常说的「摊薄效应」。' },
+    { c: 4, kp: '募集资金监管', m: '借钱时说好去开店，结果拿去炒股，出资人肯定不干。', q: '上市公司再融资时，监管审核关注的核心是？', o: ['募集资金用途的合理性与必要性', '公司员工总人数', '公司注册地的地理位置与交通', '董事长的社会兼职'], a: 0, w: '募投项目是否真实、必要、与主业相关，以及前次募集资金是否按承诺使用，是再融资审核的重中之重。' },
+
+    /* --- 第 5 关 债券承销 --- */
+    /* 扩充题：第 5 关补充 7 题（题池 8 → 15） */
+    { c: 5, kp: '到期收益率', m: '票面上印的那个利率，和你实际到手能赚到的，往往不是一回事。', q: '债券的到期收益率（YTM）反映的是？', o: ['债券票面约定的固定利率', '按现价买入并持有到期的年化收益', '发行人主体信用评级的高低', '债券距离到期的剩余年限'], a: 1, w: 'YTM 把买入价差、票息与到期本金统一折算成年化收益，是衡量真实回报的核心指标；折价买入时 YTM 高于票面利率。' },
+    { c: 5, kp: '久期', m: '利率只动了一点点，有的债券价格纹丝不动，有的却跌得不轻。', q: '债券久期越长，意味着？', o: ['对利率变化越不敏感，波动越小', '对利率变化越敏感，价格波动越大', '信用风险越低', '票面利率必然越高'], a: 1, w: '久期衡量价格对利率变动的敏感度：久期越长，利率上升时跌幅越大，这也是长期债券利率风险更高的原因。' },
+    { c: 5, kp: '债券要素', m: '一张借条上必须写清楚借多少、给多少利息、什么时候还，缺一样就说不清。', q: '债券的基本要素不包括？', o: ['票面金额', '票面利率', '偿还期限', '发行人的股票价格'], a: 3, w: '债券的基本要素包括面值、票面利率、期限、发行人、付息方式等；发行人的股价与债券本身的条款无关。' },
+    { c: 5, kp: '地方政府专项债', m: '地方政府借钱分两种：一种靠一般财力兜着，一种盯着某个项目自己还。', q: '地方政府专项债券的偿还来源主要是？', o: ['一般公共预算收入', '对应的政府性基金或专项收入', '中央财政转移支付', '国有企业上缴利润'], a: 1, w: '专项债对应具体项目，以项目产生的政府性基金或专项收入偿还，要求收益能够自平衡；一般债券则由一般公共预算偿还。' },
+    { c: 5, kp: '受托管理人', m: '债券持有人散在各地，一个人根本没有精力去盯发行人。', q: '债券受托管理人的主要职责是？', o: ['为债券本息提供连带责任担保', '代表持有人监督履约、主张权利', '确定债券发行的票面利率', '对债券进行独立信用评级'], a: 1, w: '受托管理人由发行人聘请但须为持有人利益行事，负责监督募集资金使用、跟踪偿债能力、在违约时召集持有人会议并主张权利。' },
+    { c: 5, kp: '信用利差', m: '两张期限一模一样的债券摆在桌上，收益率却差着好几个百分点。', q: '信用利差指的是？', o: ['不同期限债券之间的利率差', '信用债收益率与同期限无风险利率之差', '票面利率与通货膨胀率之差', '境内外债券的汇率差'], a: 1, w: '信用利差是对违约风险的补偿，发行人资质越弱、行业景气越差，利差越宽，是信用债定价与风险监测的核心指标。' },
+    { c: 5, kp: '债券增信', m: '发行人不放心自己的信用不够，会想办法在自身之外再找点支撑。', q: '下列属于债券外部增信措施的是？', o: ['超额抵押', '第三方连带责任保证担保', '设置偿债基金', '优先/次级分层'], a: 1, w: '外部增信依靠第三方信用（担保、保函、保险），内部增信依靠资产或结构安排（超额抵押、偿债基金、分层），两者作用机制不同。' },
+    { c: 5, kp: '信用债', m: '借条也分等级：国家写的、地方政府写的、公司写的，靠不靠得住不一样。', q: '下列属于信用债券的是？', o: ['国债', '地方政府债券', '公司债券', '中央银行票据'], a: 2, w: '信用债是以发行人自身信用为支撑、不含政府信用背书的债券，公司债、企业债、中票短融都属此类。' },
+    { c: 5, kp: '债券定价', m: '隔壁存款利息都涨到 5% 了，你这张只给 3% 的债券，谁还按原价买。', q: '当市场利率高于债券票面利率时，该债券通常？', o: ['溢价发行', '平价发行', '折价发行', '无法发行'], a: 2, w: '票息低于市场要求回报，就得靠价格打折来补，使到期收益率回到市场水平，这就是折价发行。' },
+    { c: 5, kp: '信用评级', m: '体检报告给个分数，不是替你治病，是让别人心里有数。', q: '债券信用评级的主要作用是？', o: ['确定债券的发行规模', '揭示发行人违约风险，为投资者定价提供参考', '决定债券的期限长短', '完全替代对发行人的财务报表审计'], a: 1, w: '评级是对偿债能力和违约概率的独立判断，直接影响发行利率；它不替代审计，也不决定规模和期限。' },
+    { c: 5, kp: '城投债', m: '地方政府成立一家公司去借钱修路，还款靠财政和项目收费。', q: '城投债的还款来源主要依赖？', o: ['地方财政收入或项目自身收益', '中央财政直接拨款', '国际组织优惠贷款', '居民储蓄存款'], a: 0, w: '城投债由地方融资平台发行，偿债依赖财政补贴与项目现金流，因此与地方财政实力高度绑定。' },
+    { c: 5, kp: '承销方式', m: '代销是「卖不掉还给你」，包销是「卖不掉我自己留着」。', q: '承销商「余额包销」的含义是？', o: ['只负责代销，未售出部分退回发行人', '先全额买断再转售，承担全部发行风险', '先代销，发行结束时剩余部分由承销商自行购入', '不承担任何发行风险'], a: 2, w: '余额包销介于代销与全额包销之间：先尽力代销，剩余由承销商兜底认购，风险部分转移给承销商。' },
+    { c: 5, kp: '期限结构', m: '钱借出去越久，变数越多，利息自然要得越高。', q: '通常情况下，债券期限越长，其票面利率？', o: ['越低', '越高', '保持不变', '与期限完全无关'], a: 1, w: '期限越长，利率风险、信用风险与流动性风险暴露越久，投资者要求更高的风险补偿，形成向上的收益率曲线。' },
+    { c: 5, kp: '违约处置', m: '借钱的人还不上了，债主们得坐下来一起商量怎么办。', q: '债券违约后，持有人的主要救济途径是？', o: ['要求承销商全额赔付本息', '通过持有人会议主张权利并司法求偿', '要求交易所赔偿投资损失', '要求评级机构承担赔付责任'], a: 1, w: '承销商和评级机构只在存在过错时承担相应责任，不兜底兑付。持有人靠持有人会议集体行权、司法求偿。' },
+    { c: 5, kp: '市场结构', m: '两个菜市场卖同一种菜，一个只对批发商开，一个谁都能进。', q: '我国债券市场的主要组成部分是？', o: ['银行间债券市场与交易所债券市场', '仅上海证券交易所的债券市场', '仅银行柜台市场', '仅深圳证券交易所'], a: 0, w: '银行间市场以机构投资者为主、托管量最大；交易所市场面向更广泛投资者，两者互联互通逐步加深。' },
+
+    /* --- 第 6 关 资产证券化 --- */
+    /* 扩充题：第 6 关补充 7 题（题池 8 → 15） */
+    { c: 6, kp: '交易主体', m: '一场证券化里，出资产的、搭架子的、买证券的，是三种完全不同的角色。', q: '资产证券化中的「原始权益人」指的是？', o: ['购买资产支持证券的机构与个人投资者', '合法拥有基础资产并将其转让给 SPV 的一方', '担任计划管理人的证券公司', '为证券提供担保的银行'], a: 1, w: '原始权益人是基础资产的原始所有者，通过真实出售把资产转让给 SPV 换取资金，实现资产出表与融资。' },
+    { c: 6, kp: '现金流瀑布', m: '水从上面一层层往下流，每一层接满了才溢出给下一层，顺序不能乱。', q: '资产证券化中的「现金流瀑布」指的是？', o: ['基础资产的折旧与摊销计算方法', '按约定优先顺序分配回收款的结构安排', '投资者的申购与赎回流程', '资产池的分散化规则'], a: 1, w: '现金流瀑布规定回收款先付税费与服务费，再付优先级利息和本金，最后才轮到次级，是分层增级在分配环节的具体实现。' },
+    { c: 6, kp: '超额抵押', m: '发行证券的时候，让资产池的规模比要发行的证券大出一圈。', q: '超额抵押作为内部信用增级手段，其作用是？', o: ['提高证券的发行利率以吸引投资者', '资产池价值高于发行额，为损失提供缓冲', '降低资产池的分散度以集中管理', '缩短证券的存续期限以降低风险'], a: 1, w: '资产池价值超过所发行证券本息的部分形成超额担保，一旦出现损失先由这部分吸收，从而保护证券持有人。' },
+    { c: 6, kp: '出表动机', m: '同样一笔应收账款，留在账上，和卖给别人，报表长得完全不一样。', q: '企业开展资产证券化的重要财务动机是？', o: ['提高资产负债率', '实现资产出表、优化财务结构', '增加应收账款余额', '延长资产周转天数'], a: 1, w: '真实出售后基础资产终止确认、募集资金计入现金，可降低资产负债率、加快资产周转，这是银行与企业做证券化的核心诉求之一。' },
+    { c: 6, kp: '产品分类', m: '名字里带 M 的和不带 M 的，底层的还款来源不是一回事。', q: 'MBS 与一般 ABS 的主要区别是？', o: ['MBS 的基础资产是住房抵押贷款', 'MBS 不需要设立 SPV', 'ABS 不能做分层结构', 'MBS 只能由企业发行'], a: 0, w: 'MBS 是住房抵押贷款支持证券，基础资产为个人住房贷款；ABS 泛指以其他债权或收益权为基础资产的证券化产品，两者结构原理相同。' },
+    { c: 6, kp: 'REITs', m: '有些资产卖不掉、也拆不开，但可以切成小份让很多人持有。', q: '基础设施 REITs 的核心特征是？', o: ['以不动产为底层资产，收益来自运营现金流', '保本保收益，由发行人兜底', '只能在银行柜台购买，不能上市交易', '由发行人承诺到期按面值回购'], a: 0, w: 'REITs 把不动产或基础设施证券化，投资者持有份额并按约定比例分享租金或运营收益，不保本、不承诺回购，价格随市场波动。' },
+    { c: 6, kp: '资产池分散度', m: '同样是一亿元的资产池，装一个人和装一千个人，风险不一样。', q: '资产池的分散度对证券化产品的影响是？', o: ['分散度越高，单一债务人违约的冲击越小', '分散度越低越安全', '分散度与风险无关', '分散度只影响发行规模与期限'], a: 0, w: '资产池债务人越多、地域行业越分散，单笔违约对整体现金流的影响越小，历史违约率也越可预测，评级因此更有利。' },
+    { c: 6, kp: '证券化本质', m: '手里一堆「未来每月都能收钱」的合同，今天就想换成现金。', q: '资产证券化的本质是？', o: ['用资产抵押向银行申请贷款以获取资金', '把缺乏流动性但有稳定现金流的资产打包成证券', '发行公司股票募集权益资金', '企业之间相互提供担保以增强信用'], a: 1, w: '把「未来现金流」提前变现：打包成池、结构化分层、发行证券卖给投资者，本质是现金流的时间转换。' },
+    { c: 6, kp: '基础资产', m: '一篮鸡蛋里有几个坏的还能挑，一整筐都是坏的就没法卖了。', q: '下列最适合作为资产证券化基础资产的是？', o: ['尚未开工的建设项目，未来收益不确定', '现金流稳定、可预测的存量资产', '公司自创的商誉，无法单独变现', '仍在研发中的专利，尚未产生收入'], a: 1, w: '基础资产的核心要求是「现金流稳定、可预测、可特定化」，未开工项目、商誉、在研专利都不满足。' },
+    { c: 6, kp: '破产隔离', m: '婚前财产公证，就是为了万一对方破产，这笔钱不被牵连。', q: '资产证券化中设立 SPV（特殊目的载体）的核心目的是？', o: ['降低发行环节的税负与交易成本', '实现基础资产与原始权益人的破产隔离', '人为提高发行利率', '规避信息披露义务'], a: 1, w: 'SPV 受让基础资产后，资产不再属于原始权益人。即使原始权益人破产，这部分资产也不进入清算财产，投资者偿付才有保障。' },
+    { c: 6, kp: '信用增级', m: '给贷款买份保险，或者先垫一笔钱做缓冲。', q: '下列属于「内部」信用增级方式的是？', o: ['第三方担保', '保险机构承保', '优先/次级分层结构', '银行出具保函'], a: 2, w: '内部增级靠交易结构本身（分层、超额抵押、利差账户），外部增级靠第三方（担保、保险、保函）。' },
+    { c: 6, kp: '分层结构', m: '几个碗上下叠着接水，上面的先接满，最下面那个可能接不到。', q: '资产支持证券的优先/次级结构意味着？', o: ['优先级先获得本息偿付，次级承担首笔损失', '次级先获得偿付', '两者的收益水平与风险程度完全相同', '优先级承担的风险最高'], a: 0, w: '现金流先付优先级，损失先由次级吸收。次级相当于给优先级垫了一层安全垫，所以优先级评级高、利率低。' },
+    { c: 6, kp: '循环购买', m: '信用卡每个月都在刷、都在还，池子里的钱一直在滚动。', q: '信用卡应收账款证券化常采用循环购买结构，原因是？', o: ['账款期限短且持续新增，需不断补充资产池', '可以降低发行成本与承销费用', '为了规避监管对资本占用的要求', '为了提高证券的信用评级'], a: 0, w: '信用卡账款平均账龄只有几个月，若不循环购买，池子很快被摊薄，证券存续期无法匹配。' },
+    { c: 6, kp: '提前还款', m: '房贷客户突然提前还清了，你以为稳拿的利息没了，钱还得重新找地方投。', q: '住房抵押贷款证券化中，借款人提前还款给投资者带来的主要是？', o: ['收益确定性提高', '再投资风险与现金流不确定性', '本金必然全部损失', '没有任何影响'], a: 1, w: '提前还款使本金提前回流，投资者要在利率下行的环境里重新配置，这就是典型的提前还款风险（含再投资风险）。' },
+    { c: 6, kp: '产品类型', m: '同样叫「证券化」，银行发的、企业发的、非金融企业发的，规则各一套。', q: '我国资产证券化的主要产品类型不包括？', o: ['信贷资产证券化', '企业资产证券化', '资产支持票据（ABN）', '股票质押式回购'], a: 3, w: '股票质押式回购是融资类业务，不是资产证券化产品。前三者分别由国家金融监督管理总局、中国证监会、交易商协会主管。' },
+
+    /* --- 第 7 关 公司并购 --- */
+    /* 扩充题：第 7 关补充 7 题（题池 8 → 15） */
+    { c: 7, kp: '混合并购', m: '两家公司既不同行，也不在一条产业链上，纯粹是「看上了」。', q: '企业并购与其主营业务无关的行业企业，属于？', o: ['横向并购', '纵向并购', '混合并购', '杠杆收购'], a: 2, w: '混合并购是跨行业、无产业链关系的合并，目的多为多元化经营、分散风险，但也可能因缺乏协同而增加整合难度。' },
+    { c: 7, kp: '协议收购', m: '想拿到控制权，可以一家一家谈，也可以站到广场上对所有股东喊。', q: '协议收购与要约收购的主要区别是？', o: ['协议收购面向全体股东，要约收购面向特定股东', '协议收购与特定股东协商，要约收购面向全体', '协议收购无须披露，要约收购须披露', '协议收购只能针对非上市公司'], a: 1, w: '协议收购是收购人与特定股东协商达成股份转让；要约收购须向全体股东发出、同等条件，以保障中小股东的退出机会。' },
+    { c: 7, kp: '杠杆收购', m: '有人买公司，自己兜里掏的钱连一成都不到。', q: '杠杆收购（LBO）的典型特征是？', o: ['完全使用自有资金，不借一分钱', '少量自有资金加大量债务，以标的现金流偿债', '只能收购上市公司，不能收购非上市企业', '不需要偿还所借债务，由原股东承担'], a: 1, w: 'LBO 用高比例债务撬动收购，以标的资产与现金流作为担保和还款来源，收益放大但风险同样放大，对现金流稳定性要求极高。' },
+    { c: 7, kp: '管理层收购', m: '坐在总经理办公室里的人，某天成了公司的股东。', q: '管理层收购（MBO）指的是？', o: ['外部投资者收购公司', '公司管理层收购本公司股权以取得控制权', '公司收购其主要供应商与渠道商', '两家公司换股合并'], a: 1, w: 'MBO 由目标公司管理层主导收购，常见于国企改制、集团剥离非核心业务或私有化交易，可缓解所有者与经营者之间的代理问题。' },
+    { c: 7, kp: '尽职调查', m: '买二手房之前，总要查产权、查漏水、查有没有欠费。', q: '并购尽职调查的主要目的是？', o: ['确定交易价格的上限，防止买贵', '全面核查标的的财务、法律与经营风险', '替代交易谈判，直接敲定条款', '满足广告宣传与信息披露需要'], a: 1, w: '尽调通过财务、法律、业务、税务等多维核查，发现未披露负债、诉讼、合规瑕疵，为定价、交易条款和是否继续交易提供依据。' },
+    { c: 7, kp: '要约触发点', m: '买到一定数量之后，就不能再悄悄买了，必须公开向所有人表态。', q: '我国规定，收购人持有上市公司股份达到一定比例后继续收购，须采取要约方式。该比例是？', o: ['10%', '20%', '30%', '50%'], a: 2, w: '收购人持有一个上市公司已发行股份达到 30% 时，继续进行收购的，应当向该公司所有股东发出收购要约（符合豁免情形的除外）。' },
+    { c: 7, kp: '一致行动人', m: '几个人各自持股都不多，加起来却过了线，监管要算清楚这笔账。', q: '并购中「一致行动人」概念的作用是？', o: ['方便分散持股以规避举牌披露', '合并计算持股，防止规避要约义务', '仅适用于国有企业改制重组', '用于确定新股发行价格'], a: 1, w: '一致行动人指通过协议等方式共同扩大表决权影响的投资者，监管要求合并计算持股，避免化整为零规避 5% 举牌披露与 30% 要约义务。' },
+    { c: 7, kp: '横向并购', m: '街对面那家卖一样包子的店，干脆买下来省得打价格战。', q: '两家生产同类产品、处于同一行业的企业合并，属于？', o: ['横向并购', '纵向并购', '混合并购', '杠杆收购'], a: 0, w: '横向并购是「同行合并」，直接减少竞争对手、提升市场份额，但也最容易触发反垄断审查。' },
+    { c: 7, kp: '纵向并购', m: '面包店把上游的面粉厂买下来，成本自己说了算。', q: '企业并购其上游原材料供应商，属于？', o: ['横向并购', '纵向并购', '混合并购', '协议收购'], a: 1, w: '纵向并购沿产业链上下游延伸，目的是降低交易成本、锁定供应或渠道，形成「供产销一体化」。' },
+    { c: 7, kp: '要约收购', m: '站在楼下公开喊话：你们手里的股份，我按这个价全收。', q: '要约收购的特点是？', o: ['与个别股东私下协商转让其所持股份', '向全体股东公开作出收购要约，按同一条件收购', '只能由国有企业发起', '不需要履行信息披露义务'], a: 1, w: '要约收购的核心是「公开、同价、面向全体股东」，确保中小股东获得同等退出机会，因此披露要求极高。' },
+    { c: 7, kp: '换股合并', m: '不掏现金，用自己公司的股份去换对方公司的股份。', q: '换股吸收合并中，被合并方股东得到的是？', o: ['现金对价', '合并方新发行的股份', '固定利率债券', '无任何对价'], a: 1, w: '换股合并不消耗现金，被合并方股东变为合并方股东，合并方股本扩大，原股东比例被摊薄。' },
+    { c: 7, kp: '控制权溢价', m: '买房送车位，想拿到「说了算」的那把钥匙，总要多付点。', q: '收购上市公司控制权时通常需支付「控制权溢价」，原因是？', o: ['控制权本身有价值，买方愿为决策权多付', '法律强制规定控制权转让必须溢价', '交易所收取的通道与过户费用', '控制权股与小股东股完全等价'], a: 0, w: '取得控制权意味着能决定经营与分配，这种「决策权价值」使控制权转让价通常高于市价，即控制权溢价。' },
+    { c: 7, kp: '反收购', m: '提前把自己变得不好下口，让不速之客知难而退。', q: '下列属于反收购措施的是？', o: ['白衣骑士', '业绩承诺', '对赌协议', '绿鞋机制'], a: 0, w: '白衣骑士是引入友好方竞价抵御恶意收购；毒丸、降落伞、回购等也属反收购。业绩承诺与对赌是交易保护条款，绿鞋是发行稳定机制。' },
+    { c: 7, kp: '业绩承诺', m: '卖店的人拍胸脯：三年内每年赚不够这个数，差多少我补给你。', q: '并购重组中的业绩承诺与补偿条款，主要作用是？', o: ['直接抬高标的资产的评估估值', '约束标的原股东，降低高估值带来的风险', '替代尽职调查工作', '规避信息披露义务'], a: 1, w: '业绩承诺是对估值假设的「事后担保」：不达标则由原股东补偿，缓解信息不对称和估值虚高，但绝不能替代尽调。' },
+    { c: 7, kp: '商誉减值', m: '花大价钱买下来的「名气」，一旦生意不好，这笔钱就得认亏。', q: '并购形成的商誉，在什么情况下需要计提减值？', o: ['每年必须全额摊销，逐年冲减利润', '标的业绩不及预期、可收回金额低于账面', '只要公司股价下跌就需要减值', '商誉无需做减值测试，永不计提'], a: 1, w: '商誉不摊销、但每年必须做减值测试。一旦标的业绩变脸、可收回金额低于账面，就要计提减值，直接冲减当期利润。' }
+  ];
+  /* ============ 项目卡 ============ */
+  var CARDS = [
+    { id: 'ipo', r: 'R', e: '🏭', n: 'IPO 保荐', d: '主板首发保荐承销' },
+    { id: 'zc', r: 'R', e: '📄', n: '定向增发', d: '非公开发行募资' },
+    { id: 'bond', r: 'R', e: '📜', n: '公司债承销', d: '信用债发行' },
+    { id: 'ma', r: 'R', e: '🤝', n: '并购顾问', d: '交易撮合与估值' },
+    { id: 'abs', r: 'R', e: '🧾', n: '资产证券化', d: '现金流打包出表' },
+    { id: 'cb', r: 'R', e: '🔄', n: '可转债', d: '债+看涨期权' },
+    { id: 'green', r: 'SR', e: '👟', n: '绿鞋全额行使', d: '超额配售稳市' },
+    { id: 'cross', r: 'SR', e: '🌍', n: '跨境要约收购', d: '跨国控制权交易' },
+    { id: 'back', r: 'SR', e: '⚡', n: '借壳上市', d: '重组置换曲线上市' },
+    { id: 'block', r: 'SR', e: '💰', n: '大宗交易撮合', d: '协议转让过桥' },
+    { id: 'ant', r: 'SSR', e: '🐜', n: '蚂蚁 A+H 暂缓', d: '史上最大 IPO 暂停' },
+    { id: 'catl', r: 'SSR', e: '🔋', n: '宁德 450 亿定增', d: '再融资规模纪录' }
+  ];
+
+  /* ============ 成就 ============ */
+  var ACH = [
+    { id: 'lv1', n: '初入投行', d: '通关第 1 关', e: '🎯', c: '进度', t: function () { return !!S.cleared[0]; } },
+    { id: 'lv4', n: '半程路演', d: '通关任意 4 关', e: '🚀', c: '进度', t: function () { return count(S.cleared) >= 4; } },
+    { id: 'lv8', n: '全线通关', d: '通关全部 8 关', e: '🏁', c: '进度', t: function () { return count(S.cleared) >= 8; } },
+    { id: 'star24', n: '三星大师', d: '8 关全部三星', e: '⭐', c: '进度', t: function () { var n = 0; for (var i = 0; i < 8; i++) if (S.stars[i] === 3) n++; return n >= 8; } },
+    { id: 'pure1', n: '一题不落', d: '单关全部答对', e: '💯', c: '进度', t: function () { return S.perClear >= 1; } },
+    { id: 'pure5', n: '五连满分', d: '累计 5 次单关全对', e: '🎖️', c: '进度', t: function () { return S.perClear >= 5; } },
+    { id: 'cb3', n: '三连击', d: '连续答对 3 题', e: '🔥', c: '技巧', t: function () { return S.comboMax >= 3; } },
+    { id: 'cb5', n: '五连击', d: '连续答对 5 题', e: '⚡', c: '技巧', t: function () { return S.comboMax >= 5; } },
+    { id: 'cb8', n: '八连击', d: '连续答对 8 题', e: '🌪️', c: '技巧', t: function () { return S.comboMax >= 8; } },
+    { id: 'fast1', n: '秒答', d: '3 秒内答对一题', e: '⏱️', c: '技巧', t: function () { return S.fastRight >= 1; } },
+    { id: 'fast10', n: '手比脑子快', d: '累计 10 次 3 秒内答对', e: '🏎️', c: '技巧', t: function () { return S.fastRight >= 10; } },
+    { id: 'come', n: '绝地反击', d: '答错后立刻连对 4 题', e: '🛡️', c: '技巧', t: function () { return S.comeback >= 1; } },
+    { id: 'steady', n: '稳如老狗', d: '单关正确率 100% 且用时少于 2 分钟', e: '🧘', c: '技巧', t: function () { return S.fastPure >= 1; } },
+    { id: 'star2', n: '双星闪耀', d: '任意 2 关拿到三星', e: '💫', c: '技巧', t: function () { var n = 0; for (var i = 0; i < 8; i++) if (S.stars[i] === 3) n++; return n >= 2; } },
+    { id: 'q100', n: '百题斩', d: '累计答题 100 道', e: '📚', c: '积累', t: function () { return S.qTotal >= 100; } },
+    { id: 'q300', n: '三百题', d: '累计答题 300 道', e: '🧱', c: '积累', t: function () { return S.qTotal >= 300; } },
+    { id: 'q500', n: '五百题', d: '累计答题 500 道', e: '🗿', c: '积累', t: function () { return S.qTotal >= 500; } },
+    { id: 'g1k', n: '千金', d: '累计赚到 1000 承销费', e: '💰', c: '积累', t: function () { return S.gold >= 1000; } },
+    { id: 'g5k', n: '五千金', d: '累计赚到 5000 承销费', e: '💎', c: '积累', t: function () { return S.gold >= 5000; } },
+    { id: 'g12k', n: '合伙人', d: '累计赚到 12000 承销费', e: '👑', c: '积累', t: function () { return S.gold >= 12000; } },
+    { id: 'c1', n: '第一张卡', d: '开箱获得第一张项目卡', e: '🃏', c: '图鉴', t: function () { return count(S.cards) >= 1; } },
+    { id: 'c6', n: '收集癖', d: '集齐 6 种项目卡', e: '🗂️', c: '图鉴', t: function () { return count(S.cards) >= 6; } },
+    { id: 'c12', n: '全图鉴', d: '集齐全部 12 种项目卡', e: '🏆', c: '图鉴', t: function () { return count(S.cards) >= 12; } },
+    { id: 'ssr1', n: '欧皇', d: '抽到一张 SSR', e: '✨', c: '图鉴', t: function () { return ssrCount() >= 1; } },
+    { id: 'ssr2', n: '双黄蛋', d: '集齐两张 SSR', e: '🌟', c: '图鉴', t: function () { return ssrCount() >= 2; } },
+    { id: 'd3', n: '三日不散', d: '连续 3 天来闯关', e: '📅', c: '坚持', t: function () { return S.dayStreak >= 3; } },
+    { id: 'd7', n: '七日之约', d: '连续 7 天来闯关', e: '🗓️', c: '坚持', t: function () { return S.dayStreak >= 7; } },
+    { id: 'night', n: '投行夜猫', d: '在 0–5 点答对一题', e: '🌙', c: '坚持', t: function () { var h = new Date().getHours(); return h >= 0 && h < 5 && S.qRight > 0; } },
+    { id: 'early', n: '早鸟', d: '在 6–8 点答对一题', e: '🌅', c: '坚持', t: function () { var h = new Date().getHours(); return h >= 6 && h < 9 && S.qRight > 0; } },
+    { id: 'daily5', n: '每日打卡', d: '完成一次每日挑战', e: '🎲', c: '坚持', t: function () { return !!S.dailyDone; } },
+    { id: 'allwrong', n: '全错也是缘', d: '单关一道没对', e: '🙃', c: '隐藏', t: function () { return !!S.allWrong; } },
+    { id: 'retry', n: '再来一次', d: '同一关先失败、后通关', e: '🔁', c: '隐藏', t: function () { return !!S.retried; } }
+  ];
+
+  function count(o) { var n = 0; for (var k in o) if (o[k]) n++; return n; }
+  function ssrCount() {
+    var n = 0;
+    for (var k in S.cards) if (S.cards[k]) { for (var i = 0; i < CARDS.length; i++) if (CARDS[i].id === k && CARDS[i].r === 'SSR') n++; }
+    return n;
+  }
+
+  /* ============ 题模生成器（每日挑战用） ============ */
+  function rnd(seed) { var x = Math.sin(seed) * 10000; return x - Math.floor(x); }
+  function pick(arr, seed) { return arr[Math.floor(rnd(seed) * arr.length) % arr.length]; }
+  function money(v) { return v.toFixed(2).replace(/\.00$/, ''); }
+
+  var GEN = [
+    function (s) {
+      var eps = +(0.3 + rnd(s * 1.7) * 2.2).toFixed(2);
+      var pe = 15 + Math.floor(rnd(s * 2.3) * 26);
+      var price = +(eps * pe).toFixed(2);
+      var wrongs = [+(eps * (pe - 6)).toFixed(2), +(eps * (pe + 8)).toFixed(2), +(price * 0.8).toFixed(2)];
+      return {
+        m: '小店的估值常按「一年赚多少乘几倍」来谈，股市里也一样。',
+        q: '某公司发行后总股本对应每股收益 ' + eps + ' 元，若按 ' + pe + ' 倍市盈率定价，发行价约为？',
+        o: ['约 ' + money(wrongs[0]) + ' 元', '约 ' + money(wrongs[1]) + ' 元', '约 ' + money(price) + ' 元', '约 ' + money(wrongs[2]) + ' 元'],
+        a: 2, kp: '市盈率定价',
+        w: '发行价 = 每股收益 × 市盈率 = ' + eps + ' × ' + pe + ' = ' + money(price) + ' 元。'
+      };
+    },
+    function (s) {
+      var n = (500 + Math.floor(rnd(s * 3.1) * 9500));
+      var extra = Math.round(n * 0.15);
+      return {
+        m: '开自助餐怕来的人多，先按 15% 多备餐。',
+        q: '某公司 IPO 发行 ' + n + ' 万股，超额配售选择权按上限 15% 全额行使，可额外发行约多少股？',
+        o: ['约 ' + Math.round(n * 0.10) + ' 万股', '约 ' + extra + ' 万股', '约 ' + Math.round(n * 0.25) + ' 万股', '约 ' + Math.round(n * 0.5) + ' 万股'],
+        a: 1, kp: '绿鞋机制',
+        w: n + ' × 15% ≈ ' + extra + ' 万股。绿鞋上限 15%，用于平抑上市后股价波动。'
+      };
+    },
+    function (s) {
+      var x = +(3 + rnd(s * 4.4) * 27).toFixed(1);
+      var f = pick([1.5, 2, 2.5, 3, 4], s * 5.1);
+      var fee = +(x * f / 100).toFixed(3);
+      return {
+        m: '中介按成交额抽成，成交越大，抽得越多。',
+        q: '某企业债券募资 ' + x + ' 亿元，承销费率 ' + f + '%，承销费约为？',
+        o: ['约 ' + (x * f / 100 * 2).toFixed(2) + ' 亿元', '约 ' + (x * f / 100 / 2).toFixed(2) + ' 亿元', '约 ' + fee.toFixed(2) + ' 亿元', '约 ' + (x * f / 1000).toFixed(2) + ' 亿元'],
+        a: 2, kp: '承销费率',
+        w: '承销费 = 募资规模 × 费率 = ' + x + ' × ' + f + '% ≈ ' + fee.toFixed(2) + ' 亿元。'
+      };
+    },
+    function (s) {
+      var a = (2 + Math.floor(rnd(s * 6.2) * 10));
+      var b = (1 + Math.floor(rnd(s * 7.3) * 4));
+      var dil = +(b / (a + b) * 100).toFixed(1);
+      return {
+        m: '原来十个人分一个蛋糕，又挤进来两个。',
+        q: '某公司发行前总股本 ' + a + ' 亿股，拟非公开发行 ' + b + ' 亿股，发行后原股东持股比例被摊薄约？',
+        o: ['约 ' + (b / a * 100).toFixed(1) + '%', '约 ' + dil.toFixed(1) + '%', '约 ' + (dil / 2).toFixed(1) + '%', '约 ' + (100 - dil).toFixed(1) + '%'],
+        a: 1, kp: '摊薄效应',
+        w: '发行后总股本 ' + (a + b) + ' 亿股，新股东占 ' + b + '/' + (a + b) + ' ≈ ' + dil.toFixed(1) + '%，即原股东被摊薄这么多。'
+      };
+    },
+    function (s) {
+      var c = (2 + Math.floor(rnd(s * 8.5) * 5));
+      var y = (2 + Math.floor(rnd(s * 9.7) * 6));
+      var ai, w;
+      if (y > c) { ai = 2; w = '市场要求 ' + y + '% 高于票面 ' + c + '%，票息不够，只能靠价格打折补足，即折价发行。'; }
+      else if (y < c) { ai = 1; w = '市场要求 ' + y + '% 低于票面 ' + c + '%，票息更优，投资者愿多付钱，即溢价发行。'; }
+      else { ai = 0; w = '市场要求收益率与票面利率同为 ' + c + '%，价格等于面值，即平价发行。'; }
+      return {
+        m: '隔壁存款都涨息了，你手里这张老债券就显得不划算。',
+        q: '某债券票面利率 ' + c + '%，同期市场要求收益率为 ' + y + '%，该债券应如何发行？',
+        o: ['平价发行', '溢价发行', '折价发行', '无法确定'],
+        a: ai, kp: '债券定价', w: w
+      };
+    },
+    function (s) {
+      var pre = (10 + Math.floor(rnd(s * 10.3) * 40));
+      var price = +(pre * 0.8).toFixed(2);
+      return {
+        m: '打折卖东西，但打折的底线是有规矩的。',
+        q: '某公司定增定价基准日前 20 个交易日均价为 ' + pre + ' 元，按现行规则发行底价约为？',
+        o: ['约 ' + money(price) + ' 元', '约 ' + money(pre * 0.9) + ' 元', '约 ' + money(pre * 0.7) + ' 元', '即 ' + pre + ' 元'],
+        a: 0, kp: '定增定价',
+        w: '定增发行价不得低于定价基准日前 20 个交易日均价的 80%，即 ' + pre + ' × 80% = ' + money(price) + ' 元。'
+      };
+    },
+    function (s) {
+      var d = (5 + Math.floor(rnd(s * 11.9) * 20));
+      var e = (3 + Math.floor(rnd(s * 12.7) * 12));
+      var wacc = +((d / (d + e)) * 5 + (e / (d + e)) * 12).toFixed(1);
+      return {
+        m: '一半借的、一半自己的，整体成本要加权。',
+        q: '某公司债务资本 ' + d + ' 亿元、成本 5%，股权资本 ' + e + ' 亿元、成本 12%，其 WACC 约为？',
+        o: ['约 ' + (wacc * 0.8).toFixed(1) + '%', '约 ' + wacc + '%', '约 ' + (wacc * 1.2).toFixed(1) + '%', '12%'],
+        a: 1, kp: '加权平均资本成本',
+        w: 'WACC = ' + d + '/(' + d + '+' + e + ') × 5% + ' + e + '/(' + d + '+' + e + ') × 12% ≈ ' + wacc + '%。'
+      };
+    },
+    function (s) {
+      var p = (8 + Math.floor(rnd(s * 13.3) * 30));
+      var prem = (10 + Math.floor(rnd(s * 14.1) * 30));
+      var offer = +(p * (1 + prem / 100)).toFixed(2);
+      return {
+        m: '想要人家手里的股份，通常得比市价多给点。',
+        q: '某上市公司股价 ' + p + ' 元，收购方以 ' + prem + '% 溢价发出全面要约，要约价约为？',
+        o: ['约 ' + money(offer) + ' 元', '约 ' + money(p * (1 - prem / 100)) + ' 元', '即 ' + p + ' 元', '约 ' + money(p * 2) + ' 元'],
+        a: 0, kp: '要约收购溢价',
+        w: '要约价 = ' + p + ' × (1 + ' + prem + '%) ≈ ' + money(offer) + ' 元，溢价部分即控制权溢价的体现。'
+      };
+    }
+  ];
+
+  function optUniq(o) {
+    var m = {}, n = 0;
+    for (var i = 0; i < o.length; i++) { if (!m[o[i]]) { m[o[i]] = 1; n++; } }
+    return n;
+  }
+
+  function genQuestions(seedStr, n) {
+    var out = [];
+    var base = 0;
+    for (var i = 0; i < seedStr.length; i++) base = (base * 31 + seedStr.charCodeAt(i)) % 100000;
+    var used = {};
+    for (var j = 0; j < n; j++) {
+      var idx = (base + j * 3) % GEN.length;
+      var guard = 0;
+      while (used[idx] && guard++ < 20) idx = (idx + 1) % GEN.length;
+      used[idx] = 1;
+      /* 选项若撞车（两个干扰项算出同一个数），换个种子重生成，避免出现两个一样的选项 */
+      var seedQ = base + j * 137 + 7, q = GEN[idx](seedQ), g2 = 0;
+      while (optUniq(q.o) < 4 && g2++ < 8) { seedQ += 1301; q = GEN[idx](seedQ); }
+      out.push({ c: 99, kp: q.kp, m: q.m, q: q.q, o: q.o, a: q.a, w: q.w, _seed: base + j * 37 });
+    }
+    return out;
+  }
+
+  /* ============ 状态与视图 ============ */
+  var P = null;
+
+  function show(v) {
+    var ids = ['home', 'play', 'res', 'ach', 'dex'];
+    for (var i = 0; i < ids.length; i++) {
+      var node = $('v-' + ids[i]);
+      if (node) node.classList.toggle('on', ids[i] === v);
+    }
+    if (v === 'home') renderHome();
+    if (v === 'ach') renderAch();
+    if (v === 'dex') renderDex();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function toast(ico, txt, gold) {
+    var t = el('div', 'toast' + (gold ? ' gold' : ''));
+    t.innerHTML = '<span class="ti">' + ico + '</span><div>' + txt + '</div>';
+    $('toasts').appendChild(t);
+    setTimeout(function () {
+      t.style.transition = '.3s'; t.style.opacity = '0'; t.style.transform = 'translateY(8px)';
+      setTimeout(function () { t.remove(); }, 320);
+    }, 2600);
+  }
+
+  /* ============ 首页 ============ */
+  function renderHome() {
+    var r = rankOf(S.gold), nx = rankNext(S.gold);
+    $('h-rank').textContent = r.n;
+    $('h-rank-ico').textContent = r.ico;
+    $('h-sub').textContent = '一关一个梗，把投行概念嚼碎';
+    $('h-total').textContent = '已答 ' + S.qTotal + ' 题';
+    $('c-gold').textContent = '💰 ' + S.gold;
+
+    var pct;
+    if (nx) {
+      pct = Math.round((S.gold - r.need) / (nx.need - r.need) * 100);
+      $('h-foot-l').textContent = '距「' + nx.n + '」还需 ' + (nx.need - S.gold) + ' 金币';
+    } else {
+      pct = 100;
+      $('h-foot-l').textContent = '已达最高段位';
+    }
+    $('h-bar').style.width = Math.max(2, Math.min(100, pct)) + '%';
+    $('h-foot-r').textContent = pct + '%';
+
+    var cleared = 0;
+    var box = $('levels'); box.innerHTML = '';
+    for (var i = 0; i < LEVELS.length; i++) {
+      var L = LEVELS[i];
+      var done = !!S.cleared[i];
+      if (done) cleared++;
+      var unlocked = i === 0 || !!S.cleared[i - 1];
+      var st = S.stars[i] || 0;
+      var d = el('button', 'lv' + (done ? ' done' : '') + (unlocked ? '' : ' locked'));
+      var stars = '';
+      for (var k = 0; k < 3; k++) stars += '<span class="s' + (k < st ? ' on' : '') + '">★</span>';
+      d.innerHTML = '<div class="lv-no">' + (unlocked ? (i + 1) : '🔒') + '</div>' +
+        '<div class="lv-body"><h3>' + esc(L.name) + '</h3><p>' + esc(L.ch + ' · ' + L.desc) + '</p>' +
+        '<div class="lv-stars">' + stars + '</div></div>';
+      if (unlocked) {
+        (function (no) { d.onclick = function () { startLevel(no); }; })(i);
+      } else {
+        d.onclick = function () { toast('🔒', '先通关上一关才能解锁'); };
+      }
+      box.appendChild(d);
+    }
+    $('h-cleared').textContent = cleared + ' / 8 关';
+
+    var dd = new Date();
+    $('daily-date').textContent = (dd.getMonth() + 1) + ' 月 ' + dd.getDate() + ' 日';
+    var doneToday = S.dailyDone === today();
+    $('d-pill').textContent = doneToday ? '已完成' : '开始';
+    $('d-pill').className = 'pill' + (doneToday ? ' ok' : '');
+    $('d-sub').textContent = doneToday ? '今天已完成，明天换一批新数字' : '题目由题模实时生成，同一考点换一组数字';
+
+    var an = 0;
+    for (var a = 0; a < ACH.length; a++) if (S.ach[ACH[a].id]) an++;
+    $('ach-mini').textContent = '成就 ' + an + ' / ' + ACH.length;
+    $('ach-mini-sub').textContent = an === ACH.length ? '全部达成，你就是传说本人' : '全部存在本机，不联网也能攒';
+    $('dex-mini').textContent = '项目卡 ' + count(S.cards) + ' / ' + CARDS.length;
+    $('dex-mini-sub').textContent = count(S.cards) === CARDS.length ? '图鉴集齐，可以毕业了' : '每关通关开一次箱，R / SR / SSR';
+  }
+
+  /* ============ 开始关卡 ============ */
+  /* 从题池里随机抽 n 题：每次进关顺序不同，重玩不会是同一套题 */
+  function drawN(pool, n) {
+    var a = pool.slice();
+    for (var i = a.length - 1; i > 0; i--) {
+      var j = Math.floor(Math.random() * (i + 1));
+      var t = a[i]; a[i] = a[j]; a[j] = t;
+    }
+    return a.slice(0, Math.min(n, a.length));
+  }
+
+  function startLevel(no) {
+    var pool = [];
+    for (var i = 0; i < BANK.length; i++) if (BANK[i].c === no) pool.push(BANK[i]);
+    var qs = drawN(pool, LEVEL_QUESTIONS);
+    P = { mode: 'level', lv: no, qs: qs, i: 0, right: 0, combo: 0, t0: Date.now(), wrong: 0, gold: 0, answered: false, comeback: 0 };
+    $('p-lv').textContent = LEVELS[no].ch + '　·　第 ' + (no + 1) + ' 关';
+    show('play');
+    renderQ();
+  }
+
+  function startDaily() {
+    if (S.dailyDone === today()) { toast('✅', '今天的每日挑战已经完成，明天再来'); return; }
+    var qs = genQuestions(today(), 5);
+    P = { mode: 'daily', lv: -1, qs: qs, i: 0, right: 0, combo: 0, t0: Date.now(), wrong: 0, gold: 0, answered: false, comeback: 0 };
+    $('p-lv').textContent = '每日挑战 · ' + today();
+    show('play');
+    renderQ();
+  }
+
+  /* ============ 答题 ============ */
+  function renderQ() {
+    var q = P.qs[P.i];
+    var sh = shuffleOpts(q, q._i != null ? q._i : (q._seed || 0));
+    P.cur = { q: q, opts: sh.o, a: sh.a, t: Date.now() };
+    P.answered = false;
+
+    $('p-n').textContent = (P.i + 1) + ' / ' + P.qs.length;
+    $('p-bar').style.width = (P.i / P.qs.length * 100) + '%';
+    $('p-meme').innerHTML = '<b>梗</b>　' + esc(q.m);
+    $('p-stem').textContent = q.q;
+
+    var box = $('p-opts'); box.innerHTML = '';
+    var keys = ['A', 'B', 'C', 'D'];
+    for (var i = 0; i < sh.o.length; i++) {
+      var b = el('button', 'opt');
+      b.innerHTML = '<span class="k">' + keys[i] + '</span><span>' + esc(sh.o[i]) + '</span>';
+      (function (idx, node) { node.onclick = function () { answer(idx, node); }; })(i, b);
+      box.appendChild(b);
+    }
+    var fb = $('p-fb'); fb.className = 'fb'; $('p-next').disabled = true;
+    $('p-next').textContent = (P.i === P.qs.length - 1) ? '看结算' : '下一题';
+  }
+
+  function answer(idx, node) {
+    if (P.answered) return;
+    P.answered = true;
+    var c = P.cur, ok = idx === c.a;
+    var nodes = $('p-opts').children;
+    for (var i = 0; i < nodes.length; i++) {
+      nodes[i].classList.add('dis');
+      nodes[i].onclick = null;
+      if (i === c.a) { nodes[i].classList.add('right'); }
+      else if (i === idx) { nodes[i].classList.add('wrong'); }
+    }
+
+    var secs = (Date.now() - c.t) / 1000;
+    S.qTotal++;
+
+    var fb = $('p-fb');
+    if (ok) {
+      P.right++; S.qRight++;
+      P.combo++; P.comeback++;
+      if (P.combo > S.comboMax) S.comboMax = P.combo;
+      if (secs <= 3) { S.fastRight++; }
+      if (P.comeback >= 4) S.comeback = (S.comeback || 0) + 1;
+      var gain = 10 + Math.min(P.combo - 1, 5) * 2;
+      P.gold += gain; S.gold += gain;
+      fb.className = 'fb ok on';
+      $('p-fbh').innerHTML = '✓ 答对了　<span style="color:var(--gold);font-size:12.5px">+' + gain + ' 承销费</span>';
+      if (P.combo >= 3) showCombo(P.combo);
+    } else {
+      P.combo = 0; P.comeback = 0; P.wrong++;
+      fb.className = 'fb no on';
+      $('p-fbh').textContent = '✗ 答错了';
+    }
+    $('p-fbt').textContent = c.q.w;
+    $('p-kp').textContent = c.q.kp || '知识点';
+    $('p-next').disabled = false;
+    $('c-gold').textContent = '💰 ' + S.gold;
+    save();
+  }
+
+  function showCombo(n) {
+    var c = $('combo');
+    c.textContent = 'COMBO ×' + n;
+    c.classList.remove('pop');
+    void c.offsetWidth;
+    c.classList.add('pop');
+  }
+
+  function nextQ() {
+    if (P.i < P.qs.length - 1) {
+      P.i++;
+      renderQ();
+    } else {
+      finish();
+    }
+  }
+
+  /* ============ 结算 ============ */
+  function finish() {
+    var n = P.qs.length, acc = Math.round(P.right / n * 100);
+    var isLevel = P.mode === 'level';
+    var pass = acc >= 50;
+    var stars = acc >= 100 ? 3 : acc >= 75 ? 2 : acc >= 50 ? 1 : 0;
+    var bonus = 0;
+    if (isLevel && pass) {
+      bonus = stars * 20;
+      S.gold += bonus;
+    }
+
+    var wasCleared = isLevel && !!S.cleared[P.lv];
+    if (isLevel) {
+      if (pass) {
+        if (!wasCleared) S.cleared[P.lv] = 1;
+        if ((S.stars[P.lv] || 0) < stars) S.stars[P.lv] = stars;
+        if (acc === 100) S.perClear = (S.perClear || 0) + 1;
+        var secs = (Date.now() - P.t0) / 1000;
+        if (acc === 100 && secs < 120) S.fastPure = (S.fastPure || 0) + 1;
+        if (!wasCleared && S.attemptedFailed && S.attemptedFailed[P.lv]) S.retried = 1;
+      } else {
+        S.attemptedFailed = S.attemptedFailed || {};
+        S.attemptedFailed[P.lv] = 1;
+        if (P.right === 0) S.allWrong = 1;
+      }
+    } else {
+      S.dailyDone = today();
+      S.dailyCount = (S.dailyCount || 0) + 1;
+    }
+
+    /* 连续天数 */
+    var td = today();
+    if (S.lastDay !== td) {
+      if (S.lastDay === dayKey(1)) S.dayStreak = (S.dayStreak || 0) + 1;
+      else S.dayStreak = 1;
+      S.lastDay = td;
+    }
+    S.days[td] = 1;
+
+    $('r-em').textContent = acc === 100 ? '🏆' : pass ? '🎉' : '💪';
+    $('r-title').textContent = isLevel ? (pass ? '第 ' + (P.lv + 1) + ' 关通关' : '没过，再来一次') : (pass ? '今日挑战完成' : '今日挑战结束');
+    $('r-sub').textContent = isLevel ? LEVELS[P.lv].name : '每天换一组数字，明天还有';
+    $('r-acc').textContent = acc + '%';
+    $('r-right').textContent = P.right + '/' + n;
+    $('r-gold').textContent = '+' + (P.gold + bonus);
+
+    var sb = $('r-stars'); sb.innerHTML = '';
+    for (var i = 0; i < 3; i++) {
+      var s = el('span', 's' + (i < stars ? ' on' : ''), '★');
+      s.style.transitionDelay = (i * 0.12) + 's';
+      sb.appendChild(s);
+    }
+
+    /* 开箱：只有通关的关卡和每日挑战才给 */
+    P.canChest = pass;
+    $('r-chest').style.display = pass ? '' : 'none';
+    $('r-chest-t').style.display = pass ? '' : 'none';
+    $('r-chest-t').textContent = '点一下开箱';
+    $('r-chest').textContent = '📦';
+    $('r-chest').classList.add('shake');
+    $('r-draw').className = 'draw';
+
+    $('r-again').textContent = isLevel ? '再打这一关' : '回到地图';
+    $('r-again').onclick = function () { if (isLevel) startLevel(P.lv); else show('home'); };
+
+    save();
+    checkAch();
+    show('res');
+  }
+
+  function openChest() {
+    if (!P || !P.canChest || P.chestOpened) return;
+    P.chestOpened = true;
+    var box = $('r-chest');
+    box.classList.remove('shake');
+    box.textContent = '🎁';
+
+    var roll = Math.random();
+    var tier = roll < 0.07 ? 'SSR' : roll < 0.35 ? 'SR' : 'R';
+    var pool = [];
+    for (var i = 0; i < CARDS.length; i++) if (CARDS[i].r === tier) pool.push(CARDS[i]);
+    var card = pool[Math.floor(Math.random() * pool.length)];
+    var isNew = !S.cards[card.id];
+    S.cards[card.id] = (S.cards[card.id] || 0) + 1;
+    save();
+
+    var d = $('r-draw');
+    $('r-rar').textContent = card.r;
+    $('r-rar').className = 'rar ' + card.r.toLowerCase();
+    $('r-card').textContent = card.e + '　' + card.n;
+    $('r-card-d').innerHTML = esc(card.d) + (isNew
+      ? '　·　<span style="color:var(--gold);font-weight:700">新卡入册</span>'
+      : '　·　重复获得，已累加');
+    d.className = 'draw on';
+
+    if (tier === 'SSR') toast('✨', '<b>' + card.n + '</b>　SSR 出货！', true);
+    checkAch();
+  }
+
+  /* ============ 成就检查 ============ */
+  function checkAch() {
+    var got = [];
+    for (var i = 0; i < ACH.length; i++) {
+      var a = ACH[i];
+      if (S.ach[a.id]) continue;
+      var pass = false;
+      try { pass = !!a.t(); } catch (e) { pass = false; }
+      if (pass) { S.ach[a.id] = Date.now(); got.push(a); }
+    }
+    save();
+    if (got.length) {
+      got.forEach(function (a, k) {
+        setTimeout(function () { toast(a.e, '成就解锁　<b>' + a.n + '</b>', true); }, k * 420);
+      });
+    }
+  }
+
+  /* ============ 成就墙 ============ */
+  function renderAch() {
+    var box = $('ach-list'); box.innerHTML = '';
+    var n = 0;
+    var cats = ['进度', '技巧', '积累', '图鉴', '坚持', '隐藏'];
+    var sorted = ACH.slice().sort(function (a, b) {
+      var ia = cats.indexOf(a.c), ib = cats.indexOf(b.c);
+      return ia - ib;
+    });
+    for (var i = 0; i < sorted.length; i++) {
+      var a = sorted[i], on = !!S.ach[a.id];
+      if (on) n++;
+      var d = el('div', 'ach ' + (on ? 'on' : 'off'));
+      d.innerHTML = '<div class="a-ico">' + (on ? a.e : '🔒') + '</div>' +
+        '<div class="a-b"><h4>' + esc(a.n) + '</h4><p>' + esc(a.d) + '</p>' +
+        '<span class="a-t">' + a.c + (on ? ' · 已解锁' : '') + '</span></div>';
+      box.appendChild(d);
+    }
+    $('ach-cnt').textContent = n + ' / ' + ACH.length;
+  }
+
+  /* ============ 图鉴 ============ */
+  function renderDex() {
+    var box = $('dex-list'); box.innerHTML = '';
+    var n = 0;
+    for (var i = 0; i < CARDS.length; i++) {
+      var c = CARDS[i], has = !!S.cards[c.id];
+      if (has) n++;
+      var d = el('div', 'dex ' + (has ? '' : 'off'));
+      d.innerHTML = '<span class="d-r ' + c.r.toLowerCase() + '">' + c.r + '</span>' +
+        '<div class="d-e">' + (has ? c.e : '❔') + '</div>' +
+        '<h4>' + (has ? esc(c.n) : '未解锁') + '</h4>' +
+        '<p>' + (has ? esc(c.d) : '继续闯关开箱') + '</p>';
+      box.appendChild(d);
+    }
+    $('dex-cnt').textContent = n + ' / ' + CARDS.length;
+  }
+
+  /* ============ 主题 ============ */
+  function initTheme() {
+    var t = 'light';
+    try { t = localStorage.getItem('ibank-theme') || 'light'; } catch (e) {}
+    document.body.classList.toggle('dark', t === 'dark');
+    $('c-theme').textContent = t === 'dark' ? '☀️' : '🌙';
+    $('c-theme').onclick = function () {
+      var dark = document.body.classList.toggle('dark');
+      $('c-theme').textContent = dark ? '☀️' : '🌙';
+      try { localStorage.setItem('ibank-theme', dark ? 'dark' : 'light'); } catch (e) {}
+    };
+  }
+
+  /* ============ 初始化 ============ */
+  function boot() {
+    S = load();
+    /* 给每题一个稳定序号，用于「分块均衡」打乱选项位置 */
+    for (var bi = 0; bi < BANK.length; bi++) BANK[bi]._i = bi;
+    S.attemptedFailed = S.attemptedFailed || {};
+    S.comeback = S.comeback || 0;
+    S.fastPure = S.fastPure || 0;
+    S.dailyCount = S.dailyCount || 0;
+
+    initTheme();
+    renderHome();
+
+    $('p-next').onclick = nextQ;
+    $('p-quit').onclick = function () { show('home'); };
+    $('r-chest').onclick = openChest;
+    $('r-home').onclick = function () { show('home'); };
+    $('btn-daily').onclick = startDaily;
+
+    document.addEventListener('keydown', function (e) {
+      if (!$('v-play').classList.contains('on')) return;
+      var k = e.key;
+      if (k >= '1' && k <= '4' && !P.answered) {
+        var idx = +k - 1;
+        var node = $('p-opts').children[idx];
+        if (node) answer(idx, node);
+      } else if ((k === 'Enter' || k === ' ') && P.answered) {
+        e.preventDefault();
+        nextQ();
+      }
+    });
+
+    checkAch();
+
+    window.GM = { show: show, S: S };
+  }
+
+  boot();
+})();
+</script>
+</body>
+</html>
