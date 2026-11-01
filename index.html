@@ -8,6 +8,16 @@
        在控制台留一条红色报错，容易被当成功能故障。用内联 SVG 直接消掉。 -->
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%232563eb'/%3E%3Ctext x='32' y='43' font-family='Arial,Helvetica,sans-serif' font-size='30' font-weight='bold' fill='%23fff' text-anchor='middle'%3EiB%3C/text%3E%3C/svg%3E" />
   <title>iBank平台 · 投资银行学智慧课堂</title>
+  <!-- PWA:begin 可安装为桌面应用（Edge/Chrome「应用」窗口）。单文件导出时会剔除本段，
+       因为 file:// 双击场景用不到 manifest，留着只会多一条 404 请求。 -->
+  <link rel="manifest" href="manifest.webmanifest">
+  <meta name="theme-color" content="#2563eb">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="iBank">
+  <link rel="apple-touch-icon" href="static/icons/apple-touch-icon.png">
+  <!-- PWA:end -->
   <link rel="stylesheet" href="static/app.css">
 </head>
 <body>
@@ -1996,5 +2006,22 @@
   <!-- 云服务 SDK：放在文档末尾而非 <head>，网络不通时不会阻塞首屏渲染；加载失败自动降级为本地演示 -->
   <script src="https://static.cloudbase.net/cloudbase-js-sdk/latest/cloudbase.full.js"></script>
   <script src="static/app-auth.js"></script>
+
+  <!-- PWA:begin Service Worker 注册。只在 https / localhost 下生效：
+       file:// 双击场景没有 navigator.serviceWorker，也不会走到这里；
+       即使注册失败也不抛出到控制台红字，只在 warn 里留一行说明。 -->
+  <script>
+  (function () {
+    if (!('serviceWorker' in navigator)) return;
+    var host = location.hostname;
+    if (location.protocol !== 'https:' && host !== 'localhost' && host !== '127.0.0.1') return;
+    window.addEventListener('load', function () {
+      navigator.serviceWorker.register('sw.js').catch(function (err) {
+        console.warn('[PWA] Service Worker 注册失败，页面功能不受影响：', err && err.message);
+      });
+    });
+  })();
+  </script>
+  <!-- PWA:end -->
 </body>
 </html>
