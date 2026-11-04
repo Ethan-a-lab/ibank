@@ -2214,3 +2214,237 @@
     }
 
   
+    /* ===== 课程项目（项目式教学主线）===== */
+    /* 全部使用 :root 变量，深浅色模式自动跟随，不在此处硬编码颜色值 */
+    #p-project [hidden] { display: none !important; }
+    /* 进入任务书详情后隐藏顶部说明，避免说明文字与返回按钮争夺视线 */
+    #p-project.in-detail .section-sub { display: none; }
+
+    /* ---- 项目链：把四个项目串成一条业务流水线 ---- */
+    .pj-chain {
+      display: flex; align-items: stretch; gap: 6px;
+      overflow-x: auto; padding: 4px 2px 16px; margin-bottom: 16px;
+      scrollbar-width: thin;
+    }
+    .pj-node {
+      flex: 0 0 auto; display: flex; flex-direction: column; gap: 2px;
+      padding: 10px 14px; min-width: 126px;
+      border: 1px solid var(--panel-border); border-radius: 12px;
+      background: var(--panel-solid); transition: .2s;
+    }
+    .pj-node-no { font-size: 11px; font-weight: 700; letter-spacing: .12em; color: var(--dim); }
+    .pj-node-nm { font-size: 13.5px; font-weight: 600; color: var(--text); white-space: nowrap; }
+    .pj-node-wk { font-size: 11.5px; color: var(--muted); white-space: nowrap; }
+    .pj-node.doing { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(99, 102, 241, .14); }
+    .pj-node.done { border-color: var(--good); }
+    .pj-node.done .pj-node-nm { color: var(--good); }
+    .pj-node.legend { border-style: dashed; opacity: .72; }
+    .pj-link { flex: 1 1 14px; min-width: 14px; align-self: center; height: 2px; border-radius: 2px; background: var(--dim); opacity: .35; }
+
+    /* ---- 项目卡列表 ---- */
+    /* auto-fit 而不是固定两列：三个项目时自动排成一行，两个时均分，窄屏回落单列 */
+    .pj-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 16px; }
+    .pj-card {
+      display: flex; flex-direction: column; gap: 8px; padding: 18px;
+      border: 1px solid var(--panel-border); border-radius: 14px;
+      background: var(--panel-solid); transition: .2s;
+    }
+    .pj-card:hover { border-color: var(--accent); transform: translateY(-2px); box-shadow: var(--shadow-md); }
+    .pj-card[data-pj-state="doing"] { border-left: 3px solid var(--accent); }
+    .pj-card[data-pj-state="done"] { border-left: 3px solid var(--good); }
+    .pj-card-top { display: flex; align-items: center; justify-content: space-between; }
+    .pj-card-no { font-size: 12px; font-weight: 700; letter-spacing: .12em; color: var(--dim); }
+    .pj-card h4 { font-size: 16.5px; font-weight: 700; line-height: 1.4; color: var(--text); }
+    .pj-card-sub { font-size: 12.5px; color: var(--muted); }
+    .pj-card-q {
+      font-size: 12.5px; line-height: 1.7; color: var(--text);
+      background: rgba(99, 102, 241, .07); border-radius: 9px; padding: 9px 11px;
+    }
+    .pj-card-q b { display: block; font-size: 11px; letter-spacing: .08em; color: var(--accent-text); margin-bottom: 3px; }
+    /* 环节流程：卡片上直接露出「第一步 → 第二步 → …」，一眼看出这不是一次课后作业 */
+    .pj-card-flow { font-size: 11.5px; line-height: 1.75; color: var(--muted); }
+    .pj-card-flow i { font-style: normal; color: var(--dim); margin: 0 5px; }
+    .pj-card-meta { display: flex; flex-wrap: wrap; gap: 6px; }
+    .pj-card-meta span {
+      font-size: 11.5px; color: var(--muted);
+      background: rgba(100, 116, 139, .10); border-radius: 6px; padding: 2px 8px;
+    }
+    .pj-card-foot { display: flex; align-items: center; gap: 8px; margin-top: auto; padding-top: 6px; }
+    .pj-open {
+      flex: 1; border: none; cursor: pointer; font-family: inherit; font-size: 13px;
+      padding: 9px 12px; border-radius: 9px; color: #fff; font-weight: 600;
+      background: linear-gradient(135deg, #4f46e5, #7c3aed); transition: .2s;
+    }
+    .pj-open:hover { filter: brightness(1.08); }
+    .pj-cycle {
+      border: 1px solid var(--panel-border); background: transparent; color: var(--muted);
+      cursor: pointer; font-family: inherit; font-size: 12px; padding: 9px 11px;
+      border-radius: 9px; transition: .2s; white-space: nowrap;
+    }
+    .pj-cycle:hover { color: var(--accent-text); border-color: var(--accent); }
+
+    /* ---- 状态徽标 ---- */
+    .pj-badge {
+      font-size: 11.5px; font-weight: 600; padding: 3px 10px; border-radius: 999px; white-space: nowrap;
+    }
+    .pj-badge.todo { color: var(--muted); background: rgba(100, 116, 139, .12); }
+    .pj-badge.doing { color: var(--accent-text); background: rgba(99, 102, 241, .14); }
+    .pj-badge.done { color: var(--good); background: rgba(15, 118, 110, .13); }
+
+    /* ---- 项目详情（任务书）---- */
+    .pj-back {
+      border: 1px solid var(--panel-border); background: transparent; color: var(--muted);
+      font-family: inherit; font-size: 12.5px; padding: 6px 13px; border-radius: 999px;
+      cursor: pointer; margin-bottom: 14px; transition: .2s;
+    }
+    .pj-back:hover { color: var(--accent-text); border-color: var(--accent); }
+    .pj-dtitle { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+    .pj-dtitle .pj-no { font-size: 13px; font-weight: 700; letter-spacing: .12em; color: var(--accent-text); }
+    .pj-dtitle h2 { font-size: 23px; font-weight: 700; line-height: 1.35; }
+    .pj-dsub { font-size: 13px; color: var(--muted); margin-top: 5px; }
+    .pj-dhead { padding-bottom: 18px; border-bottom: 1px solid var(--panel-border); margin-bottom: 20px; }
+    .pj-dgrid { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(258px, .9fr); gap: 22px; align-items: start; }
+    .pj-dmain { display: flex; flex-direction: column; gap: 18px; min-width: 0; }
+    .pj-sec h3 {
+      font-size: 14px; font-weight: 700; color: var(--text);
+      margin-bottom: 8px; padding-left: 9px; border-left: 3px solid var(--accent);
+      line-height: 1.3;
+    }
+    .pj-sec p { font-size: 13.5px; line-height: 1.85; color: var(--muted); }
+    .pj-dq { background: rgba(99, 102, 241, .07); border-radius: 12px; padding: 14px 16px; }
+    .pj-dq p { font-size: 14.5px; font-weight: 600; color: var(--text); line-height: 1.75; }
+
+    /* 可选标的：可点选的三张卡。选中态只切高亮，不重绘整页 */
+    .pj-opts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+    .pj-opt {
+      display: flex; flex-direction: column; gap: 5px; text-align: left; cursor: pointer;
+      padding: 12px 13px; border: 1px solid var(--panel-border); border-radius: 12px;
+      background: var(--panel-solid); font: inherit; transition: .18s;
+    }
+    .pj-opt:hover { border-color: var(--accent); background: rgba(99, 102, 241, .06); }
+    .pj-opt.on { border-color: var(--accent); background: rgba(99, 102, 241, .10); box-shadow: 0 0 0 3px rgba(99, 102, 241, .12); }
+    .pj-opt-h { display: flex; align-items: center; gap: 7px; font-size: 13.5px; font-weight: 600; color: var(--text); }
+    .pj-opt-h b {
+      flex: 0 0 auto; width: 20px; height: 20px; border-radius: 6px;
+      display: inline-flex; align-items: center; justify-content: center;
+      font-size: 11px; color: #fff; background: var(--dim); transition: .18s;
+    }
+    .pj-opt.on .pj-opt-h b { background: var(--accent); }
+    .pj-opt-tag { font-size: 11.5px; color: var(--accent-text); }
+    .pj-opt-facts { font-size: 12px; line-height: 1.65; color: var(--muted); }
+    .pj-opt-peers { font-size: 11.5px; line-height: 1.6; color: var(--dim); }
+
+
+    .pj-stages { list-style: none; display: flex; flex-direction: column; gap: 2px; }
+    /* 用子选择器，避免嵌套的动作清单 li 继承分隔线与内边距 */
+    .pj-stages > li { display: flex; gap: 12px; padding: 14px 0; border-bottom: 1px dashed var(--panel-border); }
+    .pj-stages > li:last-child { border-bottom: none; }
+    .pj-st-no {
+      flex: 0 0 auto; width: 22px; height: 22px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 11.5px; font-weight: 700; color: #fff; background: var(--accent-solid);
+    }
+    .pj-st-main { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+    .pj-st-main b { font-size: 13.5px; font-weight: 600; color: var(--text); }
+    .pj-st-main em { font-style: normal; font-size: 12px; color: var(--muted); }
+
+    .pj-deliv { list-style: none; display: flex; flex-direction: column; gap: 6px; }
+    .pj-deliv li { font-size: 13px; color: var(--muted); padding-left: 18px; position: relative; line-height: 1.6; }
+    .pj-deliv li::before { content: "▣"; position: absolute; left: 0; color: var(--accent); font-size: 11px; }
+
+    .pj-rub { display: flex; flex-direction: column; gap: 7px; }
+    .pj-rub-row { display: grid; grid-template-columns: 88px 1fr 40px; align-items: center; gap: 10px; font-size: 12.5px; color: var(--muted); }
+    .pj-rub-bar { height: 7px; border-radius: 4px; background: rgba(100, 116, 139, .14); overflow: hidden; }
+    .pj-rub-bar i { display: block; height: 100%; border-radius: 4px; background: linear-gradient(90deg, #6366f1, #22d3ee); }
+    .pj-rub-row b { text-align: right; color: var(--text); font-weight: 600; }
+
+    /* ---- 右栏 ---- */
+    /* 右栏随页面滚动停靠：读左栏长文时「开始检测」始终在手边 */
+    .pj-dside { display: flex; flex-direction: column; gap: 12px; align-self: start; position: sticky; top: 84px; }
+    .pj-box { border: 1px solid var(--panel-border); border-radius: 12px; padding: 14px 15px; background: var(--panel-solid); }
+    .pj-box h4 { font-size: 12px; font-weight: 700; letter-spacing: .06em; color: var(--dim); margin-bottom: 9px; }
+    .pj-role { font-size: 13.5px; font-weight: 600; color: var(--accent-text); }
+    .pj-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+    .pj-chip {
+      border: 1px solid var(--panel-border); background: transparent; color: var(--text);
+      font-family: inherit; font-size: 12px; padding: 5px 10px; border-radius: 999px;
+      cursor: pointer; transition: .2s;
+    }
+    .pj-chip:hover { border-color: var(--accent); color: var(--accent-text); background: rgba(99, 102, 241, .08); }
+    .pj-tools { display: flex; flex-direction: column; gap: 7px; }
+    .pj-tool {
+      border: 1px solid var(--panel-border); background: transparent; color: var(--text);
+      font-family: inherit; font-size: 12.5px; padding: 8px 11px; border-radius: 9px;
+      cursor: pointer; text-align: left; transition: .2s;
+    }
+    .pj-tool:hover { border-color: var(--accent); color: var(--accent-text); background: rgba(99, 102, 241, .08); }
+    .pj-tip { font-size: 11.5px; color: var(--muted); line-height: 1.65; margin-top: 8px; }
+    .pj-box-cta { border-color: var(--accent); background: rgba(99, 102, 241, .06); }
+    .pj-ms {
+      width: 100%; margin-top: 10px; border: none; cursor: pointer; font-family: inherit;
+      font-size: 13px; font-weight: 600; padding: 10px; border-radius: 9px; color: #fff;
+      background: linear-gradient(135deg, #4f46e5, #7c3aed); transition: .2s;
+    }
+    .pj-ms:hover { filter: brightness(1.08); }
+
+    @media (max-width: 860px) {
+      .pj-dgrid { grid-template-columns: minmax(0, 1fr); }
+      .pj-list { grid-template-columns: minmax(0, 1fr); }
+      .pj-dside { position: static; }
+      .pj-rub-row { grid-template-columns: 74px 1fr 36px; }
+      .pj-opts { grid-template-columns: minmax(0, 1fr); }
+    }
+
+    /* ---- 「你要用到的东西」清单：把学习支架显式写在任务书里 ---- */
+    .pj-given { list-style: none; display: flex; flex-direction: column; gap: 6px; }
+    .pj-given li {
+      font-size: 13px; color: var(--text); line-height: 1.7;
+      padding-left: 20px; position: relative;
+    }
+    .pj-given li::before {
+      content: "✓"; position: absolute; left: 2px; top: 0;
+      color: var(--good); font-size: 12px; font-weight: 700;
+    }
+    .pj-sec .pj-tip { margin-top: 10px; font-size: 12px; color: var(--muted); }
+
+    /* ---- 任务书扩展：阶段动作、反思、评分要点、组内分工、合规三问 ---- */
+    /* 目的：任务书要能照着做，而不只是「介绍一个项目」 */
+    .pj-st-main { flex: 1 1 auto; }
+
+    .pj-todo {
+      list-style: none; counter-reset: pjt; margin: 8px 0 0;
+      display: flex; flex-direction: column; gap: 5px;
+    }
+    .pj-todo li {
+      counter-increment: pjt; position: relative; padding-left: 22px;
+      font-size: 12.5px; line-height: 1.72; color: var(--text);
+    }
+    .pj-todo li::before {
+      content: counter(pjt); position: absolute; left: 0; top: 2px;
+      width: 15px; height: 15px; border-radius: 50%;
+      background: rgba(99, 102, 241, .12); color: var(--accent-text);
+      font-size: 10px; font-weight: 700; line-height: 15px; text-align: center;
+    }
+    .pj-reflect {
+      margin-top: 9px; padding: 8px 11px; border-radius: 8px;
+      border-left: 2px solid var(--accent);
+      background: rgba(99, 102, 241, .06);
+      font-size: 12.5px; line-height: 1.7; color: var(--muted);
+    }
+
+    .pj-rub-item { display: flex; flex-direction: column; gap: 3px; padding-bottom: 9px; }
+    .pj-rub-item:last-child { padding-bottom: 0; }
+    .pj-rub-pt { font-size: 12px; line-height: 1.65; color: var(--muted); padding-left: 2px; }
+
+    .pj-team { display: flex; flex-direction: column; gap: 8px; margin-top: 4px; }
+    .pj-team-row { display: flex; flex-direction: column; gap: 1px; }
+    .pj-team-row b { font-size: 12.5px; font-weight: 600; color: var(--text); }
+    .pj-team-row span { font-size: 12px; line-height: 1.65; color: var(--muted); }
+
+    .pj-inq { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+    .pj-inq li { font-size: 12.5px; line-height: 1.72; color: var(--text); padding-left: 28px; position: relative; }
+    .pj-inq li b {
+      position: absolute; left: 0; top: 1px;
+      font-size: 10.5px; font-weight: 700; color: var(--accent-text);
+      background: rgba(99, 102, 241, .12); border-radius: 5px; padding: 1px 4px;
+    }

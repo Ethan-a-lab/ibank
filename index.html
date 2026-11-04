@@ -101,6 +101,7 @@
       </div>
       <div class="nav-menu" id="nav-menu">
         <button class="tab-btn active" data-page="p-home">首页</button>
+        <button class="tab-btn" data-page="p-project">课程项目</button>
 
         <div class="nav-group">
           <button class="nav-trigger" type="button" aria-expanded="false" aria-haspopup="true">理论学习<svg class="nav-caret" viewBox="0 0 10 10" aria-hidden="true"><path d="M2 3.5L5 6.5L8 3.5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
@@ -168,7 +169,7 @@
           </div>
           <div class="hero2-stats">
             <div><strong>08</strong><span>章节知识体系</span></div>
-            <div><strong>13</strong><span>功能模块</span></div>
+            <div><strong>14</strong><span>功能模块</span></div>
             <div><strong>20</strong><span>真实投行案例</span></div>
             <div><strong>∞</strong><span>AI 随问随答</span></div>
           </div>
@@ -188,8 +189,9 @@
 
       <div class="panel" style="margin-top:20px;">
         <div class="section-title"><span class="bar"></span>一站式投行实务学习系统</div>
-        <div class="section-sub">13 个功能模块覆盖「学 · 练 · 诊 · 评 · 战」完整教学闭环，点击卡片直达。</div>
+        <div class="section-sub">14 个功能模块覆盖「学 · 练 · 诊 · 评 · 战」完整教学闭环，其中「课程项目」是课程主线，其余模块为其提供资源与工具。</div>
         <div class="home-grid">
+          <div class="home-card" data-page="p-project"><div class="ico">🎯</div><h4>课程项目</h4><p>三个项目贯穿全课：给一家企业定价、判断一笔并购、把应收账款变现，每步都交一页纸成果</p><span class="go">进入 →</span></div>
           <div class="home-card" data-page="p-graph"><div class="ico">🕸️</div><h4>知识图谱</h4><p>8 章知识树梳理重点难点，结构化导览课程内容</p><span class="go">进入 →</span></div>
           <div class="home-card" data-page="p-qa"><div class="ico">💬</div><h4>智能答疑</h4><p>智谱 GLM + 课程知识库检索增强，AI 学伴流式随问随答</p><span class="go">进入 →</span></div>
           <div class="home-card" data-page="p-exercise"><div class="ico">✍️</div><h4>习题训练</h4><p>实务导向习题，即时判分与解析反馈</p><span class="go">进入 →</span></div>
@@ -213,6 +215,23 @@
           <p>每一次答疑、每一道习题、每一场仿真，都在训练投行人的专业判断力。</p>
         </div>
         <button class="hbtn cta" data-goto="p-qa">立即体验 AI 答疑</button>
+      </div>
+    </section>
+
+    <!-- 课程项目（项目式教学主线：1 个贯穿主项目 + 1 个专项项目 + 1 个拓展项目） -->
+    <section class="page" id="p-project">
+      <div class="panel">
+        <div class="section-title"><span class="bar"></span>课程项目 · 一单业务从头做到尾</div>
+        <div class="section-sub">本课程以「一单投行业务」为主线组织学习：三个项目按真实业务流程递进，每个都从一句委托出发——这家公司的股票卖多少钱一股、这笔并购该不该做、这 5 亿应收账款现在卖掉能拿回多少。前两个项目各占 3 次集中工作坊、跨越 4 周，第三个是拓展项目、2 次课。每个项目都给出三个标的由小组自选，选哪个不影响评分，说清为什么才影响。项目不是课后作业，项目进度就是课程进度。</div>
+
+        <!-- 项目链：把项目串成一条业务流水线，末端接成果答辩 -->
+        <div class="pj-chain" id="pj-chain" aria-label="项目学习路径"></div>
+
+        <!-- 列表视图：四张项目卡 -->
+        <div class="pj-list" id="pj-list"></div>
+
+        <!-- 详情视图：与本页同容器切换，不新增路由 -->
+        <div class="pj-detail" id="pj-detail" hidden></div>
       </div>
     </section>
 

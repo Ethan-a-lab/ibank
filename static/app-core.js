@@ -5714,4 +5714,589 @@ document.addEventListener('keydown', function (e) {
 
       renderNav(); renderChapter(current);
     })();
+
+    // ===== 项目实践（项目式教学主线）=====
+    // 设计约束（改这里之前先读）：
+    //   1) 两个项目的文案全部集中在 PROJECTS 数组，改内容不改渲染逻辑；
+    //   2) 详情视图与列表视图在同一个 section 内切换，不新增路由、不改 tabs 逻辑；
+    //   3) 知识入口 / 工具入口 / 里程碑检测全部复用既有页面，只传参数：
+    //      章节跳转用 window.__ibankChapterGo，习题筛选用 sessionStorage.ibank_exercise_filter。
+    //   4) 项目进度存 localStorage，仅用于本机演示与课堂记录，不上传、不涉个人信息。
+    (function () {
+      var STORE_KEY = 'ibank_project_state';   // { proj1: 'doing' | 'done' }
+
+      // 章节标题：与知识图谱侧栏口径一致，用于「知识入口」的展示
+      var CH_TITLE = {
+        '第0章': '导论', '第1章': '投资银行概述', '第2章': '企业融资方案设计',
+        '第3章': '股份有限公司与首次公开发行', '第4章': '上市公司再融资',
+        '第5章': '债券的发行与承销', '第6章': '资产证券化', '第7章': '公司并购'
+      };
+
+      // ---------- 数据源：两个项目（1 个贯穿主项目 + 1 个专项项目）----------
+      // 难度口径：面向金融学本科、非核心专业课。原则是「降建模门槛，不降决策难度」——
+      //   数据全部给定、模板给好、交付物压到一页纸、约束只留一条；
+      //   但「定价定多少」「这笔买卖做不做」必须学生自己判断，并说出三条理由。
+      var PROJECTS = [
+        {
+          id: 'proj1', no: '01', name: '给一家企业定价', weeks: '3 次课 / 4 周', kind: '主项目',
+          subtitle: '算价格区间，定发行价',
+          role: '定价岗 + 合规岗（2 人一组）',
+          scenario: '一家做风电设备的企业准备上创业板，老板要你回答一个问题：股票卖多少钱一股。公司给了你近三年的账，同行有四家上市公司可以对照。这件事没有标准答案——定高了卖不出去、上市就跌破发行价，定低了募资不够、老板不答应。你们组要给出一个数，并且扛得住追问。',
+          drivingQuestion: '这家公司的股票，卖多少钱一股？',
+          pickHint: '三个标的任选其一，全组从头到尾只用自己选的那个。选哪个不影响评分——影响评分的是你们能不能说清为什么是这个价。',
+          options: [
+            {
+              code: 'A', name: '风电机组制造商', tag: '制造业 · 成长期',
+              facts: '近三年净利润 1.2 / 1.5 / 1.8 亿元，发行前股本 1.2 亿股',
+              peers: '4 家可比公司，市盈率 26 ~ 34 倍'
+            },
+            {
+              code: 'B', name: '连锁餐饮企业', tag: '消费 · 现金流稳',
+              facts: '近三年净利润 0.72 / 0.81 / 0.90 亿元，发行前股本 1.5 亿股',
+              peers: '4 家可比公司，市盈率 22 ~ 28 倍'
+            },
+            {
+              code: 'C', name: '家用医疗器械厂商', tag: '制造 + 消费 · 高毛利',
+              facts: '近三年净利润 0.45 / 0.52 / 0.60 亿元，发行前股本 0.4 亿股',
+              peers: '4 家可比公司，市盈率 35 ~ 45 倍'
+            }
+          ],
+          given: [
+            '三个候选标的的三年账（三选一，数据都已整理好）',
+            '4 家可比公司的市盈率（已算好，查表即用）',
+            '发行前股本与本次发行股数（随标的一并给出）',
+            'Excel 计算模板（只需填 3 个空格）',
+            '一条硬约束：发行市盈率不超过同行平均的 1.2 倍'
+          ],
+          team: [
+            { role: '定价岗', duty: '做测算、定价格，写出推荐价和三条理由' },
+            { role: '合规岗', duty: '盯住那条市盈率红线，准备被问询时的答复' }
+          ],
+          stages: [
+            {
+              name: '算出价格区间', week: '第 1 次课', output: '《价格区间测算表》',
+              todo: [
+                '打开 Excel 模板，把 4 家可比公司的市盈率填进「同行对照」页',
+                '用标的近三年净利润算出每股收益（模板已给公式，只填 3 个空格）',
+                '同行平均市盈率 × 每股收益，算出价格区间的上下限'
+              ],
+              reflect: '你们算出来的区间，上限靠什么撑住、下限靠什么兜住？'
+            },
+            {
+              name: '定价，并说明为什么是这个价', week: '第 2 次课', output: '《一页纸定价建议书》',
+              todo: [
+                '在区间内选定一个数，说清为什么取它、而不是取上限或下限',
+                '用「不超同行平均 1.2 倍」这条约束检验自己的定价，超了就说明原因',
+                '把理由压成三条，每条不超过一句话'
+              ],
+              reflect: '如果发行人和投资者对你们的定价都不满意，你先让谁满意？'
+            },
+            {
+              name: '模拟询价，修正定价', week: '第 3 次课', output: '《定价修正说明》',
+              todo: [
+                '在仿真里按自己定的价跑一轮询价，看申购倍数与中签率',
+                '对照其他组的定价，找出自己方案的偏差出在哪一步',
+                '写出修正方案：改多少、为什么改'
+              ],
+              reflect: '这一轮修正，改的是数字，还是判断？'
+            },
+            {
+              name: '应询：把方案改到扛得住追问', week: '课后 · 答辩前', output: '《应询答复稿》',
+              todo: [
+                '用右下角「合规三问」逐条自问一遍，把答不上来的那条补进建议书',
+                '找出全组最没把握的一个数字，回到可比公司数据里重核一遍',
+                '把三条理由压成 30 秒能说完的口头版本，脱稿讲一遍'
+              ],
+              reflect: '被问到「凭什么定这个价」时，你手里最硬的那份证据是什么？'
+            }
+          ],
+          deliverables: [
+            '价格区间测算表（按模板填写，含可比公司对照）',
+            '一页纸定价建议书（推荐价 + 三条理由）'
+          ],
+          rubric: [
+            { dim: '算得对', w: 40, points: '每股收益与市盈率区间计算无误，上下限能追溯到可比公司数据' },
+            { dim: '理由站得住', w: 40, points: '三条理由对得上约束条件和投资者需求，不是「感觉市场会喜欢」' },
+            { dim: '写得清楚', w: 20, points: '一页纸内说清结论与理由，不用长句堆砌' }
+          ],
+          showcase: '班内质询：每组 3 分钟陈述定价与理由，其他组以「投资者」身份各提一个问题',
+          chapters: ['第2章', '第3章'],
+          tools: [{ page: 'p-ipo', name: 'IPO 定价配售仿真' }, { page: 'p-valuation', name: '企业估值实验' }],
+          milestone: { chapters: ['第2章', '第3章'], count: 10 },
+          inquiry: [
+            '本次发行市盈率高于同行业可比公司，定价依据是什么？',
+            '募资规模与募投项目是否匹配，超募部分怎么处理？',
+            '这一定价是否损害中小投资者利益，主承销商如何履行受托责任？'
+          ]
+        },
+        {
+          id: 'proj2', no: '02', name: '判断一笔并购', weeks: '3 次课 / 4 周', kind: '专项项目',
+          subtitle: '该不该买，钱从哪里来',
+          role: '并购顾问 + 合规岗（2 人一组）',
+          scenario: '一家制造业上市公司想买下同行一家中型企业，对方开价 12 亿元。公司账上现金只有 6 亿元，其余得靠发股或借款。董事会问你两件事：这笔买卖值不值，钱怎么付。你要拿数字回答，不能靠「看好行业前景」。',
+          drivingQuestion: '这笔买卖花得值吗？如果值，钱从哪里来？',
+          pickHint: '三个收购案任选其一，全组只用自己选的那个做到底。对价与账上现金不同，摊薄和负债率的答案就不同——先选，再算。',
+          options: [
+            {
+              code: 'A', name: '制造业上市公司买同业', tag: '同业并购 · 对价 12 亿元',
+              facts: '买方净利润 3.0 亿元、股本 3 亿股、股价 12 元；标的年赚 1.2 亿元',
+              peers: '账上现金 6 亿元，缺口 6 亿元靠发股或借款'
+            },
+            {
+              code: 'B', name: '白酒企业买区域酒厂', tag: '横向整合 · 对价 8 亿元',
+              facts: '买方净利润 8.0 亿元、股本 5 亿股、股价 30 元；标的年赚 0.7 亿元',
+              peers: '账上现金 3 亿元，缺口 5 亿元，但股本摊薄压力小'
+            },
+            {
+              code: 'C', name: '医药流通企业买连锁药店', tag: '渠道并购 · 对价 15 亿元',
+              facts: '买方净利润 2.4 亿元、股本 4 亿股、股价 9 元；标的年赚 1.5 亿元',
+              peers: '账上现金 9 亿元，纯现金方案只差 6 亿元'
+            }
+          ],
+          given: [
+            '三个收购案的财务数据（三选一，买卖双方数据都已给定）',
+            '对价与可选的支付方式（现金、发股或两者组合）',
+            'Excel 测算表（只需填 2 个空格）',
+            '一条硬约束：交易后资产负债率不得高于 65%'
+          ],
+          team: [
+            { role: '并购顾问', duty: '做增厚摊薄测算、设计交易方案，给出结论和依据' },
+            { role: '合规岗', duty: '盯住负债率红线与信息披露要求，准备被问询时的答复' }
+          ],
+          stages: [
+            {
+              name: '算清每股收益是增厚还是摊薄', week: '第 1 次课', output: '《增厚摊薄测算表》',
+              todo: [
+                '算交易后的合并净利润（收购方 + 标的，模板已给公式）',
+                '算交易后的总股本：付现金不增股本，发股要按股价折算新增股数',
+                '用「交易后净利润 ÷ 交易后总股本」算新每股收益，和交易前比一比'
+              ],
+              reflect: '同一笔交易，为什么付现金是增厚、发股却可能变摊薄？'
+            },
+            {
+              name: '判断这笔买卖该不该做', week: '第 2 次课', output: '《一页纸并购建议备忘》',
+              todo: [
+                '先分清一件事：增厚只说明每股收益变高，不等于买得划算',
+                '用「交易后资产负债率不高于 65%」检验纯现金方案能不能落地',
+                '给出结论：做、不做、或改条件再做，写三条依据'
+              ],
+              reflect: '如果增厚但负债率超标，你会放弃交易，还是改支付方式？'
+            },
+            {
+              name: '选支付方式：现金、发股还是组合', week: '第 3 次课', output: '《支付方式对比表》',
+              todo: [
+                '三种支付方式各算一遍：对每股收益、负债率、控制权各有什么影响',
+                '按董事会最在意的两项指标做取舍，并说明放弃的那一项为什么可以让',
+                '写出推荐方案，附一条风险预案'
+              ],
+              reflect: '你们推荐的方案，最坏情况下会出什么问题？'
+            },
+            {
+              name: '应询：把风险预案写成能落地的三条', week: '课后 · 答辩前', output: '《应询答复稿》',
+              todo: [
+                '用右下角「合规三问」逐条自问，重点答好定价依据与中小股东利益两条',
+                '把风险预案从「注意风险」改成具体动作：谁、在什么条件下、做什么',
+                '准备一句话回答「如果交易后业绩不达预期，怎么办」'
+              ],
+              reflect: '董事会追问「最坏情况亏多少」，你们的答案里有数字吗？'
+            }
+          ],
+          deliverables: [
+            '增厚摊薄测算表（按模板填写，含三种支付方式对比）',
+            '一页纸并购建议备忘（结论 + 三条依据）'
+          ],
+          rubric: [
+            { dim: '测算正确', w: 35, points: '合并净利润、新增股数、新每股收益三项无误，增厚判断与数字一致' },
+            { dim: '结论有依据', w: 40, points: '结论落在具体指标上（每股收益、负债率、控制权），不是行业判断' },
+            { dim: '风险意识', w: 25, points: '指出方案的最坏情形，并给出至少一条应对办法' }
+          ],
+          showcase: '班内路演：每组 5 分钟向「董事会」汇报结论，接受另外两组质询',
+          chapters: ['第4章', '第7章'],
+          tools: [{ page: 'p-case', name: '投行案例库' }],
+          milestone: { chapters: ['第4章', '第7章'], count: 10 },
+          inquiry: [
+            '本次交易对价的评估依据是什么，是否损害中小股东利益？',
+            '交易后资产负债率升至多少，是否突破公司融资约束？',
+            '支付方式涉及发行股份的，是否构成重组上市，程序是否完备？'
+          ]
+        },
+        {
+          id: 'proj3', no: '03', name: '把应收账款卖掉换钱', weeks: '2 次课 / 3 周', kind: '拓展项目 · 选做',
+          subtitle: '发一笔 ABS，算清成本',
+          role: '结构设计岗 + 合规岗（2 人一组）',
+          scenario: '一家做市政工程的建筑公司，账上挂着 5 亿元应收账款，甲方要 18 个月后才付款。公司下半年要垫资接新项目，账上现金不够。银行给的流动资金贷款利率是 5.2%，授信额度只批了 2 亿元，差得远。投行提了个方案：把这 5 亿应收账款打包，做成资产支持证券卖给投资者——不等甲方付钱，先把钱拿回来。',
+          drivingQuestion: '这 5 亿应收账款，现在卖掉能拿回多少现金？',
+          given: [
+            '基础资产：5 亿元应收账款，平均剩余账期 18 个月，历史回收率 98%',
+            '分层结构：优先级 85%、次级 15%（次级由发行人自己留着）',
+            '优先级预期年化收益率 4.5%，发行费率 0.8%（按发行规模一次性收）',
+            '一条硬约束：综合融资成本不高于同期银行贷款利率 5.2%'
+          ],
+          team: [
+            { role: '结构设计岗', duty: '算发行规模、实际到账与综合成本，判断这笔 ABS 划不划算' },
+            { role: '合规岗', duty: '盯基础资产真实性与信息披露，准备评级与问询的口径' }
+          ],
+          stages: [
+            {
+              name: '算能融到多少钱、成本是多少', week: '第 1 次课', output: '《融资额与成本测算表》',
+              todo: [
+                '用「基础资产 × 优先级比例 × 历史回收率」算出优先级发行规模',
+                '从发行规模里扣掉发行费，得到实际到账金额',
+                '用「优先级利息 + 发行费」除以实际到账金额，折成年化成本'
+              ],
+              reflect: '次级那 15% 卖给谁了？如果没人买，这笔钱谁来出？'
+            },
+            {
+              name: '判断这笔 ABS 值不值得做', week: '第 2 次课', output: '《一页纸决策备忘》',
+              todo: [
+                '把算出来的年化成本和银行贷款 5.2% 摆在一起比，差多少个点',
+                '想清楚 ABS 除了便宜，还带来什么：出表降负债、不占授信额度、缩短回款周期',
+                '给出结论：做、不做、或换结构再做，写三条依据'
+              ],
+              reflect: '如果算出来比贷款还贵，还有什么理由做这笔 ABS？'
+            }
+          ],
+          deliverables: [
+            '融资额与成本测算表（按模板填写，含发行规模、到账金额、年化成本）',
+            '一页纸决策备忘（结论 + 三条依据）'
+          ],
+          rubric: [
+            { dim: '算得对', w: 40, points: '发行规模、到账金额、年化成本三项无误，次级留存已考虑在内' },
+            { dim: '结论有依据', w: 40, points: '结论落在成本差、负债率、授信额度这些具体指标上，不是「ABS 是创新工具」' },
+            { dim: '看得见风险', w: 20, points: '指出基础资产质量或分层不足的风险，并说明如何缓释' }
+          ],
+          showcase: '班内答辩：每组 4 分钟向「公司财务总监」汇报，由另一组以评级机构身份提问',
+          chapters: ['第5章', '第6章'],
+          tools: [{ page: 'p-case', name: '投行案例库' }],
+          milestone: { chapters: ['第5章', '第6章'], count: 8 },
+          inquiry: [
+            '基础资产的真实性、合法性如何验证，是否存在虚构应收账款？',
+            '次级比例是否足以覆盖预期损失，评级机构凭什么给出这个级别？',
+            '原始权益人是否提供差额支付或担保，是否构成隐性刚兑？'
+          ]
+        }
+      ];
+
+      var STATE_TEXT = { todo: '未开始', doing: '进行中', done: '已完成' };
+
+      // ---------- 工具函数 ----------
+      function esc(s) {
+        return String(s == null ? '' : s).replace(/[&<>"']/g, function (m) {
+          return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m];
+        });
+      }
+      function loadState() {
+        try { return JSON.parse(localStorage.getItem(STORE_KEY) || '{}') || {}; } catch (e) { return {}; }
+      }
+      function saveState(st) {
+        try { localStorage.setItem(STORE_KEY, JSON.stringify(st)); } catch (e) {}
+      }
+      function stateOf(id) { return loadState()[id] || 'todo'; }
+
+      // 标的选择：{ proj1: 'A', proj2: 'C' }。存本机，只用于课堂记录
+      var PICK_KEY = 'ibank_project_pick';
+      function loadPick() {
+        try { return JSON.parse(localStorage.getItem(PICK_KEY) || '{}') || {}; } catch (e) { return {}; }
+      }
+      function pickOf(id) { return loadPick()[id] || ''; }
+      function setPick(id, code) {
+        var o = loadPick();
+        if (code) o[id] = code; else delete o[id];
+        try { localStorage.setItem(PICK_KEY, JSON.stringify(o)); } catch (e) {}
+      }
+
+      // 状态循环：未开始 → 进行中 → 已完成 → 未开始
+      function cycleState(id) {
+        var st = loadState(), cur = st[id] || 'todo';
+        st[id] = cur === 'todo' ? 'doing' : (cur === 'doing' ? 'done' : 'todo');
+        saveState(st);
+        return st[id];
+      }
+      function goPage(pageId, cb) {
+        var b = document.querySelector('.tab-btn[data-page="' + pageId + '"]');
+        if (!b) return false;
+        b.click();
+        if (cb) setTimeout(cb, 120);   // 等目标页的渲染钩子挂好再操作
+        return true;
+      }
+
+      var elChain = document.getElementById('pj-chain');
+      var elList = document.getElementById('pj-list');
+      var elDetail = document.getElementById('pj-detail');
+      if (!elChain || !elList || !elDetail) return;   // 页面未引入新板块时静默退出
+
+      // ---------- 视图一：项目链（横向流水线） ----------
+      function renderChain() {
+        var st = loadState();
+        var html = PROJECTS.map(function (p, i) {
+          var s = st[p.id] || 'todo';
+          return (i ? '<span class="pj-link" aria-hidden="true"></span>' : '')
+            + '<div class="pj-node ' + s + '">'
+            + '<span class="pj-node-no">' + p.no + '</span>'
+            + '<span class="pj-node-nm">' + esc(p.name) + '</span>'
+            + '<span class="pj-node-wk">' + esc(p.weeks) + '</span>'
+            + '</div>';
+        }).join('');
+        // 末段接「公开答辩」：让项目链有终点，而不是几张孤立的卡
+        var legendNo = ('0' + (PROJECTS.length + 1)).slice(-2);
+        html += '<span class="pj-link" aria-hidden="true"></span>'
+          + '<div class="pj-node legend"><span class="pj-node-no">' + legendNo + '</span>'
+          + '<span class="pj-node-nm">成果答辩</span>'
+          + '<span class="pj-node-wk">1 次课</span></div>';
+        elChain.innerHTML = html;
+      }
+
+      // ---------- 视图二：项目卡列表 ----------
+      function renderList() {
+        var st = loadState();
+        elList.innerHTML = PROJECTS.map(function (p) {
+          var s = st[p.id] || 'todo';
+          var chs = p.chapters.map(function (c) { return CH_TITLE[c] || c; }).join(' · ');
+          // 环节流程：卡片上直接露出「第一步 → 第二步 → …」，一眼看出这不是一次作业
+          var flow = p.stages.map(function (g) { return esc(g.name); }).join('<i>→</i>');
+          return '<article class="pj-card" data-pj-state="' + s + '">'
+            + '<div class="pj-card-top"><span class="pj-card-no">' + p.no + ' · ' + esc(p.kind) + '</span>'
+            + '<span class="pj-badge ' + s + '">' + STATE_TEXT[s] + '</span></div>'
+            + '<h4>' + esc(p.name) + '</h4>'
+            + '<p class="pj-card-sub">' + esc(p.subtitle) + '</p>'
+            + '<p class="pj-card-q"><b>驱动问题</b>' + esc(p.drivingQuestion) + '</p>'
+            + '<p class="pj-card-flow">' + flow + '</p>'
+            + '<div class="pj-card-meta">'
+            + '<span>' + p.stages.length + ' 个环节</span>'
+            + '<span>交付物 ' + p.deliverables.length + ' 项</span>'
+            + (p.options ? '<span>标的 ' + p.options.length + ' 选 1</span>' : '')
+            + '<span>' + esc(p.weeks) + '</span>'
+            + '<span>' + esc(chs) + '</span>'
+            + '</div>'
+            + '<div class="pj-card-foot">'
+            + '<button type="button" class="pj-open" data-pj-open="' + p.id + '">查看任务书 →</button>'
+            + '<button type="button" class="pj-cycle" data-pj-cycle="' + p.id + '">'
+            + (s === 'todo' ? '开始项目' : (s === 'doing' ? '标记完成' : '重置'))
+            + '</button>'
+            + '</div></article>';
+        }).join('');
+      }
+
+      // ---------- 视图三：项目详情（任务书） ----------
+      function renderDetail(id) {
+        var p = null;
+        for (var i = 0; i < PROJECTS.length; i++) { if (PROJECTS[i].id === id) { p = PROJECTS[i]; break; } }
+        if (!p) return;
+        var s = stateOf(p.id);
+
+        // 阶段任务：每阶段展开「做什么 → 交什么 → 反过来想什么」
+        // 只写阶段名是不够的——学生拿到「算价格区间」四个字，仍然不知道第一步该做什么
+        var stageHtml = p.stages.map(function (stg, i) {
+          var todoHtml = (stg.todo || []).map(function (t) {
+            return '<li>' + esc(t) + '</li>';
+          }).join('');
+          return '<li><div class="pj-st-no">' + (i + 1) + '</div>'
+            + '<div class="pj-st-main"><b>' + esc(stg.name) + '</b>'
+            + '<em>' + esc(stg.week) + '｜交付 ' + esc(stg.output) + '</em>'
+            + (todoHtml ? '<ol class="pj-todo">' + todoHtml + '</ol>' : '')
+            + (stg.reflect ? '<p class="pj-reflect">想清楚再往下走：' + esc(stg.reflect) + '</p>' : '')
+            + '</div></li>';
+        }).join('');
+
+        // 评分：权重条 + 一句「什么样算达标」。只有权重没有达标描述，学生只能猜
+        var rubHtml = p.rubric.map(function (r) {
+          return '<div class="pj-rub-item">'
+            + '<div class="pj-rub-row"><span>' + esc(r.dim) + '</span>'
+            + '<span class="pj-rub-bar"><i style="width:' + r.w + '%"></i></span>'
+            + '<b>' + r.w + '%</b></div>'
+            + (r.points ? '<p class="pj-rub-pt">' + esc(r.points) + '</p>' : '')
+            + '</div>';
+        }).join('');
+
+        var chHtml = p.chapters.map(function (c) {
+          return '<button type="button" class="pj-chip" data-pj-ch="' + c + '">'
+            + esc(c) + ' ' + esc(CH_TITLE[c] || '') + '</button>';
+        }).join('');
+
+        var toolHtml = p.tools.map(function (t) {
+          return '<button type="button" class="pj-tool" data-pj-go="' + t.page + '">'
+            + esc(t.name) + ' →</button>';
+        }).join('');
+
+        // 已知条件：把「教师已经给了什么」明写出来，学生才知道自己只需做判断
+        var givenHtml = (p.given || []).map(function (g) {
+          return '<li>' + esc(g) + '</li>';
+        }).join('');
+
+        // 组内分工：两人一组也要分岗，否则永远是同一个人在动手
+        var teamHtml = (p.team || []).map(function (t) {
+          return '<div class="pj-team-row"><b>' + esc(t.role) + '</b><span>' + esc(t.duty) + '</span></div>';
+        }).join('');
+
+        // 合规三问：把监管问询前置进任务书，第 8、9 章的相关要求由此进入项目
+        var inqHtml = (p.inquiry || []).map(function (q, i) {
+          return '<li><b>Q' + (i + 1) + '</b>' + esc(q) + '</li>';
+        }).join('');
+
+        // 可选标的：给小组真正的选择权。三个方案数据不同、难度一致，
+        // 选哪个不影响评分——但「自己选的」和「老师发的」是两回事
+        var pick = pickOf(p.id);
+        var optHtml = (p.options || []).map(function (o) {
+          return '<button type="button" class="pj-opt' + (pick === o.code ? ' on' : '') + '"'
+            + ' data-pj-pick="' + p.id + '" data-pj-code="' + esc(o.code) + '">'
+            + '<span class="pj-opt-h"><b>' + esc(o.code) + '</b>' + esc(o.name) + '</span>'
+            + '<span class="pj-opt-tag">' + esc(o.tag) + '</span>'
+            + '<span class="pj-opt-facts">' + esc(o.facts) + '</span>'
+            + '<span class="pj-opt-peers">' + esc(o.peers) + '</span>'
+            + '</button>';
+        }).join('');
+
+        elDetail.innerHTML =
+          '<div class="pj-dhead">'
+          + '<button type="button" class="pj-back" data-pj-back>← 返回项目列表</button>'
+          + '<div class="pj-dtitle"><span class="pj-no">' + p.no + ' · ' + esc(p.kind) + '</span>'
+          + '<h2>' + esc(p.name) + '</h2>'
+          + '<span class="pj-badge ' + s + '">' + STATE_TEXT[s] + '</span></div>'
+          + '<p class="pj-dsub">' + esc(p.subtitle) + '｜' + esc(p.weeks) + '</p>'
+          + '</div>'
+
+          + '<div class="pj-dgrid"><div class="pj-dmain">'
+
+          + '<section class="pj-sec"><h3>委托情境</h3><p>' + esc(p.scenario) + '</p></section>'
+
+          + '<section class="pj-sec pj-dq"><h3>驱动问题</h3><p>' + esc(p.drivingQuestion) + '</p></section>'
+
+          + (optHtml ? '<section class="pj-sec"><h3>先选一个标的</h3>'
+            + '<div class="pj-opts">' + optHtml + '</div>'
+            + '<p class="pj-tip">' + esc(p.pickHint || '') + '</p></section>' : '')
+
+          + '<section class="pj-sec"><h3>你要用到的东西（老师已经准备好）</h3>'
+          + '<ul class="pj-given">' + givenHtml + '</ul>'
+          + '<p class="pj-tip">这些都不用你自己找、自己搭。你只需要做一件事：拿它们算出一个数，然后说清为什么是这个数。</p></section>'
+
+          + '<section class="pj-sec"><h3>阶段任务</h3><ol class="pj-stages">' + stageHtml + '</ol></section>'
+
+          + '<section class="pj-sec"><h3>交付物</h3><ul class="pj-deliv">'
+          + p.deliverables.map(function (d) { return '<li>' + esc(d) + '</li>'; }).join('')
+          + '</ul>'
+          + (p.showcase ? '<p class="pj-tip">怎么展示：' + esc(p.showcase) + '</p>' : '')
+          + '</section>'
+
+          + '<section class="pj-sec"><h3>评分标准（什么样算达标）</h3>'
+          + '<div class="pj-rub">' + rubHtml + '</div></section>'
+
+          + '</div><aside class="pj-dside">'
+
+          + '<div class="pj-box"><h4>你是谁 · 组里谁干什么</h4>'
+          + '<p class="pj-role">' + esc(p.role) + '</p>'
+          + '<div class="pj-team">' + teamHtml + '</div></div>'
+
+          + '<div class="pj-box"><h4>本项目知识入口</h4>'
+          + '<div class="pj-chips">' + chHtml + '</div>'
+          + '<p class="pj-tip">进入对应章节的知识树与配套资源</p></div>'
+
+          + '<div class="pj-box"><h4>本项目工具</h4>'
+          + '<div class="pj-tools">' + toolHtml + '</div></div>'
+
+          + '<div class="pj-box pj-box-cta"><h4>里程碑检测</h4>'
+          + '<p class="pj-tip">按本项目覆盖章节自动抽题 ' + p.milestone.count + ' 道，检测通过即可进入下一阶段。</p>'
+          + '<button type="button" class="pj-ms" data-pj-ms="' + p.id + '">开始检测 →</button>'
+          + '</div>'
+
+          + '<div class="pj-box"><h4>交方案前，先自己答这三问</h4>'
+          + '<ul class="pj-inq">' + inqHtml + '</ul>'
+          + '<p class="pj-tip">这三问对应监管问询的真实口径。答不上来，说明方案还没想透。</p></div>'
+
+          + '</aside></div>';
+
+        elList.hidden = true;
+        elChain.hidden = true;   // 详情页不显示流水线，避免与标题争夺视线
+        elDetail.hidden = false;
+        var pjRoot = document.getElementById('p-project');
+        if (pjRoot) pjRoot.classList.add('in-detail');
+        // 回到页面顶部而非 scrollIntoView：顶部导航是 sticky 的，用元素对齐会把标题压在导航条下面
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+
+      // ---------- 视图切换 ----------
+      function showList() {
+        elDetail.hidden = true;
+        elDetail.innerHTML = '';
+        var pjRoot2 = document.getElementById('p-project');
+        if (pjRoot2) pjRoot2.classList.remove('in-detail');
+        elList.hidden = false;
+        elChain.hidden = false;
+        renderChain();
+        renderList();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+
+      // ---------- 事件委托：全部挂在一个容器上，重渲染后无需重新绑定 ----------
+      var root = document.getElementById('p-project');
+      if (root) {
+        root.addEventListener('click', function (e) {
+          var t = e.target;
+
+          var open = t.closest('[data-pj-open]');
+          if (open) { renderDetail(open.getAttribute('data-pj-open')); return; }
+
+          if (t.closest('[data-pj-back]')) { showList(); return; }
+
+          // 选标的：只切选中态，不重绘整页（重绘会把页面拉回顶部）
+          var pk = t.closest('[data-pj-pick]');
+          if (pk) {
+            var ppid = pk.getAttribute('data-pj-pick'), pcode = pk.getAttribute('data-pj-code');
+            var wasOn = pk.classList.contains('on');
+            var sib = pk.parentNode.querySelectorAll('.pj-opt');
+            for (var k = 0; k < sib.length; k++) sib[k].classList.remove('on');
+            if (wasOn) { setPick(ppid, ''); }
+            else {
+              pk.classList.add('on');
+              setPick(ppid, pcode);
+              if (window.__ibankTrack) window.__ibankTrack('project', { project: ppid, pick: pcode });
+            }
+            return;
+          }
+
+          var cyc = t.closest('[data-pj-cycle]');
+          if (cyc) {
+            var id = cyc.getAttribute('data-pj-cycle');
+            var now = cycleState(id);
+            renderChain(); renderList();
+            if (window.__ibankTrack) window.__ibankTrack('project', { project: id, state: now });
+            return;
+          }
+
+          // 知识入口 → 知识图谱 + 指定章节
+          var ch = t.closest('[data-pj-ch]');
+          if (ch) {
+            var no = ch.getAttribute('data-pj-ch');
+            goPage('p-graph', function () {
+              if (window.__ibankChapterGo) window.__ibankChapterGo(no);
+            });
+            return;
+          }
+
+          // 工具入口 → 对应仿真模块
+          var go = t.closest('[data-pj-go]');
+          if (go) { goPage(go.getAttribute('data-pj-go')); return; }
+
+          // 里程碑检测 → 习题训练，按本章节筛选（复用既有 sessionStorage 约定）
+          var ms = t.closest('[data-pj-ms]');
+          if (ms) {
+            var pid = ms.getAttribute('data-pj-ms'), proj = null;
+            for (var i = 0; i < PROJECTS.length; i++) { if (PROJECTS[i].id === pid) { proj = PROJECTS[i]; break; } }
+            if (!proj) return;
+            try { sessionStorage.setItem('ibank_exercise_filter', proj.milestone.chapters[0]); } catch (err) {}
+            goPage('p-exercise');
+            if (window.__ibankTrack) window.__ibankTrack('project', { project: pid, action: 'milestone' });
+            return;
+          }
+        });
+      }
+
+      // ---------- 首次进入时渲染 ----------
+      var tab = document.querySelector('.tab-btn[data-page="p-project"]');
+      if (tab) tab.addEventListener('click', function () { showList(); });
+
+      renderChain();
+      renderList();
+      window.__ibankProjects = PROJECTS;   // 便于后台统计或其他模块引用
+    })();
+
   
