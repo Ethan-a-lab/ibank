@@ -5725,6 +5725,14 @@ document.addEventListener('keydown', function (e) {
     (function () {
       var STORE_KEY = 'ibank_project_state';   // { proj1: 'doing' | 'done' }
 
+      // ---------- 课堂现场外链（问卷星 / 表单）----------
+      // 链接集中放这里，换问卷不用碰任何渲染代码。
+      // 留空则对应按钮自动降级为「链接待配置」，上线前没填也不会出现死链。
+      var CLASSROOM_LINKS = {
+        submit: '',   // 学生提交本组定价，例：'https://www.wjx.cn/vm/xxxxxxxx.aspx'
+        result: ''    // 教师投屏用的实时结果页
+      };
+
       // 章节标题：与知识图谱侧栏口径一致，用于「知识入口」的展示
       var CH_TITLE = {
         '第0章': '导论', '第1章': '投资银行概述', '第2章': '企业融资方案设计',
@@ -5738,9 +5746,9 @@ document.addEventListener('keydown', function (e) {
       //   但「定价定多少」「这笔买卖做不做」必须学生自己判断，并说出三条理由。
       var PROJECTS = [
         {
-          id: 'proj1', no: '01', name: '给一家企业定价', weeks: '3 次课 / 4 周', kind: '主项目',
+          id: 'proj1', no: '01', name: '给一家企业定价', weeks: '2 课时（100 分钟）', kind: '主项目',
           subtitle: '算价格区间，定发行价',
-          role: '定价岗 + 合规岗（2 人一组）',
+          role: '定价岗 2 人 + 合规岗 2 人（4 人一组）',
           scenario: '一家做风电设备的企业准备上创业板，老板要你回答一个问题：股票卖多少钱一股。公司给了你近三年的账，同行有四家上市公司可以对照。这件事没有标准答案——定高了卖不出去、上市就跌破发行价，定低了募资不够、老板不答应。你们组要给出一个数，并且扛得住追问。',
           drivingQuestion: '这家公司的股票，卖多少钱一股？',
           pickHint: '三个标的任选其一，全组从头到尾只用自己选的那个。选哪个不影响评分——影响评分的是你们能不能说清为什么是这个价。',
@@ -5765,8 +5773,8 @@ document.addEventListener('keydown', function (e) {
             '三个候选标的的三年账（三选一，数据都已整理好）',
             '4 家可比公司的市盈率（已算好，查表即用）',
             '发行前股本与本次发行股数（随标的一并给出）',
-            'Excel 计算模板（只需填 3 个空格）',
-            '一条硬约束：发行市盈率不超过同行平均的 1.2 倍'
+            '一张纸质《定价建议书》记录卡（课上发，只需填 6 个空）',
+            '一条自查口径：定价 ÷ 每股收益 要落在同行市盈率区间之内'
           ],
           team: [
             { role: '定价岗', duty: '做测算、定价格，写出推荐价和三条理由' },
@@ -5774,54 +5782,65 @@ document.addEventListener('keydown', function (e) {
           ],
           stages: [
             {
-              name: '算出价格区间', week: '第 1 次课', output: '《价格区间测算表》',
+              name: '算出价格区间', week: '第 1 课时', output: '记录卡第 ①② 栏',
               todo: [
-                '打开 Excel 模板，把 4 家可比公司的市盈率填进「同行对照」页',
-                '用标的近三年净利润算出每股收益（模板已给公式，只填 3 个空格）',
-                '同行平均市盈率 × 每股收益，算出价格区间的上下限'
+                '拿纸质《定价建议书》记录卡，把 4 家可比公司的市盈率抄进第 ① 栏（或打开站内「企业估值实验」做同一件事）',
+                '用标的最近一年净利润除以「发行前」股本，算出每股收益',
+                '每股收益分别乘同行市盈率的下限与上限，得到价格区间'
               ],
               reflect: '你们算出来的区间，上限靠什么撑住、下限靠什么兜住？'
             },
             {
-              name: '定价，并说明为什么是这个价', week: '第 2 次课', output: '《一页纸定价建议书》',
+              name: '拍板定价，并说明为什么是这个价', week: '第 2 课时', output: '记录卡第 ③⑤ 栏',
               todo: [
                 '在区间内选定一个数，说清为什么取它、而不是取上限或下限',
-                '用「不超同行平均 1.2 倍」这条约束检验自己的定价，超了就说明原因',
-                '把理由压成三条，每条不超过一句话'
+                '做一次自查：定价 ÷ 每股收益 落在同行市盈率区间里吗？超了就说明原因',
+                '把理由压成 30 秒能说完的一句话，被抽到时站起来讲'
               ],
               reflect: '如果发行人和投资者对你们的定价都不满意，你先让谁满意？'
             },
             {
-              name: '模拟询价，修正定价', week: '第 3 次课', output: '《定价修正说明》',
+              name: '应询：被抽到时扛住追问', week: '第 2 课时 · 抽 3 组', output: '口头述价 60 秒',
               todo: [
-                '在仿真里按自己定的价跑一轮询价，看申购倍数与中签率',
+                '用右栏「合规三问」逐条自问一遍，把答不上来的那条补进记录卡',
+                '找出全组最没把握的一个数字，回到可比公司数据里重核一遍',
+                '被抽到时先报数字、再给理由，不要从头讲过程'
+              ],
+              reflect: '被问到「凭什么定这个价」时，你手里最硬的那份证据是什么？'
+            },
+            {
+              name: '模拟询价，修正定价（拓展 · 选做）', week: '课后', output: '《定价修正说明》',
+              todo: [
+                '在「IPO 定价配售仿真」里按自己定的价跑一轮询价，看申购倍数与中签率',
                 '对照其他组的定价，找出自己方案的偏差出在哪一步',
                 '写出修正方案：改多少、为什么改'
               ],
               reflect: '这一轮修正，改的是数字，还是判断？'
-            },
-            {
-              name: '应询：把方案改到扛得住追问', week: '课后 · 答辩前', output: '《应询答复稿》',
-              todo: [
-                '用右下角「合规三问」逐条自问一遍，把答不上来的那条补进建议书',
-                '找出全组最没把握的一个数字，回到可比公司数据里重核一遍',
-                '把三条理由压成 30 秒能说完的口头版本，脱稿讲一遍'
-              ],
-              reflect: '被问到「凭什么定这个价」时，你手里最硬的那份证据是什么？'
             }
           ],
           deliverables: [
-            '价格区间测算表（按模板填写，含可比公司对照）',
-            '一页纸定价建议书（推荐价 + 三条理由）'
+            '纸质《定价建议书》记录卡（当堂交，含六个栏目）',
+            '一页纸定价建议书（推荐价 + 一句话理由，课后整理成电子版）'
           ],
           rubric: [
             { dim: '算得对', w: 40, points: '每股收益与市盈率区间计算无误，上下限能追溯到可比公司数据' },
-            { dim: '理由站得住', w: 40, points: '三条理由对得上约束条件和投资者需求，不是「感觉市场会喜欢」' },
-            { dim: '写得清楚', w: 20, points: '一页纸内说清结论与理由，不用长句堆砌' }
+            { dim: '理由站得住', w: 40, points: '理由对得上自查口径和投资者需求，不是「感觉市场会喜欢」' },
+            { dim: '写得清楚', w: 20, points: '记录卡六栏填全，一页纸内说清结论与理由，不用长句堆砌' }
           ],
-          showcase: '班内质询：每组 3 分钟陈述定价与理由，其他组以「投资者」身份各提一个问题',
+          showcase: '班内质询：抽最高价与最低价两组各述 60 秒，其他组以「投资者」身份判断同意与否',
+          // 课堂现场：90 人教室里学生真正要点的四个动作，直接摆在任务书最上方。
+          // 不放在右栏，是因为右栏要往下滚，而课上学生只有 100 分钟、不能翻找。
+          classroom: {
+            title: '课堂现场 · 两课时（45 + 10 + 45）',
+            steps: [
+              { n: 1, label: '算出价格区间', tool: 'p-valuation', note: '做测算，记下上下限' },
+              { n: 2, label: '组间对表', note: '和相邻组核对每股收益，填纸质卡第 ④ 栏' },
+              { n: 3, label: '交我们组的定价', link: 'submit', note: '提交后回来举牌' },
+              { n: 4, label: '自查三道题', tool: 'p-exercise', ch: '第3章', note: '做完看错因' }
+            ]
+          },
           chapters: ['第2章', '第3章'],
-          tools: [{ page: 'p-ipo', name: 'IPO 定价配售仿真' }, { page: 'p-valuation', name: '企业估值实验' }],
+          tools: [{ page: 'p-valuation', name: '企业估值实验（课上主用）' }, { page: 'p-ipo', name: 'IPO 定价配售仿真（课后拓展）' }],
           milestone: { chapters: ['第2章', '第3章'], count: 10 },
           inquiry: [
             '本次发行市盈率高于同行业可比公司，定价依据是什么？',
@@ -6133,6 +6152,33 @@ document.addEventListener('keydown', function (e) {
           return '<li><b>Q' + (i + 1) + '</b>' + esc(q) + '</li>';
         }).join('');
 
+        // 课堂现场：把「今天课上点哪几个地方」固定在顶部。
+        // 四种状态都要能渲染——内链、外链、纸质动作、外链未配置（降级不报错）。
+        var classHtml = '';
+        if (p.classroom && p.classroom.steps && p.classroom.steps.length) {
+          classHtml = '<section class="pj-sec pj-live"><h3>' + esc(p.classroom.title) + '</h3>'
+            + '<div class="pj-steps">'
+            + p.classroom.steps.map(function (st) {
+              var inner = '<em>' + st.n + '</em><b>' + esc(st.label) + '</b>'
+                + (st.note ? '<span>' + esc(st.note) + '</span>' : '');
+              if (st.link) {
+                var url = CLASSROOM_LINKS[st.link] || '';
+                if (!url) {
+                  return '<div class="pj-step is-off">' + inner
+                    + '<i class="pj-step-off">链接待配置</i></div>';
+                }
+                return '<a class="pj-step is-link" href="' + esc(url) + '" target="_blank"'
+                  + ' rel="noopener" data-pj-link="' + esc(st.link) + '">' + inner + '</a>';
+              }
+              if (st.tool) {
+                return '<button type="button" class="pj-step is-tool" data-pj-go="' + esc(st.tool) + '"'
+                  + (st.ch ? ' data-pj-toolch="' + esc(st.ch) + '"' : '') + '>' + inner + '</button>';
+              }
+              return '<div class="pj-step">' + inner + '</div>';
+            }).join('')
+            + '</div></section>';
+        }
+
         // 可选标的：给小组真正的选择权。三个方案数据不同、难度一致，
         // 选哪个不影响评分——但「自己选的」和「老师发的」是两回事
         var pick = pickOf(p.id);
@@ -6154,6 +6200,8 @@ document.addEventListener('keydown', function (e) {
           + '<span class="pj-badge ' + s + '">' + STATE_TEXT[s] + '</span></div>'
           + '<p class="pj-dsub">' + esc(p.subtitle) + '｜' + esc(p.weeks) + '</p>'
           + '</div>'
+
+          + classHtml
 
           + '<div class="pj-dgrid"><div class="pj-dmain">'
 
@@ -6272,9 +6320,21 @@ document.addEventListener('keydown', function (e) {
             return;
           }
 
-          // 工具入口 → 对应仿真模块
+          // 课堂现场外链（问卷星等）：a 标签原生跳转，这里只补埋点，不阻止默认行为
+          var lk = t.closest('[data-pj-link]');
+          if (lk) {
+            if (window.__ibankTrack) window.__ibankTrack('project', { action: 'submit_link', via: lk.getAttribute('data-pj-link') });
+            return;
+          }
+
+          // 工具入口 → 对应仿真模块。带 data-pj-toolch 的顺带预设习题章节筛选
           var go = t.closest('[data-pj-go]');
-          if (go) { goPage(go.getAttribute('data-pj-go')); return; }
+          if (go) {
+            var tch = go.getAttribute('data-pj-toolch');
+            if (tch) { try { sessionStorage.setItem('ibank_exercise_filter', tch); } catch (err2) {} }
+            goPage(go.getAttribute('data-pj-go'));
+            return;
+          }
 
           // 里程碑检测 → 习题训练，按本章节筛选（复用既有 sessionStorage 约定）
           var ms = t.closest('[data-pj-ms]');

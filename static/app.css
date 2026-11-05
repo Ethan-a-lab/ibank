@@ -2314,6 +2314,31 @@
     .pj-dq { background: rgba(99, 102, 241, .07); border-radius: 12px; padding: 14px 16px; }
     .pj-dq p { font-size: 14.5px; font-weight: 600; color: var(--text); line-height: 1.75; }
 
+    /* 课堂现场：把「今天课上点哪几个地方」固定成一行四步。
+       90 人教室里学生不能翻导航找入口，所以放在任务书最上方、整宽横排 */
+    .pj-live { background: rgba(99, 102, 241, .05); border: 1px solid rgba(99, 102, 241, .22); border-radius: 12px; padding: 14px 16px; }
+    .pj-live h3 { margin-bottom: 12px; }
+    .pj-steps { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
+    .pj-step {
+      position: relative; display: flex; flex-direction: column; gap: 4px;
+      padding: 12px 12px 12px 42px; border: 1px solid var(--panel-border); border-radius: 10px;
+      background: var(--panel-solid); font: inherit; color: inherit; text-align: left;
+      text-decoration: none; transition: .18s;
+    }
+    .pj-step em {
+      position: absolute; left: 13px; top: 13px; width: 19px; height: 19px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      background: var(--accent); color: #fff; font-size: 11px; font-style: normal; font-weight: 700;
+    }
+    .pj-step b { font-size: 13px; font-weight: 700; color: var(--text); line-height: 1.4; }
+    .pj-step > span { font-size: 11.5px; color: var(--muted); line-height: 1.6; }
+    .pj-step.is-tool, .pj-step.is-link { cursor: pointer; }
+    .pj-step.is-tool:hover, .pj-step.is-link:hover { border-color: var(--accent); background: rgba(99, 102, 241, .07); }
+    .pj-step.is-off { opacity: .62; }
+    .pj-step-off { display: block; font-style: normal; font-size: 11px; color: var(--dim); }
+    @media (max-width: 860px) { .pj-steps { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+    @media (max-width: 520px) { .pj-steps { grid-template-columns: 1fr; } }
+
     /* 可选标的：可点选的三张卡。选中态只切高亮，不重绘整页 */
     .pj-opts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
     .pj-opt {
