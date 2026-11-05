@@ -5733,6 +5733,55 @@ document.addEventListener('keydown', function (e) {
         result: ''    // 教师投屏用的实时结果页
       };
 
+      // ---------- 评价设计（板块级，三个项目共用）----------
+      // 这张表是整个板块的「评价主张」，也是它与「项目式教学」的分界线：
+      //   项目解决的是「怎么组织教学」，这里解决的是「凭什么判定学生达标」。
+      // 权重口径与课程大纲一致：过程性 50% + 终结性 50%，总数不动，
+      // 只在内部拆到「能被平台采集、能被第三方复核」的颗粒度。
+      var EVAL_FRAME = {
+        title: '评价设计 · 三个项目不是三次作业，是三次取证',
+        lead: '过程性 50% + 终结性 50% 的总口径不变，变的是每一分的来源：原来靠课堂印象与本子，现在靠可回溯的行为数据与成果证据。下面三栏分别回答「评什么」「怎么采」「怎么用」。',
+        cards: [
+          {
+            key: '评什么', sub: '总分 100，拆到可采集的颗粒度',
+            rows: [
+              { n: '学习行为留痕', w: 10, d: '章节学习时长、模块使用、参与频次' },
+              { n: '知识掌握', w: 15, d: '习题正确率 + 错题消化率（同知识点变式重做是否做对）' },
+              { n: '表现性任务', w: 20, d: '三个项目成果，按 rubric 三维评分' },
+              { n: '同伴互评', w: 5, d: '组间对表与述价质询，同一张量表打分' },
+              { n: '期末闭卷', w: 40, d: '概念与计算，覆盖 8 章' },
+              { n: '综合案例', w: 10, d: '开卷，给一份招股书，写定价判断与风险提示' }
+            ]
+          },
+          {
+            key: '怎么采', sub: '四种证据，全部在过程中自动产生',
+            rows: [
+              { n: '行为埋点', d: '每点开一页、每做一道题都在留痕，不依赖学生自报' },
+              { n: '认知诊断', d: '错题 → 知识点映射 → 六维掌握度，定位到「哪一个概念没通」' },
+              { n: '成果证据', d: '纸质记录卡拍照归档、述价文字稿、组间互评表' },
+              { n: 'AI 对话', d: '提问次数与问题层级，作为学习投入与思维深度的证据' }
+            ]
+          },
+          {
+            key: '怎么用', sub: '评价不是终点，是下一轮教学的输入',
+            rows: [
+              { n: '回给学生', d: '能力达成报告：哪一维达标、哪一维欠账、下一步练什么' },
+              { n: '回给教师', d: '班级错因分布与达成率，决定下次课先讲哪一段' },
+              { n: '回给课程', d: 'rubric 按评分分歧修订；AI 初评与教师终评做一致性检验' }
+            ]
+          }
+        ]
+      };
+
+      // 人机协同评分：三步。写死在这里而不是每个项目各写一遍，
+      // 是因为「谁有最终解释权」属于课程制度，不属于某个项目的内容。
+      var SCORING = [
+        { n: '01', t: 'AI 初评', d: '按 rubric 逐维比对交付物，给出得分与依据句。依据句必须引用学生原文，只给分数不给依据的不采纳。' },
+        { n: '02', t: '教师终评', d: '教师可采纳或修正 AI 建议。每次修正须填一句理由，这些理由累积起来，就是下一轮修改 rubric 的依据。' },
+        { n: '03', t: '学生可见可申诉', d: '学生看到每一维的得分与依据，可对任一维度提出申诉；申诉与处理记录一并留档，不覆盖原始评分。' }
+      ];
+
+
       // 章节标题：与知识图谱侧栏口径一致，用于「知识入口」的展示
       var CH_TITLE = {
         '第0章': '导论', '第1章': '投资银行概述', '第2章': '企业融资方案设计',
@@ -5783,6 +5832,7 @@ document.addEventListener('keydown', function (e) {
           stages: [
             {
               name: '算出价格区间', week: '第 1 课时', output: '记录卡第 ①② 栏',
+              evidence: '每股收益与上下限的三步算式——留在卡上，可被任何一组当场复核',
               todo: [
                 '拿纸质《定价建议书》记录卡，把 4 家可比公司的市盈率抄进第 ① 栏（或打开站内「企业估值实验」做同一件事）',
                 '用标的最近一年净利润除以「发行前」股本，算出每股收益',
@@ -5792,6 +5842,7 @@ document.addEventListener('keydown', function (e) {
             },
             {
               name: '拍板定价，并说明为什么是这个价', week: '第 2 课时', output: '记录卡第 ③⑤ 栏',
+              evidence: '推荐价 + 一句话理由（30 秒口头版）——用来判断理由是「可核对的比较」还是「不可证伪的表态」',
               todo: [
                 '在区间内选定一个数，说清为什么取它、而不是取上限或下限',
                 '做一次自查：定价 ÷ 每股收益 落在同行市盈率区间里吗？超了就说明原因',
@@ -5801,6 +5852,7 @@ document.addEventListener('keydown', function (e) {
             },
             {
               name: '应询：被抽到时扛住追问', week: '第 2 课时 · 抽 3 组', output: '口头述价 60 秒',
+              evidence: '述价录音/速记 + 其余组的同意与否投票——这是全场唯一能测「应答质量」的证据',
               todo: [
                 '用右栏「合规三问」逐条自问一遍，把答不上来的那条补进记录卡',
                 '找出全组最没把握的一个数字，回到可比公司数据里重核一遍',
@@ -5810,6 +5862,7 @@ document.addEventListener('keydown', function (e) {
             },
             {
               name: '模拟询价，修正定价（拓展 · 选做）', week: '课后', output: '《定价修正说明》',
+              evidence: '修正前后的两个价格 + 改动的理由——用来测「拿到新信息后是否改得动判断」',
               todo: [
                 '在「IPO 定价配售仿真」里按自己定的价跑一轮询价，看申购倍数与中签率',
                 '对照其他组的定价，找出自己方案的偏差出在哪一步',
@@ -5823,15 +5876,15 @@ document.addEventListener('keydown', function (e) {
             '一页纸定价建议书（推荐价 + 一句话理由，课后整理成电子版）'
           ],
           rubric: [
-            { dim: '算得对', w: 40, points: '每股收益与市盈率区间计算无误，上下限能追溯到可比公司数据' },
-            { dim: '理由站得住', w: 40, points: '理由对得上自查口径和投资者需求，不是「感觉市场会喜欢」' },
-            { dim: '写得清楚', w: 20, points: '记录卡六栏填全，一页纸内说清结论与理由，不用长句堆砌' }
+            { dim: '算得对', w: 40, points: '每股收益与市盈率区间计算无误，上下限能追溯到可比公司数据', judge: 'AI 可自动核对（算式与数据源可机械比对）' },
+            { dim: '理由站得住', w: 40, points: '理由对得上自查口径和投资者需求，不是「感觉市场会喜欢」', judge: '教师终评（AI 只给参考，理由的可证伪性机器判不了）' },
+            { dim: '写得清楚', w: 20, points: '记录卡六栏填全，一页纸内说清结论与理由，不用长句堆砌', judge: 'AI 初评 + 教师抽检' }
           ],
           showcase: '班内质询：抽最高价与最低价两组各述 60 秒，其他组以「投资者」身份判断同意与否',
           // 课堂现场：90 人教室里学生真正要点的四个动作，直接摆在任务书最上方。
           // 不放在右栏，是因为右栏要往下滚，而课上学生只有 100 分钟、不能翻找。
           classroom: {
-            title: '课堂现场 · 两课时（45 + 10 + 45）',
+            title: '课堂现场 · 两课时（50 + 10 + 50）',
             steps: [
               { n: 1, label: '算出价格区间', tool: 'p-valuation', note: '做测算，记下上下限' },
               { n: 2, label: '组间对表', note: '和相邻组核对每股收益，填纸质卡第 ④ 栏' },
@@ -5885,6 +5938,7 @@ document.addEventListener('keydown', function (e) {
           stages: [
             {
               name: '算清每股收益是增厚还是摊薄', week: '第 1 次课', output: '《增厚摊薄测算表》',
+              evidence: '合并净利润、新增股数、新每股收益三项数字——可逐步复核，错在哪一步一目了然',
               todo: [
                 '算交易后的合并净利润（收购方 + 标的，模板已给公式）',
                 '算交易后的总股本：付现金不增股本，发股要按股价折算新增股数',
@@ -5894,6 +5948,7 @@ document.addEventListener('keydown', function (e) {
             },
             {
               name: '判断这笔买卖该不该做', week: '第 2 次课', output: '《一页纸并购建议备忘》',
+              evidence: '结论 + 三条依据——用来区分「落在指标上的判断」与「行业前景好」这类空话',
               todo: [
                 '先分清一件事：增厚只说明每股收益变高，不等于买得划算',
                 '用「交易后资产负债率不高于 65%」检验纯现金方案能不能落地',
@@ -5903,6 +5958,7 @@ document.addEventListener('keydown', function (e) {
             },
             {
               name: '选支付方式：现金、发股还是组合', week: '第 3 次课', output: '《支付方式对比表》',
+              evidence: '三种方案的三指标对照表 + 一条「放弃的那项为什么可以让」——这一栏最能看出取舍能力',
               todo: [
                 '三种支付方式各算一遍：对每股收益、负债率、控制权各有什么影响',
                 '按董事会最在意的两项指标做取舍，并说明放弃的那一项为什么可以让',
@@ -5912,6 +5968,7 @@ document.addEventListener('keydown', function (e) {
             },
             {
               name: '应询：把风险预案写成能落地的三条', week: '课后 · 答辩前', output: '《应询答复稿》',
+              evidence: '三条「谁、什么条件下、做什么」的具体动作——用来说明预案不是口号',
               todo: [
                 '用右下角「合规三问」逐条自问，重点答好定价依据与中小股东利益两条',
                 '把风险预案从「注意风险」改成具体动作：谁、在什么条件下、做什么',
@@ -5925,9 +5982,9 @@ document.addEventListener('keydown', function (e) {
             '一页纸并购建议备忘（结论 + 三条依据）'
           ],
           rubric: [
-            { dim: '测算正确', w: 35, points: '合并净利润、新增股数、新每股收益三项无误，增厚判断与数字一致' },
-            { dim: '结论有依据', w: 40, points: '结论落在具体指标上（每股收益、负债率、控制权），不是行业判断' },
-            { dim: '风险意识', w: 25, points: '指出方案的最坏情形，并给出至少一条应对办法' }
+            { dim: '测算正确', w: 35, points: '合并净利润、新增股数、新每股收益三项无误，增厚判断与数字一致', judge: 'AI 可自动核对' },
+            { dim: '结论有依据', w: 40, points: '结论落在具体指标上（每股收益、负债率、控制权），不是行业判断', judge: '教师终评' },
+            { dim: '风险意识', w: 25, points: '指出方案的最坏情形，并给出至少一条应对办法', judge: '教师终评 + 组间质询记录' }
           ],
           showcase: '班内路演：每组 5 分钟向「董事会」汇报结论，接受另外两组质询',
           chapters: ['第4章', '第7章'],
@@ -5958,6 +6015,7 @@ document.addEventListener('keydown', function (e) {
           stages: [
             {
               name: '算能融到多少钱、成本是多少', week: '第 1 次课', output: '《融资额与成本测算表》',
+              evidence: '发行规模、到账金额、年化成本三个数——成本是否压线低于 5.2%，一算就见分晓',
               todo: [
                 '用「基础资产 × 优先级比例 × 历史回收率」算出优先级发行规模',
                 '从发行规模里扣掉发行费，得到实际到账金额',
@@ -5967,6 +6025,7 @@ document.addEventListener('keydown', function (e) {
             },
             {
               name: '判断这笔 ABS 值不值得做', week: '第 2 次课', output: '《一页纸决策备忘》',
+              evidence: '结论 + 三条依据，其中必须有一条不是「更便宜」——用来测是否看懂了出表与授信额度',
               todo: [
                 '把算出来的年化成本和银行贷款 5.2% 摆在一起比，差多少个点',
                 '想清楚 ABS 除了便宜，还带来什么：出表降负债、不占授信额度、缩短回款周期',
@@ -5980,9 +6039,9 @@ document.addEventListener('keydown', function (e) {
             '一页纸决策备忘（结论 + 三条依据）'
           ],
           rubric: [
-            { dim: '算得对', w: 40, points: '发行规模、到账金额、年化成本三项无误，次级留存已考虑在内' },
-            { dim: '结论有依据', w: 40, points: '结论落在成本差、负债率、授信额度这些具体指标上，不是「ABS 是创新工具」' },
-            { dim: '看得见风险', w: 20, points: '指出基础资产质量或分层不足的风险，并说明如何缓释' }
+            { dim: '算得对', w: 40, points: '发行规模、到账金额、年化成本三项无误，次级留存已考虑在内', judge: 'AI 可自动核对' },
+            { dim: '结论有依据', w: 40, points: '结论落在成本差、负债率、授信额度这些具体指标上，不是「ABS 是创新工具」', judge: '教师终评' },
+            { dim: '看得见风险', w: 20, points: '指出基础资产质量或分层不足的风险，并说明如何缓释', judge: '教师终评 + 组间质询记录' }
           ],
           showcase: '班内答辩：每组 4 分钟向「公司财务总监」汇报，由另一组以评级机构身份提问',
           chapters: ['第5章', '第6章'],
@@ -6042,7 +6101,31 @@ document.addEventListener('keydown', function (e) {
       var elChain = document.getElementById('pj-chain');
       var elList = document.getElementById('pj-list');
       var elDetail = document.getElementById('pj-detail');
+      var elEval = document.getElementById('pj-eval');
       if (!elChain || !elList || !elDetail) return;   // 页面未引入新板块时静默退出
+
+      // ---------- 视图零：评价设计三栏（评什么 / 怎么采 / 怎么用） ----------
+      // 放在项目链之前：学生先知道「这门课怎么判我」，再看「我要做什么」。
+      function renderEval() {
+        var el = document.getElementById('pj-eval');
+        if (!el) return;
+        el.innerHTML = '<div class="ev-head"><h3>' + esc(EVAL_FRAME.title) + '</h3>'
+          + '<p>' + esc(EVAL_FRAME.lead) + '</p></div>'
+          + '<div class="ev-grid">'
+          + EVAL_FRAME.cards.map(function (c) {
+            return '<div class="ev-card">'
+              + '<div class="ev-k">' + esc(c.key) + '</div>'
+              + '<div class="ev-sub">' + esc(c.sub) + '</div>'
+              + '<ul class="ev-rows">'
+              + c.rows.map(function (r) {
+                return '<li><div class="ev-r-h"><b>' + esc(r.n) + '</b>'
+                  + (r.w != null ? '<i class="ev-w">' + r.w + '%</i>' : '')
+                  + '</div><span>' + esc(r.d) + '</span></li>';
+              }).join('')
+              + '</ul></div>';
+          }).join('')
+          + '</div>';
+      }
 
       // ---------- 视图一：项目链（横向流水线） ----------
       function renderChain() {
@@ -6113,6 +6196,7 @@ document.addEventListener('keydown', function (e) {
             + '<div class="pj-st-main"><b>' + esc(stg.name) + '</b>'
             + '<em>' + esc(stg.week) + '｜交付 ' + esc(stg.output) + '</em>'
             + (todoHtml ? '<ol class="pj-todo">' + todoHtml + '</ol>' : '')
+            + (stg.evidence ? '<p class="pj-evid"><span>本环节留下的证据</span>' + esc(stg.evidence) + '</p>' : '')
             + (stg.reflect ? '<p class="pj-reflect">想清楚再往下走：' + esc(stg.reflect) + '</p>' : '')
             + '</div></li>';
         }).join('');
@@ -6124,7 +6208,16 @@ document.addEventListener('keydown', function (e) {
             + '<span class="pj-rub-bar"><i style="width:' + r.w + '%"></i></span>'
             + '<b>' + r.w + '%</b></div>'
             + (r.points ? '<p class="pj-rub-pt">' + esc(r.points) + '</p>' : '')
+            + (r.judge ? '<p class="pj-rub-judge">谁来判：' + esc(r.judge) + '</p>' : '')
             + '</div>';
+        }).join('');
+
+        // 人机协同评分：把「谁有最终解释权」写清楚。
+        // 学生最怕的不是被扣分，是不知道为什么被扣分——这三步针对的就是这件事。
+        var scoreHtml = SCORING.map(function (s) {
+          return '<li><div class="pj-sc-no">' + esc(s.n) + '</div>'
+            + '<div class="pj-sc-main"><b>' + esc(s.t) + '</b>'
+            + '<span>' + esc(s.d) + '</span></div></li>';
         }).join('');
 
         var chHtml = p.chapters.map(function (c) {
@@ -6228,6 +6321,10 @@ document.addEventListener('keydown', function (e) {
           + '<section class="pj-sec"><h3>评分标准（什么样算达标）</h3>'
           + '<div class="pj-rub">' + rubHtml + '</div></section>'
 
+          + '<section class="pj-sec"><h3>这份成果怎么评出来</h3>'
+          + '<ol class="pj-score">' + scoreHtml + '</ol>'
+          + '<p class="pj-tip">AI 只判「能机械比对的部分」（算式、数据源、栏目是否填全），理由是否站得住由教师判。这不是技术上的妥协，是评价的边界——把解释不了的分数交给机器，等于把评价的公信力一起交出去。</p></section>'
+
           + '</div><aside class="pj-dside">'
 
           + '<div class="pj-box"><h4>你是谁 · 组里谁干什么</h4>'
@@ -6254,6 +6351,7 @@ document.addEventListener('keydown', function (e) {
 
         elList.hidden = true;
         elChain.hidden = true;   // 详情页不显示流水线，避免与标题争夺视线
+        if (elEval) elEval.hidden = true;   // 评价设计属板块级说明，进详情后让位给任务书
         elDetail.hidden = false;
         var pjRoot = document.getElementById('p-project');
         if (pjRoot) pjRoot.classList.add('in-detail');
@@ -6269,6 +6367,7 @@ document.addEventListener('keydown', function (e) {
         if (pjRoot2) pjRoot2.classList.remove('in-detail');
         elList.hidden = false;
         elChain.hidden = false;
+        if (elEval) elEval.hidden = false;
         renderChain();
         renderList();
         window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -6354,6 +6453,7 @@ document.addEventListener('keydown', function (e) {
       var tab = document.querySelector('.tab-btn[data-page="p-project"]');
       if (tab) tab.addEventListener('click', function () { showList(); });
 
+      renderEval();
       renderChain();
       renderList();
       window.__ibankProjects = PROJECTS;   // 便于后台统计或其他模块引用

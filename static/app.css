@@ -2420,6 +2420,57 @@
       .pj-opts { grid-template-columns: minmax(0, 1fr); }
     }
 
+    /* ---- 评价设计三栏：评什么 / 怎么采 / 怎么用 ----
+       这是整个板块从「怎么教」转向「怎么评」的落点，视觉上要给足权重，
+       但不能抢过项目卡——所以走浅底 + 细边框，不用主色块 */
+    .pj-eval { margin: 4px 0 4px; }
+    .ev-head h3 { font-size: 15px; font-weight: 700; color: var(--text); }
+    .ev-head p { font-size: 13px; line-height: 1.85; color: var(--muted); margin-top: 6px; }
+    .ev-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin-top: 14px; }
+    .ev-card {
+      background: rgba(99, 102, 241, .035);
+      border: 1px solid var(--panel-border); border-radius: 12px; padding: 14px 16px;
+    }
+    .ev-k { font-size: 13.5px; font-weight: 700; color: var(--accent-text); letter-spacing: .04em; }
+    .ev-sub {
+      font-size: 11.5px; color: var(--dim); margin-top: 3px; padding-bottom: 9px;
+      border-bottom: 1px dashed var(--panel-border);
+    }
+    .ev-rows { list-style: none; display: flex; flex-direction: column; gap: 9px; margin-top: 10px; }
+    .ev-rows li { display: flex; flex-direction: column; gap: 1px; }
+    .ev-r-h { display: flex; align-items: center; gap: 6px; }
+    .ev-r-h b { font-size: 12.5px; font-weight: 600; color: var(--text); }
+    .ev-w {
+      font-style: normal; font-size: 10.5px; font-weight: 700; line-height: 1;
+      color: var(--accent-text); background: rgba(99, 102, 241, .12);
+      padding: 2px 5px; border-radius: 4px;
+    }
+    .ev-rows span { font-size: 11.5px; line-height: 1.6; color: var(--muted); }
+    @media (max-width: 900px) { .ev-grid { grid-template-columns: minmax(0, 1fr); } }
+
+    /* ---- 阶段证据：每个环节留下什么，直接决定它能不能被评 ---- */
+    .pj-evid {
+      font-size: 12px; line-height: 1.65; color: var(--accent-text);
+      background: rgba(99, 102, 241, .07); border-left: 2px solid var(--accent);
+      border-radius: 0 6px 6px 0; padding: 6px 10px; margin-top: 8px;
+    }
+    .pj-evid span {
+      display: block; font-size: 10.5px; font-weight: 700; letter-spacing: .08em;
+      color: var(--dim); margin-bottom: 2px;
+    }
+
+    /* ---- 人机协同评分三步 ---- */
+    .pj-score { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+    .pj-score li { display: flex; gap: 10px; align-items: flex-start; }
+    .pj-sc-no {
+      flex: 0 0 auto; width: 24px; height: 24px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 10.5px; font-weight: 700; color: #fff; background: var(--accent-solid);
+    }
+    .pj-sc-main { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+    .pj-sc-main b { font-size: 13px; font-weight: 700; color: var(--text); }
+    .pj-sc-main span { font-size: 12.5px; line-height: 1.7; color: var(--muted); }
+
     /* ---- 「你要用到的东西」清单：把学习支架显式写在任务书里 ---- */
     .pj-given { list-style: none; display: flex; flex-direction: column; gap: 6px; }
     .pj-given li {
@@ -2460,6 +2511,7 @@
     .pj-rub-item { display: flex; flex-direction: column; gap: 3px; padding-bottom: 9px; }
     .pj-rub-item:last-child { padding-bottom: 0; }
     .pj-rub-pt { font-size: 12px; line-height: 1.65; color: var(--muted); padding-left: 2px; }
+    .pj-rub-judge { font-size: 11.5px; line-height: 1.6; color: var(--dim); padding-left: 2px; }
 
     .pj-team { display: flex; flex-direction: column; gap: 8px; margin-top: 4px; }
     .pj-team-row { display: flex; flex-direction: column; gap: 1px; }
