@@ -70,6 +70,7 @@
         document.getElementById(target).classList.add('active');
         if (target === 'p-wrong' && window.renderWrong) window.renderWrong(); // 进入错题页即渲染/刷新账本（避免首次空白）
         if (target === 'p-profile' && window.__ibankProfileRefresh) window.__ibankProfileRefresh(); // 学情画像按真实数据实时重算
+        if (target === 'p-eval' && window.__ibankAvRefresh) window.__ibankAvRefresh();          // 五维达成评价按真实事件流实时重算
         // v58.8.2：取消 admin 页强制浅色豁免，后台跟随全局主题切换
         if (target === 'p-admin') { if (window.__ibankAdminLive) window.__ibankAdminLive.start(); }
         else { if (window.__ibankAdminLive) window.__ibankAdminLive.stop(); }
@@ -5723,7 +5724,7 @@ document.addEventListener('keydown', function (e) {
     //      章节跳转用 window.__ibankChapterGo，习题筛选用 sessionStorage.ibank_exercise_filter。
     //   4) 项目进度存 localStorage，仅用于本机演示与课堂记录，不上传、不涉个人信息。
     (function () {
-      var STORE_KEY = 'ibank_project_state';   // { proj1: 'doing' | 'done' }
+      var STORE_KEY = 'ibank_project_state';   // { byd: 'doing' | 'done' }
 
       // ---------- 课堂现场外链（问卷星 / 表单）----------
       // 链接集中放这里，换问卷不用碰任何渲染代码。
@@ -5733,33 +5734,74 @@ document.addEventListener('keydown', function (e) {
         result: ''    // 教师投屏用的实时结果页
       };
 
-      // ---------- 评价设计（板块级，三个项目共用）----------
+      // ---------- 标准答案开关（只作用于「项目实践」板块）----------
+      // 口径：网站是演算台，不是答案册。
+      //   学生自己的结果（价格区间、利率、认购倍数、缺口）由页面实时算出来；
+      //   真实结果（发行价 18 元、实募 14.22 亿、票面 1.72%）不在页面上给，
+      //   由教师用 PPT 投屏揭晓——这一步不能交给机器，因为「和真实结果对不上」才是课堂讨论的起点。
+      //   被封存的答案在数据里写成 [[...]]，封存态统一渲染成「课上揭晓」。
+      //   教师揭晓：网址后加 ?reveal=1（记在本机），关回去用 ?reveal=0。页面上不放这个开关。
+      var REVEAL_KEY = 'ibank_project_reveal';
+      var REVEAL = (function () {
+        try {
+          if (/[?&]reveal=1/.test(location.search)) { localStorage.setItem(REVEAL_KEY, '1'); return true; }
+          if (/[?&]reveal=0/.test(location.search)) { localStorage.setItem(REVEAL_KEY, '0'); return false; }
+          return localStorage.getItem(REVEAL_KEY) === '1';
+        } catch (e) { return false; }
+      })();
+      // 只作用在已转义的字符串上：插入的 <b>/<span> 是自己写的，不引入外部输入
+      function reveal(html) {
+        return String(html == null ? '' : html).replace(/\[\[([^\[\]]+?)\]\]/g, function (_, v) {
+          return REVEAL ? '<b class="pj-ans">' + v + '</b>' : '<span class="pj-ans-seal">课上揭晓</span>';
+        });
+      }
+
+      // ---------- 评价设计（板块级，所有项目共用）----------
       // 这张表是整个板块的「评价主张」，也是它与「项目式教学」的分界线：
       //   项目解决的是「怎么组织教学」，这里解决的是「凭什么判定学生达标」。
       // 权重口径与课程大纲一致：过程性 50% + 终结性 50%，总数不动，
       // 只在内部拆到「能被平台采集、能被第三方复核」的颗粒度。
       var EVAL_FRAME = {
-        title: '评价设计 · 三个项目不是三次作业，是三次取证',
-        lead: '过程性 50% + 终结性 50% 的总口径不变，变的是每一分的来源：原来靠课堂印象与本子，现在靠可回溯的行为数据与成果证据。下面三栏分别回答「评什么」「怎么采」「怎么用」。',
+        title: '评价设计 · 一个项目走四段，每一分都有出处',
+        lead: '同一批证据，只用一张表，就能同时回答两件事：分数从哪来、这些分说明什么能力。横着加是成绩单，竖着加是能力报告——不是两套分，是同一张表的两个方向。',
         cards: [
           {
-            key: '评什么', sub: '总分 100，拆到可采集的颗粒度',
-            rows: [
-              { n: '学习行为留痕', w: 10, d: '章节学习时长、模块使用、参与频次' },
-              { n: '知识掌握', w: 15, d: '习题正确率 + 错题消化率（同知识点变式重做是否做对）' },
-              { n: '表现性任务', w: 20, d: '三个项目成果，按 rubric 三维评分' },
-              { n: '同伴互评', w: 5, d: '组间对表与述价质询，同一张量表打分' },
-              { n: '期末闭卷', w: 40, d: '概念与计算，覆盖 8 章' },
-              { n: '综合案例', w: 10, d: '开卷，给一份招股书，写定价判断与风险提示' }
-            ]
+            key: '评什么', sub: '一张表两个方向：横着加是成绩单（大纲表3），竖着加是能力报告（五维）',
+            wide: true,
+            matrix: {
+              // 五列就是五维，一列一份分，不再有「并入」的列。
+              // 决策 35 分内部再切：预判与选择 25 + 压力下的稳定性 10，
+              // 切法依据是证据来源不同（定价/押注 vs 反复试错/回撤调仓），
+              // 不是把两个指标点的权重拆开——G2 仍是 2-8、2-9 支撑的 35 分。
+              cols: [
+                { n: '知识整合', s: '高阶思维' },
+                { n: '决策预判', s: '风险与选择' },
+                { n: '心理韧性', s: '压力下的稳定' },
+                { n: '职业伦理', s: '价值认同' },
+                { n: '自主管理', s: '自我调节' }
+              ],
+              rows: [
+                { n: '在线学习', note: '时长 · 模块使用 · 预习完成', v: [null, null, null, null, 10] },
+                { n: '单元测验', note: '正确率 · 错题消化 · 变式重做', v: [4, 1, 2, null, 3] },
+                { n: '课堂表现', note: '发言 · 角色扮演 · 抽问应答', v: [2, 3, 3, 2, null] },
+                { n: '主题讨论', note: '伦理情境判断 + 理由', v: [null, 2, 1, 7, null] },
+                { n: '小组报告', note: '项目成果 · rubric 五维评分', v: [2, 1, 4, 1, 2] },
+                { n: '期末闭卷', note: '概念 · 综合计算 · 伦理题', v: [27, 18, null, 5, null] }
+              ],
+              totalLabel: '五维合计',
+              totalSub: '五列相加 = 100',
+              total: [35, 25, 10, 15, 15],
+              legend: '「–」表示该环节不测这一维，不是缺数据。每行横向相加 = 该环节在成绩单上的权重；每列纵向相加 = 该维在能力报告上的权重。'
+            },
+            foot: '横着加，得到成绩单上的 10 / 10 / 10 / 10 / 10 / 50，与大纲表3 一字不差；竖着加，得到能力报告的 35 / 25 / 10 / 15 / 15。同一张表、两个方向，所以数学上不可能出现两套分。决策 35 分为什么要拆成 25 + 10：它们测的不是一回事——定价与路线选择看「选得对不对」，反复试错后的收敛、回撤期的调仓看「乱了之后能不能回来」。前者是判断力，后者是稳定性，混在一列里，一个抗压差但判断准的学生会被判成「决策能力好」。拆开之后，课程目标权重 35 / 35 / 30 一分没动，变的是同一目标内部的账目清不清。真正变的也只有一笔：素养类证据原来散落在「在线学习」「课堂表现」里，被折在别人的分数下，现在归到伦理与自主两栏，合计 30 分——分数没多出来，是终于被看见了。这张表定的是归属；实际算分用的是挂在环节里更细的观测点（见下方「怎么采」），逐层加总与本表一致。'
           },
           {
             key: '怎么采', sub: '四种证据，全部在过程中自动产生',
             rows: [
-              { n: '行为埋点', d: '每点开一页、每做一道题都在留痕，不依赖学生自报' },
-              { n: '认知诊断', d: '错题 → 知识点映射 → 六维掌握度，定位到「哪一个概念没通」' },
-              { n: '成果证据', d: '纸质记录卡拍照归档、述价文字稿、组间互评表' },
-              { n: 'AI 对话', d: '提问次数与问题层级，作为学习投入与思维深度的证据' }
+              { n: '行为埋点', d: '每点开一页、每做一道题、每改一次报价都在留痕，不依赖学生自报 → 喂给 自主、知识' },
+              { n: '认知诊断', d: '错题 → 知识点映射 → 维度掌握度，定位到「哪一个概念没通」→ 喂给 知识' },
+              { n: '成果证据', d: '三份测算表、簿记定价说明、复盘一页纸，版本可回溯 → 喂给 决策、伦理' },
+              { n: 'AI 对话', d: '提问次数与问题层级，作为学习投入与思维深度的证据 → 喂给 自主' }
             ]
           },
           {
@@ -5793,264 +5835,136 @@ document.addEventListener('keydown', function (e) {
       // 难度口径：面向金融学本科、非核心专业课。原则是「降建模门槛，不降决策难度」——
       //   数据全部给定、模板给好、交付物压到一页纸、约束只留一条；
       //   但「定价定多少」「这笔买卖做不做」必须学生自己判断，并说出三条理由。
+      // ---------- 数据源：一个贯穿式主项目 ----------
+      // 三个项目合成一个，是因为比亚迪这条线本来就是一件事：同一家公司，
+      // 十五年里三次向市场要钱，每一次的定价权归属都不同。拆成三个独立项目，
+      // 学生做完记不住三段的差别；串成一条线，差别自己会浮出来。
+      // 难度口径：面向金融学本科、非核心专业课。原则是「降建模门槛，不降决策难度」——
+      //   数据全部给定、模板给好、交付物压到一页纸；
+      //   但「价格定多少」「走哪条路」「利率定几个点」必须学生自己判断，并说出理由。
       var PROJECTS = [
         {
-          id: 'proj1', no: '01', name: '给一家企业定价', weeks: '2 课时（100 分钟）', kind: '主项目',
-          subtitle: '算价格区间，定发行价',
+          id: 'byd', no: '01', name: '比亚迪：三次向市场要钱', weeks: '2 课时', kind: '贯穿式主项目',
+          subtitle: 'IPO · 再融资 · 债券承销，一条真实的融资时间线',
           role: '定价岗 2 人 + 合规岗 2 人（4 人一组）',
-          scenario: '一家做风电设备的企业准备上创业板，老板要你回答一个问题：股票卖多少钱一股。公司给了你近三年的账，同行有四家上市公司可以对照。这件事没有标准答案——定高了卖不出去、上市就跌破发行价，定低了募资不够、老板不答应。你们组要给出一个数，并且扛得住追问。',
-          drivingQuestion: '这家公司的股票，卖多少钱一股？',
-          pickHint: '三个标的任选其一，全组从头到尾只用自己选的那个。选哪个不影响评分——影响评分的是你们能不能说清为什么是这个价。',
+          scenario: '比亚迪 2011 年回 A 股上市，2016 年做过一次定向增发，2026 年在银行间连发两期中期票据。同一家公司、同一个资本市场，三次向市场要钱的定价权却完全不在同一边：一次被砍到你没想到的价，一次钱拖到市场都变了，一次订单多到要按比例分。三段的原始数据老师都给你了——你要做的是把每一段的价格自己算出来、定下来，再用这三段回答一个问题：定价权到底在谁手里。',
+          drivingQuestion: '同一家公司三次向市场要钱，为什么一次被砍价、一次被拖、一次被抢光？',
+          pickWord: '方案', pickTitle: '先押一条路',
+          pickHint: '先押个注：假设你是比亚迪的融资负责人，账上要补一笔大额资金，你走哪条路？选完再往下做三段，第三段会揭晓真实答案，回来检验自己当初押对没有。选哪个不影响评分——影响评分的是你能不能说出为什么。',
           options: [
             {
-              code: 'A', name: '风电机组制造商', tag: '制造业 · 成长期',
-              facts: '近三年净利润 1.2 / 1.5 / 1.8 亿元，发行前股本 1.2 亿股',
-              peers: '4 家可比公司，市盈率 26 ~ 34 倍'
+              code: 'A', name: 'A 股定向增发', tag: '股权 · 不还本 · 要审批',
+              facts: '锁价发行，价格在预案时就锁死；从预案到资金到账通常要走 6—13 个月',
+              peers: '不增加负债，但摊薄每股收益；发行对象不超过 35 名'
             },
             {
-              code: 'B', name: '连锁餐饮企业', tag: '消费 · 现金流稳',
-              facts: '近三年净利润 0.72 / 0.81 / 0.90 亿元，发行前股本 1.5 亿股',
-              peers: '4 家可比公司，市盈率 22 ~ 28 倍'
+              code: 'B', name: 'H 股配售', tag: '股权 · 快 · 要折价',
+              facts: '按市价折让配售给机构，几天内完成，不走境内审核程序',
+              peers: '比亚迪 2021 年两次配售折让 7.8% 与 6.9%，用折价换速度'
             },
             {
-              code: 'C', name: '家用医疗器械厂商', tag: '制造 + 消费 · 高毛利',
-              facts: '近三年净利润 0.45 / 0.52 / 0.60 亿元，发行前股本 0.4 亿股',
-              peers: '4 家可比公司，市盈率 35 ~ 45 倍'
+              code: 'C', name: '银行间发中票', tag: '债权 · 快 · 要还本',
+              facts: '交易商协会注册，一次注册可分期发行；利率由簿记建档定，通常两周内完成',
+              peers: '不摊薄股本，但要付利息、到期还本，且受资产负债率约束'
             }
           ],
           given: [
-            '三个候选标的的三年账（三选一，数据都已整理好）',
-            '4 家可比公司的市盈率（已算好，查表即用）',
-            '发行前股本与本次发行股数（随标的一并给出）',
-            '一张纸质《定价建议书》记录卡（课上发，只需填 6 个空）',
-            '一条自查口径：定价 ÷ 每股收益 要落在同行市盈率区间之内'
+            '三段融资的原始数据（招股书募资额、定增预案与实际到账、中票发行要素），已按公开披露整理成一页纸',
+            '4 家可比公司的市盈率区间（第一段直接用，查表即用）',
+            '三条再融资路径的时间区间与成本区间（第二段用）',
+            '一个可操作的簿记建档仿真（第三段用，站内直接打开）',
+            '一条自查口径：你的定价要能对上可比数据，你的理由要能被别人复算'
           ],
           team: [
-            { role: '定价岗', duty: '做测算、定价格，写出推荐价和三条理由' },
-            { role: '合规岗', duty: '盯住那条市盈率红线，准备被问询时的答复' }
+            { role: '定价岗', duty: '算价格、定利率，把每一个数字追回到原始来源' },
+            { role: '合规岗', duty: '盯住摊薄、信息披露与募集资金用途，准备被问询时的答复' }
           ],
           stages: [
             {
-              name: '算出价格区间', week: '第 1 课时', output: '记录卡第 ①② 栏',
-              evidence: '每股收益与上下限的三步算式——留在卡上，可被任何一组当场复核',
+              name: '第一段 · IPO：市场给你定价', week: '第 1 课时 · 前 20 分钟', output: '《IPO 定价测算表》', tool: 'p-valuation',
+              evidence: '你算出的价格区间、你定的发行价，与课上揭晓的真实发行价并排摆着——能看出你是「按同行拍的」还是「按公司自己算的」',
               todo: [
-                '拿纸质《定价建议书》记录卡，把 4 家可比公司的市盈率抄进第 ① 栏（或打开站内「企业估值实验」做同一件事）',
-                '用标的最近一年净利润除以「发行前」股本，算出每股收益',
-                '每股收益分别乘同行市盈率的下限与上限，得到价格区间'
+                '用比亚迪上市前一年的净利润除以发行前股本，算出每股收益（数据在工作包里）',
+                '用 4 家可比公司的市盈率上下限乘每股收益，得到你自己的价格区间',
+                '在区间里定一个数，写下为什么取它——先别找答案，真实发行价第 2 课时才揭晓',
+                '把缺口算出来：拟募 21.92 亿元是招股书写的，等你定完发行价，再算实际募资差几个百分点、缺口靠什么补'
               ],
-              reflect: '你们算出来的区间，上限靠什么撑住、下限靠什么兜住？'
+              reflect: '主承销商给的询价区间下沿是 21.08 元，最后却发在更低的价上。是承销商故意报高了，还是市场当时就只肯给这个价？',
+              answer: '发行价 18.00 元，比询价区间下沿 21.08 元还低 15%；拟募 21.92 亿元，实募 14.22 亿元，缺口 35%。'
             },
             {
-              name: '拍板定价，并说明为什么是这个价', week: '第 2 课时', output: '记录卡第 ③⑤ 栏',
-              evidence: '推荐价 + 一句话理由（30 秒口头版）——用来判断理由是「可核对的比较」还是「不可证伪的表态」',
+              name: '第二段 · 再融资：时间也是成本', week: '第 1 课时 · 后 25 分钟', output: '《再融资方案对比表》',
+              evidence: '三条路的「到账时间 × 摊薄幅度 × 折价或利率」三栏对比，以及你放弃的那条路为什么可以让——这一栏最能看出取舍能力',
               todo: [
-                '在区间内选定一个数，说清为什么取它、而不是取上限或下限',
-                '做一次自查：定价 ÷ 每股收益 落在同行市盈率区间里吗？超了就说明原因',
-                '把理由压成 30 秒能说完的一句话，被抽到时站起来讲'
+                '把定增、H 股配售、银行间发债三条路的资金到账时间各写一个数（工作包给了区间）',
+                '算 2016 年那次定增：锁价 57.40 元 × 2.61 亿股，预案约 150 亿元——预案金额与最终到账差多少，差在哪一步',
+                '对照 2021 年 H 股配售：225 港元折让 7.8%、276 港元折让 6.9%，回答「为什么愿意折掉 7%」',
+                '结合你开头押的那条路，现在有没有改主意，改的依据是什么'
               ],
-              reflect: '如果发行人和投资者对你们的定价都不满意，你先让谁满意？'
+              reflect: '一条路要多付 7% 的折价但下周到账，另一条不用折价但要走一年多的流程。你按什么决定？',
+              answer: '2016 年定增：预案锁价 57.40 元 × 2.61 亿股 ≈ 150 亿元，实际到账 143.69 亿元，从预案到资金到账 13 个月。'
             },
             {
-              name: '应询：被抽到时扛住追问', week: '第 2 课时 · 抽 3 组', output: '口头述价 60 秒',
-              evidence: '述价录音/速记 + 其余组的同意与否投票——这是全场唯一能测「应答质量」的证据',
+              name: '第三段 · 债券承销：这次轮到你定价', week: '第 2 课时 · 前 30 分钟', output: '《簿记建档定价说明》', tool: 'p-bond',
+              evidence: '你在仿真里定出的利率、认购倍数、边际档配售比例，与课上揭晓的真实票面利率、真实倍数逐项对照',
               todo: [
-                '用右栏「合规三问」逐条自问一遍，把答不上来的那条补进记录卡',
-                '找出全组最没把握的一个数字，回到可比公司数据里重核一遍',
-                '被抽到时先报数字、再给理由，不要从头讲过程'
+                '打开「债券簿记建档仿真」，11 家机构已经报好价，先别动，看累加到 50 亿落在哪一档',
+                '把报价往低压：每压 1bp 记一次认购倍数和配售比例，找出「再压就要发不出去」的那个点',
+                '定下你的利率，写三条理由：可比债券什么价、你的信用资质值多少 bp、当时市场缺不缺资产',
+                '把你的定价折成钱：1bp 按 50 亿 3 年算是 150 万元；等老师报出发行利率，算你偏离几个 bp、差多少钱'
               ],
-              reflect: '被问到「凭什么定这个价」时，你手里最硬的那份证据是什么？'
+              reflect: '既然压 1bp 就省 150 万元，为什么比亚迪没有直接压到 1.50% 的下限？',
+              answer: '26比亚迪MTN003(科创债)：50 亿元 / 3 年，申购区间 1.50%—2.00%，最终票面 1.72%。合规申购 18 家 109.2 亿元（2.18 倍，最高报价 2.00%、最低 1.62%），有效申购 11 家 56.9 亿元（1.14 倍）；承销团自营资金获配 26 亿元（52%）。'
             },
             {
-              name: '模拟询价，修正定价（拓展 · 选做）', week: '课后', output: '《定价修正说明》',
-              evidence: '修正前后的两个价格 + 改动的理由——用来测「拿到新信息后是否改得动判断」',
+              name: '第四段 · 复盘：定价权究竟在谁手里', week: '第 2 课时 · 最后 15 分钟', output: '《一页纸复盘》',
+              evidence: '三段各自的定价权归属判断 + 一条能迁移到别的公司的规则——这一段是唯一能测「能否把三次经验归纳成一条规律」的证据',
               todo: [
-                '在「IPO 定价配售仿真」里按自己定的价跑一轮询价，看申购倍数与中签率',
-                '对照其他组的定价，找出自己方案的偏差出在哪一步',
-                '写出修正方案：改多少、为什么改'
+                '把三段并排列出来：谁先开的价、最后谁说了算、差多少',
+                '回答驱动问题：用一句话说清「股权融资和债权融资，定价权为什么不在同一边」',
+                '用课上揭晓的三段真实结果，回填你每一段的偏离，标出最大的那一处',
+                '给出一条能用到别的公司身上的规则：什么情况下该发股、什么情况下该发债'
               ],
-              reflect: '这一轮修正，改的是数字，还是判断？'
+              reflect: '明天让你给另一家公司做融资顾问，你最先要问的三个问题是什么？',
+              answer: '股权融资的定价权在买方（询价、折价、等批复），债权融资的定价权落在簿记现场边际的那一档——同一家发行人，定价权不在同一边。'
             }
           ],
           deliverables: [
-            '纸质《定价建议书》记录卡（当堂交，含六个栏目）',
-            '一页纸定价建议书（推荐价 + 一句话理由，课后整理成电子版）'
+            '《IPO 定价测算表》（第一段当堂交，含每股收益、市盈率区间、你定的价与缺口测算）',
+            '《再融资方案对比表》（第二段当堂交，三条路的时间与成本对照）',
+            '《簿记建档定价说明》（第三段当堂交，含你定的利率、压价过程与偏离分析）',
+            '《一页纸复盘》（课后提交，回答驱动问题）'
           ],
           rubric: [
-            { dim: '算得对', w: 40, points: '每股收益与市盈率区间计算无误，上下限能追溯到可比公司数据', judge: 'AI 可自动核对（算式与数据源可机械比对）' },
-            { dim: '理由站得住', w: 40, points: '理由对得上自查口径和投资者需求，不是「感觉市场会喜欢」', judge: '教师终评（AI 只给参考，理由的可证伪性机器判不了）' },
-            { dim: '写得清楚', w: 20, points: '记录卡六栏填全，一页纸内说清结论与理由，不用长句堆砌', judge: 'AI 初评 + 教师抽检' }
+            { dim: '知识整合', w: 35, points: '算得对：每股收益、市盈率区间、缺口比例、bp 折算四项无误，每个数字都能追到原始数据', judge: 'AI 可自动核对（算式与数据源可机械比对）' },
+            { dim: '决策判断', w: 25, points: '判断有依据：每个结论都落在可比数据、认购倍数、时间成本这些可核对的指标上，不是「看好公司前景」', judge: '教师终评（理由的可证伪性，机器判不了）' },
+            { dim: '心理韧性', w: 10, points: '压得住：压价压到发不满之后能退回来说明原因，不是蒙一个数就交；测算表里看得出反复试算的痕迹，最终结论比第一次更稳', judge: 'AI 初评（比对历次提交的改价记录）+ 教师抽检' },
+            { dim: '合规伦理', w: 15, points: '指出方案里的利益冲突：谁被摊薄、谁承担风险、信息披露够不够——这条只能定性判，不折算成分数细则', judge: '教师终评 + 组间质询记录' },
+            { dim: '自主学习', w: 15, points: '过程留痕：三份测算表都在，且能看到修正痕迹——改过哪个数、为什么改，比一次做对更能说明在学', judge: 'AI 初评（比对历史提交版本）+ 教师抽检' }
           ],
-          showcase: '班内质询：抽最高价与最低价两组各述 60 秒，其他组以「投资者」身份判断同意与否',
-          // 课堂现场：90 人教室里学生真正要点的四个动作，直接摆在任务书最上方。
-          // 不放在右栏，是因为右栏要往下滚，而课上学生只有 100 分钟、不能翻找。
+          showcase: '班内听证：抽三组分别陈述「我的 IPO 定价」「我选的再融资路径」「我定的票面利率」，其余组以投资者和监管两种身份各提一问',
+          // 课堂现场：课上学生真正要点的几个动作，直接固定在任务书最上方。
           classroom: {
-            title: '课堂现场 · 两课时（50 + 10 + 50）',
+            title: '课堂现场 · 两课时怎么走',
             steps: [
-              { n: 1, label: '算出价格区间', tool: 'p-valuation', note: '做测算，记下上下限' },
-              { n: 2, label: '组间对表', note: '和相邻组核对每股收益，填纸质卡第 ④ 栏' },
-              { n: 3, label: '交我们组的定价', link: 'submit', note: '提交后回来举牌' },
-              { n: 4, label: '自查三道题', tool: 'p-exercise', ch: '第3章', note: '做完看错因' }
+              { n: 1, label: '课前 · 读数据、押一条路', note: '线上 10 分钟，课上不占时间' },
+              { n: 2, label: '第1课时 · 算 IPO 价格区间', tool: 'p-valuation', note: '自己算完，答案留到第2课时' },
+              { n: 3, label: '第1课时 · 三条再融资路对比', note: '当堂交表，不展开讲' },
+              { n: 4, label: '第2课时 · 亲手定一个利率', tool: 'p-bond', note: '一路压价，压到快发不出去为止' },
+              { n: 5, label: '第2课时 · 揭晓 + 复盘答辩', note: '答案由教师投屏，学生只交偏离分析' }
             ]
           },
-          chapters: ['第2章', '第3章'],
-          tools: [{ page: 'p-valuation', name: '企业估值实验（课上主用）' }, { page: 'p-ipo', name: 'IPO 定价配售仿真（课后拓展）' }],
-          milestone: { chapters: ['第2章', '第3章'], count: 10 },
+          chapters: ['第3章', '第4章', '第5章'],
+          tools: [
+            { page: 'p-bond', name: '债券簿记建档仿真（第三段主用）' },
+            { page: 'p-valuation', name: '企业估值实验（第一段用）' },
+            { page: 'p-ipo', name: 'IPO 定价配售仿真（课后拓展）' }
+          ],
+          milestone: { chapters: ['第3章', '第5章'], count: 12 },
           inquiry: [
-            '本次发行市盈率高于同行业可比公司，定价依据是什么？',
-            '募资规模与募投项目是否匹配，超募部分怎么处理？',
-            '这一定价是否损害中小投资者利益，主承销商如何履行受托责任？'
-          ]
-        },
-        {
-          id: 'proj2', no: '02', name: '判断一笔并购', weeks: '3 次课 / 4 周', kind: '专项项目',
-          subtitle: '该不该买，钱从哪里来',
-          role: '并购顾问 + 合规岗（2 人一组）',
-          scenario: '一家制造业上市公司想买下同行一家中型企业，对方开价 12 亿元。公司账上现金只有 6 亿元，其余得靠发股或借款。董事会问你两件事：这笔买卖值不值，钱怎么付。你要拿数字回答，不能靠「看好行业前景」。',
-          drivingQuestion: '这笔买卖花得值吗？如果值，钱从哪里来？',
-          pickHint: '三个收购案任选其一，全组只用自己选的那个做到底。对价与账上现金不同，摊薄和负债率的答案就不同——先选，再算。',
-          options: [
-            {
-              code: 'A', name: '制造业上市公司买同业', tag: '同业并购 · 对价 12 亿元',
-              facts: '买方净利润 3.0 亿元、股本 3 亿股、股价 12 元；标的年赚 1.2 亿元',
-              peers: '账上现金 6 亿元，缺口 6 亿元靠发股或借款'
-            },
-            {
-              code: 'B', name: '白酒企业买区域酒厂', tag: '横向整合 · 对价 8 亿元',
-              facts: '买方净利润 8.0 亿元、股本 5 亿股、股价 30 元；标的年赚 0.7 亿元',
-              peers: '账上现金 3 亿元，缺口 5 亿元，但股本摊薄压力小'
-            },
-            {
-              code: 'C', name: '医药流通企业买连锁药店', tag: '渠道并购 · 对价 15 亿元',
-              facts: '买方净利润 2.4 亿元、股本 4 亿股、股价 9 元；标的年赚 1.5 亿元',
-              peers: '账上现金 9 亿元，纯现金方案只差 6 亿元'
-            }
-          ],
-          given: [
-            '三个收购案的财务数据（三选一，买卖双方数据都已给定）',
-            '对价与可选的支付方式（现金、发股或两者组合）',
-            'Excel 测算表（只需填 2 个空格）',
-            '一条硬约束：交易后资产负债率不得高于 65%'
-          ],
-          team: [
-            { role: '并购顾问', duty: '做增厚摊薄测算、设计交易方案，给出结论和依据' },
-            { role: '合规岗', duty: '盯住负债率红线与信息披露要求，准备被问询时的答复' }
-          ],
-          stages: [
-            {
-              name: '算清每股收益是增厚还是摊薄', week: '第 1 次课', output: '《增厚摊薄测算表》',
-              evidence: '合并净利润、新增股数、新每股收益三项数字——可逐步复核，错在哪一步一目了然',
-              todo: [
-                '算交易后的合并净利润（收购方 + 标的，模板已给公式）',
-                '算交易后的总股本：付现金不增股本，发股要按股价折算新增股数',
-                '用「交易后净利润 ÷ 交易后总股本」算新每股收益，和交易前比一比'
-              ],
-              reflect: '同一笔交易，为什么付现金是增厚、发股却可能变摊薄？'
-            },
-            {
-              name: '判断这笔买卖该不该做', week: '第 2 次课', output: '《一页纸并购建议备忘》',
-              evidence: '结论 + 三条依据——用来区分「落在指标上的判断」与「行业前景好」这类空话',
-              todo: [
-                '先分清一件事：增厚只说明每股收益变高，不等于买得划算',
-                '用「交易后资产负债率不高于 65%」检验纯现金方案能不能落地',
-                '给出结论：做、不做、或改条件再做，写三条依据'
-              ],
-              reflect: '如果增厚但负债率超标，你会放弃交易，还是改支付方式？'
-            },
-            {
-              name: '选支付方式：现金、发股还是组合', week: '第 3 次课', output: '《支付方式对比表》',
-              evidence: '三种方案的三指标对照表 + 一条「放弃的那项为什么可以让」——这一栏最能看出取舍能力',
-              todo: [
-                '三种支付方式各算一遍：对每股收益、负债率、控制权各有什么影响',
-                '按董事会最在意的两项指标做取舍，并说明放弃的那一项为什么可以让',
-                '写出推荐方案，附一条风险预案'
-              ],
-              reflect: '你们推荐的方案，最坏情况下会出什么问题？'
-            },
-            {
-              name: '应询：把风险预案写成能落地的三条', week: '课后 · 答辩前', output: '《应询答复稿》',
-              evidence: '三条「谁、什么条件下、做什么」的具体动作——用来说明预案不是口号',
-              todo: [
-                '用右下角「合规三问」逐条自问，重点答好定价依据与中小股东利益两条',
-                '把风险预案从「注意风险」改成具体动作：谁、在什么条件下、做什么',
-                '准备一句话回答「如果交易后业绩不达预期，怎么办」'
-              ],
-              reflect: '董事会追问「最坏情况亏多少」，你们的答案里有数字吗？'
-            }
-          ],
-          deliverables: [
-            '增厚摊薄测算表（按模板填写，含三种支付方式对比）',
-            '一页纸并购建议备忘（结论 + 三条依据）'
-          ],
-          rubric: [
-            { dim: '测算正确', w: 35, points: '合并净利润、新增股数、新每股收益三项无误，增厚判断与数字一致', judge: 'AI 可自动核对' },
-            { dim: '结论有依据', w: 40, points: '结论落在具体指标上（每股收益、负债率、控制权），不是行业判断', judge: '教师终评' },
-            { dim: '风险意识', w: 25, points: '指出方案的最坏情形，并给出至少一条应对办法', judge: '教师终评 + 组间质询记录' }
-          ],
-          showcase: '班内路演：每组 5 分钟向「董事会」汇报结论，接受另外两组质询',
-          chapters: ['第4章', '第7章'],
-          tools: [{ page: 'p-case', name: '投行案例库' }],
-          milestone: { chapters: ['第4章', '第7章'], count: 10 },
-          inquiry: [
-            '本次交易对价的评估依据是什么，是否损害中小股东利益？',
-            '交易后资产负债率升至多少，是否突破公司融资约束？',
-            '支付方式涉及发行股份的，是否构成重组上市，程序是否完备？'
-          ]
-        },
-        {
-          id: 'proj3', no: '03', name: '把应收账款卖掉换钱', weeks: '2 次课 / 3 周', kind: '拓展项目 · 选做',
-          subtitle: '发一笔 ABS，算清成本',
-          role: '结构设计岗 + 合规岗（2 人一组）',
-          scenario: '一家做市政工程的建筑公司，账上挂着 5 亿元应收账款，甲方要 18 个月后才付款。公司下半年要垫资接新项目，账上现金不够。银行给的流动资金贷款利率是 5.2%，授信额度只批了 2 亿元，差得远。投行提了个方案：把这 5 亿应收账款打包，做成资产支持证券卖给投资者——不等甲方付钱，先把钱拿回来。',
-          drivingQuestion: '这 5 亿应收账款，现在卖掉能拿回多少现金？',
-          given: [
-            '基础资产：5 亿元应收账款，平均剩余账期 18 个月，历史回收率 98%',
-            '分层结构：优先级 85%、次级 15%（次级由发行人自己留着）',
-            '优先级预期年化收益率 4.5%，发行费率 0.8%（按发行规模一次性收）',
-            '一条硬约束：综合融资成本不高于同期银行贷款利率 5.2%'
-          ],
-          team: [
-            { role: '结构设计岗', duty: '算发行规模、实际到账与综合成本，判断这笔 ABS 划不划算' },
-            { role: '合规岗', duty: '盯基础资产真实性与信息披露，准备评级与问询的口径' }
-          ],
-          stages: [
-            {
-              name: '算能融到多少钱、成本是多少', week: '第 1 次课', output: '《融资额与成本测算表》',
-              evidence: '发行规模、到账金额、年化成本三个数——成本是否压线低于 5.2%，一算就见分晓',
-              todo: [
-                '用「基础资产 × 优先级比例 × 历史回收率」算出优先级发行规模',
-                '从发行规模里扣掉发行费，得到实际到账金额',
-                '用「优先级利息 + 发行费」除以实际到账金额，折成年化成本'
-              ],
-              reflect: '次级那 15% 卖给谁了？如果没人买，这笔钱谁来出？'
-            },
-            {
-              name: '判断这笔 ABS 值不值得做', week: '第 2 次课', output: '《一页纸决策备忘》',
-              evidence: '结论 + 三条依据，其中必须有一条不是「更便宜」——用来测是否看懂了出表与授信额度',
-              todo: [
-                '把算出来的年化成本和银行贷款 5.2% 摆在一起比，差多少个点',
-                '想清楚 ABS 除了便宜，还带来什么：出表降负债、不占授信额度、缩短回款周期',
-                '给出结论：做、不做、或换结构再做，写三条依据'
-              ],
-              reflect: '如果算出来比贷款还贵，还有什么理由做这笔 ABS？'
-            }
-          ],
-          deliverables: [
-            '融资额与成本测算表（按模板填写，含发行规模、到账金额、年化成本）',
-            '一页纸决策备忘（结论 + 三条依据）'
-          ],
-          rubric: [
-            { dim: '算得对', w: 40, points: '发行规模、到账金额、年化成本三项无误，次级留存已考虑在内', judge: 'AI 可自动核对' },
-            { dim: '结论有依据', w: 40, points: '结论落在成本差、负债率、授信额度这些具体指标上，不是「ABS 是创新工具」', judge: '教师终评' },
-            { dim: '看得见风险', w: 20, points: '指出基础资产质量或分层不足的风险，并说明如何缓释', judge: '教师终评 + 组间质询记录' }
-          ],
-          showcase: '班内答辩：每组 4 分钟向「公司财务总监」汇报，由另一组以评级机构身份提问',
-          chapters: ['第5章', '第6章'],
-          tools: [{ page: 'p-case', name: '投行案例库' }],
-          milestone: { chapters: ['第5章', '第6章'], count: 8 },
-          inquiry: [
-            '基础资产的真实性、合法性如何验证，是否存在虚构应收账款？',
-            '次级比例是否足以覆盖预期损失，评级机构凭什么给出这个级别？',
-            '原始权益人是否提供差额支付或担保，是否构成隐性刚兑？'
+            '本次发行定价低于可比公司估值水平，是否损害原有股东利益，主承销商如何履行受托责任？',
+            '募资规模与募投项目是否匹配，前次募集资金的使用进度如何？',
+            '本期债券票面利率与同期限同评级中债收益率曲线的偏离，如何解释？'
           ]
         }
       ];
@@ -6071,7 +5985,7 @@ document.addEventListener('keydown', function (e) {
       }
       function stateOf(id) { return loadState()[id] || 'todo'; }
 
-      // 标的选择：{ proj1: 'A', proj2: 'C' }。存本机，只用于课堂记录
+      // 先押一条路：{ byd: 'A' }。存本机，只用于课堂记录
       var PICK_KEY = 'ibank_project_pick';
       function loadPick() {
         try { return JSON.parse(localStorage.getItem(PICK_KEY) || '{}') || {}; } catch (e) { return {}; }
@@ -6109,20 +6023,75 @@ document.addEventListener('keydown', function (e) {
       function renderEval() {
         var el = document.getElementById('pj-eval');
         if (!el) return;
+        // 一行渲染一个条目：名称 + 权重徽标 + 说明
+        function rowHtml(r) {
+          return '<li><div class="ev-r-h"><b>' + esc(r.n) + '</b>'
+            + (r.w != null ? '<i class="ev-w">' + r.w + '%</i>' : '')
+            + '</div><span>' + esc(r.d) + '</span></li>';
+        }
         el.innerHTML = '<div class="ev-head"><h3>' + esc(EVAL_FRAME.title) + '</h3>'
           + '<p>' + esc(EVAL_FRAME.lead) + '</p></div>'
           + '<div class="ev-grid">'
           + EVAL_FRAME.cards.map(function (c) {
+            // 带 matrix 的卡：行=考核环节，列=能力维度。
+            // 行列合计都由单元格现算，保证「横竖两个方向必然自洽」，
+            // 数据改一个格，两边的合计自动跟着变，不会出现两套分。
+            if (c.matrix) {
+              var m = c.matrix;
+              var colSum = m.cols.map(function (_, j) {
+                return m.rows.reduce(function (a, r) { return a + (r.v[j] || 0); }, 0);
+              });
+              var grand = colSum.reduce(function (a, x) { return a + x; }, 0);
+              var body = m.rows.map(function (r) {
+                var rowSum = r.v.reduce(function (a, x) { return a + (x || 0); }, 0);
+                return '<tr><th scope="row"><b>' + esc(r.n) + '</b>'
+                  + (r.note ? '<em>' + esc(r.note) + '</em>' : '') + '</th>'
+                  + r.v.map(function (x) {
+                    return x == null ? '<td class="ev-mx-z">–</td>' : '<td>' + x + '</td>';
+                  }).join('')
+                  + '<td class="ev-mx-rt">' + rowSum + '</td></tr>';
+              }).join('');
+              return '<div class="ev-card wide">'
+                + '<div class="ev-k">' + esc(c.key) + '</div>'
+                + '<div class="ev-sub">' + esc(c.sub) + '</div>'
+                + '<div class="ev-mx-wrap"><table class="ev-mx">'
+                + '<thead><tr><th class="ev-mx-ch">考核环节<em>单位：分，总分 100</em></th>'
+                + m.cols.map(function (x) {
+                  return '<th>' + esc(x.n) + (x.s ? '<em>' + esc(x.s) + '</em>' : '') + '</th>';
+                }).join('')
+                + '<th class="ev-mx-rt">环节合计</th></tr></thead>'
+                + '<tbody>' + body + '</tbody>'
+                + '<tfoot><tr><th class="ev-mx-ch">' + esc(m.totalLabel || '维度合计')
+                + '<em>' + esc(m.totalSub || '竖着加') + '</em></th>'
+                + colSum.map(function (x) { return '<td>' + x + '</td>'; }).join('')
+                + '<td class="ev-mx-rt">' + grand + '</td></tr></tfoot>'
+                + '</table></div>'
+                + (m.legend ? '<p class="ev-mx-legend">' + esc(m.legend) + '</p>' : '')
+                + (c.foot ? '<p class="ev-note">' + esc(c.foot) + '</p>' : '')
+                + '</div>';
+            }
+            // 带 groups 的卡：一条读法一栏，左右并置
+            if (c.groups) {
+              return '<div class="ev-card wide">'
+                + '<div class="ev-k">' + esc(c.key) + '</div>'
+                + '<div class="ev-sub">' + esc(c.sub) + '</div>'
+                + '<div class="ev-2col">'
+                + c.groups.map(function (g) {
+                  return '<div class="ev-grp">'
+                    + '<div class="ev-grp-h">' + esc(g.h)
+                    + (g.badge ? '<em>' + esc(g.badge) + '</em>' : '') + '</div>'
+                    + (g.note ? '<div class="ev-grp-note">' + esc(g.note) + '</div>' : '')
+                    + '<ul class="ev-rows">' + g.rows.map(rowHtml).join('') + '</ul>'
+                    + '</div>';
+                }).join('')
+                + '</div>'
+                + (c.foot ? '<p class="ev-note">' + esc(c.foot) + '</p>' : '')
+                + '</div>';
+            }
             return '<div class="ev-card">'
               + '<div class="ev-k">' + esc(c.key) + '</div>'
               + '<div class="ev-sub">' + esc(c.sub) + '</div>'
-              + '<ul class="ev-rows">'
-              + c.rows.map(function (r) {
-                return '<li><div class="ev-r-h"><b>' + esc(r.n) + '</b>'
-                  + (r.w != null ? '<i class="ev-w">' + r.w + '%</i>' : '')
-                  + '</div><span>' + esc(r.d) + '</span></li>';
-              }).join('')
-              + '</ul></div>';
+              + '<ul class="ev-rows">' + c.rows.map(rowHtml).join('') + '</ul></div>';
           }).join('')
           + '</div>';
       }
@@ -6144,7 +6113,7 @@ document.addEventListener('keydown', function (e) {
         html += '<span class="pj-link" aria-hidden="true"></span>'
           + '<div class="pj-node legend"><span class="pj-node-no">' + legendNo + '</span>'
           + '<span class="pj-node-nm">成果答辩</span>'
-          + '<span class="pj-node-wk">1 次课</span></div>';
+          + '<span class="pj-node-wk">课内 15 分钟</span></div>';
         elChain.innerHTML = html;
       }
 
@@ -6161,12 +6130,12 @@ document.addEventListener('keydown', function (e) {
             + '<span class="pj-badge ' + s + '">' + STATE_TEXT[s] + '</span></div>'
             + '<h4>' + esc(p.name) + '</h4>'
             + '<p class="pj-card-sub">' + esc(p.subtitle) + '</p>'
-            + '<p class="pj-card-q"><b>驱动问题</b>' + esc(p.drivingQuestion) + '</p>'
+            + '<p class="pj-card-q"><b>驱动问题</b>' + reveal(esc(p.drivingQuestion)) + '</p>'
             + '<p class="pj-card-flow">' + flow + '</p>'
             + '<div class="pj-card-meta">'
             + '<span>' + p.stages.length + ' 个环节</span>'
             + '<span>交付物 ' + p.deliverables.length + ' 项</span>'
-            + (p.options ? '<span>标的 ' + p.options.length + ' 选 1</span>' : '')
+            + (p.options ? '<span>' + (p.pickWord || '标的') + ' ' + p.options.length + ' 选 1</span>' : '')
             + '<span>' + esc(p.weeks) + '</span>'
             + '<span>' + esc(chs) + '</span>'
             + '</div>'
@@ -6190,14 +6159,21 @@ document.addEventListener('keydown', function (e) {
         // 只写阶段名是不够的——学生拿到「算价格区间」四个字，仍然不知道第一步该做什么
         var stageHtml = p.stages.map(function (stg, i) {
           var todoHtml = (stg.todo || []).map(function (t) {
-            return '<li>' + esc(t) + '</li>';
+            return '<li>' + reveal(esc(t)) + '</li>';
           }).join('');
+          var goHtml = stg.tool
+            ? '<button type="button" class="pj-st-go" data-pj-go="' + esc(stg.tool) + '"'
+              + (stg.ch ? ' data-pj-toolch="' + esc(stg.ch) + '"' : '') + '>打开演算台 →</button>'
+            : '';
           return '<li><div class="pj-st-no">' + (i + 1) + '</div>'
             + '<div class="pj-st-main"><b>' + esc(stg.name) + '</b>'
             + '<em>' + esc(stg.week) + '｜交付 ' + esc(stg.output) + '</em>'
             + (todoHtml ? '<ol class="pj-todo">' + todoHtml + '</ol>' : '')
-            + (stg.evidence ? '<p class="pj-evid"><span>本环节留下的证据</span>' + esc(stg.evidence) + '</p>' : '')
-            + (stg.reflect ? '<p class="pj-reflect">想清楚再往下走：' + esc(stg.reflect) + '</p>' : '')
+            + goHtml
+            + (stg.evidence ? '<p class="pj-evid"><span>本环节留下的证据</span>' + reveal(esc(stg.evidence)) + '</p>' : '')
+            + (stg.reflect ? '<p class="pj-reflect">想清楚再往下走：' + reveal(esc(stg.reflect)) + '</p>' : '')
+            + (stg.answer ? '<p class="pj-ansline' + (REVEAL ? ' on' : '') + '"><span>真实结果</span>'
+              + (REVEAL ? reveal(esc(stg.answer)) : '课上投屏揭晓') + '</p>' : '')
             + '</div></li>';
         }).join('');
 
@@ -6252,8 +6228,8 @@ document.addEventListener('keydown', function (e) {
           classHtml = '<section class="pj-sec pj-live"><h3>' + esc(p.classroom.title) + '</h3>'
             + '<div class="pj-steps">'
             + p.classroom.steps.map(function (st) {
-              var inner = '<em>' + st.n + '</em><b>' + esc(st.label) + '</b>'
-                + (st.note ? '<span>' + esc(st.note) + '</span>' : '');
+              var inner = '<em>' + st.n + '</em><b>' + reveal(esc(st.label)) + '</b>'
+                + (st.note ? '<span>' + reveal(esc(st.note)) + '</span>' : '');
               if (st.link) {
                 var url = CLASSROOM_LINKS[st.link] || '';
                 if (!url) {
@@ -6280,8 +6256,8 @@ document.addEventListener('keydown', function (e) {
             + ' data-pj-pick="' + p.id + '" data-pj-code="' + esc(o.code) + '">'
             + '<span class="pj-opt-h"><b>' + esc(o.code) + '</b>' + esc(o.name) + '</span>'
             + '<span class="pj-opt-tag">' + esc(o.tag) + '</span>'
-            + '<span class="pj-opt-facts">' + esc(o.facts) + '</span>'
-            + '<span class="pj-opt-peers">' + esc(o.peers) + '</span>'
+            + '<span class="pj-opt-facts">' + reveal(esc(o.facts)) + '</span>'
+            + '<span class="pj-opt-peers">' + reveal(esc(o.peers)) + '</span>'
             + '</button>';
         }).join('');
 
@@ -6298,22 +6274,24 @@ document.addEventListener('keydown', function (e) {
 
           + '<div class="pj-dgrid"><div class="pj-dmain">'
 
-          + '<section class="pj-sec"><h3>委托情境</h3><p>' + esc(p.scenario) + '</p></section>'
+          + '<section class="pj-sec"><h3>委托情境</h3><p>' + reveal(esc(p.scenario)) + '</p></section>'
 
-          + '<section class="pj-sec pj-dq"><h3>驱动问题</h3><p>' + esc(p.drivingQuestion) + '</p></section>'
+          + '<section class="pj-sec pj-dq"><h3>驱动问题</h3><p>' + reveal(esc(p.drivingQuestion)) + '</p></section>'
 
-          + (optHtml ? '<section class="pj-sec"><h3>先选一个标的</h3>'
+          + (optHtml ? '<section class="pj-sec"><h3>' + esc(p.pickTitle || '先选一个标的') + '</h3>'
             + '<div class="pj-opts">' + optHtml + '</div>'
-            + '<p class="pj-tip">' + esc(p.pickHint || '') + '</p></section>' : '')
+            + '<p class="pj-tip">' + reveal(esc(p.pickHint || '')) + '</p></section>' : '')
 
           + '<section class="pj-sec"><h3>你要用到的东西（老师已经准备好）</h3>'
           + '<ul class="pj-given">' + givenHtml + '</ul>'
           + '<p class="pj-tip">这些都不用你自己找、自己搭。你只需要做一件事：拿它们算出一个数，然后说清为什么是这个数。</p></section>'
 
-          + '<section class="pj-sec"><h3>阶段任务</h3><ol class="pj-stages">' + stageHtml + '</ol></section>'
+          + '<section class="pj-sec"><h3>阶段任务</h3>'
+          + '<div class="pj-sealbar"><b>标准答案不在这一页。</b>这里只放演算台——价格区间、利率、认购倍数、募资缺口，都在你手上现算；真实发行价与实际募资由课上投屏揭晓。现在能拿到的只有「你的结果」，对不对得上，等那一屏。</div>'
+          + '<ol class="pj-stages">' + stageHtml + '</ol></section>'
 
           + '<section class="pj-sec"><h3>交付物</h3><ul class="pj-deliv">'
-          + p.deliverables.map(function (d) { return '<li>' + esc(d) + '</li>'; }).join('')
+          + p.deliverables.map(function (d) { return '<li>' + reveal(esc(d)) + '</li>'; }).join('')
           + '</ul>'
           + (p.showcase ? '<p class="pj-tip">怎么展示：' + esc(p.showcase) + '</p>' : '')
           + '</section>'

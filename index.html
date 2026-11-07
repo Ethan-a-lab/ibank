@@ -19,6 +19,8 @@
   <link rel="apple-touch-icon" href="static/icons/apple-touch-icon.png">
   <!-- PWA:end -->
   <link rel="stylesheet" href="static/app.css">
+  <link rel="stylesheet" href="static/eval.css">
+  <link rel="stylesheet" href="static/bond.css">
 </head>
 <body>
   <!-- ===== 登录/注册遮罩 ===== -->
@@ -121,6 +123,7 @@
             <button class="tab-btn" data-page="p-exercise"><span class="dd-name">实务习题训练</span><span class="dd-desc">即时判分，错题自动归集</span></button>
             <button class="tab-btn" data-page="p-ipo"><span class="dd-name">IPO 定价配售仿真</span><span class="dd-desc">科创板询价、定价与配售全流程</span></button>
             <button class="tab-btn" data-page="p-valuation"><span class="dd-name">企业估值实验</span><span class="dd-desc">市盈率法与现金流折现联动</span></button>
+            <button class="tab-btn" data-page="p-bond"><span class="dd-name">债券簿记建档仿真</span><span class="dd-desc">亲手定出一个票面利率</span></button>
             <a class="tab-btn" href="./ibank-game.html" style="text-decoration:none"><span class="dd-name">投行梗学闯关</span><span class="dd-desc">8 关 120 题 · 每关随机抽题 · 离线可玩</span></a>
           </div>
         </div>
@@ -139,7 +142,7 @@
           <div class="nav-dropdown">
             <div class="dd-title">我的学习数据</div>
             <button class="tab-btn" data-page="p-wrong"><span class="dd-name">错题定位诊断</span><span class="dd-desc">错因归类与薄弱点补课</span></button>
-            <button class="tab-btn" data-page="p-profile"><span class="dd-name">个人学情画像</span><span class="dd-desc">六维掌握度雷达与进步曲线</span></button>
+            <button class="tab-btn" data-page="p-eval"><span class="dd-name">能力画像与达成评价</span><span class="dd-desc">六模块画像 · 五维达成度 · 可下钻证据</span></button>
             <button class="tab-btn" data-page="p-admin"><span class="dd-name">班级后台统计</span><span class="dd-desc">学情汇总与达成率分析（教师）</span></button>
           </div>
         </div>
@@ -189,14 +192,14 @@
 
       <div class="panel" style="margin-top:20px;">
         <div class="section-title"><span class="bar"></span>一站式投行实务学习系统</div>
-        <div class="section-sub">14 个功能模块覆盖「学 · 练 · 诊 · 评 · 战」完整教学闭环。其中「课程项目」提供评价情境与成果证据，「我的学习数据」承担过程数据的采集与诊断——两者合起来，是一条从行为到能力、可回溯的评价证据链。</div>
+        <div class="section-sub">13 个功能模块覆盖「学 · 练 · 诊 · 评 · 战」完整教学闭环。其中「课程项目」提供评价情境与成果证据，「我的学习数据」承担过程数据的采集与诊断——两者合起来，是一条从行为到能力、可回溯的评价证据链。「能力画像与达成评价」把原来分开的两页合成一个入口：六业务模块是内层，五维达成度是外层。</div>
         <div class="home-grid">
-          <div class="home-card" data-page="p-project"><div class="ico">🎯</div><h4>课程项目</h4><p>三个项目即三次表现性评价：过程数据自动沉淀为能力证据，按 rubric 由 AI 初评、教师终评</p><span class="go">进入 →</span></div>
+          <div class="home-card" data-page="p-project"><div class="ico">🎯</div><h4>课程项目</h4><p>比亚迪三段融资即三次表现性评价：IPO 定价、再融资取舍、债券承销，过程数据自动沉淀为能力证据，按 rubric 由 AI 初评、教师终评</p><span class="go">进入 →</span></div>
           <div class="home-card" data-page="p-graph"><div class="ico">🕸️</div><h4>知识图谱</h4><p>8 章知识树梳理重点难点，结构化导览课程内容</p><span class="go">进入 →</span></div>
           <div class="home-card" data-page="p-qa"><div class="ico">💬</div><h4>智能答疑</h4><p>智谱 GLM + 课程知识库检索增强，AI 学伴流式随问随答</p><span class="go">进入 →</span></div>
           <div class="home-card" data-page="p-exercise"><div class="ico">✍️</div><h4>习题训练</h4><p>实务导向习题，即时判分与解析反馈</p><span class="go">进入 →</span></div>
           <div class="home-card" data-page="p-wrong"><div class="ico">🎯</div><h4>错题定位</h4><p>错题自动归因，薄弱知识点靶向补学</p><span class="go">进入 →</span></div>
-          <div class="home-card" data-page="p-profile"><div class="ico">📊</div><h4>学情画像</h4><p>章节掌握度可视化，学习进度一目了然</p><span class="go">进入 →</span></div>
+          <div class="home-card" data-page="p-eval"><div class="ico">📊</div><h4>能力画像</h4><p>六业务模块掌握度 ＋ 五维达成度，每个分数都能下钻到原始记录</p><span class="go">进入 →</span></div>
           <div class="home-card" data-page="p-ipo"><div class="ico">🏭</div><h4>IPO 定价配售</h4><p>科创板询价、定价与配售全流程实战</p><span class="go">进入 →</span></div>
           <div class="home-card" data-page="p-valuation"><div class="ico">🧮</div><h4>估值实验</h4><p>PE/PB/DCF 多方法参数可调估值测算</p><span class="go">进入 →</span></div>
           <div class="home-card" data-page="p-case"><div class="ico">📚</div><h4>案例库</h4><p>真实投行实务案例，理论对照业务实战</p><span class="go">进入 →</span></div>
@@ -218,13 +221,13 @@
       </div>
     </section>
 
-    <!-- 课程项目（评价情境 + 证据采集现场：1 个贯穿主项目 + 1 个专项项目 + 1 个拓展项目）
+    <!-- 课程项目（评价情境 + 证据采集现场：1 个贯穿式主项目）
          板块定位：项目是壳，评价是里。改这个板块的文案之前先想清楚一件事——
          它要回答的是「学生凭什么能力被判为达标」，不是「这门课怎么组织教学」 -->
     <section class="page" id="p-project">
       <div class="panel">
         <div class="section-title"><span class="bar"></span>课程项目 · 从做业务到评能力</div>
-        <div class="section-sub">本课程不改「让学生做业务」这件事，改的是「拿什么来评」。三个项目按真实业务流程递进——给一家企业定价、判断一笔并购、把应收账款变现——每一个环节都在留下可归档的证据：算出的区间、拍板的理由、被质询时的应答、组间互评的判断。平台在过程中采集这些证据，折算成能力达成度，再回灌到下一轮教学。项目一在课内两个课时（50 + 10 + 50）走完一轮完整流程；项目二课外推进；项目三选做拓展。评分不看「定价准不准」——定价没有唯一正确答案——看证据链是否完整、理由是否站得住。</div>
+        <div class="section-sub">本课程不改「让学生做业务」这件事，改的是「拿什么来评」。一个贯穿项目走完三段真实业务流程——先给比亚迪的 A 股 IPO 定价，再在定增与 H 股配售之间做取舍，最后进银行间市场亲手定出一个票面利率。三段串成一条线，是因为它们本来就是同一家公司的同一件事：十五年里三次向市场要钱，每一次定价权都不在同一边。每一段都在留下可归档的证据：算出的区间、拍板的理由、被质询时的应答、改过几版的判断。平台在过程中采集这些证据，折算成能力达成度，再回灌到下一轮教学。评分不看「定价准不准」——定价没有唯一正确答案——看证据链是否完整、理由是否站得住、修改痕迹能不能说清。</div>
 
         <!-- 评价设计：评什么 / 怎么采 / 怎么用。
              这一块是整个板块与「项目式教学」的分界线，不是装饰性说明，
@@ -358,6 +361,119 @@
       </div>
     </section>
 
+    <!-- ⑤-2 五维能力达成评价（数智评价改革主体） -->
+    <section class="page" id="p-eval">
+      <div class="panel">
+        <div class="section-title"><span class="bar"></span>五维能力达成评价</div>
+        <div class="section-sub">把"期末一个分"换成"一条能倒查的证据链"：课程目标 → 毕业要求指标点 → 考核环节 → 观测点 → 原始记录。权重由大纲算出、可调、可验证。</div>
+
+        <div class="av-src" id="av-src"></div>
+
+        <div class="av-tabs" id="av-tabs">
+          <button type="button" class="on" data-t="w">① 权重依据</button>
+          <button type="button" data-t="p">② 五维画像</button>
+          <button type="button" data-t="g">③ 达成度</button>
+          <button type="button" data-t="s">④ 敏感性检验</button>
+          <button type="button" data-t="q">⑤ 量表定位</button>
+          <button type="button" data-t="all">全部展开</button>
+        </div>
+
+        <div class="av-blk" data-b="w">
+        <!-- 一 · 权重推导 -->
+        <div class="av-h">一 · 权重不是拍的，是从大纲里算出来的 <em>表1 指标点 ＋ 表3 考核环节</em></div>
+        <div class="av-lead">
+          这一步是整套评价的地基。教学大纲从来没写过"三个目标各占多少分"，但表3 里每个考核环节都标了它支撑哪个目标——用这一列就能反推。<b>反推出来的是现状（45/40/15），再用 H/M/L 支撑强度修正，得到应有值（35/35/30）</b>。两者之差，就是改革空间。
+        </div>
+
+        <div class="av-card" style="margin-bottom:14px">
+          <h4>表3 考核环节与课程目标的关系 <span class="av-tag">大纲原文</span></h4>
+          <div class="av-cap">环节占总成绩的比例不改动；若一个环节支撑两个目标，按均分摊。</div>
+          <div id="av-w-links"></div>
+        </div>
+
+        <div class="av-card">
+          <h4>课程目标权重：两种算法对照 <span class="av-tag">可追溯到指标点</span></h4>
+          <div class="av-cap">H＝至少覆盖该指标点 80%，M＝50%，L＝30%，赋 3/2/1 分后归一化。</div>
+          <div id="av-w-table"></div>
+          <div class="av-note">
+            目标3 的两条指标点定为 <b>2-4 取 M、2-7 取 H</b>：2-4 的七个小项里，公共意识、创业意识两项课程覆盖较弱（约 71%）；2-7 的七个小项覆盖六项，且正好对应在线学习、主题讨论、小组报告三个环节（约 86%）。
+            档位松紧不改变结论——即便两条都定 H，也是 33/33/33；都定 M 是 37.5/37.5/25。<b>素养这一项无论怎么定，都远高于改造前的 15。</b>
+          </div>
+        </div>
+
+        </div>
+
+        <div class="av-blk" data-b="p" hidden>
+        <!-- 二 · 五维画像 -->
+        <div class="av-h">二 · 五维画像：每一维都挂得住指标点 <em>点任一行下钻</em></div>
+        <div class="av-lead">
+          五维是给人看的，三目标是给教务看的。两者的映射写在每一行的"指标点"里；<b>心理韧性计 10 分</b>，从课程目标 2 的 35 分内部切出——25 分记"预判与选择"、10 分记"压力下的稳定性"，切分依据是证据来源不同，不是把 2-8、2-9 的权重拆开。
+        </div>
+        <div class="av-kpis" id="av-kpis"></div>
+        <div class="av-grid2">
+          <div class="av-card">
+            <h4>能力雷达 <span class="av-tag">基线 ＋ 达标线</span></h4>
+            <div class="av-cap">灰虚线是入学基线，橙点线是各维达标线——达标线不是一条横线，每维标准不同。</div>
+            <div id="av-radar-box"></div>
+          </div>
+          <div class="av-card">
+            <h4>维度明细 <span class="av-tag">度量词 · 数据来源</span></h4>
+            <div class="av-cap">进度条上的粗刻度就是该维达标线；低于线的那一维自动转红。</div>
+            <div id="av-dims"></div>
+          </div>
+        </div>
+        <div class="av-drill" id="av-drill"></div>
+
+        </div>
+
+        <div class="av-blk" data-b="g" hidden>
+        <!-- 三 · 达成度 -->
+        <div class="av-h">三 · 课程目标达成度 <em>直接可进专业评估材料</em></div>
+        <div class="av-lead">
+          班级 42 人的目标达成度按当前权重实时算出。这一栏是教务和认证看得懂的语言：<b>三个目标、对应六条指标点、各自达成率与阈值</b>。
+        </div>
+        <div class="av-grid3" id="av-goals"></div>
+
+        </div>
+
+        <div class="av-blk" data-b="s" hidden>
+        <!-- 四 · 敏感性 -->
+        <div class="av-h">四 · 权重敏感性检验 <em>拖动即重算</em></div>
+        <div class="av-lead">
+          评审最常问的一句是"凭什么是 35 不是 30"。光有依据不够，还要证明<b>结论稳不稳</b>：每维上下浮动几个百分点，有多少学生的等级会翻转。翻转率超过 5%，这套权重就不能用来下评优、推免这类去向性结论。
+        </div>
+        <div class="av-grid2">
+          <div class="av-card">
+            <h4>调整权重 <span class="av-tag">实时</span></h4>
+            <div class="av-cap">前三个滑杆对应课程目标，第四个是目标3 内部伦理与自主的切分。</div>
+            <div id="av-sliders"></div>
+          </div>
+          <div class="av-card">
+            <h4>重算结果 <span class="av-tag">相对默认方案</span></h4>
+            <div class="av-cap">等级按 优/良/中/及格/不及格 五档划分。</div>
+            <div id="av-sens-out"></div>
+          </div>
+        </div>
+
+        </div>
+
+        <div class="av-blk" data-b="q" hidden>
+        <!-- 五 · 量表 -->
+        <div class="av-h">五 · 自陈量表为什么不计分 <em>CD-RISC-10</em></div>
+        <div class="av-lead">
+          这是整套设计里唯一一处"主动放弃"的地方，也是最能说明设计者想清楚了的地方。
+        </div>
+        <div class="av-grid2" id="av-scale"></div>
+        </div>
+
+        <div class="av-foot">
+          <b>数据出处</b>　课程目标、指标点、考核环节比例见《投资银行学》课程教学大纲（思政版）表1、表3；班级规模见 2025—2026 学年第 1 学期教学日历（金融 2303 班，42 人）；教材与章节对应见教学大纲表2。比亚迪发行数据取自深交所、上清所公开披露文件。
+          <br><b>数据范围</b>　个人五维得分由本机行为事件（题库作答、仿真操作、项目推进、案例库决策、章节学习）实时现算，算不出来的观测点显示「待采集」，不用 0 分冒充；班级 42 人的维度分布为演示用示例数据集，仅用于权重敏感性检验；期末卷与主题讨论量规尚未接入。
+          <br><b>一件没做的事</b>　本页不合并自陈量表（CD-RISC-10）的结果。量表只作预警，不进分数；心理韧性的 10 分全部来自行为记录（IPO 反复试错的收敛、回撤期调仓），与量表分开走——理由见第五节。
+        </div>
+      </div>
+    </section>
+
     <!-- ⑥ 科创板 IPO 定价配售仿真 -->
     <section class="page" id="p-ipo">
       <div class="panel">
@@ -382,7 +498,130 @@
       </div>
     </section>
 
-    <!-- ⑦ 企业估值实操实验 -->
+    <!-- ⑦ 债券发行与承销 · 簿记建档仿真
+         对应教学大纲第 5 章。比亚迪三段融资里的第三段，也是本课程唯一
+         能让学生「亲手定出一个利率」的地方——定价不是算出来的，是试出来的。 -->
+    <section class="page" id="p-bond">
+      <div class="panel">
+        <div class="section-title"><span class="bar"></span>债券发行与承销 · 簿记建档仿真</div>
+        <div class="section-sub">你是主承销商，要为比亚迪 50 亿元 3 年期中期票据定出票面利率。11 家机构已经报价，改动任何一格，边际利率、认购倍数、配售比例全部实时重算。</div>
+
+        <div class="bd-src">
+          <span><span class="dot"></span>底表为 <b>26比亚迪MTN003</b> 簿记建档还原</span>
+          <span>发行 50 亿元 / 3 年 / 申购区间 1.50%—2.00%</span>
+          <span data-bd-seal>真实结果：18 家合规申购 109.2 亿（约 2.18 倍），其中报价达标的 11 家有效申购 56.9 亿（1.14 倍），定价 <b>1.72%</b></span>
+          <span class="bd-lock">真实定价与申购倍数：课上揭晓</span>
+          <span data-bd-seal><span class="dot demo"></span>下表就是这 11 家有效申购，合计 57.4 亿元；与真实 56.9 亿的 0.5 亿差额来自单笔金额取整</span>
+        </div>
+
+        <div class="bd-grid">
+          <!-- 左：可编辑簿记簿 -->
+          <div class="bd-card">
+            <h4>机构申购簿 <em>改报价或金额，右侧立即重算</em></h4>
+            <p class="bd-hint">承销商按报价从低到高累加，加到 50 亿元为止。<b>边际档</b>那一档的利率就是全场票面利率，这一档的机构按比例分剩下的量。</p>
+            <table class="bd-tbl">
+              <thead><tr><th style="width:38%">机构</th><th class="r" style="width:24%">报价 %</th><th class="r" style="width:22%">金额 亿</th><th class="r" style="width:16%">获配</th></tr></thead>
+              <tbody id="bdRows"></tbody>
+            </table>
+            <div class="bd-act">
+              <button type="button" class="bd-btn primary" data-bd="reset">还原真实簿记</button>
+              <button type="button" class="bd-btn" data-bd="squeeze">压一压边际档</button>
+              <button type="button" class="bd-btn" data-bd="fail">演示：认购不足</button>
+            </div>
+          </div>
+
+          <!-- 右：实时结果 -->
+          <div class="bd-card">
+            <h4>发行结果 <em>与真实值对照</em></h4>
+            <div class="bd-rate" id="bdRate">—</div>
+            <div class="bd-ratedesc" id="bdRateDesc">拖动左侧任一格，这里立即变化。</div>
+            <table class="bd-kv">
+              <tbody>
+                <tr><td>有效申购总额</td><td id="bdTotal">—</td></tr>
+                <tr><td>发行规模</td><td>50.0 亿</td></tr>
+                <tr><td>认购倍数</td><td id="bdCover">—</td></tr>
+                <tr><td>边际档配售比例</td><td id="bdRatio">—</td></tr>
+                <tr><td>落标金额</td><td id="bdFail">—</td></tr>
+              </tbody>
+            </table>
+            <div class="bd-bar" id="bdBar"></div>
+            <div class="bd-legend">
+              <span><i style="background:var(--bd-a)"></i>中标（全额）</span>
+              <span><i style="background:var(--bd-b)"></i>边际档（按比例）</span>
+              <span><i style="background:var(--bd-gray)"></i>落标</span>
+              <span><i style="background:var(--bd-b);width:2px;height:11px"></i>50 亿发行线</span>
+            </div>
+            <div class="bd-verdict ok" id="bdVerdict"></div>
+          </div>
+        </div>
+
+        <div class="bd-grid bd-g2">
+          <!-- 左：1bp 的含金量 -->
+          <div class="bd-card">
+            <h4>1 个基点值多少钱 <em>按你的定价算</em></h4>
+            <p class="bd-hint">50 亿元、3 年期，票面利率每变动 1 个基点（0.01%），三年利息差 <b>150 万元</b>。这就是发行人为什么愿意耗一上午跟主承销商谈这零点几个百分点。</p>
+            <div class="bd-save">
+              <span class="big" id="bdSaveBig">—</span>
+            </div>
+            <div class="bd-save"><span class="sub" id="bdSaveSub">—</span></div>
+            <div class="bd-verdict" style="background:var(--bd-soft);border-color:var(--panel-border);color:var(--muted)">
+              课堂追问：既然压价这么值钱，<b>为什么不一直压到 1.50% 的下限？</b>——因为认购倍数会掉下来，边际档配售比例会顶上去，最后变成发行失败或上市首日抛压。
+            </div>
+            <div style="margin-top:14px;font-size:11.5px;color:var(--muted);margin-bottom:2px">同样 50 亿元、3 年期，不同票面利率对应的利息总额：</div>
+            <table class="bd-kv">
+              <tbody>
+                <tr><td>1.50%（区间下沿）</td><td>2.25 亿</td></tr>
+                <tr><td>1.60%</td><td>2.40 亿</td></tr>
+                <tr data-bd-seal><td>1.72%（真实发行）</td><td>2.58 亿</td></tr>
+                <tr><td>2.00%（区间上沿）</td><td>3.00 亿</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- 右：比亚迪三次融资 -->
+          <div class="bd-card" data-bd-seal>
+            <h4>同一条融资时间线 <em>定价权在谁手里</em></h4>
+            <div class="bd-tl">
+              <div class="bd-tl-row">
+                <span class="yr">2011</span>
+                <span class="tx"><b>A 股 IPO</b>　拟募 21.92 亿，实募 14.22 亿<br><em>发行价 18 元，低于主承销商询价区间下沿 21.08 元</em></span>
+                <span class="rt">缺口 35%</span>
+              </div>
+              <div class="bd-tl-row">
+                <span class="yr">2016</span>
+                <span class="tx"><b>A 股定向增发</b>　锁价 57.40 元，实募 143.69 亿<br><em>预案到落地拖了 13 个月，期间市场已下行</em></span>
+                <span class="rt">时间代价</span>
+              </div>
+              <div class="bd-tl-row">
+                <span class="yr">2021</span>
+                <span class="tx"><b>H 股配售</b>　225 / 276 港元，折让 7.8% / 6.9%<br><em>几天完成，用折价换速度</em></span>
+                <span class="rt">折让换速度</span>
+              </div>
+              <div class="bd-tl-row">
+                <span class="yr">2026</span>
+                <span class="tx"><b>银行间中票</b>　50 亿 / 3 年，自设 1.50—2.00% 区间<br><em>申购 109.2 亿，超募 2.2 倍，定价 1.72%</em></span>
+                <span class="rt">2.2 倍</span>
+              </div>
+            </div>
+            <p class="bd-hint" style="margin:10px 0 0">股权融资是市场给你定价，债权融资是你给市场定价。中间还夹着一个变量：<b>时间</b>——定增等 13 个月，H 股配售等几天，这就是 7% 折让的去处。</p>
+          </div>
+
+          <!-- 封存态占位：不显示真实结果，但保留版面完整 -->
+          <div class="bd-card bd-lockcard">
+            <h4>同一条融资时间线 <em>定价权在谁手里</em></h4>
+            <p class="bd-hint">三次融资各定了什么价、最后谁说了算——这一段由课上投屏揭晓。现在这页只留演算：你能算出自己的数，答案不在页面上。</p>
+          </div>
+        </div>
+
+        <div class="bd-foot">
+          <b>这一页为什么放在这里。</b>前两段（IPO、再融资）学生只能"算"和"判断"，到这一段才有一样东西是他们<b>亲手定出来</b>的：一个利率。定完再和课上揭晓的真实定价比，差多少、为什么差，就是最实在的一份证据——它直接进"风险预判与决策能力"这一维的观测点，不用另做问卷。
+          <br><b>两个倍数为什么不一样——这一条课上一定要讲。</b>新闻里说"超募 2.2 倍"，那是合规申购对发行量；而簿记建档里真正决定配售的是有效申购：报价高于最终利率的那 7 家，一分钱也拿不到。所以 2.2 倍是"来了多少人看"，1.14 倍是"多少人真掏钱"。两个数都真实，含义完全不同——做承销的人只认后一个。
+          <br><b>数据口径。</b>发行要素与簿记结果取自上海清算所、中国货币网公开披露的 26比亚迪MTN003 发行文件；2021 年 H 股配售价格取自港交所公告。机构名称按类别匿名处理，金额为按披露总额还原的教学用数值。
+        </div>
+      </div>
+    </section>
+
+    <!-- ⑧ 企业估值实操实验 -->
     <section class="page" id="p-valuation">
       <div class="panel">
         <div class="section-title"><span class="bar"></span>企业估值实操实验</div>
@@ -2032,6 +2271,8 @@
   <!-- 云服务 SDK：放在文档末尾而非 <head>，网络不通时不会阻塞首屏渲染；加载失败自动降级为本地演示 -->
   <script src="https://static.cloudbase.net/cloudbase-js-sdk/latest/cloudbase.full.js"></script>
   <script src="static/app-auth.js"></script>
+  <script src="static/eval-core.js"></script>
+  <script src="static/bond-core.js"></script>
 
   <!-- PWA:begin Service Worker 注册。只在 https / localhost 下生效：
        file:// 双击场景没有 navigator.serviceWorker，也不会走到这里；

@@ -1,0 +1,179 @@
+/* ============================================================
+   债券发行与承销 · 簿记建档仿真（#p-bond）
+   仅使用 app.css 既有设计令牌，全部选择器带 #p-bond 前缀，
+   不覆盖任何全局规则，深浅色两套各自定义。
+   ============================================================ */
+
+#p-bond {
+  --bd-a: #17558c;
+  --bd-b: #c8102e;
+  --bd-gray: #dfe7ee;
+  --bd-soft: rgba(23, 85, 140, 0.06);
+  --bd-ok: #0f766e;
+  --bd-warn: #b45309;
+  --bd-bad: #b91c1c;
+}
+body.dark:not(.light) #p-bond {
+  --bd-a: #60a5fa;
+  --bd-b: #f87171;
+  --bd-gray: #39425a;
+  --bd-soft: rgba(96, 165, 250, 0.10);
+  --bd-ok: #34d399;
+  --bd-warn: #fbbf24;
+  --bd-bad: #fb7185;
+}
+
+/* ---------- 数据口径条 ---------- */
+#p-bond .bd-src {
+  display: flex; flex-wrap: wrap; gap: 7px 16px; align-items: center;
+  font-size: 12.5px; color: var(--muted);
+  background: var(--bd-soft); border: 1px solid var(--panel-border);
+  border-radius: 10px; padding: 10px 14px; margin-bottom: 20px; line-height: 1.6;
+}
+#p-bond .bd-src b { color: var(--text); font-weight: 600; }
+#p-bond .bd-src .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--bd-ok); flex: 0 0 auto; }
+#p-bond .bd-src .dot.demo { background: var(--bd-warn); }
+
+/* ---------- 栅格 ---------- */
+#p-bond .bd-grid {
+  display: grid; grid-template-columns: minmax(0, 1.02fr) minmax(0, 0.98fr);
+  gap: 14px; align-items: start; margin-bottom: 14px;
+}
+#p-bond .bd-grid.bd-g2 { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+@media (max-width: 1080px) {
+  #p-bond .bd-grid, #p-bond .bd-grid.bd-g2 { grid-template-columns: 1fr; }
+}
+
+/* ---------- 卡片 ---------- */
+#p-bond .bd-card {
+  background: var(--panel-solid); border: 1px solid var(--panel-border);
+  border-radius: var(--radius); padding: 16px 18px; box-shadow: var(--shadow-sm);
+}
+#p-bond .bd-card > h4 {
+  font-size: 13.5px; font-weight: 700; margin-bottom: 4px;
+  display: flex; align-items: center; justify-content: space-between; gap: 10px;
+}
+#p-bond .bd-card > h4 em {
+  font-style: normal; font-size: 11.5px; font-weight: 500;
+  color: var(--muted); letter-spacing: .2px;
+}
+#p-bond .bd-hint { font-size: 12px; color: var(--muted); margin-bottom: 12px; line-height: 1.65; }
+
+/* ---------- 报价表 ---------- */
+#p-bond .bd-tbl { width: 100%; border-collapse: collapse; font-size: 13px; table-layout: fixed; }
+#p-bond .bd-tbl th {
+  font-weight: 600; font-size: 11.5px; color: var(--muted); text-align: left;
+  padding: 0 6px 7px; border-bottom: 1px solid var(--panel-border); white-space: nowrap;
+}
+#p-bond .bd-tbl th.r, #p-bond .bd-tbl td.r { text-align: right; }
+#p-bond .bd-tbl td { padding: 5px 6px; border-bottom: 1px solid var(--panel-border); }
+#p-bond .bd-tbl tr:last-child td { border-bottom: 0; }
+#p-bond .bd-tbl td.nm { font-size: 12.5px; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+#p-bond .bd-tbl input {
+  width: 100%; padding: 5px 7px; border: 1px solid var(--panel-border);
+  border-radius: 7px; background: var(--panel); color: var(--text);
+  font: inherit; font-size: 12.5px; font-variant-numeric: tabular-nums; text-align: right;
+  transition: border-color .15s, box-shadow .15s;
+}
+#p-bond .bd-tbl input:focus {
+  outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.14);
+}
+#p-bond .bd-tbl td.got { font-variant-numeric: tabular-nums; text-align: right; font-size: 12.5px; color: var(--muted); }
+#p-bond .bd-tbl td.got.on { color: var(--bd-a); font-weight: 600; }
+#p-bond .bd-tbl tr.marg td { background: rgba(200, 16, 46, 0.06); }
+body.dark:not(.light) #p-bond .bd-tbl tr.marg td { background: rgba(248, 113, 113, 0.10); }
+#p-bond .bd-tbl tr.marg td.got { color: var(--bd-b); font-weight: 700; }
+
+/* ---------- 结果面板 ---------- */
+#p-bond .bd-rate {
+  font-size: 42px; font-weight: 700; line-height: 1.05; letter-spacing: -1px;
+  font-variant-numeric: tabular-nums; color: var(--bd-b);
+}
+#p-bond .bd-rate small { font-size: 17px; font-weight: 600; margin-left: 2px; }
+#p-bond .bd-ratedesc { font-size: 12px; color: var(--muted); margin-top: 6px; line-height: 1.6; min-height: 38px; }
+
+#p-bond .bd-kv { width: 100%; border-collapse: collapse; font-size: 12.5px; margin-top: 12px; }
+#p-bond .bd-kv td { padding: 5px 0; border-bottom: 1px dashed var(--panel-border); }
+#p-bond .bd-kv tr:last-child td { border-bottom: 0; }
+#p-bond .bd-kv td:first-child { color: var(--muted); }
+#p-bond .bd-kv td:last-child { text-align: right; font-variant-numeric: tabular-nums; font-weight: 600; }
+
+/* ---------- 配售条形图 ---------- */
+#p-bond .bd-bar {
+  display: flex; height: 24px; border-radius: 7px; overflow: hidden;
+  background: var(--bd-gray); position: relative; margin-top: 12px;
+}
+#p-bond .bd-bar i { display: block; height: 100%; transition: width .28s ease; }
+#p-bond .bd-bar .l50 {
+  position: absolute; top: -4px; bottom: -4px; width: 2px;
+  background: var(--bd-b); opacity: .75; transform: translateX(-1px);
+}
+#p-bond .bd-legend {
+  display: flex; flex-wrap: wrap; gap: 6px 14px; margin-top: 9px;
+  font-size: 11.5px; color: var(--muted);
+}
+#p-bond .bd-legend span { display: inline-flex; align-items: center; gap: 5px; }
+#p-bond .bd-legend i { width: 9px; height: 9px; border-radius: 2px; display: inline-block; }
+
+/* ---------- 判定条 ---------- */
+#p-bond .bd-verdict {
+  margin-top: 12px; padding: 9px 12px; border-radius: 9px; font-size: 12.5px; line-height: 1.65;
+  border: 1px solid transparent;
+}
+#p-bond .bd-verdict.ok { background: rgba(15, 118, 110, 0.08); border-color: rgba(15, 118, 110, 0.28); color: var(--bd-ok); }
+#p-bond .bd-verdict.warn { background: rgba(180, 83, 9, 0.08); border-color: rgba(180, 83, 9, 0.28); color: var(--bd-warn); }
+#p-bond .bd-verdict.bad { background: rgba(185, 28, 28, 0.08); border-color: rgba(185, 28, 28, 0.28); color: var(--bd-bad); }
+#p-bond .bd-verdict b { font-weight: 700; }
+
+/* ---------- 省息换算 ---------- */
+#p-bond .bd-save { display: flex; align-items: baseline; gap: 8px; margin: 6px 0 2px; }
+#p-bond .bd-save .big {
+  font-size: 34px; font-weight: 700; color: var(--bd-a); line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+}
+#p-bond .bd-save .unit { font-size: 14px; color: var(--muted); }
+#p-bond .bd-save .sub { font-size: 12px; color: var(--muted); }
+
+/* ---------- 三段融资时间线 ---------- */
+#p-bond .bd-tl { display: grid; gap: 0; margin-top: 4px; }
+#p-bond .bd-tl-row {
+  display: grid; grid-template-columns: 74px minmax(0, 1fr) auto;
+  gap: 12px; align-items: baseline;
+  padding: 10px 0; border-bottom: 1px dashed var(--panel-border);
+}
+#p-bond .bd-tl-row:last-child { border-bottom: 0; }
+#p-bond .bd-tl-row .yr { font-size: 12px; font-weight: 700; color: var(--bd-a); font-variant-numeric: tabular-nums; }
+#p-bond .bd-tl-row .tx { font-size: 12.5px; line-height: 1.65; }
+#p-bond .bd-tl-row .tx b { font-weight: 600; }
+#p-bond .bd-tl-row .tx em { font-style: normal; color: var(--muted); }
+#p-bond .bd-tl-row .rt {
+  font-size: 13px; font-weight: 700; color: var(--bd-b);
+  font-variant-numeric: tabular-nums; white-space: nowrap;
+}
+
+/* ---------- 页脚说明 ---------- */
+#p-bond .bd-foot {
+  margin-top: 16px; padding: 14px 16px; border-radius: var(--radius);
+  background: var(--bd-soft); border: 1px solid var(--panel-border);
+  font-size: 12.5px; color: var(--muted); line-height: 1.8;
+}
+#p-bond .bd-foot b { color: var(--text); }
+#p-bond .bd-btn {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 6px 12px; border-radius: 8px; border: 1px solid var(--panel-border);
+  background: var(--panel); color: var(--text); font: inherit; font-size: 12.5px;
+  cursor: pointer; transition: border-color .15s, background .15s;
+}
+#p-bond .bd-btn:hover { border-color: var(--accent); }
+#p-bond .bd-btn.primary { background: var(--accent-solid); border-color: transparent; color: #fff; }
+#p-bond .bd-btn.primary:hover { filter: brightness(1.06); }
+#p-bond .bd-act { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+
+/* ---- 答案封存（仅项目式教学）：未揭晓时页面只留演算台 ----
+   口径与任务书一致：真实定价、申购倍数、融资时间线都由课堂投屏，
+   页面不提前给答案。教师揭晓：网址后加 ?reveal=1。 */
+#p-bond .bd-lock { display: none; }
+#p-bond .bd-lockcard { display: none; }
+body.bd-sealed #p-bond .bd-lock { display: inline; }
+body.bd-sealed #p-bond .bd-lockcard { display: block; }
+body.bd-sealed #p-bond [data-bd-seal] { display: none; }
