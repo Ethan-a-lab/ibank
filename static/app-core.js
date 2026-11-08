@@ -63,7 +63,12 @@
     tabs.forEach(function (btn) {
       btn.addEventListener('click', function () {
         const target = btn.getAttribute('data-page');
-        if (target === 'p-admin' && !window.__ibankIsAdmin) return; // 守卫：仅教师/管理员可进后台统计
+        // 守卫：仅教师/管理员可进后台统计。原来直接 return，点了毫无反应；现在要说明原因，
+        // 否则学生点了首页那张卡会以为页面坏了。
+        if (target === 'p-admin' && !window.__ibankIsAdmin) {
+          ibankToast('教师后台需用教师账号登录，学生账号只能查看本班公开数据');
+          return;
+        }
         tabs.forEach(function (b) { b.classList.remove('active'); });
         pages.forEach(function (p) { p.classList.remove('active'); });
         btn.classList.add('active');
@@ -1443,7 +1448,13 @@ document.addEventListener('keydown', function (e) {
 
     // ===== 首页模块卡片：点击跳转 =====
     document.querySelectorAll('.home-card').forEach(function (c) {
-      c.addEventListener('click', function () {
+      c.addEventListener('click', function (e) {
+        // 教师端卡片对学生保持可见（首页要能数到 14 个模块），但点击不跳转，先说明原因
+        if (c.classList.contains('is-locked') && c.getAttribute('data-lock') === 'teacher') {
+          e.preventDefault();
+          ibankToast('教师后台需用教师账号登录，学生账号只能查看本班公开数据');
+          return;
+        }
         const t = c.getAttribute('data-page');
         const btn = document.querySelector('.tab-btn[data-page="' + t + '"]');
         if (btn) btn.click();

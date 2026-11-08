@@ -48,8 +48,15 @@
         window.__ibankIsAdmin = isAdmin;
         const tab = document.querySelector('.tab-btn[data-page="p-admin"]');
         const card = document.querySelector('.home-card[data-page="p-admin"]');
+        // 导航下拉里收掉（那是操作入口，按权限收敛），首页那张卡留着但置为锁定态：
+        // 首页是模块总览，学生数一遍要能数到 14 个；收进 DOM 之外会让「14」这个数对不上，
+        // 而且模块存在与否本身不是秘密，能不能进才是。
         if (tab) tab.style.display = isAdmin ? '' : 'none';
-        if (card) card.style.display = isAdmin ? '' : 'none';
+        if (card) {
+          card.classList.toggle('is-locked', !isAdmin);
+          const go = card.querySelector('.go');
+          if (go) go.textContent = isAdmin ? '进入 →' : '需教师账号';
+        }
         if (!isAdmin && document.getElementById('p-admin').classList.contains('active')) {
           document.querySelector('.tab-btn[data-page="p-home"]').click();
         }
@@ -262,28 +269,35 @@
       var evCheckBtn = document.getElementById('ev-check-btn');
       if (evCheckBtn) evCheckBtn.addEventListener('click', function () { checkEventsTable(false); });
       // ===== 模块—能力对照表 =====
-      // 模块名与说明运行时从首页 12 张卡片读取（沿用v43/v44 教训：不在此处硬编码，
+      // 模块名与说明运行时从首页卡片读取（沿用v43/v44 教训：不在此处硬编码，
       // 首页增删卡片时本表自动跟随，不会指向已不存在的模块）。
       (function renderModMap() {
         var box = document.getElementById('mod-map');
         if (!box) return;
         var MAP = {
+          '课程项目': ['表现性评价 · 项目主线', '评'],
           '知识图谱': ['AI 导学答疑', '学'],
           '智能答疑': ['AI 导学答疑', '学'],
           '习题训练': ['实务习题训练', '练'],
           '错题定位': ['错题定位分析', '诊'],
-          '学情画像': ['个人学情画像', '评'],
+          '能力画像': ['个人学情画像', '评'],
+          '学情画像': ['个人学情画像', '评'],   // 卡片曾用名，两处都留着，改名不必再顺手改这里
           'IPO 定价配售': ['实务习题训练 · IPO 定价配售仿真', '练'],
           '估值实验': ['企业估值实操实验', '战'],
           '案例库': ['企业估值实操实验（业务实例）', '学'],
           '宏观市场': ['企业估值实操实验（资产定价）', '学'],
           '股市模拟': ['IPO 定价配售仿真（市场端）', '战'],
           '课程思政': ['企业估值实操实验（职业伦理延伸）', '评'],
-          '后台统计': ['教师端汇总，不计入学生模块']
+          '投行梗学闯关': ['实务习题训练（游戏化）', '练'],
+          '教师后台': ['教师端汇总，不计入学生模块']
         };
         var cards = Array.prototype.slice.call(document.querySelectorAll('#p-home .home-card'));
         var rows = cards.map(function (c) {
-          var nm = (c.querySelector('h4') || {}).textContent || '';
+          // h4 里现在挂着「教师端」角标，直接取 textContent 会变成「教师后台教师端」，
+          // 与 MAP 的键对不上、整行会掉成「—」。先克隆再摘掉角标，只取模块名本身。
+          var h4 = c.querySelector('h4');
+          var nm = '';
+          if (h4) { var k = h4.cloneNode(true); var tg = k.querySelector('.hc-tag'); if (tg) tg.parentNode.removeChild(tg); nm = (k.textContent || '').trim(); }
           var ds = (c.querySelector('p') || {}).textContent || '';
           var m = MAP[nm] || ['—', ''];
           return '<div class="mm-row"><span class="mm-n">' + esc(nm) + '</span>'

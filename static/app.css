@@ -1469,6 +1469,18 @@
       opacity: 0; transform: translateX(-4px); transition: 0.2s; }
     .home-card:hover .go { opacity: 1; transform: none; }
 
+    /* 教师端卡片：对学生常驻可见但不给进。首页是模块总览，学生数一遍要能数到 14 个；
+       「模块存在」不是秘密，「能不能进」才是——所以用虚线边 + 角标 + 常显的「需教师账号」来区分，
+       而不是把整张卡藏起来（藏起来会让 14 这个数在页面上对不上）。 */
+    .home-card .hc-tag { display: inline-block; margin-left: 6px; padding: 1px 6px; border-radius: 5px;
+      font-size: 10px; font-weight: 600; font-style: normal; vertical-align: 1px; white-space: nowrap;
+      color: #92400e; background: rgba(245,158,11,.14); border: 1px solid rgba(245,158,11,.38); }
+    .home-card.is-locked { border-style: dashed; }
+    .home-card.is-locked:hover { border-color: rgba(245,158,11,.55); }
+    .home-card.is-locked .go { opacity: 1; color: #b45309; transform: none; }
+    body.dark:not(.light) .home-card .hc-tag { color: #fcd34d; background: rgba(245,158,11,.16); border-color: rgba(245,158,11,.42); }
+    body.dark:not(.light) .home-card.is-locked .go { color: #fcd34d; }
+
     /* ===== CTA 横幅 ===== */
     .cta-banner { margin-top: 22px; border-radius: 18px; padding: 40px 42px; display: flex; align-items: center;
       justify-content: space-between; gap: 26px; flex-wrap: wrap;
