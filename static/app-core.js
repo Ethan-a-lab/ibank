@@ -2910,6 +2910,13 @@ document.addEventListener('keydown', function (e) {
         var pb = document.querySelector('.tab-btn[data-page="p-project"]');
         if (pb) pb.click();
         window.scrollTo(0, 0);
+        return;
+      }
+      // data-go-sz：项目第三段 ↔ 思政园地的伦理对照，两边互指一处，学生不用自己找
+      if (e.target.closest('[data-go-sz]')) {
+        var sb = document.querySelector('.tab-btn[data-page="p-sizheng"]');
+        if (sb) sb.click();
+        window.scrollTo(0, 0);
       }
     });
 
@@ -6007,7 +6014,7 @@ document.addEventListener('keydown', function (e) {
               answer: '发行价 18.00 元，比询价区间下沿 21.08 元还低 15%；拟募 21.92 亿元，实募 14.22 亿元，缺口 35%。'
             },
             {
-              name: '第二段 · 再融资：三条路，三个条件', week: '第 1 课时 · 后 19 分钟（上到这里下课）', output: '《再融资方案对比表》',
+              name: '第二段 · 再融资：三条路，三个条件', week: '第 1 课时 · 后 22 分钟（上到这里下课）', output: '《再融资方案对比表》',
               evidence: '三派的陈述与互相质询：你说这条路成立要满足什么条件，对面说出它在哪一年根本走不通——这一栏最能看出取舍，也最能看出有没有读进去制度差异',
               todo: [
                 '【发行人】按你抽到的那条路，写清它成立的条件：什么公司、什么时点、什么样的市场环境才走得通',
@@ -6045,6 +6052,25 @@ document.addEventListener('keydown', function (e) {
               answer: '股权融资的定价权在买方（询价、折价、等批复），债权融资的定价权落在簿记现场边际的那一档——同一家发行人，定价权不在同一边。'
             }
           ],
+          // ---------- 第二段线上表单：三路四栏 ----------
+          // 这一段原本只有纸面四栏表，系统采不到，决策维与伦理维在这一段等于空档。
+          // 线上这份不替代纸：纸上是草稿，这里是交上去的那一份，六格填完才算这一段有痕迹。
+          // 提交走 events.type='pj_cmp'，内容压进 detail（每格限 72 字，合计不超 500 字的列上限）。
+          cmpForm: {
+            title: '第二段 · 三条路，四栏对比（课上填这一张）',
+            lead: '四条路你只填自己抽到的那一条。前四栏是这套方案的全部事实，后两栏决定这一段怎么给你算分：一条说清这条路上谁的利益被牺牲，一条给对面那条路一个致命提问。纸上那份是草稿，这里填完点提交，才算交上来。',
+            routeLabel: '我抽到的路',
+            fields: [
+              { k: 'arrive', l: '到账时间', ph: '从预案到钱到账大概多久，中间卡在哪一步' },
+              { k: 'dilute', l: '摊薄幅度', ph: '发多少股、占发行前股本几成、每股收益被摊薄多少' },
+              { k: 'price', l: '折价或利率', ph: '这条路要付出去多少：折让几个点，或者票面几个百分点' },
+              { k: 'review', l: '谁审 · 审多久 · 披露什么', ph: '过哪一道门、要多久、年报里要多写哪几段' },
+              { k: 'ethic', l: '这条路上，谁的利益被牺牲了', ph: '谁被摊薄、谁承担风险、披露够不够——这一栏写不出来，说明这条路的代价还没看见', eth: 1 },
+              { k: 'ask', l: '给对面那条路的致命一问', ph: '它在哪一年根本走不通？说清成立的条件，别说「不合适」' }
+            ],
+            submit: '提交这张表',
+            tip: '前四栏加上「谁的利益被牺牲」这一栏填完就能交，最后一问可以留到质询环节再补。改完再点一次提交，以最后一次为准。'
+          },
           deliverables: [
             '《IPO 定价测算表》（第一段当堂交：发行人交区间与定价，投资者交买入上限，监管者交下沿质询）',
             '《再融资方案对比表》（第二段当堂交：到账时间 × 摊薄 × 折价或利率 × 谁审、审多久、披露什么）',
@@ -6063,12 +6089,12 @@ document.addEventListener('keydown', function (e) {
           classroom: {
             title: '课堂现场 · 两课时怎么走',
             steps: [
-              { n: 1, label: '课前 · 读数据、押一条路、填组号', note: '线上 10 分钟，课上不占时间' },
-              { n: 2, label: '第1课时 · 前 8 分钟：三派就位', note: '发行人 5 组 · 投资者 3 组 · 监管者 2 组' },
-              { n: 3, label: '第1课时 · 18 分钟算 IPO 价格', tool: 'p-valuation', note: '发行人定价、投资者给买入上限、监管者查下沿' },
-              { n: 4, label: '第1课时 · 19 分钟三派辩论', note: '下课铃响在这儿，答案一句不揭' },
-              { n: 5, label: '第2课时 · 25 分钟簿记对抗', tool: 'p-bond', note: '发行人压价、投资者报量、监管者查自营获配' },
-              { n: 6, label: '第2课时 · 8 分钟揭晓 + 12 分钟复盘', note: '答案投屏，学生只交偏离分析' }
+              { n: 1, label: '第1课时 · 0—10 分钟：读数据、押一条路、分席就位', note: '发行人 5 组 · 投资者 3 组 · 监管者 2 组，组号这时一起填' },
+              { n: 2, label: '第1课时 · 18 分钟算 IPO 价格', tool: 'p-valuation', note: '发行人定价、投资者给买入上限、监管者查下沿' },
+              { n: 3, label: '第1课时 · 22 分钟三条路辩论', note: '下课铃响在这儿，答案一句不揭' },
+              { n: 4, label: '第2课时 · 25 分钟簿记对抗', tool: 'p-bond', note: '发行人压价、投资者报量、监管者查自营获配' },
+              { n: 5, label: '第2课时 · 8 分钟揭晓真值', note: '一段一段亮，学生只填偏离' },
+              { n: 6, label: '第2课时 · 12 分钟复盘 + 5 分钟收束', note: '班内听证，问不住的方案当场撤回' }
             ]
           },
           chapters: ['第3章', '第4章', '第5章'],
@@ -6108,6 +6134,26 @@ document.addEventListener('keydown', function (e) {
         try { return JSON.parse(localStorage.getItem(PICK_KEY) || '{}') || {}; } catch (e) { return {}; }
       }
       function pickOf(id) { return loadPick()[id] || ''; }
+
+      // 第二段「三路四栏」表单：{ byd: { route, vals:{k:v}, ts, n } }
+      // 与押注分开存：押注记的是「想走哪条」，这张表记的是「这条路要满足什么」。
+      var CMP_KEY = 'ibank_pj_cmp_v1';
+      var cmpT0 = 0;   // 详情页打开的时刻，用来算这张表填了多久
+      function cmpLoad(id) {
+        try {
+          var all = JSON.parse(localStorage.getItem(CMP_KEY) || '{}') || {};
+          var s = all[id] || {};
+          return { route: s.route || '', vals: s.vals || {}, ts: Number(s.ts) || 0, n: Number(s.n) || 0 };
+        } catch (e) { return { route: '', vals: {}, ts: 0, n: 0 }; }
+      }
+      function cmpSave(id, s) {
+        try {
+          var all = JSON.parse(localStorage.getItem(CMP_KEY) || '{}') || {};
+          all[id] = s;
+          localStorage.setItem(CMP_KEY, JSON.stringify(all));
+        } catch (e) {}
+      }
+
       function setPick(id, code) {
         var o = loadPick();
         if (code) o[id] = code; else delete o[id];
@@ -6370,6 +6416,40 @@ document.addEventListener('keydown', function (e) {
             + '</section>';
         }
 
+        // 第二段线上表单：纸面四栏表的电子版，唯一目的是让这一段留下可聚合的痕迹。
+        // 输入即存本机（换页、刷新都不丢），提交才上报一条 events(type='pj_cmp')。
+        var fmHtml = '';
+        if (p.cmpForm) {
+          var cf = p.cmpForm, cs = cmpLoad(p.id);
+          var rsBtns = (p.options || []).map(function (o) {
+            var on = cs.route === o.code;
+            return '<button type="button" class="pj-fm-r' + (on ? ' on' : '') + '"'
+              + ' data-cmp-route="' + esc(o.code) + '" aria-pressed="' + (on ? 'true' : 'false') + '">'
+              + esc(o.name) + '</button>';
+          }).join('');
+          var fCells = cf.fields.map(function (f) {
+            return '<label class="pj-fm-f' + (f.eth ? ' is-eth' : '') + '">'
+              + '<span class="pj-fm-l">' + esc(f.l) + (f.eth ? '<i>伦理维</i>' : '') + '</span>'
+              + '<textarea data-cmp-k="' + esc(f.k) + '" rows="2" maxlength="68"'
+              + ' placeholder="' + esc(f.ph) + '">' + esc(cs.vals[f.k] || '') + '</textarea>'
+              + '</label>';
+          }).join('');
+          var nFill = cf.fields.filter(function (f) { return String(cs.vals[f.k] || '').trim(); }).length;
+          fmHtml = '<section class="pj-sec pj-fm" id="pj-cmp-form">'
+            + '<h3>' + esc(cf.title) + '</h3>'
+            + '<p class="pj-fm-lead">' + esc(cf.lead) + '</p>'
+            + '<div class="pj-fm-rrow"><span class="pj-fm-rl">' + esc(cf.routeLabel) + '</span>'
+            + '<div class="pj-fm-rs" role="group" aria-label="' + esc(cf.routeLabel) + '">' + rsBtns + '</div></div>'
+            + '<div class="pj-fm-grid">' + fCells + '</div>'
+            + '<div class="pj-fm-foot">'
+            + '<span class="pj-fm-cnt' + (nFill === cf.fields.length ? ' done' : '') + '" id="pj-cmp-cnt">已填 ' + nFill + ' / ' + cf.fields.length + '</span>'
+            + '<button type="button" class="pj-fm-sub" data-cmp-submit>' + esc(cf.submit) + '</button>'
+            + '<span class="pj-fm-msg" id="pj-cmp-msg">' + (cs.n ? '已交过 ' + cs.n + ' 次 · 以最后一次为准' : '') + '</span>'
+            + '</div>'
+            + '<p class="pj-tip">' + esc(cf.tip) + '</p>'
+            + '</section>';
+        }
+
         elDetail.innerHTML =
           '<div class="pj-dhead">'
           + '<button type="button" class="pj-back" data-pj-back>← 返回项目列表</button>'
@@ -6403,7 +6483,12 @@ document.addEventListener('keydown', function (e) {
 
           + '<section class="pj-sec"><h3>阶段任务</h3>'
           + '<div class="pj-sealbar"><b>标准答案不在这一页。</b>这里只放演算台——价格区间、利率、认购倍数、募资缺口，都在你手上现算；真实发行价与实际募资由课上投屏揭晓。现在能拿到的只有「你的结果」，对不对得上，等那一屏。</div>'
-          + '<ol class="pj-stages">' + stageHtml + '</ol></section>'
+          + '<ol class="pj-stages">' + stageHtml + '</ol>'
+          // 第三段与思政园地是一条线：那条「自营获配 52% 该不该披露」的追问，在那边有整页对照
+          + '<p class="pj-szlink">监管者席第三段要问的那一句「承销团自营获配 52% 该不该披露」，在 '
+          + '<button type="button" class="pj-linkbtn" data-go-sz>课程思政园地</button> 有整页对照。</p></section>'
+
+          + fmHtml
 
           + '<section class="pj-sec"><h3>交付物</h3><ul class="pj-deliv">'
           + p.deliverables.map(function (d) { return '<li>' + reveal(esc(d)) + '</li>'; }).join('')
@@ -6444,6 +6529,8 @@ document.addEventListener('keydown', function (e) {
 
         elList.hidden = true;
         elChain.hidden = true;   // 详情页不显示流水线，避免与标题争夺视线
+        elDetail.setAttribute('data-pid', p.id);   // 表单事件靠它找项目，避免闭包再存一份状态
+        cmpT0 = Date.now();      // 这一段表填了多久，提交时一起上报
         var elEvalBox = document.getElementById('pj-eval');   // 该板块已删除，取不到就跳过，不能直接引用变量
         if (elEvalBox) elEvalBox.hidden = true;   // 评价设计属板块级说明，进详情后让位给任务书
         elDetail.hidden = false;
@@ -6466,6 +6553,56 @@ document.addEventListener('keydown', function (e) {
         renderChain();
         renderList();
         window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+
+      // ---------- 第二段「三路四栏」表单 ----------
+      function projOf(pid) {
+        for (var i = 0; i < PROJECTS.length; i++) if (PROJECTS[i].id === pid) return PROJECTS[i];
+        return null;
+      }
+      function cmpMsg(text, cls) {
+        var el = document.getElementById('pj-cmp-msg');
+        if (!el) return;
+        el.textContent = text;
+        el.className = 'pj-fm-msg' + (cls ? ' ' + cls : '');
+      }
+      function cmpCount(s, cf) {
+        var el = document.getElementById('pj-cmp-cnt');
+        if (!el || !cf) return;
+        var n = cf.fields.filter(function (f) { return String(s.vals[f.k] || '').trim(); }).length;
+        el.textContent = '已填 ' + n + ' / ' + cf.fields.length;
+        el.className = 'pj-fm-cnt' + (n === cf.fields.length ? ' done' : '');
+      }
+      function cmpSubmit(pid) {
+        var p = projOf(pid);
+        if (!p || !p.cmpForm) return;
+        var cf = p.cmpForm, s = cmpLoad(pid), miss = [];
+        if (!s.route) miss.push('你抽到的那条路');
+        cf.fields.forEach(function (f) {
+          if (f.k === 'ask') return;   // 致命一问允许留到质询环节再补，其余空白就是没交
+          if (!String(s.vals[f.k] || '').trim()) miss.push('「' + f.l + '」');
+        });
+        if (miss.length) {
+          cmpMsg('还差 ' + miss.length + ' 处：' + miss.join('、'), 'bad');
+          return;
+        }
+        s.ts = Date.now(); s.n = (s.n || 0) + 1;
+        cmpSave(pid, s);
+        cmpMsg('已交上来 · 第 ' + s.n + ' 次，改完再点一次就覆盖', 'ok');
+        var secs = cmpT0 ? Math.max(1, Math.min(3600, Math.round((Date.now() - cmpT0) / 1000))) : null;
+        // 只传 detail：track() 一旦发现白名单外的键，就会整条改写成 extra、把 detail 丢掉
+        if (window.__ibankTrack) {
+          try {
+            window.__ibankTrack('pj_cmp', {
+              chapter: '第4章', module: '课程项目', duration: secs,
+              detail: JSON.stringify({
+                r: s.route, a: s.vals.arrive || '', d: s.vals.dilute || '',
+                p: s.vals.price || '', w: s.vals.review || '',
+                e: s.vals.ethic || '', q: s.vals.ask || '', g: groupOf()
+              })
+            });
+          } catch (e) {}
+        }
       }
 
       // ---------- 事件委托：全部挂在一个容器上，重渲染后无需重新绑定 ----------
@@ -6501,6 +6638,35 @@ document.addEventListener('keydown', function (e) {
             var now = cycleState(id);
             renderChain(); renderList();
             if (window.__ibankTrack) window.__ibankTrack('project', { project: id, state: now });
+            return;
+          }
+
+          // 第二段表单：选路（只切选中态，不重绘 —— 重绘会把刚填的字和滚动位置一起冲掉）
+          var rt = t.closest('[data-cmp-route]');
+          if (rt) {
+            var curPid = elDetail.getAttribute('data-pid') || '';
+            var rs = cmpLoad(curPid), rcode = rt.getAttribute('data-cmp-route');
+            var already = rt.classList.contains('on');
+            var sibs = rt.parentNode.querySelectorAll('.pj-fm-r');
+            for (var j = 0; j < sibs.length; j++) {
+              sibs[j].classList.remove('on');
+              sibs[j].setAttribute('aria-pressed', 'false');
+            }
+            if (!already) {
+              rt.classList.add('on');
+              rt.setAttribute('aria-pressed', 'true');
+              rs.route = rcode;
+            } else {
+              rs.route = '';
+            }
+            cmpSave(curPid, rs);
+            cmpMsg(rs.n ? '已交过 ' + rs.n + ' 次 · 以最后一次为准' : '', '');
+            return;
+          }
+
+          // 第二段表单：提交。四栏 + 利益冲突必须写满，最后那一问可留到质询环节
+          if (t.closest('[data-cmp-submit]')) {
+            cmpSubmit(elDetail.getAttribute('data-pid') || '');
             return;
           }
 
@@ -6547,6 +6713,20 @@ document.addEventListener('keydown', function (e) {
         // 不需要按任何「保存」按钮——课堂上少一个动作就少一次卡顿。
         // 若学生先选路、后填组号，这里补报一条，保证后台能把这组归到正确编号下。
         root.addEventListener('input', function (e) {
+          // 第二段表单：边填边存本机。课堂上换页、刷新、断网都不该让刚写的字消失，
+          // 所以不设「保存」按钮，输入即落盘，提交只负责把这一份报上去。
+          var ta = e.target.closest('[data-cmp-k]');
+          if (ta) {
+            var cpid = elDetail.getAttribute('data-pid') || '';
+            var cst = cmpLoad(cpid);
+            cst.vals = cst.vals || {};
+            cst.vals[ta.getAttribute('data-cmp-k')] = String(ta.value || '').slice(0, 68);
+            cmpSave(cpid, cst);
+            var cp = projOf(cpid);
+            cmpCount(cst, cp && cp.cmpForm);
+            cmpMsg('', '');
+            return;
+          }
           var gi = e.target.closest('[data-pj-group]');
           if (!gi) return;
           var g = setGroup(gi.value);

@@ -2039,6 +2039,18 @@
 
         <div class="sz-detail" id="sz-detail" aria-live="polite"></div>
 
+        <!-- 项目式教学与思政园地的接口。项目第三段监管者席要问的那一句在这里有落点，
+             两边互指：项目页写「去思政园地看对照」，这里写「回项目第三段发问」。 -->
+        <div class="sz-proj">
+          <div class="sz-proj-h"><em>本项目</em>比亚迪 · 承销团自己买走了一半，这算不算「抢光」</div>
+          <p>2026 年那期中期票据，50 亿元里有 <b>26 亿元是承销团用自营资金买走的</b>，占 52%。看公告像是被抢光，实际上有一半是承销商自己托的底。这件事本身不违规——承销团成员本来就可以按自己的资金成本申购；但<b>承销商同时是这笔发行的卖方顾问和买方</b>，利益冲突就摆在簿记桌上。发行结果公告里，要不要把这 52% 单独说清楚？</p>
+          <p>这就是「职业操守 · 诚信合规」在这一课里的具体形状：不是背「诚实守信」四个字，而是在一张真实的簿记表上认出谁跟谁的利益不在同一边。</p>
+          <div class="sz-proj-foot">
+            <button type="button" class="sz-proj-go" data-go-pj>回到项目第三段 →</button>
+            <span class="sz-proj-note">这一段由监管者席发问、发行人席应答，两边都记进伦理维。</span>
+          </div>
+        </div>
+
         <div class="section-title" style="margin-top:30px;"><span class="bar"></span>思政融入点 · 全课程育人地图</div>
         <div class="section-sub" style="margin:6px 0 12px;">按教材 8 章（第0章导论 + 第1–7章）逐一对应「投行知识点 → 思政融入点」，与知识图谱、案例库同源同序。</div>
         <table class="sz-table">
@@ -2167,6 +2179,17 @@
         <div class="setup-actions" style="margin-top:10px;">
           <button class="copy-sql-btn" id="pj-bet-export-btn" type="button">⬇️ 导出小组押注明细（CSV）</button>
           <span class="ev-status" id="pj-bet-status"></span>
+        </div>
+      </div>
+
+      <!-- 第二段「三路四栏」：决策与伦理两维原本只在纸上，这一段填完才采得到 -->
+      <div class="admin-panel" style="margin-top:16px;">
+        <h4>比亚迪项目 · 第二段三路四栏</h4>
+        <div class="sub">学生交上来的《再融资方案对比表》（type = pj_cmp，章节限第 4 章）：到账时间 / 摊薄幅度 / 折价或利率 / 谁审审多久披露什么，再加「谁的利益被牺牲」与一句给对面的致命一问。按组聚合，同一组多次提交以最后一次为准。教师账号不入统计。</div>
+        <div id="pj-cmp-body"><div class="um-empty">加载中…</div></div>
+        <div class="setup-actions" style="margin-top:10px;">
+          <button class="copy-sql-btn" id="pj-cmp-export-btn" type="button">⬇️ 导出三路四栏（CSV）</button>
+          <span class="ev-status" id="pj-cmp-status"></span>
         </div>
       </div>
 

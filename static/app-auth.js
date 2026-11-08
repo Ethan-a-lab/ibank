@@ -1080,6 +1080,126 @@ console.log('%c[iBank 数据自检]', 'font-weight:bold', out);
         setTimeout(function () { URL.revokeObjectURL(url); }, 1500);
       }
 
+      // ===== v84 · 比亚迪项目第二段「三路四栏」 =====
+      // 这一段过去只有纸面四栏表，教师课后按组补录，系统一条数据都没有。
+      // 现在学生在项目页填完提交，落 events(type='pj_cmp')，detail 里带六格内容与组号。
+      // 与押注看板同源不同表：押注记「想走哪条」，这里记「这条路要满足什么」。
+      var pjCmpRows = [];
+      var pjCmpStamp = 0;
+      var CMP_FLD = [['a', '到账时间'], ['d', '摊薄幅度'], ['p', '折价或利率'], ['w', '审核与披露']];
+
+      function parseCmpEvents(list) {
+        var byUid = {};
+        (list || []).forEach(function (e) {
+          if (!e || e.type !== 'pj_cmp' || !e.detail) return;
+          var d = null;
+          try { d = typeof e.detail === 'string' ? JSON.parse(e.detail) : e.detail; } catch (err) { return; }
+          if (!d || !d.r) return;
+          var ts = toMs(e.ts), uid = e.uid || 'anon';
+          if (byUid[uid] && byUid[uid].ts > ts) return;   // 同一人改主意，以最后一次为准
+          byUid[uid] = {
+            uid: uid, route: String(d.r || ''), g: String(d.g == null ? '' : d.g).trim(),
+            a: d.a || '', d: d.d || '', p: d.p || '', w: d.w || '', e: d.e || '', q: d.q || '', ts: ts
+          };
+        });
+        return Object.keys(byUid).map(function (k) { return byUid[k]; });
+      }
+
+      function renderPjCmp(list, note) {
+        var box = document.getElementById('pj-cmp-body');
+        if (!box) return;
+        var rows = parseCmpEvents(list);
+        pjCmpRows = rows;
+        var st = document.getElementById('pj-cmp-status');
+        if (st) st.textContent = note || '';
+        if (!rows.length) {
+          box.innerHTML = '<div class="um-empty">还没有交上来的表。需学生账号在「课程项目 → 比亚迪 → 第二段」填完四栏并点提交；'
+            + '教师账号的操作不入统计，离线填写的记录会在联网上报后出现在这里。</div>';
+          return;
+        }
+        var byG = {};
+        rows.forEach(function (r) { var k = r.g || ''; (byG[k] = byG[k] || []).push(r); });
+        var keys = Object.keys(byG).filter(function (k) { return k; })
+          .sort(function (a, b) { return (+a || 99) - (+b || 99); });
+        if (byG['']) keys.push('');
+        var nEth = rows.filter(function (r) { return r.e; }).length;
+        var nAsk = rows.filter(function (r) { return r.q; }).length;
+        var kpi = function (k, v, n) {
+          return '<div class="cb43-kpi"><span class="k">' + k + '</span><span class="v">' + v + '</span><span class="n">' + n + '</span></div>';
+        };
+        var html = '<div class="cb43-top">'
+          + kpi('已交表', rows.length + ' 人', '不含教师账号')
+          + kpi('覆盖组数', keys.filter(function (k) { return k; }).length + ' 组', '按学生填的组号聚合')
+          + kpi('写了伦理栏', nEth + ' / ' + rows.length, '谁的利益被牺牲')
+          + kpi('留了致命一问', nAsk + ' / ' + rows.length, '可课后补')
+          + '</div><div class="pj-cmp-list">';
+        keys.forEach(function (k) {
+          var arr = byG[k].slice().sort(function (x, y) { return y.ts - x.ts; });
+          var r = arr[0];
+          html += '<article class="pj-cmp-row">'
+            + '<div class="r-h"><b>' + (k ? '第 ' + esc(k) + ' 组' : '未填组号') + '</b>'
+            + '<span class="r-route">' + esc(PJ_LABEL[r.route] || r.route) + '</span>'
+            + '<em>' + (r.ts ? new Date(r.ts).toLocaleString('zh-CN', { hour12: false }) : '')
+            + (arr.length > 1 ? ' · 本组 ' + arr.length + ' 人交表，取最近一次' : '') + '</em></div>'
+            + '<dl class="r-dl">' + CMP_FLD.map(function (f) {
+              return '<dt>' + f[1] + '</dt><dd>' + (r[f[0]] ? esc(r[f[0]]) : '<i>空</i>') + '</dd>';
+            }).join('') + '</dl>'
+            + '<p class="r-eth"><b>谁的利益被牺牲</b>' + (r.e ? esc(r.e) : '<i>未填 —— 伦理维在这一组没有证据</i>') + '</p>'
+            + (r.q ? '<p class="r-ask"><b>致命一问</b>' + esc(r.q) + '</p>' : '')
+            + '</article>';
+        });
+        html += '</div><div class="cb43-note">口径：同一学生多次提交以最后一次为准；同一组多人交表取最近一次展示，人数另标。'
+          + '「伦理维在这一组没有证据」不是差错，是这一组该被点名追问的一句。' + (note ? ' ' + note : '') + '</div>';
+        box.innerHTML = html;
+      }
+
+      async function loadPjCmp(force) {
+        var box = document.getElementById('pj-cmp-body');
+        if (!box) return;
+        if (!force && pjCmpRows.length && Date.now() - pjCmpStamp < 5000) return;
+        var local = [];
+        try { local = normEvents(JSON.parse(localStorage.getItem('ibank_events_local') || '[]')); } catch (e) {}
+        var locN = local.filter(function (e) { return e && e.type === 'pj_cmp'; }).length;
+        if (locN) renderPjCmp(local, '本机镜像 ' + locN + ' 条 · 云端同步中…');
+        if (OFFLINE || !db) {
+          pjCmpStamp = Date.now();
+          renderPjCmp(local, '离线演示：仅统计本机镜像记录');
+          return;
+        }
+        var cloud = null;
+        try {
+          cloud = await Promise.race([
+            db.from('events').select('*').eq('type', 'pj_cmp').limit(5000).then(function (r) { return (r && r.data) || []; }),
+            new Promise(function (res) { setTimeout(function () { res(null); }, 8000); })
+          ]);
+        } catch (e) { cloud = null; }
+        pjCmpStamp = Date.now();
+        if (!cloud) { renderPjCmp(local, '云端读取超时，暂按本机 ' + locN + ' 条统计'); return; }
+        var cn = cloud.filter(function (e) { return e && e.type === 'pj_cmp'; }).length;
+        renderPjCmp(cloud.concat(local), '云端 ' + cn + ' 条 · 本机 ' + locN + ' 条 · ' + fmtDate(Date.now()));
+      }
+
+      function causeExportPjCmp() {
+        if (!pjCmpRows.length) { if (typeof ibankToast === 'function') ibankToast('暂无三路四栏记录可导出'); return; }
+        var head = ['组号', '选的路', '到账时间', '摊薄幅度', '折价或利率', '谁审·审多久·披露什么', '谁的利益被牺牲', '致命一问', '提交时间', 'student_uid'];
+        var lines = [head.join(',')];
+        pjCmpRows.slice().sort(function (a, b) {
+          return String(a.g || '999').localeCompare(String(b.g || '999'), undefined, { numeric: true });
+        }).forEach(function (r) {
+          lines.push([
+            csvCell(r.g || '未填'), csvCell(PJ_LABEL[r.route] || r.route), csvCell(r.a), csvCell(r.d),
+            csvCell(r.p), csvCell(r.w), csvCell(r.e), csvCell(r.q),
+            r.ts ? new Date(r.ts).toLocaleString('zh-CN') : '', csvCell(r.uid)
+          ].join(','));
+        });
+        var blob = new Blob(['\ufeff' + lines.join('\r\n')], { type: 'text/csv;charset=utf-8' });
+        var url = URL.createObjectURL(blob);
+        var a = document.createElement('a');
+        a.href = url; a.download = 'iBank_三路四栏_' + new Date().toISOString().slice(0, 10) + '.csv';
+        document.body.appendChild(a); a.click(); document.body.removeChild(a);
+        setTimeout(function () { URL.revokeObjectURL(url); }, 1500);
+      }
+
       async function loadEventStats() {
         const kpiRow = document.getElementById('ev-kpi-row');
         const cEl = document.getElementById('ev-chapter');
@@ -1091,6 +1211,8 @@ console.log('%c[iBank 数据自检]', 'font-weight:bold', out);
         try { loadCb43Stats(); } catch (e) { /* 不阻断主看板 */ }
         // v63：项目式教学押注看板，同样独立取数，失败不拖累其他面板
         try { loadPjBet(); } catch (e) { /* 不阻断主看板 */ }
+        // v84：第二段三路四栏，同样独立取数
+        try { loadPjCmp(); } catch (e) { /* 不阻断主看板 */ }
         if (OFFLINE) {
           let local = []; try { local = JSON.parse(localStorage.getItem('ibank_events_local') || '[]'); } catch (e) {}
           local = normEvents(local);
@@ -2213,6 +2335,9 @@ const actSrc = login.length ? login : study.concat(quiz, mod, qa);
       // v63：比亚迪小组押注明细导出
       var pjBetExportBtn = document.getElementById('pj-bet-export-btn');
       if (pjBetExportBtn) pjBetExportBtn.addEventListener('click', causeExportPjBet);
+      // v84：第二段三路四栏导出
+      var pjCmpExportBtn = document.getElementById('pj-cmp-export-btn');
+      if (pjCmpExportBtn) pjCmpExportBtn.addEventListener('click', causeExportPjCmp);
 
       const adminTab = document.querySelector('.tab-btn[data-page="p-admin"]');
       if (adminTab) adminTab.addEventListener('click', function () { loadRealStats(); loadEventStats(); });

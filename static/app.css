@@ -1831,6 +1831,29 @@
       background: rgba(16,185,129,.08); border: 1px solid rgba(16,185,129,.30); border-radius: 12px; padding: 13px 15px; }
     .sz-take b { display: block; font-size: 12.5px; color: var(--text); margin-bottom: 5px; }
 
+    /* 本项目对照卡：项目第三段的伦理追问在这里有一个落点，两边互指 */
+    .sz-proj {
+      margin-top: 18px; padding: 16px 18px; border-radius: 14px;
+      background: rgba(245,158,11,.07); border: 1px solid rgba(245,158,11,.34);
+      border-left: 3px solid #d97706;
+    }
+    .sz-proj-h { display: flex; align-items: center; gap: 8px; font-size: 13.5px; font-weight: 700; color: var(--text); }
+    .sz-proj-h em {
+      font-style: normal; font-size: 10.5px; font-weight: 700; letter-spacing: .04em;
+      color: #b45309; background: rgba(245,158,11,.18); border-radius: 999px; padding: 2px 7px;
+    }
+    .sz-proj p { margin: 9px 0 0; font-size: 12.5px; line-height: 1.85; color: var(--muted); }
+    .sz-proj p b { color: var(--text); }
+    .sz-proj-foot { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-top: 12px; }
+    .sz-proj-go {
+      cursor: pointer; font-family: inherit; font-size: 12.5px; font-weight: 700; color: #fff;
+      background: #d97706; border: 0; border-radius: 9px; padding: 7px 14px;
+    }
+    .sz-proj-go:hover { filter: brightness(1.06); }
+    .sz-proj-note { font-size: 11.5px; color: var(--dim); }
+    body.dark:not(.light) .sz-proj { background: rgba(245,158,11,.12); border-color: rgba(245,158,11,.42); }
+    body.dark:not(.light) .sz-proj-h em { color: #fcd34d; background: rgba(245,158,11,.22); }
+
     body.dark:not(.light) .sz-theme.active { background: rgba(129,140,248,.12); }
     body.dark:not(.light) .sz-case:hover { background: rgba(129,140,248,.12); }
     body.dark:not(.light) .sz-detail { background: rgba(255,255,255,.02); }
@@ -2282,6 +2305,33 @@
     }
 
   
+    /* ===== 教师后台 · 第二段三路四栏（v84）===== */
+    /* 逐组一张卡：教师评伦理分时是一组一组读文字，不是扫表格 */
+    .pj-cmp-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(380px, 1fr)); gap: 12px; margin-top: 12px; }
+    .pj-cmp-row {
+      background: var(--panel); border: 1px solid var(--panel-border);
+      border-radius: 12px; padding: 12px 14px; min-width: 0;
+    }
+    .pj-cmp-row .r-h { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; padding-bottom: 8px; border-bottom: 1px dashed var(--panel-border); }
+    .pj-cmp-row .r-h b { font-size: 13px; color: var(--text); }
+    .pj-cmp-row .r-h em { font-style: normal; font-size: 11px; color: var(--dim); margin-left: auto; }
+    .r-route {
+      font-size: 11px; font-weight: 700; color: #b45309;
+      background: rgba(245,158,11,.16); border-radius: 999px; padding: 1px 7px;
+    }
+    .pj-cmp-row .r-dl { margin: 8px 0 0; display: grid; grid-template-columns: 78px minmax(0,1fr); gap: 3px 8px; }
+    .pj-cmp-row .r-dl dt { font-size: 11px; color: var(--dim); line-height: 1.65; }
+    .pj-cmp-row .r-dl dd { margin: 0; font-size: 12px; line-height: 1.65; color: var(--text); word-break: break-word; }
+    .pj-cmp-row .r-dl dd i, .pj-cmp-row p i { font-style: normal; color: var(--dim); }
+    .pj-cmp-row .r-eth, .pj-cmp-row .r-ask {
+      margin: 9px 0 0; padding: 7px 9px; border-radius: 8px;
+      font-size: 12px; line-height: 1.7; color: var(--text); word-break: break-word;
+    }
+    .pj-cmp-row .r-eth { background: rgba(245,158,11,.10); border-left: 2px solid #d97706; }
+    .pj-cmp-row .r-ask { background: rgba(99,102,241,.08); border-left: 2px solid var(--accent); }
+    .pj-cmp-row .r-eth b, .pj-cmp-row .r-ask b { display: block; font-size: 11px; margin-bottom: 2px; color: var(--dim); }
+    body.dark:not(.light) .r-route { color: #fcd34d; }
+
     /* ===== 课程项目（项目式教学主线）===== */
     /* 全部使用 :root 变量，深浅色模式自动跟随，不在此处硬编码颜色值 */
     #p-project [hidden] { display: none !important; }
@@ -2655,6 +2705,69 @@
     @media (max-width: 560px) {
       .pj-era-nums { grid-template-columns: 1fr 1fr; }
     }
+
+    /* ---- 第二段线上表单：三条路，四栏对比 ---- */
+    /* 纸面四栏表的电子版。输入即存本机，提交才上报一条 events(type=pj_cmp)；
+       琥珀色与「项目式教学」同色系，和案例背景那块呼应。 */
+    .pj-fm {
+      background: rgba(245, 158, 11, .05);
+      border: 1px solid rgba(245, 158, 11, .30);
+      border-radius: 12px; padding: 16px 18px;
+    }
+    .pj-fm h3 { margin-bottom: 8px; }
+    .pj-fm-lead { font-size: 12.5px; line-height: 1.85; color: var(--muted); }
+    .pj-fm-rrow { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin: 12px 0 12px; }
+    .pj-fm-rl { font-size: 12px; font-weight: 700; color: var(--text); }
+    .pj-fm-rs { display: flex; gap: 8px; flex-wrap: wrap; }
+    .pj-fm-r {
+      display: inline-flex; align-items: center; gap: 6px; cursor: pointer; font-family: inherit;
+      border: 1px solid var(--panel-border); background: var(--panel); color: var(--muted);
+      border-radius: 9px; padding: 7px 11px; font-size: 12.5px; line-height: 1.3;
+    }
+    .pj-fm-r:hover { border-color: #d97706; color: var(--text); }
+    .pj-fm-r.on { border-color: #d97706; background: rgba(245, 158, 11, .13); color: var(--text); font-weight: 700; }
+    .pj-fm-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 12px; }
+    .pj-fm-f { display: flex; flex-direction: column; gap: 5px; min-width: 0; }
+    .pj-fm-f:nth-child(5), .pj-fm-f:nth-child(6) { grid-column: 1 / -1; }
+    .pj-fm-l { display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 700; color: var(--text); }
+    .pj-fm-l i {
+      font-style: normal; font-size: 10px; font-weight: 700; letter-spacing: .04em;
+      color: #b45309; background: rgba(245, 158, 11, .16); border-radius: 999px; padding: 1px 6px;
+    }
+    .pj-fm-f textarea {
+      width: 100%; min-height: 54px; resize: vertical; font-family: inherit;
+      font-size: 12.5px; line-height: 1.7; color: var(--text);
+      background: var(--panel); border: 1px solid var(--panel-border); border-radius: 9px; padding: 8px 10px;
+    }
+    .pj-fm-f textarea::placeholder { color: var(--dim); }
+    .pj-fm-f textarea:focus { outline: none; border-color: #d97706; box-shadow: 0 0 0 3px rgba(245, 158, 11, .16); }
+    .pj-fm-f.is-eth textarea { background: rgba(245, 158, 11, .06); }
+    .pj-fm-foot { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-top: 12px; }
+    .pj-fm-cnt { font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; }
+    .pj-fm-cnt.done { color: var(--good); font-weight: 700; }
+    .pj-fm-sub {
+      cursor: pointer; font-family: inherit; font-size: 13px; font-weight: 700;
+      color: #fff; background: #d97706; border: 0; border-radius: 9px; padding: 8px 16px;
+    }
+    .pj-fm-sub:hover { filter: brightness(1.06); }
+    .pj-fm-msg { font-size: 12px; line-height: 1.6; color: var(--muted); }
+    .pj-fm-msg.ok { color: var(--good); font-weight: 600; }
+    .pj-fm-msg.bad { color: #b91c1c; }
+    body.dark:not(.light) .pj-fm-msg.bad { color: #fca5a5; }
+    body.dark:not(.light) .pj-fm-l i { color: #fcd34d; }
+    @media (max-width: 640px) {
+      .pj-fm-grid { grid-template-columns: 1fr; }
+      .pj-fm-f:nth-child(5), .pj-fm-f:nth-child(6) { grid-column: auto; }
+    }
+
+    /* 阶段任务底部指路：第三段的伦理追问在思政园地有整页对照 */
+    .pj-szlink { margin-top: 10px; font-size: 12px; line-height: 1.9; color: var(--muted); }
+    .pj-linkbtn {
+      cursor: pointer; font-family: inherit; font-size: 12px; font-weight: 700; color: var(--accent-text);
+      background: rgba(99, 102, 241, .10); border: 1px solid rgba(99, 102, 241, .28);
+      border-radius: 7px; padding: 2px 8px;
+    }
+    .pj-linkbtn:hover { background: rgba(99, 102, 241, .18); }
 
     /* ---- 任务书扩展：阶段动作、反思、评分要点、组内分工、合规三问 ---- */
     /* 目的：任务书要能照着做，而不只是「介绍一个项目」 */
