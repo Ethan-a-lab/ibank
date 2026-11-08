@@ -411,6 +411,59 @@
       + '</tbody></table>';
   }
 
+  /* ---------------- 8.5 矩阵：五维怎么落到六个考核环节 ----------------
+     这张表原来长在「课程项目」页里，位置是错的：项目页该回答"这个项目怎么评"，
+     "整门课的分怎么摊到六个环节、每个环节又归到哪一维"属于评价体系本身，
+     所以挪到这里，接在权重推导之后。
+     行横着加 = 大纲表3 的环节权重（10/10/10/10/10/50），
+     列竖着加 = 五维权重（35/25/10/15/15），两个方向都从单元格现算。 */
+  var MX = {
+    cols: [
+      { n: '知识整合', s: '高阶思维' },
+      { n: '决策预判', s: '风险与选择' },
+      { n: '心理韧性', s: '压力下的稳定' },
+      { n: '职业伦理', s: '价值认同' },
+      { n: '自主管理', s: '自我调节' }
+    ],
+    rows: [
+      { n: '在线学习', note: '时长 · 模块使用 · 预习完成', v: [null, null, null, null, 10] },
+      { n: '单元测验', note: '正确率 · 错题消化 · 变式重做', v: [4, 1, 2, null, 3] },
+      { n: '课堂表现', note: '发言 · 角色扮演 · 抽问应答', v: [2, 3, 3, 2, null] },
+      { n: '主题讨论', note: '伦理情境判断 + 理由', v: [null, 2, 1, 7, null] },
+      { n: '小组报告', note: '项目成果 · rubric 五维评分', v: [2, 1, 4, 1, 2] },
+      { n: '期末闭卷', note: '概念 · 综合计算 · 伦理题', v: [27, 18, null, 5, null] }
+    ]
+  };
+
+  function renderMatrix() {
+    var box = q('av-matrix');
+    if (!box) return;
+    var colSum = MX.cols.map(function (_, j) {
+      return MX.rows.reduce(function (a, r) { return a + (r.v[j] || 0); }, 0);
+    });
+    var grand = colSum.reduce(function (a, x) { return a + x; }, 0);
+    var body = MX.rows.map(function (r) {
+      var rs = r.v.reduce(function (a, x) { return a + (x || 0); }, 0);
+      return '<tr><th scope="row"><b>' + esc(r.n) + '</b><em>' + esc(r.note) + '</em></th>'
+        + r.v.map(function (x) { return x == null ? '<td class="ev-mx-z">–</td>' : '<td>' + x + '</td>'; }).join('')
+        + '<td class="ev-mx-rt">' + rs + '</td></tr>';
+    }).join('');
+
+    box.innerHTML = ''
+      + '<div class="ev-mx-wrap"><table class="ev-mx">'
+      + '<thead><tr><th class="ev-mx-ch">考核环节<em>单位：分，总分 100</em></th>'
+      + MX.cols.map(function (c) {
+        return '<th>' + esc(c.n) + '<em>' + esc(c.s) + '</em></th>';
+      }).join('')
+      + '<th class="ev-mx-rt">环节合计</th></tr></thead>'
+      + '<tbody>' + body + '</tbody>'
+      + '<tfoot><tr><th class="ev-mx-ch">五维合计<em>五列相加 = 100</em></th>'
+      + colSum.map(function (x) { return '<td>' + x + '</td>'; }).join('')
+      + '<td class="ev-mx-rt">' + grand + '</td></tr></tfoot>'
+      + '</table></div>'
+      + '<p class="ev-mx-legend">「–」表示该环节不测这一维，不是缺数据。每行横向相加 = 该环节在成绩单上的权重；每列纵向相加 = 该维在能力报告上的权重。两个方向加起来都是 100，所以不存在两套分数。</p>';
+  }
+
   /* ---------------- 9. 雷达图 ---------------- */
   function radarSVG() {
     var W = 460, H = 356, cx = 230, cy = 184, R = 100;
@@ -502,6 +555,14 @@
     var pending = 0;
     DIMS.forEach(function (d) { d.obs.forEach(function (o) { if (valOf(o) == null) pending++; }); });
 
+    /* 学生最关心的一句：现在该补哪一维。取有数据的维度里分最低的那个 */
+    var worst = null;
+    SCORED.forEach(function (d) {
+      var v = dimScore(d);
+      if (v == null) return;
+      if (!worst || v < worst.v) worst = { d: d, v: v };
+    });
+
     q('av-kpis').innerHTML = ''
       + '<div class="av-kpi' + (comp == null ? '' : (comp >= 70 ? ' ok' : ' bad')) + '"><div class="lb">综合达成度</div>'
       + '<div class="v">' + (comp == null ? '待采集' : f1(comp) + '<small>分</small>') + '</div>'
@@ -509,12 +570,14 @@
       + '<div class="av-kpi' + (under ? ' bad' : ' ok') + '"><div class="lb">未达标维度</div>'
       + '<div class="v">' + under + '<small>个</small></div>'
       + '<div class="sub">' + (under ? '低于各自达标线' : '均在达标线以上') + '</div></div>'
-      + '<div class="av-kpi"><div class="lb">有数据的观测点</div>'
-      + '<div class="v">' + (TOTAL_OBS - pending) + '<small>/' + TOTAL_OBS + '</small></div>'
-      + '<div class="sub">' + (pending ? pending + ' 项待采集' : '全部已接入') + '</div></div>'
-      + '<div class="av-kpi ok"><div class="lb">量表计入分数</div>'
-      + '<div class="v">0<small>%</small></div>'
-      + '<div class="sub">CD-RISC 仅作预警触发器</div></div>';
+      + '<div class="av-kpi"><div class="lb">已记录的行为</div>'
+      + '<div class="v">' + (TOTAL_OBS - pending) + '<small>/' + TOTAL_OBS + ' 项</small></div>'
+      + '<div class="sub">' + (pending ? pending + ' 项还没采到，缺项不拿 0 分冒充' : '全部已采集') + '</div></div>'
+      /* 第四张卡原来写的是「量表计入 0%」，那是研究者关心的事，学生看不懂也用不上。
+         换成直接回答学生最想知道的一句：现在该补哪一维。 */
+      + '<div class="av-kpi' + (worst && worst.v < worst.d.line ? ' bad' : ' ok') + '"><div class="lb">最该补的一维</div>'
+      + '<div class="v">' + (worst ? esc(worst.d.short) : '待采集') + '</div>'
+      + '<div class="sub">' + (worst ? f1(worst.v) + ' 分 · 达标线 ' + worst.d.line : '先做几道题，这里才有数') + '</div></div>';
 
     var rows = DIMS.map(function (d) {
       var v = dimScore(d);
@@ -586,7 +649,7 @@
       + '</tbody></table>'
       + kNote
       + (d.k === 'R'
-        ? '<div class="av-note">本维 10 分来自 <b>G2 内部切分</b>：课程目标 2 的 35 分没有变，其中 25 分记「预判与选择」（定价、路线押注），10 分记「压力下的稳定性」（反复试错后的收敛、回撤期调仓）。切分依据是证据来源不同，不是把 2-8、2-9 的权重拆开——G2 整体仍挂在 2-8、2-9 上。<br><b>自陈量表（CD-RISC-10）不计分</b>，只作预警；这 10 分全部来自行为记录，学生改不了也答不出「标准答案」。</div>'
+        ? '<div class="av-note">本维 10 分来自 <b>G2 内部切分</b>：课程目标 2 的 35 分没有变，其中 25 分记「预判与选择」（定价、路线押注），10 分记「压力下的稳定性」（反复试错后的收敛、回撤期调仓）。切分依据是证据来源不同，不是把 2-8、2-9 的权重拆开——G2 整体仍挂在 2-8、2-9 上。这 10 分全部来自行为记录，每个数字都能点开看到原始操作。</div>'
         : '')
       + '</div>';
   }
@@ -634,92 +697,6 @@
     }).join('');
   }
 
-  /* ---------------- 13. 权重敏感性 ---------------- */
-  function renderSens() {
-    var dw = dimWeights();
-    var st = classStat(dw);
-    var unstable = st.flipRate > 5;
-
-    q('av-sens-out').innerHTML = ''
-      + '<div class="av-kpis" style="grid-template-columns:repeat(4,minmax(0,1fr));margin-bottom:12px">'
-      + '<div class="av-kpi"><div class="lb">班级平均</div><div class="v">' + f1(st.avg) + '<small>分</small></div><div class="sub">n=' + st.n + '（示例集）</div></div>'
-      + '<div class="av-kpi"><div class="lb">及格人数</div><div class="v">' + st.pass + '<small>/' + st.n + '</small></div><div class="sub">≥60 分</div></div>'
-      + '<div class="av-kpi' + (st.flip > 0 ? ' warn' : '') + '"><div class="lb">等级翻转</div><div class="v">' + st.flip + '<small>人</small></div><div class="sub">相对 35/35/30</div></div>'
-      + '<div class="av-kpi' + (unstable ? ' bad' : ' ok') + '"><div class="lb">翻转率</div><div class="v">' + f1(st.flipRate) + '<small>%</small></div><div class="sub">阈值 5%</div></div>'
-      + '</div>'
-      + '<div class="av-flag' + (unstable ? '' : ' ok') + '"><i>' + (unstable ? '!' : '✓') + '</i><div>'
-      + (unstable
-        ? '翻转率 <b>' + f1(st.flipRate) + '%</b> 超过 5% 阈值。这套权重下结论不稳，<b>不宜直接用于评优、推免等去向性判断</b>；应先收敛档位再定稿。'
-        : '翻转率 <b>' + f1(st.flipRate) + '%</b>，在 5% 阈值内。权重小幅调整不会改变绝大多数学生的等级判定，可用于正式结论。')
-      + '</div></div>'
-      + '<table class="av-tbl" style="margin-top:14px">'
-      + '<thead><tr><th style="width:34%">维度</th><th class="n" style="width:16%">当前权重</th><th class="n" style="width:16%">默认权重</th><th class="n" style="width:18%">变化</th><th class="n" style="width:16%">对均分影响</th></tr></thead><tbody>'
-      + DIMS.filter(function (d) { return d.line > 0; }).map(function (d) {
-        var cur = dw[d.k], def = ({ K: 35, D: 25, R: 10, E: 15, S: 15 })[d.k];
-        var delta = cur - def;
-        return '<tr><td>' + esc(d.name) + '</td><td class="n"><b>' + f1(cur) + '%</b></td><td class="n">' + def + '%</td>'
-          + '<td class="n" style="color:' + (Math.abs(delta) < .05 ? 'var(--dim)' : (delta > 0 ? 'var(--av-good)' : 'var(--av-bad)')) + '">'
-          + (Math.abs(delta) < .05 ? '—' : (delta > 0 ? '+' : '') + f1(delta)) + '</td>'
-          + '<td class="n" style="color:var(--dim)">按维度均分折算</td></tr>';
-      }).join('')
-      + '</tbody></table>';
-  }
-
-  function renderSliders() {
-    var w = weights();
-    q('av-sliders').innerHTML = ''
-      + sl('G1', '课程目标 1 · 知识', state.W.G1, 10, 60)
-      + sl('G2', '课程目标 2 · 能力', state.W.G2, 10, 60)
-      + sl('G3', '课程目标 3 · 素养', state.W.G3, 10, 60)
-      + sl('mix', '目标3 内部：伦理 : 自主', state.mix, 0, 100)
-      + '<div class="av-note">当前归一化结果：目标1 <b>' + f1(w.G1) + '%</b> · 目标2 <b>' + f1(w.G2) + '%</b> · 目标3 <b>' + f1(w.G3) + '%</b>'
-      + '　→　伦理 <b>' + f1(w.E) + '%</b> · 自主 <b>' + f1(w.S) + '%</b>。拖动即重算，无需刷新。</div>';
-
-    q('av-sliders').querySelectorAll('input[type="range"]').forEach(function (inp) {
-      inp.addEventListener('input', function () {
-        var k = inp.getAttribute('data-k');
-        if (k === 'mix') state.mix = +inp.value;
-        else state.W[k] = +inp.value;
-        renderSliders();
-        renderProfile();
-        renderSens();
-      });
-    });
-
-    function sl(k, label, val, min, max) {
-      var txt = (k === 'mix') ? (val + ' : ' + (100 - val)) : String(val);
-      return '<div class="av-sl"><label>' + label + '<b>' + txt + '</b></label>'
-        + '<input type="range" data-k="' + k + '" value="' + val + '" min="' + min + '" max="' + max + '" step="1"></div>';
-    }
-  }
-
-  /* ---------------- 14. 量表定位 ---------------- */
-  function renderScale() {
-    var r = DIMS.filter(function (d) { return d.k === 'R'; })[0];
-    var rv = dimScore(r);
-    q('av-scale').innerHTML = ''
-      + '<div class="av-card">'
-      + '<h4>自陈量表 <span class="av-tag">自陈不计分</span></h4>'
-      + '<div class="av-cap">CD-RISC-10 简版 · 10 题 · 只做预警信号</div>'
-      + '<table class="av-tbl"><tbody>'
-      + '<tr><td>量表折算分</td><td class="n"><span class="av-chip gray">尚未施测</span></td></tr>'
-      + '<tr><td>同源行为指标（韧性观测）</td><td class="n"><b>' + (rv == null ? '待采集' : f1(rv)) + '</b></td></tr>'
-      + '<tr><td>差值</td><td class="n" style="color:var(--dim)">' + (rv == null ? '—' : '待量表施测后计算') + '</td></tr>'
-      + '<tr class="sum"><td>判定</td><td class="n">量表不计分 · 行为指标计 10 分</td></tr>'
-      + '</tbody></table>'
-      + '<div class="av-note">差值超过 15 分才触发一次教师约谈——自陈说“扛得住”、行为却在回撤期放大换手，这种背离才值得看一眼。量表本身零计分。</div>'
-      + '</div>'
-      + '<div class="av-card">'
-      + '<h4>量表为何不计分 <span class="av-tag">取舍</span></h4>'
-      + '<div class="av-cap">量表与行为指标分开走，理由写在评价方法公示里</div>'
-      + '<div class="av-note" style="border-left-color:var(--accent);margin-top:0">'
-      + '<b>一、量表的 10 分给了行为，不给自陈。</b>心理韧性在课程里计 10 分（G2 内部切分），但这 10 分只认行为记录：反复试错后能不能收敛、回撤期会不会乱调仓。自陈量表答得好不加分，答得差也不直接扣分。<br><br>'
-      + '<b>二、自陈项举证成本大于收益。</b>一个约 3 分的自陈项，对总分影响不到 0.5 分，却要背上整套信效度举证（n≥100 才够做因子分析，一个班 42 人不够）。<br><br>'
-      + '<b>三、量表放在预警位作用更大。</b>它不进成绩，但能决定“要不要多看一眼”。'
-      + '</div>'
-      + '</div>';
-  }
-
   /* ---------------- 15. 数据源状态条 ---------------- */
   function renderSrc() {
     var box = q('av-src');
@@ -749,11 +726,9 @@
     if (!hasRealData()) MODE = 'demo';
     else if (MODE !== 'demo') MODE = 'live';
     renderWeights();
+    renderMatrix();
     renderSrc();
     renderProfile();
-    renderSliders();
-    renderSens();
-    renderScale();
   }
   renderAll();
   window.__ibankAvRefresh = renderAll;

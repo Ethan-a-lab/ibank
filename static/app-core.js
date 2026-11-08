@@ -5756,65 +5756,6 @@ document.addEventListener('keydown', function (e) {
         });
       }
 
-      // ---------- 评价设计（板块级，所有项目共用）----------
-      // 这张表是整个板块的「评价主张」，也是它与「项目式教学」的分界线：
-      //   项目解决的是「怎么组织教学」，这里解决的是「凭什么判定学生达标」。
-      // 权重口径与课程大纲一致：过程性 50% + 终结性 50%，总数不动，
-      // 只在内部拆到「能被平台采集、能被第三方复核」的颗粒度。
-      var EVAL_FRAME = {
-        title: '评价设计 · 一个项目走四段，每一分都有出处',
-        lead: '同一批证据，只用一张表，就能同时回答两件事：分数从哪来、这些分说明什么能力。横着加是成绩单，竖着加是能力报告——不是两套分，是同一张表的两个方向。',
-        cards: [
-          {
-            key: '评什么', sub: '一张表两个方向：横着加是成绩单（大纲表3），竖着加是能力报告（五维）',
-            wide: true,
-            matrix: {
-              // 五列就是五维，一列一份分，不再有「并入」的列。
-              // 决策 35 分内部再切：预判与选择 25 + 压力下的稳定性 10，
-              // 切法依据是证据来源不同（定价/押注 vs 反复试错/回撤调仓），
-              // 不是把两个指标点的权重拆开——G2 仍是 2-8、2-9 支撑的 35 分。
-              cols: [
-                { n: '知识整合', s: '高阶思维' },
-                { n: '决策预判', s: '风险与选择' },
-                { n: '心理韧性', s: '压力下的稳定' },
-                { n: '职业伦理', s: '价值认同' },
-                { n: '自主管理', s: '自我调节' }
-              ],
-              rows: [
-                { n: '在线学习', note: '时长 · 模块使用 · 预习完成', v: [null, null, null, null, 10] },
-                { n: '单元测验', note: '正确率 · 错题消化 · 变式重做', v: [4, 1, 2, null, 3] },
-                { n: '课堂表现', note: '发言 · 角色扮演 · 抽问应答', v: [2, 3, 3, 2, null] },
-                { n: '主题讨论', note: '伦理情境判断 + 理由', v: [null, 2, 1, 7, null] },
-                { n: '小组报告', note: '项目成果 · rubric 五维评分', v: [2, 1, 4, 1, 2] },
-                { n: '期末闭卷', note: '概念 · 综合计算 · 伦理题', v: [27, 18, null, 5, null] }
-              ],
-              totalLabel: '五维合计',
-              totalSub: '五列相加 = 100',
-              total: [35, 25, 10, 15, 15],
-              legend: '「–」表示该环节不测这一维，不是缺数据。每行横向相加 = 该环节在成绩单上的权重；每列纵向相加 = 该维在能力报告上的权重。'
-            },
-            foot: '横着加，得到成绩单上的 10 / 10 / 10 / 10 / 10 / 50，与大纲表3 一字不差；竖着加，得到能力报告的 35 / 25 / 10 / 15 / 15。同一张表、两个方向，所以数学上不可能出现两套分。决策 35 分为什么要拆成 25 + 10：它们测的不是一回事——定价与路线选择看「选得对不对」，反复试错后的收敛、回撤期的调仓看「乱了之后能不能回来」。前者是判断力，后者是稳定性，混在一列里，一个抗压差但判断准的学生会被判成「决策能力好」。拆开之后，课程目标权重 35 / 35 / 30 一分没动，变的是同一目标内部的账目清不清。真正变的也只有一笔：素养类证据原来散落在「在线学习」「课堂表现」里，被折在别人的分数下，现在归到伦理与自主两栏，合计 30 分——分数没多出来，是终于被看见了。这张表定的是归属；实际算分用的是挂在环节里更细的观测点（见下方「怎么采」），逐层加总与本表一致。'
-          },
-          {
-            key: '怎么采', sub: '四种证据，全部在过程中自动产生',
-            rows: [
-              { n: '行为埋点', d: '每点开一页、每做一道题、每改一次报价都在留痕，不依赖学生自报 → 喂给 自主、知识' },
-              { n: '认知诊断', d: '错题 → 知识点映射 → 维度掌握度，定位到「哪一个概念没通」→ 喂给 知识' },
-              { n: '成果证据', d: '三份测算表、簿记定价说明、复盘一页纸，版本可回溯 → 喂给 决策、伦理' },
-              { n: 'AI 对话', d: '提问次数与问题层级，作为学习投入与思维深度的证据 → 喂给 自主' }
-            ]
-          },
-          {
-            key: '怎么用', sub: '评价不是终点，是下一轮教学的输入',
-            rows: [
-              { n: '回给学生', d: '能力达成报告：哪一维达标、哪一维欠账、下一步练什么' },
-              { n: '回给教师', d: '班级错因分布与达成率，决定下次课先讲哪一段' },
-              { n: '回给课程', d: 'rubric 按评分分歧修订；AI 初评与教师终评做一致性检验' }
-            ]
-          }
-        ]
-      };
-
       // 人机协同评分：三步。写死在这里而不是每个项目各写一遍，
       // 是因为「谁有最终解释权」属于课程制度，不属于某个项目的内容。
       var SCORING = [
@@ -5846,11 +5787,11 @@ document.addEventListener('keydown', function (e) {
         {
           id: 'byd', no: '01', name: '比亚迪：三次向市场要钱', weeks: '2 课时', kind: '贯穿式主项目',
           subtitle: 'IPO · 再融资 · 债券承销，一条真实的融资时间线',
-          role: '定价岗 2 人 + 合规岗 2 人（4 人一组）',
+          role: '三席任选其一 · 4 人一组 · 全班 10 组（发行人 5 组 / 投资者 3 组 / 监管者 2 组）',
           scenario: '比亚迪 2011 年回 A 股上市，2016 年做过一次定向增发，2026 年在银行间连发两期中期票据。同一家公司、同一个资本市场，三次向市场要钱的定价权却完全不在同一边：一次被砍到你没想到的价，一次钱拖到市场都变了，一次订单多到要按比例分。三段的原始数据老师都给你了——你要做的是把每一段的价格自己算出来、定下来，再用这三段回答一个问题：定价权到底在谁手里。',
           drivingQuestion: '同一家公司三次向市场要钱，为什么一次被砍价、一次被拖、一次被抢光？',
           pickWord: '方案', pickTitle: '先押一条路',
-          pickHint: '先押个注：假设你是比亚迪的融资负责人，账上要补一笔大额资金，你走哪条路？选完再往下做三段，第三段会揭晓真实答案，回来检验自己当初押对没有。选哪个不影响评分——影响评分的是你能不能说出为什么。',
+          pickHint: '先押个注：假设你是比亚迪的融资负责人，账上要补一笔大额资金，你走哪条路？先说一句——揭晓时你会发现，这三条路比亚迪全都真走过。所以这里没有「押错」这回事，要判断的是：你押的这一条，在什么条件下才成立、哪一年只能走它。选哪个不影响评分，影响评分的是你能不能把条件说清楚。',
           options: [
             {
               code: 'A', name: 'A 股定向增发', tag: '股权 · 不还本 · 要审批',
@@ -5876,64 +5817,67 @@ document.addEventListener('keydown', function (e) {
             '一条自查口径：你的定价要能对上可比数据，你的理由要能被别人复算'
           ],
           team: [
-            { role: '定价岗', duty: '算价格、定利率，把每一个数字追回到原始来源' },
-            { role: '合规岗', duty: '盯住摊薄、信息披露与募集资金用途，准备被问询时的答复' }
+            { role: '发行人席 · 5 组', duty: '算价格、选路、定利率 —— 你们是提方案的一方，每个数字都要能追回原始数据', power: '提案权 · 撤回权：问询答不上来可以当场撤回方案，改投另一条路' },
+            { role: '投资者席 · 3 组', duty: '判断这个价敢不敢买、这个折价接不接 —— 你们是出钱的一方，任务是砍价，不是配合', power: '报价权 · 弃配权：可以报低价、可以直接不买' },
+            { role: '监管者席 · 2 组', duty: '盯信息披露、摊薄、利益冲突 —— 你们不提案也不出钱，只问，问到答不上来为止', power: '问询权 · 中止权：问询站不住，方案当场中止' }
           ],
           stages: [
             {
-              name: '第一段 · IPO：市场给你定价', week: '第 1 课时 · 前 20 分钟', output: '《IPO 定价测算表》', tool: 'p-valuation',
-              evidence: '你算出的价格区间、你定的发行价，与课上揭晓的真实发行价并排摆着——能看出你是「按同行拍的」还是「按公司自己算的」',
+              name: '第一段 · IPO：市场给你定价', week: '第 1 课时 · 前 18 分钟', output: '《IPO 定价测算表》', tool: 'p-valuation',
+              evidence: '发行人算出的区间与定价、投资者给出的买入上限、监管者追问的那条「凭什么破下沿」——三样摆在一起，就能看出你是按同行拍的，还是按公司自己算的',
               todo: [
-                '用比亚迪上市前一年的净利润除以发行前股本，算出每股收益（数据在工作包里）',
-                '用 4 家可比公司的市盈率上下限乘每股收益，得到你自己的价格区间',
-                '在区间里定一个数，写下为什么取它——先别找答案，真实发行价第 2 课时才揭晓',
-                '把缺口算出来：拟募 21.92 亿元是招股书写的，等你定完发行价，再算实际募资差几个百分点、缺口靠什么补'
+                '【发行人】用上市前一年净利润除以发行前股本，算出每股收益；再乘 4 家可比公司的市盈率上下限，得到你自己的价格区间',
+                '【发行人】在区间里定一个数，写下为什么取它——真实发行价要到第 2 课时才揭晓',
+                '【投资者】给这个价一个「我最多出到多少」的上限，说清跌破哪里你就不买了',
+                '【监管者】查一件事：主承销商给的询价区间下沿是 21.08 元，最后却发在更低的价上——凭什么可以破下沿'
               ],
               reflect: '主承销商给的询价区间下沿是 21.08 元，最后却发在更低的价上。是承销商故意报高了，还是市场当时就只肯给这个价？',
               answer: '发行价 18.00 元，比询价区间下沿 21.08 元还低 15%；拟募 21.92 亿元，实募 14.22 亿元，缺口 35%。'
             },
             {
-              name: '第二段 · 再融资：时间也是成本', week: '第 1 课时 · 后 25 分钟', output: '《再融资方案对比表》',
-              evidence: '三条路的「到账时间 × 摊薄幅度 × 折价或利率」三栏对比，以及你放弃的那条路为什么可以让——这一栏最能看出取舍能力',
+              name: '第二段 · 再融资：三条路，三个条件', week: '第 1 课时 · 后 19 分钟（上到这里下课）', output: '《再融资方案对比表》',
+              evidence: '三派的陈述与互相质询：你说这条路成立要满足什么条件，对面说出它在哪一年根本走不通——这一栏最能看出取舍，也最能看出有没有读进去制度差异',
               todo: [
-                '把定增、H 股配售、银行间发债三条路的资金到账时间各写一个数（工作包给了区间）',
-                '算 2016 年那次定增：锁价 57.40 元 × 2.61 亿股，预案约 150 亿元——预案金额与最终到账差多少，差在哪一步',
-                '对照 2021 年 H 股配售：225 港元折让 7.8%、276 港元折让 6.9%，回答「为什么愿意折掉 7%」',
-                '结合你开头押的那条路，现在有没有改主意，改的依据是什么'
+                '【发行人】按你抽到的那条路，写清它成立的条件：什么公司、什么时点、什么样的市场环境才走得通',
+                '【发行人】补齐四栏：到账时间 × 摊薄幅度 × 折价或利率 × 谁审、审多久、要披露什么',
+                '【投资者】给出你这条路的折价底线：折让超过多少你就不接，理由要落在可比数据上',
+                '【监管者】把三套审核口径列出来：定增过谁、H 股配售过谁、银行间中票过谁——三者不是同一个门',
+                '【三席】交叉质询：每组准备一句「对方那条路在这一年根本走不通」的致命一问'
               ],
               reflect: '一条路要多付 7% 的折价但下周到账，另一条不用折价但要走一年多的流程。你按什么决定？',
-              answer: '2016 年定增：预案锁价 57.40 元 × 2.61 亿股 ≈ 150 亿元，实际到账 143.69 亿元，从预案到资金到账 13 个月。'
+              answer: '三条路比亚迪全走过：2016 年定增，锁价 57.40 元 × 2.61 亿股 ≈ 150 亿元，实际到账 143.69 亿元，从预案到资金到账 13 个月；2021 年两次 H 股配售，折让 7.8% 与 6.9%，几天内完成；2026 年在银行间发中票，两周内完成。所以没有「押错」——只有「哪一年只能走这条」。'
             },
             {
-              name: '第三段 · 债券承销：这次轮到你定价', week: '第 2 课时 · 前 30 分钟', output: '《簿记建档定价说明》', tool: 'p-bond',
-              evidence: '你在仿真里定出的利率、认购倍数、边际档配售比例，与课上揭晓的真实票面利率、真实倍数逐项对照',
+              name: '第三段 · 簿记对抗：这次轮到三方定价', week: '第 2 课时 · 前 25 分钟', output: '《簿记建档定价说明》', tool: 'p-bond',
+              evidence: '你定的利率、报的量价、喊停的那一问，与真实票面利率、真实倍数逐项对照——三方在同一张簿记表上留下的痕迹，就是这一段全部的证据',
               todo: [
-                '打开「债券簿记建档仿真」，11 家机构已经报好价，先别动，看累加到 50 亿落在哪一档',
-                '把报价往低压：每压 1bp 记一次认购倍数和配售比例，找出「再压就要发不出去」的那个点',
-                '定下你的利率，写三条理由：可比债券什么价、你的信用资质值多少 bp、当时市场缺不缺资产',
-                '把你的定价折成钱：1bp 按 50 亿 3 年算是 150 万元；等老师报出发行利率，算你偏离几个 bp、差多少钱'
+                '【发行人】打开「债券簿记建档仿真」，11 家机构已报好价：先别动，看累加 50 亿落在哪一档，再决定压还是不压',
+                '【发行人】往低压：每压 1bp 记一次认购倍数和配售比例，找出「再压就要发不出去」的那个点——记住 1bp 按 50 亿 3 年算是 150 万元',
+                '【投资者】按你的资金成本报量报价，可以报低价、可以直接弃配——发行人拿你没办法，但你弃配之后这期就发不满',
+                '【监管者】盯住承销团自营获配比例：如果一半以上是承销团自己买的，这算不算「抢光」？该不该披露？',
+                '【发行人】定下利率，写三条理由：可比债券什么价、你的信用资质值多少 bp、当时市场缺不缺资产'
               ],
               reflect: '既然压 1bp 就省 150 万元，为什么比亚迪没有直接压到 1.50% 的下限？',
               answer: '26比亚迪MTN003(科创债)：50 亿元 / 3 年，申购区间 1.50%—2.00%，最终票面 1.72%。合规申购 18 家 109.2 亿元（2.18 倍，最高报价 2.00%、最低 1.62%），有效申购 11 家 56.9 亿元（1.14 倍）；承销团自营资金获配 26 亿元（52%）。'
             },
             {
-              name: '第四段 · 复盘：定价权究竟在谁手里', week: '第 2 课时 · 最后 15 分钟', output: '《一页纸复盘》',
-              evidence: '三段各自的定价权归属判断 + 一条能迁移到别的公司的规则——这一段是唯一能测「能否把三次经验归纳成一条规律」的证据',
+              name: '第四段 · 复盘：定价权究竟在谁手里', week: '第 2 课时 · 最后 12 分钟', output: '《一页纸复盘》',
+              evidence: '三段各自的定价权归属判断 + 一条能迁移到别的公司的规则 + 监管者划下的那条红线——这一段是唯一能测「能否把三次经验归纳成一条规律」的证据',
               todo: [
                 '把三段并排列出来：谁先开的价、最后谁说了算、差多少',
                 '回答驱动问题：用一句话说清「股权融资和债权融资，定价权为什么不在同一边」',
                 '用课上揭晓的三段真实结果，回填你每一段的偏离，标出最大的那一处',
-                '给出一条能用到别的公司身上的规则：什么情况下该发股、什么情况下该发债'
+                '给出一条能用到别的公司身上的规则：什么条件下该发股、什么条件下该发债'
               ],
               reflect: '明天让你给另一家公司做融资顾问，你最先要问的三个问题是什么？',
               answer: '股权融资的定价权在买方（询价、折价、等批复），债权融资的定价权落在簿记现场边际的那一档——同一家发行人，定价权不在同一边。'
             }
           ],
           deliverables: [
-            '《IPO 定价测算表》（第一段当堂交，含每股收益、市盈率区间、你定的价与缺口测算）',
-            '《再融资方案对比表》（第二段当堂交，三条路的时间与成本对照）',
-            '《簿记建档定价说明》（第三段当堂交，含你定的利率、压价过程与偏离分析）',
-            '《一页纸复盘》（课后提交，回答驱动问题）'
+            '《IPO 定价测算表》（第一段当堂交：发行人交区间与定价，投资者交买入上限，监管者交下沿质询）',
+            '《再融资方案对比表》（第二段当堂交：到账时间 × 摊薄 × 折价或利率 × 谁审、审多久、披露什么）',
+            '《簿记建档定价说明》（第三段当堂交：你定的利率、压价或报价过程、偏离分析、监管质询记录）',
+            '《一页纸复盘》（课后提交，回答驱动问题，并给出监管者划的那条红线）'
           ],
           rubric: [
             { dim: '知识整合', w: 35, points: '算得对：每股收益、市盈率区间、缺口比例、bp 折算四项无误，每个数字都能追到原始数据', judge: 'AI 可自动核对（算式与数据源可机械比对）' },
@@ -5942,16 +5886,17 @@ document.addEventListener('keydown', function (e) {
             { dim: '合规伦理', w: 15, points: '指出方案里的利益冲突：谁被摊薄、谁承担风险、信息披露够不够——这条只能定性判，不折算成分数细则', judge: '教师终评 + 组间质询记录' },
             { dim: '自主学习', w: 15, points: '过程留痕：三份测算表都在，且能看到修正痕迹——改过哪个数、为什么改，比一次做对更能说明在学', judge: 'AI 初评（比对历史提交版本）+ 教师抽检' }
           ],
-          showcase: '班内听证：抽三组分别陈述「我的 IPO 定价」「我选的再融资路径」「我定的票面利率」，其余组以投资者和监管两种身份各提一问',
+          showcase: '班内听证：发行人席抽两组陈述「我的定价与选路」，投资者席抽一组报「我为什么只出这个价」，监管者席当场问询——问不住的方案要当场撤回，改走另一条路',
           // 课堂现场：课上学生真正要点的几个动作，直接固定在任务书最上方。
           classroom: {
             title: '课堂现场 · 两课时怎么走',
             steps: [
-              { n: 1, label: '课前 · 读数据、押一条路', note: '线上 10 分钟，课上不占时间' },
-              { n: 2, label: '第1课时 · 算 IPO 价格区间', tool: 'p-valuation', note: '自己算完，答案留到第2课时' },
-              { n: 3, label: '第1课时 · 三条再融资路对比', note: '当堂交表，不展开讲' },
-              { n: 4, label: '第2课时 · 亲手定一个利率', tool: 'p-bond', note: '一路压价，压到快发不出去为止' },
-              { n: 5, label: '第2课时 · 揭晓 + 复盘答辩', note: '答案由教师投屏，学生只交偏离分析' }
+              { n: 1, label: '课前 · 读数据、押一条路、填组号', note: '线上 10 分钟，课上不占时间' },
+              { n: 2, label: '第1课时 · 前 8 分钟：三派就位', note: '发行人 5 组 · 投资者 3 组 · 监管者 2 组' },
+              { n: 3, label: '第1课时 · 18 分钟算 IPO 价格', tool: 'p-valuation', note: '发行人定价、投资者给买入上限、监管者查下沿' },
+              { n: 4, label: '第1课时 · 19 分钟三派辩论', note: '下课铃响在这儿，答案一句不揭' },
+              { n: 5, label: '第2课时 · 25 分钟簿记对抗', tool: 'p-bond', note: '发行人压价、投资者报量、监管者查自营获配' },
+              { n: 6, label: '第2课时 · 8 分钟揭晓 + 12 分钟复盘', note: '答案投屏，学生只交偏离分析' }
             ]
           },
           chapters: ['第3章', '第4章', '第5章'],
@@ -5997,6 +5942,18 @@ document.addEventListener('keydown', function (e) {
         try { localStorage.setItem(PICK_KEY, JSON.stringify(o)); } catch (e) {}
       }
 
+      // 课堂分组号：本机存一个 1—12 的组号，随每次押注一起上报。
+      // 目的：教师不必逐组巡查，后台直接按组聚合出「哪几组押 A、哪几组押 C、哪组还没押」。
+      // 为什么不进 users 表：组号是每次课临时分的，课前由学生自己填一次最快，
+      // 写进 detail 就够了（events.detail 已在 v62 探测过，无需加列）。
+      var GROUP_KEY = 'ibank_project_group';
+      function groupOf() { try { return localStorage.getItem(GROUP_KEY) || ''; } catch (e) { return ''; } }
+      function setGroup(g) {
+        g = String(g == null ? '' : g).replace(/[^\d]/g, '').slice(0, 2);
+        try { if (g) localStorage.setItem(GROUP_KEY, g); else localStorage.removeItem(GROUP_KEY); } catch (e) {}
+        return g;
+      }
+
       // 状态循环：未开始 → 进行中 → 已完成 → 未开始
       function cycleState(id) {
         var st = loadState(), cur = st[id] || 'todo';
@@ -6015,86 +5972,7 @@ document.addEventListener('keydown', function (e) {
       var elChain = document.getElementById('pj-chain');
       var elList = document.getElementById('pj-list');
       var elDetail = document.getElementById('pj-detail');
-      var elEval = document.getElementById('pj-eval');
       if (!elChain || !elList || !elDetail) return;   // 页面未引入新板块时静默退出
-
-      // ---------- 视图零：评价设计三栏（评什么 / 怎么采 / 怎么用） ----------
-      // 放在项目链之前：学生先知道「这门课怎么判我」，再看「我要做什么」。
-      function renderEval() {
-        var el = document.getElementById('pj-eval');
-        if (!el) return;
-        // 一行渲染一个条目：名称 + 权重徽标 + 说明
-        function rowHtml(r) {
-          return '<li><div class="ev-r-h"><b>' + esc(r.n) + '</b>'
-            + (r.w != null ? '<i class="ev-w">' + r.w + '%</i>' : '')
-            + '</div><span>' + esc(r.d) + '</span></li>';
-        }
-        el.innerHTML = '<div class="ev-head"><h3>' + esc(EVAL_FRAME.title) + '</h3>'
-          + '<p>' + esc(EVAL_FRAME.lead) + '</p></div>'
-          + '<div class="ev-grid">'
-          + EVAL_FRAME.cards.map(function (c) {
-            // 带 matrix 的卡：行=考核环节，列=能力维度。
-            // 行列合计都由单元格现算，保证「横竖两个方向必然自洽」，
-            // 数据改一个格，两边的合计自动跟着变，不会出现两套分。
-            if (c.matrix) {
-              var m = c.matrix;
-              var colSum = m.cols.map(function (_, j) {
-                return m.rows.reduce(function (a, r) { return a + (r.v[j] || 0); }, 0);
-              });
-              var grand = colSum.reduce(function (a, x) { return a + x; }, 0);
-              var body = m.rows.map(function (r) {
-                var rowSum = r.v.reduce(function (a, x) { return a + (x || 0); }, 0);
-                return '<tr><th scope="row"><b>' + esc(r.n) + '</b>'
-                  + (r.note ? '<em>' + esc(r.note) + '</em>' : '') + '</th>'
-                  + r.v.map(function (x) {
-                    return x == null ? '<td class="ev-mx-z">–</td>' : '<td>' + x + '</td>';
-                  }).join('')
-                  + '<td class="ev-mx-rt">' + rowSum + '</td></tr>';
-              }).join('');
-              return '<div class="ev-card wide">'
-                + '<div class="ev-k">' + esc(c.key) + '</div>'
-                + '<div class="ev-sub">' + esc(c.sub) + '</div>'
-                + '<div class="ev-mx-wrap"><table class="ev-mx">'
-                + '<thead><tr><th class="ev-mx-ch">考核环节<em>单位：分，总分 100</em></th>'
-                + m.cols.map(function (x) {
-                  return '<th>' + esc(x.n) + (x.s ? '<em>' + esc(x.s) + '</em>' : '') + '</th>';
-                }).join('')
-                + '<th class="ev-mx-rt">环节合计</th></tr></thead>'
-                + '<tbody>' + body + '</tbody>'
-                + '<tfoot><tr><th class="ev-mx-ch">' + esc(m.totalLabel || '维度合计')
-                + '<em>' + esc(m.totalSub || '竖着加') + '</em></th>'
-                + colSum.map(function (x) { return '<td>' + x + '</td>'; }).join('')
-                + '<td class="ev-mx-rt">' + grand + '</td></tr></tfoot>'
-                + '</table></div>'
-                + (m.legend ? '<p class="ev-mx-legend">' + esc(m.legend) + '</p>' : '')
-                + (c.foot ? '<p class="ev-note">' + esc(c.foot) + '</p>' : '')
-                + '</div>';
-            }
-            // 带 groups 的卡：一条读法一栏，左右并置
-            if (c.groups) {
-              return '<div class="ev-card wide">'
-                + '<div class="ev-k">' + esc(c.key) + '</div>'
-                + '<div class="ev-sub">' + esc(c.sub) + '</div>'
-                + '<div class="ev-2col">'
-                + c.groups.map(function (g) {
-                  return '<div class="ev-grp">'
-                    + '<div class="ev-grp-h">' + esc(g.h)
-                    + (g.badge ? '<em>' + esc(g.badge) + '</em>' : '') + '</div>'
-                    + (g.note ? '<div class="ev-grp-note">' + esc(g.note) + '</div>' : '')
-                    + '<ul class="ev-rows">' + g.rows.map(rowHtml).join('') + '</ul>'
-                    + '</div>';
-                }).join('')
-                + '</div>'
-                + (c.foot ? '<p class="ev-note">' + esc(c.foot) + '</p>' : '')
-                + '</div>';
-            }
-            return '<div class="ev-card">'
-              + '<div class="ev-k">' + esc(c.key) + '</div>'
-              + '<div class="ev-sub">' + esc(c.sub) + '</div>'
-              + '<ul class="ev-rows">' + c.rows.map(rowHtml).join('') + '</ul></div>';
-          }).join('')
-          + '</div>';
-      }
 
       // ---------- 视图一：项目链（横向流水线） ----------
       function renderChain() {
@@ -6213,7 +6091,8 @@ document.addEventListener('keydown', function (e) {
 
         // 组内分工：两人一组也要分岗，否则永远是同一个人在动手
         var teamHtml = (p.team || []).map(function (t) {
-          return '<div class="pj-team-row"><b>' + esc(t.role) + '</b><span>' + esc(t.duty) + '</span></div>';
+          return '<div class="pj-team-row"><b>' + esc(t.role) + '</b><span>' + esc(t.duty) + '</span>'
+            + (t.power ? '<span class="pj-team-power">' + esc(t.power) + '</span>' : '') + '</div>';
         }).join('');
 
         // 合规三问：把监管问询前置进任务书，第 8、9 章的相关要求由此进入项目
@@ -6279,6 +6158,10 @@ document.addEventListener('keydown', function (e) {
           + '<section class="pj-sec pj-dq"><h3>驱动问题</h3><p>' + reveal(esc(p.drivingQuestion)) + '</p></section>'
 
           + (optHtml ? '<section class="pj-sec"><h3>' + esc(p.pickTitle || '先选一个标的') + '</h3>'
+            + '<div class="pj-grp"><label for="pj-group-in">本组编号</label>'
+            + '<input id="pj-group-in" type="text" inputmode="numeric" maxlength="2" autocomplete="off"'
+            + ' data-pj-group placeholder="1—12" value="' + esc(groupOf()) + '" />'
+            + '<span>填一次就够，只用来把你们这组的判断送到教师后台，<b>不参与评分</b></span></div>'
             + '<div class="pj-opts">' + optHtml + '</div>'
             + '<p class="pj-tip">' + reveal(esc(p.pickHint || '')) + '</p></section>' : '')
 
@@ -6305,7 +6188,7 @@ document.addEventListener('keydown', function (e) {
 
           + '</div><aside class="pj-dside">'
 
-          + '<div class="pj-box"><h4>你是谁 · 组里谁干什么</h4>'
+          + '<div class="pj-box"><h4>你是哪一席 · 手里有什么权力</h4>'
           + '<p class="pj-role">' + esc(p.role) + '</p>'
           + '<div class="pj-team">' + teamHtml + '</div></div>'
 
@@ -6373,7 +6256,7 @@ document.addEventListener('keydown', function (e) {
             else {
               pk.classList.add('on');
               setPick(ppid, pcode);
-              if (window.__ibankTrack) window.__ibankTrack('project', { project: ppid, pick: pcode });
+              if (window.__ibankTrack) window.__ibankTrack('project', { project: ppid, pick: pcode, group: groupOf() });
             }
             return;
           }
@@ -6425,13 +6308,29 @@ document.addEventListener('keydown', function (e) {
             return;
           }
         });
+        // 组号：与押注分开监听。用 input 而非 click，学生打完两位数字就已经存好，
+        // 不需要按任何「保存」按钮——课堂上少一个动作就少一次卡顿。
+        // 若学生先选路、后填组号，这里补报一条，保证后台能把这组归到正确编号下。
+        root.addEventListener('input', function (e) {
+          var gi = e.target.closest('[data-pj-group]');
+          if (!gi) return;
+          var g = setGroup(gi.value);
+          if (g !== gi.value) gi.value = g;          // 过滤非数字与超长，光标不跳位
+          var on = root.querySelector('.pj-opt.on[data-pj-pick]');
+          if (g && on && window.__ibankTrack) {
+            window.__ibankTrack('project', {
+              project: on.getAttribute('data-pj-pick'),
+              pick: on.getAttribute('data-pj-code'),
+              group: g
+            });
+          }
+        });
       }
 
       // ---------- 首次进入时渲染 ----------
       var tab = document.querySelector('.tab-btn[data-page="p-project"]');
       if (tab) tab.addEventListener('click', function () { showList(); });
 
-      renderEval();
       renderChain();
       renderList();
       window.__ibankProjects = PROJECTS;   // 便于后台统计或其他模块引用

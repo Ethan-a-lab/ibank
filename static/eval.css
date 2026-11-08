@@ -60,6 +60,30 @@ body.dark:not(.light) #p-eval {
 }
 #p-eval .av-tabs button:hover { color: var(--text); border-color: var(--accent); }
 #p-eval .av-tabs button.on { background: var(--accent-solid); border-color: transparent; color: #fff; }
+/* 页签分两组：左边是学生自己要看的两页，右边是给教师/评审看的推导与校验。
+   分隔线 + 一行小字标签，让学生一眼知道"哪些不用点"。 */
+#p-eval .av-tabs-sep {
+  width: 1px; height: 20px; align-self: center;
+  background: var(--panel-border); margin: 0 4px;
+}
+#p-eval .av-tabs-lb {
+  align-self: center; font-size: 11.5px; color: var(--dim);
+  margin-right: 2px; white-space: nowrap;
+}
+#p-eval .av-tabs button[data-t="w"],
+#p-eval .av-tabs button[data-t="s"],
+#p-eval .av-tabs button[data-t="q"] {
+  border-style: dashed; color: var(--dim); font-size: 12px; padding: 6px 13px;
+}
+#p-eval .av-tabs button[data-t="w"].on,
+#p-eval .av-tabs button[data-t="s"].on,
+#p-eval .av-tabs button[data-t="q"].on { color: #fff; border-style: solid; }
+#p-eval .av-tabs button[data-t="all"] { margin-left: auto; border-style: dashed; }
+@media (max-width: 720px) {
+  #p-eval .av-tabs-sep { display: none; }
+  #p-eval .av-tabs-lb { width: 100%; margin: 4px 0 0; }
+  #p-eval .av-tabs button[data-t="all"] { margin-left: 0; }
+}
 #p-eval .av-blk[hidden] { display: none !important; }
 
 #p-eval .av-grid2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
@@ -158,30 +182,12 @@ body.dark:not(.light) #p-eval {
 #p-eval .av-goal .gv { font-size: 22px; font-weight: 700; font-variant-numeric: tabular-nums; }
 #p-eval .av-goal .gv small { font-size: 11.5px; font-weight: 400; color: var(--dim); margin-left: 4px; }
 
-/* ---------- 滑杆 ---------- */
-#p-eval .av-sl { margin-bottom: 12px; }
-#p-eval .av-sl label {
-  display: flex; align-items: baseline; gap: 8px; font-size: 12.5px; color: var(--muted); margin-bottom: 5px;
-}
-#p-eval .av-sl label b { color: var(--text); font-variant-numeric: tabular-nums; margin-left: auto; font-size: 13px; }
-#p-eval .av-sl input[type="range"] { width: 100%; accent-color: var(--accent); cursor: pointer; }
-
 /* ---------- 提示条 ---------- */
 #p-eval .av-note {
   font-size: 12px; line-height: 1.7; color: var(--muted);
   border-left: 2px solid var(--panel-border); padding-left: 11px; margin-top: 12px;
 }
 #p-eval .av-note b { color: var(--text); }
-#p-eval .av-flag {
-  display: flex; gap: 9px; align-items: flex-start; font-size: 12.5px; line-height: 1.65;
-  border-radius: 10px; padding: 10px 13px; margin-top: 12px;
-  background: rgba(185, 28, 28, .07); color: var(--text);
-  border: 1px solid rgba(185, 28, 28, .22);
-}
-#p-eval .av-flag.ok { background: rgba(15, 118, 110, .07); border-color: rgba(15, 118, 110, .22); }
-#p-eval .av-flag i { flex: 0 0 auto; font-style: normal; font-weight: 700; color: var(--av-bad); }
-#p-eval .av-flag.ok i { color: var(--av-good); }
-
 /* ---------- 雷达 ---------- */
 #p-eval .av-radar-wrap { text-align: center; }
 #p-eval #av-radar { width: 100%; max-width: 440px; height: auto; display: block; margin: 0 auto; }
@@ -192,14 +198,56 @@ body.dark:not(.light) #p-eval {
 #p-eval .av-legend span { display: inline-flex; align-items: center; gap: 5px; }
 #p-eval .av-legend i { width: 14px; height: 0; border-top-width: 2px; border-top-style: solid; display: inline-block; }
 
-/* ---------- 页脚出处 ---------- */
+/* ---------- 页脚出处（默认收起，学生看不到这三行小字） ---------- */
 #p-eval .av-foot {
   margin-top: 26px; padding-top: 14px; border-top: 1px dashed var(--panel-border);
   font-size: 11.5px; color: var(--dim); line-height: 1.85;
 }
+#p-eval .av-foot > summary {
+  cursor: pointer; list-style: none; user-select: none;
+  font-size: 12px; color: var(--muted); font-weight: 600;
+}
+#p-eval .av-foot > summary::-webkit-details-marker { display: none; }
+#p-eval .av-foot > summary::before { content: '▸ '; color: var(--dim); }
+#p-eval .av-foot[open] > summary::before { content: '▾ '; }
+#p-eval .av-foot > summary:hover { color: var(--accent-text); }
+#p-eval .av-foot-in { margin-top: 8px; }
 #p-eval .av-foot b { color: var(--muted); font-weight: 600; }
 
 @media (max-width: 900px) {
   #p-eval .av-grid2, #p-eval .av-grid3 { grid-template-columns: 1fr; }
   #p-eval .av-kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
+
+/* ---------- 五维矩阵：行=考核环节（横加=成绩单），列=五维（竖加=能力报告） ---------- */
+#p-eval .ev-mx-wrap { margin-top: 12px; overflow-x: auto; }
+#p-eval .ev-mx {
+  width: 100%; min-width: 560px; border-collapse: collapse;
+  font-size: 13px; table-layout: fixed;
+}
+#p-eval .ev-mx thead th { width: 12.6%; }
+#p-eval .ev-mx thead th:first-child { width: 24%; }
+#p-eval .ev-mx thead th:last-child { width: 13%; }
+#p-eval .ev-mx th, #p-eval .ev-mx td {
+  padding: 7px 9px; text-align: center; font-weight: 400;
+  border-bottom: 1px solid var(--panel-border); color: var(--text);
+}
+#p-eval .ev-mx .ev-mx-ch { text-align: left; }
+#p-eval .ev-mx thead th {
+  font-size: 11.5px; font-weight: 600; color: var(--accent-text);
+  padding-bottom: 8px; vertical-align: bottom;
+}
+#p-eval .ev-mx th em {
+  display: block; font-style: normal; font-weight: 400;
+  font-size: 10.5px; line-height: 1.4; color: var(--muted); margin-top: 2px;
+}
+#p-eval .ev-mx tbody th { text-align: left; font-weight: 600; }
+#p-eval .ev-mx tbody td { font-variant-numeric: tabular-nums; font-weight: 500; }
+#p-eval .ev-mx-z { color: var(--dim); font-weight: 400; font-size: 11.5px; }
+#p-eval .ev-mx .ev-mx-rt { font-weight: 700; background: rgba(99, 102, 241, .05); white-space: nowrap; }
+#p-eval .ev-mx-legend { margin-top: 8px; font-size: 11px; line-height: 1.6; color: var(--muted); }
+#p-eval .ev-mx tfoot th, #p-eval .ev-mx tfoot td {
+  font-weight: 700; background: rgba(99, 102, 241, .05);
+}
+#p-eval .ev-mx tfoot th { text-align: left; }
+#p-eval .ev-note { margin-top: 10px; font-size: 11.5px; line-height: 1.7; color: var(--muted); }

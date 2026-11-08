@@ -181,7 +181,19 @@
         };
         // v62：detail 承载「选了什么 / 写了什么理由」这类既有字段塞不下的自定义值。
         //   需要 events 表有 detail 列；列不存在时下面的探测会把它摘掉，绝不因此丢掉整条记录。
-        if (payload.detail != null) rec.detail = String(payload.detail).slice(0, 500);
+        // v63 修复：项目式教学（押注 / 阶段推进 / 外链提交）过去只传 project、pick、action、via，
+        //   而 rec 白名单里没有这些键，它们也没进 detail —— 结果云端只落一条 type='project' 的空记录，
+        //   教师后台因此看不到「哪一组押了哪条路」。现在把白名单以外的自定义键统一压进 detail，
+        //   原样保留键名（project / pick / group / action / via / state），后台直接按字段聚合，无需给表加列。
+        var extra = {};
+        Object.keys(payload).forEach(function (k) {
+          if (payload[k] == null) return;
+          if (k === 'chapter' || k === 'qtype' || k === 'correct' || k === 'module' ||
+            k === 'duration' || k === 'detail') return;
+          extra[k] = String(payload[k]).slice(0, 40);
+        });
+        if (Object.keys(extra).length) rec.detail = JSON.stringify(extra);
+        else if (payload.detail != null) rec.detail = String(payload.detail).slice(0, 500);
         // v58.7：教师/管理员自己的行为**不进学习统计**（云端与本机镜像都跳过）。
         //   病根：教师日常备课点测、演示点击被 track 逐条双写，攒成几百条垃圾事件
         //   混进看板（习题 10822 / 问答 6403 的零头、甚至教师 uid 混进「覆盖学生」）。
@@ -913,6 +925,147 @@ console.log('%c[iBank 数据自检]', 'font-weight:bold', out);
         setTimeout(function () { URL.revokeObjectURL(url); }, 1500);
       }
 
+      // ===== v63 · 比亚迪项目「小组押注」看板 =====
+      // 教学目的：教师不再逐组走过去问「你们押哪条路」，抬头看这一块就知道
+      //   三派各几组、哪一组内部还没谈拢、谁还没押。
+      // 数据源与 4.3 记录卡同源（events.type = 'project'），不掺演示数据。
+      var PJ_ID = 'byd';
+      var PJ_LABEL = { A: 'A 股定增', B: 'H 股配售', C: '银行间中票' };
+      var pjBetRows = [];
+      var pjBetStamp = 0;
+
+      // 解析押注事件：同一学生改主意时以最新一条为准；
+      // 同一组里不同人押不同路是正常现象（说明组内还没谈拢），要原样保留、单独标出
+      function parseBetEvents(list) {
+        var byUid = {};
+        (list || []).forEach(function (e) {
+          if (!e || e.type !== 'project' || !e.detail) return;
+          var d = null;
+          try { d = typeof e.detail === 'string' ? JSON.parse(e.detail) : e.detail; } catch (err) { return; }
+          if (!d || d.project !== PJ_ID || !d.pick) return;
+          var ts = toMs(e.ts), uid = e.uid || 'anon';
+          if (byUid[uid] && byUid[uid].ts > ts) return;
+          byUid[uid] = {
+            uid: uid,
+            pick: String(d.pick).toUpperCase(),
+            group: String(d.group == null ? '' : d.group).trim(),
+            ts: ts
+          };
+        });
+        return Object.keys(byUid).map(function (k) { return byUid[k]; });
+      }
+
+      // 按组出矩阵：一行一组，直接看出这组统一了没有
+      function pjGroupTable(rows) {
+        var g = {};
+        rows.forEach(function (r) { var k = r.group || ''; (g[k] = g[k] || []).push(r); });
+        var keys = Object.keys(g).filter(function (k) { return k; }).sort(function (a, b) { return (+a || 99) - (+b || 99); });
+        if (g['']) keys.push('');
+        var html = '<table class="pj-bt-tb"><thead><tr><th>组号</th><th>已押</th><th>押注分布</th><th>状态</th></tr></thead><tbody>';
+        keys.forEach(function (k) {
+          var arr = g[k], c = { A: 0, B: 0, C: 0, '?': 0 };
+          arr.forEach(function (r) { c[PJ_LABEL[r.pick] ? r.pick : '?']++; });
+          var dist = ['A', 'B', 'C'].filter(function (x) { return c[x]; })
+            .map(function (x) { return PJ_LABEL[x] + ' ' + c[x]; }).join(' · ')
+            + (c['?'] ? (c.A + c.B + c.C ? ' · ' : '') + '其他 ' + c['?'] : '');
+          var kinds = ['A', 'B', 'C', '?'].filter(function (x) { return c[x]; }).length;
+          var tag = !k ? '<span class="pj-bt-tag none">待补组号</span>'
+            : (kinds > 1 ? '<span class="pj-bt-tag split">组内分歧</span>'
+              : '<span class="pj-bt-tag ok">已统一</span>');
+          html += '<tr><td class="num">' + (k ? '第 ' + esc(k) + ' 组' : '—') + '</td>'
+            + '<td class="num">' + arr.length + '</td><td>' + esc(dist) + '</td><td>' + tag + '</td></tr>';
+        });
+        return html + '</tbody></table>';
+      }
+
+      function renderPjBet(list, note) {
+        var box = document.getElementById('pj-bet-body');
+        if (!box) return;
+        var rows = parseBetEvents(list);
+        pjBetRows = rows;
+        var st = document.getElementById('pj-bet-status');
+        if (!rows.length) {
+          box.innerHTML = '<div class="um-empty">还没有小组押注记录。需学生账号在「项目式教学 → 比亚迪」页选一条路并填组号；教师账号的操作不入统计。</div>';
+          if (st) st.textContent = note || '';
+          return;
+        }
+        var cnt = { A: 0, B: 0, C: 0, '?': 0 };
+        rows.forEach(function (r) { cnt[PJ_LABEL[r.pick] ? r.pick : '?']++; });
+        var groups = {};
+        rows.forEach(function (r) { var k = r.group || ''; (groups[k] = groups[k] || []).push(r); });
+        var named = Object.keys(groups).filter(function (k) { return k; });
+        var splitG = named.filter(function (k) {
+          var first = groups[k][0].pick;
+          return groups[k].some(function (r) { return r.pick !== first; });
+        });
+        var noGroup = (groups[''] || []).length;
+        var bar = function (name, n, cls) {
+          var pct = Math.round(n / rows.length * 100);
+          return '<div class="cb43-bar"><span class="t">' + name + '</span>'
+            + '<span class="track"><span class="fill' + (cls ? ' ' + cls : '') + '" style="width:' + pct + '%"></span></span>'
+            + '<span class="n">' + n + ' 人 · ' + pct + '%</span></div>';
+        };
+        box.innerHTML = '<div class="cb43-top">'
+          + '<div class="cb43-kpi"><span class="k">已押注学生</span><span class="v">' + rows.length + '</span><span class="n">不含教师账号</span></div>'
+          + '<div class="cb43-kpi"><span class="k">参与组数</span><span class="v">' + named.length + '</span><span class="n">已填组号</span></div>'
+          + '<div class="cb43-kpi"><span class="k">组内分歧</span><span class="v">' + splitG.length + '</span><span class="n">'
+          + (splitG.length ? '第 ' + splitG.join('、') + ' 组' : '各组均已统一') + '</span></div>'
+          + '<div class="cb43-kpi"><span class="k">未填组号</span><span class="v">' + noGroup + '</span><span class="n">不影响押注统计</span></div>'
+          + '</div>'
+          + '<div class="cb43-bars">' + bar('A 股定增', cnt.A) + bar('H 股配售', cnt.B, 'alt')
+          + bar('银行间中票', cnt.C, 'warm') + (cnt['?'] ? bar('其他 / 无法识别', cnt['?'], 'gray') : '') + '</div>'
+          + '<div class="pj-bt-wrap">' + pjGroupTable(rows) + '</div>'
+          + '<div class="cb43-note">口径：同一学生改主意以最新一条为准；<b>组内分歧</b>指同一组里出现了两种以上选择 —— 课堂正需要先点这一组，让他们先谈拢再往下走。'
+          + (note ? ' ' + note : '') + '</div>';
+        if (st) st.textContent = note || '';
+      }
+
+      async function loadPjBet(force) {
+        var box = document.getElementById('pj-bet-body');
+        if (!box) return;
+        if (!force && pjBetRows.length && Date.now() - pjBetStamp < 5000) return;
+        var local = [];
+        try { local = normEvents(JSON.parse(localStorage.getItem('ibank_events_local') || '[]')); } catch (e) {}
+        var locN = local.filter(function (e) { return e && e.type === 'project'; }).length;
+        if (locN) renderPjBet(local, '本机镜像 ' + locN + ' 条 · 云端同步中…');
+        if (OFFLINE || !db) {
+          pjBetStamp = Date.now();
+          renderPjBet(local, '离线演示：仅统计本机镜像记录');
+          return;
+        }
+        var cloud = null;
+        try {
+          cloud = await Promise.race([
+            db.from('events').select('*').eq('type', 'project').limit(5000).then(function (r) { return (r && r.data) || []; }),
+            new Promise(function (res) { setTimeout(function () { res(null); }, 8000); })
+          ]);
+        } catch (e) { cloud = null; }
+        pjBetStamp = Date.now();
+        if (!cloud) { renderPjBet(local, '云端读取超时，暂按本机 ' + locN + ' 条统计'); return; }
+        var cn = cloud.filter(function (e) { return e && e.type === 'project'; }).length;
+        renderPjBet(cloud.concat(local), '云端 ' + cn + ' 条 · 本机 ' + locN + ' 条 · ' + fmtDate(Date.now()));
+      }
+
+      function causeExportPjBet() {
+        if (!pjBetRows.length) { if (typeof ibankToast === 'function') ibankToast('暂无押注记录可导出'); return; }
+        var head = ['组号', '押注路径', '学生uid', '提交时间'];
+        var lines = [head.join(',')];
+        pjBetRows.slice().sort(function (a, b) {
+          return String(a.group || '999').localeCompare(String(b.group || '999'), undefined, { numeric: true });
+        }).forEach(function (r) {
+          lines.push([
+            csvCell(r.group || '未填'), csvCell(PJ_LABEL[r.pick] || r.pick), csvCell(r.uid),
+            r.ts ? new Date(r.ts).toLocaleString('zh-CN') : ''
+          ].join(','));
+        });
+        var blob = new Blob(['\ufeff' + lines.join('\r\n')], { type: 'text/csv;charset=utf-8' });
+        var url = URL.createObjectURL(blob);
+        var a = document.createElement('a');
+        a.href = url; a.download = 'iBank_比亚迪押注_' + new Date().toISOString().slice(0, 10) + '.csv';
+        document.body.appendChild(a); a.click(); document.body.removeChild(a);
+        setTimeout(function () { URL.revokeObjectURL(url); }, 1500);
+      }
+
       async function loadEventStats() {
         const kpiRow = document.getElementById('ev-kpi-row');
         const cEl = document.getElementById('ev-chapter');
@@ -922,6 +1075,8 @@ console.log('%c[iBank 数据自检]', 'font-weight:bold', out);
         if (!cEl) return;
         // v62：4.3 记录卡面板单独取数（自带 try/catch），失败不影响上面四张图
         try { loadCb43Stats(); } catch (e) { /* 不阻断主看板 */ }
+        // v63：项目式教学押注看板，同样独立取数，失败不拖累其他面板
+        try { loadPjBet(); } catch (e) { /* 不阻断主看板 */ }
         if (OFFLINE) {
           let local = []; try { local = JSON.parse(localStorage.getItem('ibank_events_local') || '[]'); } catch (e) {}
           local = normEvents(local);
@@ -2041,6 +2196,9 @@ const actSrc = login.length ? login : study.concat(quiz, mod, qa);
       // v62：4.3 记录卡 CSV 导出
       var cb43ExportBtn = document.getElementById('cb43-export-btn');
       if (cb43ExportBtn) cb43ExportBtn.addEventListener('click', causeExportCb43);
+      // v63：比亚迪小组押注明细导出
+      var pjBetExportBtn = document.getElementById('pj-bet-export-btn');
+      if (pjBetExportBtn) pjBetExportBtn.addEventListener('click', causeExportPjBet);
 
       const adminTab = document.querySelector('.tab-btn[data-page="p-admin"]');
       if (adminTab) adminTab.addEventListener('click', function () { loadRealStats(); loadEventStats(); });

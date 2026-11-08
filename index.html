@@ -229,11 +229,6 @@
         <div class="section-title"><span class="bar"></span>课程项目 · 从做业务到评能力</div>
         <div class="section-sub">本课程不改「让学生做业务」这件事，改的是「拿什么来评」。一个贯穿项目走完三段真实业务流程——先给比亚迪的 A 股 IPO 定价，再在定增与 H 股配售之间做取舍，最后进银行间市场亲手定出一个票面利率。三段串成一条线，是因为它们本来就是同一家公司的同一件事：十五年里三次向市场要钱，每一次定价权都不在同一边。每一段都在留下可归档的证据：算出的区间、拍板的理由、被质询时的应答、改过几版的判断。平台在过程中采集这些证据，折算成能力达成度，再回灌到下一轮教学。评分不看「定价准不准」——定价没有唯一正确答案——看证据链是否完整、理由是否站得住、修改痕迹能不能说清。</div>
 
-        <!-- 评价设计：评什么 / 怎么采 / 怎么用。
-             这一块是整个板块与「项目式教学」的分界线，不是装饰性说明，
-             没有它，页面讲的仍然是「怎么组织教学」，而不是「怎么评价学生」 -->
-        <div class="pj-eval" id="pj-eval"></div>
-
         <!-- 项目链：把项目串成一条业务流水线，末端接成果答辩 -->
         <div class="pj-chain" id="pj-chain" aria-label="项目学习路径"></div>
 
@@ -365,22 +360,21 @@
     <section class="page" id="p-eval">
       <div class="panel">
         <div class="section-title"><span class="bar"></span>五维能力达成评价</div>
-        <div class="section-sub">把"期末一个分"换成"一条能倒查的证据链"：课程目标 → 毕业要求指标点 → 考核环节 → 观测点 → 原始记录。权重由大纲算出、可调、可验证。</div>
+        <div class="section-sub">你的五维各得多少分、哪一维已经达标、下一步该补哪里——每一项都能点开看到是从哪几条记录算出来的。</div>
 
         <div class="av-src" id="av-src"></div>
 
         <div class="av-tabs" id="av-tabs">
-          <button type="button" class="on" data-t="w">① 权重依据</button>
-          <button type="button" data-t="p">② 五维画像</button>
-          <button type="button" data-t="g">③ 达成度</button>
-          <button type="button" data-t="s">④ 敏感性检验</button>
-          <button type="button" data-t="q">⑤ 量表定位</button>
-          <button type="button" data-t="all">全部展开</button>
+          <button type="button" class="on" data-t="p">① 我的五维</button>
+          <button type="button" data-t="g">② 达成度</button>
+          <span class="av-tabs-sep" aria-hidden="true"></span>
+          <span class="av-tabs-lb">设计与校验 · 给教师和评审看</span>
+          <button type="button" data-t="w">权重依据</button>
         </div>
 
-        <div class="av-blk" data-b="w">
-        <!-- 一 · 权重推导 -->
-        <div class="av-h">一 · 权重不是拍的，是从大纲里算出来的 <em>表1 指标点 ＋ 表3 考核环节</em></div>
+        <div class="av-blk" data-b="w" hidden>
+        <!-- 设计与校验 · 一 · 权重推导 -->
+        <div class="av-h">权重不是拍的，是从大纲里算出来的 <em>表1 指标点 ＋ 表3 考核环节</em></div>
         <div class="av-lead">
           这一步是整套评价的地基。教学大纲从来没写过"三个目标各占多少分"，但表3 里每个考核环节都标了它支撑哪个目标——用这一列就能反推。<b>反推出来的是现状（45/40/15），再用 H/M/L 支撑强度修正，得到应有值（35/35/30）</b>。两者之差，就是改革空间。
         </div>
@@ -391,7 +385,7 @@
           <div id="av-w-links"></div>
         </div>
 
-        <div class="av-card">
+        <div class="av-card" style="margin-bottom:14px">
           <h4>课程目标权重：两种算法对照 <span class="av-tag">可追溯到指标点</span></h4>
           <div class="av-cap">H＝至少覆盖该指标点 80%，M＝50%，L＝30%，赋 3/2/1 分后归一化。</div>
           <div id="av-w-table"></div>
@@ -401,13 +395,20 @@
           </div>
         </div>
 
+        <!-- 矩阵：把五个维度摊回六个考核环节，接在上一步之后 -->
+        <div class="av-card">
+          <h4>五维怎么落到六个考核环节 <span class="av-tag">横竖两个方向都能加</span></h4>
+          <div class="av-cap">行是成绩单上的环节，列是能力报告上的维度；同一格分数只记一次。</div>
+          <div id="av-matrix"></div>
         </div>
 
-        <div class="av-blk" data-b="p" hidden>
-        <!-- 二 · 五维画像 -->
-        <div class="av-h">二 · 五维画像：每一维都挂得住指标点 <em>点任一行下钻</em></div>
+        </div>
+
+        <div class="av-blk" data-b="p">
+        <!-- 我的五维画像 -->
+        <div class="av-h">我的五维能力画像 <em>点任一行下钻到原始记录</em></div>
         <div class="av-lead">
-          五维是给人看的，三目标是给教务看的。两者的映射写在每一行的"指标点"里；<b>心理韧性计 10 分</b>，从课程目标 2 的 35 分内部切出——25 分记"预判与选择"、10 分记"压力下的稳定性"，切分依据是证据来源不同，不是把 2-8、2-9 的权重拆开。
+          这一页只回答两件事：<b>哪一维已经达标、哪一维还欠账</b>。每一项分数都能点开，看到它是从哪几条记录算出来的；算不出来的显示「待采集」，不拿 0 分充数。
         </div>
         <div class="av-kpis" id="av-kpis"></div>
         <div class="av-grid2">
@@ -427,49 +428,22 @@
         </div>
 
         <div class="av-blk" data-b="g" hidden>
-        <!-- 三 · 达成度 -->
-        <div class="av-h">三 · 课程目标达成度 <em>直接可进专业评估材料</em></div>
+        <!-- 课程目标达成度 -->
+        <div class="av-h">课程目标达成度 <em>教务与认证认的就是这一栏</em></div>
         <div class="av-lead">
-          班级 42 人的目标达成度按当前权重实时算出。这一栏是教务和认证看得懂的语言：<b>三个目标、对应六条指标点、各自达成率与阈值</b>。
+          五维是给人看的，三个课程目标是给教务看的。这一栏把五维折算回三个目标：<b>三个目标、对应六条指标点、各自达成率与阈值</b>——写专业评估材料时直接用这一张。
         </div>
         <div class="av-grid3" id="av-goals"></div>
 
         </div>
 
-        <div class="av-blk" data-b="s" hidden>
-        <!-- 四 · 敏感性 -->
-        <div class="av-h">四 · 权重敏感性检验 <em>拖动即重算</em></div>
-        <div class="av-lead">
-          评审最常问的一句是"凭什么是 35 不是 30"。光有依据不够，还要证明<b>结论稳不稳</b>：每维上下浮动几个百分点，有多少学生的等级会翻转。翻转率超过 5%，这套权重就不能用来下评优、推免这类去向性结论。
-        </div>
-        <div class="av-grid2">
-          <div class="av-card">
-            <h4>调整权重 <span class="av-tag">实时</span></h4>
-            <div class="av-cap">前三个滑杆对应课程目标，第四个是目标3 内部伦理与自主的切分。</div>
-            <div id="av-sliders"></div>
-          </div>
-          <div class="av-card">
-            <h4>重算结果 <span class="av-tag">相对默认方案</span></h4>
-            <div class="av-cap">等级按 优/良/中/及格/不及格 五档划分。</div>
-            <div id="av-sens-out"></div>
-          </div>
-        </div>
-
-        </div>
-
-        <div class="av-blk" data-b="q" hidden>
-        <!-- 五 · 量表 -->
-        <div class="av-h">五 · 自陈量表为什么不计分 <em>CD-RISC-10</em></div>
-        <div class="av-lead">
-          这是整套设计里唯一一处"主动放弃"的地方，也是最能说明设计者想清楚了的地方。
-        </div>
-        <div class="av-grid2" id="av-scale"></div>
-        </div>
-
-        <div class="av-foot">
+        <details class="av-foot">
+          <summary>数据出处与设计说明</summary>
+          <div class="av-foot-in">
           <b>数据出处</b>　课程目标、指标点、考核环节比例见《投资银行学》课程教学大纲（思政版）表1、表3；班级规模见 2025—2026 学年第 1 学期教学日历（金融 2303 班，42 人）；教材与章节对应见教学大纲表2。比亚迪发行数据取自深交所、上清所公开披露文件。
-          <br><b>数据范围</b>　个人五维得分由本机行为事件（题库作答、仿真操作、项目推进、案例库决策、章节学习）实时现算，算不出来的观测点显示「待采集」，不用 0 分冒充；班级 42 人的维度分布为演示用示例数据集，仅用于权重敏感性检验；期末卷与主题讨论量规尚未接入。
-          <br><b>一件没做的事</b>　本页不合并自陈量表（CD-RISC-10）的结果。量表只作预警，不进分数；心理韧性的 10 分全部来自行为记录（IPO 反复试错的收敛、回撤期调仓），与量表分开走——理由见第五节。
+          <br><b>数据范围</b>　个人五维得分由本机行为事件（题库作答、仿真操作、项目推进、案例库决策、章节学习）实时现算，算不出来的观测点显示「待采集」，不用 0 分冒充；班级 42 人的维度分布为演示用示例数据集，仅用于达成度看板的示例展示；期末卷与主题讨论量规尚未接入。
+          </div>
+        </details>
         </div>
       </div>
     </section>
@@ -2172,6 +2146,17 @@
         <div class="setup-actions" style="margin-top:10px;">
           <button class="copy-sql-btn" id="cb43-export-btn" type="button">⬇️ 导出 4.3 记录卡（CSV）</button>
           <span class="ev-status" id="cb43-status"></span>
+        </div>
+      </div>
+
+      <!-- v63 · 比亚迪项目「小组押注」实时看板：教师不逐组巡查，看这一块就够 -->
+      <div class="admin-panel" style="margin-top:16px;">
+        <h4>比亚迪项目 · 小组押注看板</h4>
+        <div class="sub">学生选路（定增 / H 股配售 / 中票）与组号的真实埋点（type = project）。按组聚合，<b>组内分歧</b>会被单独标出——那正是课堂上需要先点名、让他们谈拢的一组。教师账号不入统计。</div>
+        <div id="pj-bet-body"><div class="um-empty">加载中…</div></div>
+        <div class="setup-actions" style="margin-top:10px;">
+          <button class="copy-sql-btn" id="pj-bet-export-btn" type="button">⬇️ 导出小组押注明细（CSV）</button>
+          <span class="ev-status" id="pj-bet-status"></span>
         </div>
       </div>
 
