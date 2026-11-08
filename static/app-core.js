@@ -2255,6 +2255,36 @@ document.addEventListener('keydown', function (e) {
         { q: '收购方净利润 8 亿元、股本 2 亿股（EPS 4 元）；目标公司净利润 1 亿元、市值 10 亿元。若以 12 亿元现金收购（溢价 20%），收购后 EPS 如何变化？若改为按 20 元/股换股收购，结果又如何？', opts: null, a: -1, kp: '并购估值', chapter: '第7章', type: '案例', pts: ['每股收益', '增厚', '摊薄', '现金收购', '换股'], ans: '现金收购：收购后净利润 = 8 + 1 = 9 亿元，股本不变仍为 2 亿股，EPS = 9 ÷ 2 = 4.5 元，较收购前的 4 元增厚 0.5 元（12.5%）。但该测算未计入收购对价 12 亿元的机会成本与融资成本——若 12 亿元来自借款，需扣除利息后重新测算，实际增厚幅度会明显缩小。换股收购：按 20 元/股发行 12 亿 ÷ 20 = 6000 万股，股本增至 2.6 亿股，EPS = 9 ÷ 2.6 ≈ 3.46 元，较 4 元被摊薄约 13.5%。可见在双方市盈率相近时，现金收购对 EPS 更有利，但会消耗现金、抬高杠杆；换股支付则把风险与收益与目标方股东共担。' },
         { q: '目标公司最近一年 EBITDA 为 2 亿元、净利润 1.2 亿元，可比交易 EV/EBITDA 平均为 9 倍，可比公司市盈率 18 倍，目标公司净债务 3 亿元。请分别用 EV/EBITDA 法与市盈率法估算其股权价值，并说明差异原因。', opts: null, a: -1, kp: '并购估值', chapter: '第7章', type: '案例', pts: ['EV/EBITDA', '市盈率', '股权价值', '净债务', '估值区间'], ans: '①EV/EBITDA 法：企业价值 EV = EBITDA × 倍数 = 2 × 9 = 18 亿元；股权价值 = EV − 净债务 = 18 − 3 = 15 亿元。②市盈率法：股权价值 = 净利润 × 市盈率 = 1.2 × 18 = 21.6 亿元。③差异原因：EV/EBITDA 从企业整体价值出发，剔除了资本结构、折旧摊销与所得税政策的影响，受财务杠杆影响较小，更适合资本结构差异较大的可比公司之间比较；市盈率法直接对应股东权益价值，但净利润易受会计政策、非经常性损益与杠杆水平影响。实务中通常同时采用多种方法交叉验证，并结合可比交易溢价水平形成估值区间，作为谈判与定价的依据。' },
 
+
+        /* ================= 比亚迪项目实战 · 20 题（项目式教学 PBL 标记） ================= */
+        // 与任务书四段一一对应：任务一 IPO 定价（2011）→ 任务二 三条再融资路（2016 / 2021）→ 任务三 簿记建档与承销团（2026）→ 任务四 定价权与伦理。
+        // 不另立章节：这 20 题本来就属于第 1 / 2 / 3 / 4 / 5 章的知识体系，answers 仍要计入学情画像的维度分；
+        // 用 pbl 字段打标记，筛选区多一条「项目任务」维度，可整组刷，也可与章节 / 题型 / 知识点叠加。
+        // 结果性数字（18.00 元、143.69 亿、1.72%、2.18 倍）此处不再封存——习题是课后巩固，课上已由 ?reveal=1 投屏揭晓。
+        { q: '2011 年比亚迪回归 A 股，其发行市场与定价方式是？', opts: ['上交所主板，累计投标询价', '深交所中小板，询价制并由主承销商给出询价区间', '深交所创业板，发行人与主承销商直接定价', '上交所科创板，保荐机构强制跟投'], a: 1, kp: '发行制度', chapter: '第3章', type: '选择', pbl: '任务一 · IPO 定价' },
+        { q: '承销商给出的询价区间为 21.08—30.81 元，最终发行价却定为 18.00 元。对这一结果最准确的解释是？', opts: ['询价区间只是承销商的专业判断，最终价格由买方需求决定，跌破区间下沿是市场选择的结果', '说明本次发行失败，公司未能在 A 股上市', '说明询价区间无效，属于违规下调', '说明承销商定价能力不足，应由监管追责'], a: 0, kp: '发行定价', chapter: '第3章', type: '选择', pbl: '任务一 · IPO 定价' },
+        { q: '比亚迪 A 股 IPO 招股书拟募 21.92 亿元，实际募资明显低于计划。下列哪些因素可能共同作用？', opts: ['询价机构报价中枢下移，需求不足', '2011 年 A 股市场整体估值下行', '发行市盈率高于同行业可比公司', '公司主动缩减发行规模以稳定股价', '监管强制要求所有 IPO 按八折发行'], a: [0, 1, 2], multi: true, kp: '发行定价', chapter: '第3章', type: '选择', pbl: '任务一 · IPO 定价' },
+        { q: '「发行市盈率」', opts: null, a: -1, kp: '发行市盈率', chapter: '第3章', type: '名词解释', pbl: '任务一 · IPO 定价', pts: ['发行价', '每股收益', '股本', '净利润', '口径', '可比公司'], ans: '发行市盈率＝发行价 ÷ 每股收益，衡量投资者为每一元盈利支付的价格，是 IPO 定价最常用的相对估值指标。分子是发行价，分母的口径必须写清楚：用发行前股本还是发行后股本、用归母净利润还是扣除非经常性损益后的净利润、用哪一年度的利润——三者任一不同，算出来的倍数就完全不同。比亚迪 2011 年发行价 18.00 元，公开资料披露的发行市盈率为 20.47 倍；而按「发行后股本约 23.51 亿股 + 2010 年归母净利润 29.19 亿元」粗算，每股收益约 1.24 元，对应仅约 14.5 倍。两个数字都不能算错，但它们不是同一个口径，实务中必须回到招股说明书核对后再用。' },
+        { q: '比亚迪 2011 年 A 股 IPO：计划发行 7,900 万股，占发行后总股本 3.36%；2010 年归母净利润 29.19 亿元；最终发行价 18.00 元；公开披露的发行市盈率为 20.47 倍。请回答：（1）推算发行后总股本与发行前股本；（2）分别按发行前、发行后股本计算每股收益，并算出 18.00 元对应的市盈率；（3）说明你算出的结果与 20.47 倍为何不同，这对「用可比公司市盈率定价」意味着什么？', opts: null, a: -1, kp: '发行定价', chapter: '第3章', type: '案例', pbl: '任务一 · IPO 定价', pts: ['发行后总股本', '发行前', '每股收益', '市盈率', '口径', '净利润', '可比公司'], ans: '（1）发行后总股本＝7,900 万股 ÷ 3.36% ≈ 23.51 亿股；发行前股本＝23.51 − 0.79 ≈ 22.72 亿股。（2）按发行前股本：每股收益＝29.19 ÷ 22.72 ≈ 1.28 元，18.00 ÷ 1.28 ≈ 14.0 倍；按发行后股本：每股收益＝29.19 ÷ 23.51 ≈ 1.24 元，18.00 ÷ 1.24 ≈ 14.5 倍。（3）与 20.47 倍相差约 6 倍，仅靠股本口径解释不了，说明披露值采用的是另一套分母口径——可能是扣除非经常性损益后的净利润（孰低原则），也可能是不同的利润年度或不同的股本基准。这正说明：可比公司市盈率定价的第一步不是找倍数，而是统一口径。分母不统一，同一家公司能被算出 14 倍和 20 倍两个答案；放到 150 亿元的融资规模上，这就是几十亿元的差别。实务做法是：以扣非后归母净利润为准、明确股本基准、剔除不可比公司（亏损、重组、市盈率异常值），并对结果做区间敏感性测算。' },
+
+        { q: '2016 年比亚迪 A 股定向增发采用「锁价发行」，锁定的核心对象是？', opts: ['发行价格', '发行数量', '认购方的持股锁定期', '募集资金用途'], a: 0, kp: '定向增发', chapter: '第4章', type: '选择', pbl: '任务二 · 三条再融资路' },
+        { q: 'H 股配售相对于 A 股定向增发，最核心的优势是？', opts: ['发行价格一定更高', '不需要境内审核程序，从定价到资金到账只需几天', '完全不摊薄老股东权益', '无须向市场披露任何信息'], a: 1, kp: '再融资方式比较', chapter: '第4章', type: '选择', pbl: '任务二 · 三条再融资路' },
+        { q: '2021 年比亚迪两次 H 股配售分别较市价折让 7.8% 与 6.9%。这笔折让在财务上的本质是？', opts: ['承销商的佣金', '为「时间」和「确定性」支付的价格', '一项应缴纳的税费', '汇率波动造成的损失'], a: 1, kp: '再融资成本', chapter: '第4章', type: '选择', pbl: '任务二 · 三条再融资路' },
+        { q: '2026 年比亚迪发行银行间中期票据（科创债），相对于股权融资，下列说法正确的有？', opts: ['不摊薄现有股东股权', '利息可在税前扣除，具有税盾效应', '增加还本付息压力与财务风险', '须经证监会发审委审核', '期限通常长于短期借款，可匹配中长期项目'], a: [0, 1, 2, 4], multi: true, kp: '债务融资特点', chapter: '第5章', type: '选择', pbl: '任务二 · 三条再融资路' },
+        { q: '同一家公司：2011 年用 IPO、2016 年用 A 股定增、2021 年用 H 股配售、2026 年用银行间中票。请说明这四次选择背后真正被权衡的三组关系，并各举一例。', opts: null, a: -1, kp: '融资方式选择', chapter: '第4章', type: '简答', pbl: '任务二 · 三条再融资路', pts: ['时间', '摊薄', '成本', '风险', '审核', '确定性', '控制权', '窗口'], ans: '①时间（审核周期）与确定性的权衡：定增要过证监会审核，周期以年计，期间股价与市场窗口都可能变；H 股配售与中票簿记不走境内股权审核，几天到两周就能拿到钱。2021 年扩产等不起，所以宁愿付 7.8% 的折让买速度。②摊薄（控制权）与成本的权衡：股权融资不还本，但摊薄每股收益与持股比例；债务融资不摊薄，利息还能抵税，代价是刚性兑付与财务风险。2026 年选 3 年中票，本质是用 1.72% 的票面利率换「不摊薄」。③融资成本与风险承担的权衡：成本最低的往往不是最合适的——内部留存最便宜但规模有限；定增锁价把价格定死、确定性高，却把期间风险转给了认购方，因此必须有折价补偿。三组关系没有标准答案，取决于当时「缺的是钱、是时间，还是控制权」。' },
+        { q: '2016 年比亚迪定向增发：锁定价 57.40 元/股，计划发行 2.61 亿股、募资约 150 亿元，发行对象不超过 35 名，最终实际到账 143.69 亿元。请计算：（1）实际发行股数约为多少亿股；（2）实际募资比计划少多少、缺口占比多少；（3）若按上限 35 名对象均分，人均认购多少亿元；这说明定增的钱主要来自谁？', opts: null, a: -1, kp: '定向增发', chapter: '第4章', type: '案例', pbl: '任务二 · 三条再融资路', pts: ['2.50', '6.31', '4.2', '35', '机构', '谈判'], ans: '（1）实际发行股数 ≈ 143.69 ÷ 57.40 ≈ 2.50 亿股，比计划的 2.61 亿股少约 0.11 亿股。（2）缺口 = 150 − 143.69 = 6.31 亿元，占计划募资约 4.2%。（3）若 35 名对象均分，人均 ≈ 143.69 ÷ 35 ≈ 4.11 亿元。这说明定增的钱来自极少数大资金——公募、保险、产业资本、私募，而不是公众投资者。由此可推出两条实务结论：一是定增定价不是「市场集合竞价」，而是与少数机构一对一谈判的结果，发行人的议价能力取决于这些机构对公司的判断；二是「发行对象不超过 35 名」这条规则本身就在控制股东人数，避免股权过度分散。' },
+
+        { q: '银行间市场中期票据的定价方式是？', opts: ['公开拍卖', '簿记建档（累计投标询价）', '发行人单方固定定价', '与主承销商一对一协议定价'], a: 1, kp: '簿记建档', chapter: '第5章', type: '选择', pbl: '任务三 · 簿记与承销团' },
+        { q: '「簿记建档」', opts: null, a: -1, kp: '簿记建档', chapter: '第5章', type: '名词解释', pbl: '任务三 · 簿记与承销团', pts: ['申购区间', '订单', '需求', '票面利率', '配售'], ans: '簿记建档是债券发行的主流定价方式：主承销商先与发行人确定申购区间（如 1.50%—2.00%），再向投资者公开征集申购订单，把每一笔订单的利率与金额登记成册，形成一条真实的需求曲线；簿记结束后，发行人与主承销商根据订单分布确定最终票面利率与配售方案。它的本质是「用订单说话」——利率不是算出来的，是投出来的。比亚迪 2026 年那笔 50 亿元 3 年期科创中票，申购区间 1.50%—2.00%，最终票面 1.72%，就是簿记建档的结果：既没有定在上沿，也没有压到下沿，而是落在有效需求能够承接的位置。' },
+        { q: '26比亚迪MTN003：发行 50 亿元，合规申购 18 家共 109.2 亿元（2.18 倍），有效申购 11 家共 56.9 亿元（1.14 倍）。下列判断正确的有？', opts: ['2.18 倍是「合规申购」口径，仍包含承销团自营等非市场化资金', '1.14 倍是剔除无效报价后的真实需求，说明市场承接力并不厚', '两个倍数同时披露，说明书里的「倍数」可以被口径修饰', '2.18 倍意味着票面必然定在区间下限 1.50%', '合规申购 18 家而有效申购 11 家，说明有 7 家报价被剔除'], a: [0, 1, 2, 4], multi: true, kp: '申购倍数', chapter: '第5章', type: '选择', pbl: '任务三 · 簿记与承销团' },
+        { q: '26比亚迪MTN003：规模 50 亿元、期限 3 年，申购区间 1.50%—2.00%，最终票面 1.72%。（1）票面每下降 1bp，发行人一年少付多少利息？三年合计多少？（2）若一路压到区间下限 1.50%，三年合计可省多少？（3）既然如此，为什么没有压到下限？请给出至少三个理由。', opts: null, a: -1, kp: '票面利率与成本', chapter: '第5章', type: '案例', pbl: '任务三 · 簿记与承销团', pts: ['50万', '150万', '3300万', '22bp', '认购不足', '承销团', '托底', '足额'], ans: '（1）50 亿元 × 0.01% = 50 万元/年，3 年合计 150 万元。这就是「1bp ＝ 150 万元」的来历——它不是口算出来的，是「规模 × 期限」乘出来的，换个规模或期限就完全不成立。（2）从 1.72% 压到 1.50%，降幅 22bp：50 亿 × 0.22% = 1,100 万元/年，3 年合计 3,300 万元。（3）压不下去至少三个理由：①有效申购仅 1.14 倍，需求本身就薄，把票面压到 1.50% 会让部分投资者退出申购，可能导致认购不足甚至发行失败——拿不到 50 亿元，比多付几千万利息严重得多；②承销团自营已获配 52%，市场化资金只剩一半，继续压价等于逼承销团继续加仓，托底能力有上限；③发行人真正缺的是「足额、按时到账的中长期资金」，成本是次要目标，过度压价还会损害后续发行的市场声誉。' },
+        { q: '26比亚迪MTN003 承销团自营获配 26 亿元、占本次发行 50 亿元的 52%。最需要警惕的是？', opts: ['发行人融资成本被动上升', '承销商既承销又自持，真实需求信号被自营盘掩盖，定价可能失真', '债券二级市场流动性必然枯竭', '承销费率会被监管处罚'], a: 1, kp: '承销团与利益冲突', chapter: '第5章', type: '选择', pbl: '任务三 · 簿记与承销团' },
+
+        { q: '把 2011 年 IPO、2016 年定增、2021 年配售、2026 年中票放在一起看，「定价权」最终归属于？', opts: ['发行人', '承销商', '出钱的一方（买方 / 投资者）', '监管机构'], a: 2, kp: '定价权', chapter: '第1章', type: '选择', pbl: '任务四 · 定价权与伦理' },
+        { q: '承销团自营获配占比过高，可能引发的合规与伦理问题包括？', opts: ['需求真实性被掩盖，其他投资者难以判断市场真实热度', '承销商与投资者之间存在利益冲突', '可能形成对二级市场价格的隐性支持', '发行人的信息披露义务因此被免除', '定价的市场化程度被削弱'], a: [0, 1, 2, 4], multi: true, kp: '利益冲突', chapter: '第1章', type: '选择', pbl: '任务四 · 定价权与伦理' },
+        { q: '2011 年定价跌破询价区间下沿约 15%；2026 年票面最终定在 1.72%，距区间下限 1.50% 还有 22bp 没用完。同样是「定价权在买方」，为什么发行人的处境完全不同？请从市场供需、发行方式、时间成本三个角度回答。', opts: null, a: -1, kp: '定价权', chapter: '第4章', type: '简答', pbl: '任务四 · 定价权与伦理', pts: ['需求', '询价', '簿记', '时间', '窗口', '承销团', '议价'], ans: '①市场供需：2011 年是买方市场——A 股估值下行、询价机构报价中枢下移，需求不足，价格只能往下走，跌破区间下沿是必然；2026 年是卖方相对有利的窗口——市场缺资产、利率处于低位，虽然有效申购只有 1.14 倍，但仍有 11 家机构真金白银下单，发行人可以「压一点就收」。②发行方式：IPO 询价是一次性博弈，报完价、定完价，发行人没有第二次机会；簿记建档是连续博弈，主承销商能看到订单簿的实时形状，知道压到哪个位置还有量，因此更接近「最优定价」而不是「被动接受」。③时间成本：IPO 等不起——上市窗口一旦错过，可能推迟一年；中票两周就能发完，发行人可以用「换一个窗口再发」作为议价筹码，议价能力因此不同。归到一句：定价权在买方，但议价能力取决于「谁更等得起」。' },
+        { q: '假设你是比亚迪的财务顾问，2026 年需要再融 50 亿元。方案 A：A 股定向增发（锁价、需证监会审核、周期以年计、会摊薄股权）；方案 B：银行间中期票据（簿记建档、两周内完成、3 年期、票面约 1.72%）。请给出建议并说明理由；再说明在什么条件下你会改变建议。', opts: null, a: -1, kp: '融资方式选择', chapter: '第2章', type: '案例', pbl: '任务四 · 定价权与伦理', pts: ['摊薄', '资产负债率', '现金流', '审核', '期限', '利率', '窗口'], ans: '建议优先选方案 B（中票）。理由：①不摊薄股权——定增 50 亿元按当时市值测算会稀释 3%—5% 的持股比例，中票只增加负债；②速度快——两周内到账，能匹配扩产的用款节奏，定增「以年计」，窗口一旦错过就要重来；③成本可控——1.72% 的票面利率低于公司加权平均资本成本，利息还能抵税；④期限匹配——3 年期与设备投资回收期基本对齐，不产生「短贷长投」的期限错配。改变建议的条件：①资产负债率已接近行业上限、利息保障倍数偏低，再举债会触发评级下调或债务契约限制；②利率进入上行通道，1.72% 不再可得，锁定长期低成本资金的价值下降；③募投项目回报周期超过 5 年，3 年期中票到期需要再融资，滚动风险上升，此时应改用长期限品种或股权融资；④股价处于明显高估区间，此时定增相当于「用贵的股票换便宜的钱」，对老股东反而有利。' },
+
       ];
 
       // 状态模型（答题结果与"看过答案"分离，避免互相覆盖）：
@@ -2328,7 +2358,7 @@ document.addEventListener('keydown', function (e) {
       function wbSave() { try { localStorage.setItem(WB_KEY, JSON.stringify(WB)); } catch (e) {} }
       function wbList() { return Object.keys(WB.items).map(function (k) { return WB.items[k]; }); }
       function isDue(it) { return it.status !== 'mastered' && (it.nextTs || 0) <= Date.now(); }
-      let curList = QUIZ.slice(), cur = 0, exCh = null, exType = null, exKp = null, listOpen = false;
+      let curList = QUIZ.slice(), cur = 0, exCh = null, exType = null, exKp = null, exPbl = null, listOpen = false;
       const quizBox = document.getElementById('quiz-box');
 
       function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
@@ -2576,10 +2606,32 @@ document.addEventListener('keydown', function (e) {
       }
       function buildChips() {
         const chBox = document.getElementById('ex-chips-ch'), typeBox = document.getElementById('ex-chips-type'), kpBox = document.getElementById('ex-chips-kp');
+        const pblBox = document.getElementById('ex-chips-pbl'), pblWrap = document.getElementById('ex-fgroup-pbl');
         const chapters = []; QUIZ.forEach(function (x) { if (chapters.indexOf(x.chapter) === -1) chapters.push(x.chapter); });
         chapters.sort(function (a, b) { return chNum(a) - chNum(b); });
         chBox.innerHTML = '<button class="ex-chip' + (exCh === null ? ' active' : '') + '" data-ch="">全部<span class="cnt">' + QUIZ.length + '</span></button>' + chapters.map(function (c) { var n = QUIZ.filter(function (q) { return q.chapter === c; }).length; return '<button class="ex-chip' + (exCh === c ? ' active' : '') + '" data-ch="' + c + '">' + c + '<span class="cnt">' + n + '</span></button>'; }).join('');
         typeBox.innerHTML = '<button class="ex-chip' + (exType === null ? ' active' : '') + '" data-t="">全部<span class="cnt">' + QUIZ.length + '</span></button>' + TYPES.map(function (t) { var n = QUIZ.filter(function (q) { return q.type === t; }).length; return '<button class="ex-chip' + (exType === t ? ' active' : '') + '" data-t="' + t + '">' + t + '<span class="cnt">' + n + '</span></button>'; }).join('');
+        // 项目任务（PBL）：独立于章节的第二维标记，20 道比亚迪题按任务书的四段打标。
+        // 候选任务随章节 / 题型收窄；收窄后没有 PBL 题就整行收起，不在常规题上多摆一行空筛选。
+        if (pblBox) {
+          var pblBase = QUIZ.filter(function (q) {
+            return q.pbl && (exCh === null || q.chapter === exCh) && (exType === null || q.type === exType);
+          });
+          var pblKeys = [];
+          pblBase.forEach(function (q) { if (pblKeys.indexOf(q.pbl) === -1) pblKeys.push(q.pbl); });
+          // 按「任务一 / 二 / 三 / 四」的序号排，不能靠字符串排序：汉字码位是 一(4E00) < 三(4E09) < 二(4E8C) < 四(56DB)
+          var PBL_ORDER = '一二三四五六七八九十';
+          pblKeys.sort(function (x, y) { return PBL_ORDER.indexOf(x.charAt(2)) - PBL_ORDER.indexOf(y.charAt(2)); });
+          if (exPbl !== null && exPbl !== '__all' && pblKeys.indexOf(exPbl) === -1) exPbl = null;   // 换章节后原选项已不在池里，退回不筛
+          if (pblWrap) pblWrap.style.display = pblKeys.length ? '' : 'none';
+          if (pblKeys.length) {
+            var pblCnt = {}; pblBase.forEach(function (q) { pblCnt[q.pbl] = (pblCnt[q.pbl] || 0) + 1; });
+            pblBox.innerHTML = '<button class="ex-chip pbl' + (exPbl === '__all' ? ' active' : '') + '" data-pbl="__all">全部项目题<span class="cnt">' + pblBase.length + '</span></button>'
+              + pblKeys.map(function (k) {
+                return '<button class="ex-chip pbl' + (exPbl === k ? ' active' : '') + '" data-pbl="' + esc(k) + '">' + esc(k) + '<span class="cnt">' + pblCnt[k] + '</span></button>';
+              }).join('');
+          }
+        }
         if (kpBox) {
           // 没选章节时不铺按钮：全站 62 个知识点，17 个都有 3 题以上，铺出来反而找不到东西
           if (exCh === null) {
@@ -2597,14 +2649,14 @@ document.addEventListener('keydown', function (e) {
         }
       }
       function applyFilter() {
-        curList = QUIZ.filter(function (q) { return (exCh === null || q.chapter === exCh) && (exType === null || q.type === exType) && (exKp === null || q.kp === exKp); });
+        curList = QUIZ.filter(function (q) { return (exCh === null || q.chapter === exCh) && (exType === null || q.type === exType) && (exKp === null || q.kp === exKp) && (exPbl === null || (exPbl === '__all' ? !!q.pbl : q.pbl === exPbl)); });
         cur = 0; renderQuiz();
       }
       function metaHtml() {
         const byType = {}; TYPES.forEach(function (t) { byType[t] = curList.filter(function (q) { return q.type === t; }).length; });
         const multiN = curList.filter(isMulti).length;
         const parts = TYPES.filter(function (t) { return byType[t]; }).map(function (t) { return t + ' ' + byType[t]; });
-        const scope = (exCh || '全部章节') + (exType ? ' · ' + exType : '') + (exKp ? ' · ' + exKp : '');
+        const scope = (exCh || '全部章节') + (exType ? ' · ' + exType : '') + (exPbl ? ' · ' + (exPbl === '__all' ? '全部项目题' : exPbl) : '') + (exKp ? ' · ' + exKp : '');
         return '<div class="ex-meta">📍 当前：<b>' + scope + '</b> · 共 <b>' + curList.length + '</b> 题（' + parts.join(' / ') + (multiN ? '，其中多选 ' + multiN : '') + '）</div>';
       }
       function navHtml() {
@@ -2630,7 +2682,7 @@ document.addEventListener('keydown', function (e) {
           const cls = s === 'ok' ? 'ok' : s === 'bad' ? 'bad' : (seen ? 'seen' : '');
           items += '<div class="ql-item' + (i === cur ? ' cur' : '') + '" data-jump="' + i + '" title="点击跳到第 ' + (i + 1) + ' 题">'
             + '<span class="ql-no">' + (i + 1) + '</span>'
-            + '<span class="ql-body"><span class="ql-q">' + esc(q.q) + '</span><span class="ql-meta">' + q.type + (isMulti(q) ? '（多选）' : '') + ' · ' + q.chapter + ' · ' + esc(q.kp) + '</span></span>'
+            + '<span class="ql-body"><span class="ql-q">' + esc(q.q) + '</span><span class="ql-meta">' + q.type + (isMulti(q) ? '（多选）' : '') + ' · ' + q.chapter + ' · ' + esc(q.kp) + (q.pbl ? ' · <span class="ql-pbl">' + esc(q.pbl) + '</span>' : '') + '</span></span>'
             + '<span class="ql-st ' + cls + '">' + lab + '</span></div>';
         });
         return '<details class="ql-wrap" id="ql-wrap"' + (listOpen ? ' open' : '') + '><summary>题目一览（共 ' + curList.length + ' 题，点击任意题可跳转）</summary><div class="ql-list">' + items + '</div></details>';
@@ -2710,7 +2762,9 @@ document.addEventListener('keydown', function (e) {
         }
         const item = curList[cur];
         const tag = item.type + (isMulti(item) ? '（多选）' : '') + ' · ' + item.chapter;
-        const head = '<div class="quiz-q"><strong>第 ' + (cur + 1) + ' / ' + curList.length + ' 题</strong>　' + esc(item.q) + '　<span class="q-tag">' + tag + '</span></div>';
+        const pblBadge = item.pbl ? '<span class="q-pbl">项目式 · ' + esc(item.pbl) + '</span>' : '';
+        // 两个标签包在一个行内盒里：题干长的时候它们整体换行，不会一个留在上一行、一个掉到下一行
+        const head = '<div class="quiz-q"><strong>第 ' + (cur + 1) + ' / ' + curList.length + ' 题</strong>　' + esc(item.q) + '　<span class="q-tags">' + pblBadge + '<span class="q-tag">' + tag + '</span></span></div>';
         if (!item.opts) renderSubjective(item, head);
         else renderObjective(item, head);
       }
@@ -2800,15 +2854,21 @@ document.addEventListener('keydown', function (e) {
       quizBox.addEventListener('toggle', function (e) { if (e.target && e.target.id === 'ql-wrap') listOpen = e.target.open; }, true);
 
       const chBox = document.getElementById('ex-chips-ch'), typeBox = document.getElementById('ex-chips-type');
-      chBox.addEventListener('click', function (e) { const b = e.target.closest('.ex-chip'); if (!b) return; exCh = b.getAttribute('data-ch') || null; buildChips(); applyFilter(); });
+      chBox.addEventListener('click', function (e) { const b = e.target.closest('.ex-chip'); if (!b) return; exCh = b.getAttribute('data-ch') || null; exPbl = null; buildChips(); applyFilter(); });
       typeBox.addEventListener('click', function (e) { const b = e.target.closest('.ex-chip'); if (!b) return; exType = b.getAttribute('data-t') || null; buildChips(); applyFilter(); });
       // v65：知识点是第三级筛选。切换章节/题型时由 buildChips() 负责把失效的 exKp 退回 null。
+      const pblBox = document.getElementById('ex-chips-pbl');
+      if (pblBox) pblBox.addEventListener('click', function (e) { const b = e.target.closest('.ex-chip'); if (!b) return; exPbl = b.getAttribute('data-pbl') || null; buildChips(); applyFilter(); });
       const kpBox = document.getElementById('ex-chips-kp');
       if (kpBox) kpBox.addEventListener('click', function (e) { const b = e.target.closest('.ex-chip'); if (!b) return; exKp = b.getAttribute('data-kp') || null; buildChips(); applyFilter(); });
       // 题库总数从 QUIZ 实算，避免以后加题又忘了改那段说明文字（原来写死「第 1–9 章共 157 题」，实为 7 章 133 题）
       (function () { const t = document.getElementById('ex-total'); if (t) t.textContent = QUIZ.length; })();
       const exTab = document.querySelector('.tab-btn[data-page="p-exercise"]');
-      if (exTab) exTab.addEventListener('click', function () { let ch = null; try { ch = sessionStorage.getItem('ibank_exercise_filter'); } catch (e) {} exCh = ch || null; exKp = null; buildChips(); applyFilter(); });
+      if (exTab) exTab.addEventListener('click', function () { let ch = null; try { ch = sessionStorage.getItem('ibank_exercise_filter'); } catch (e) {} exCh = ch || null; exKp = null; exPbl = null;
+        // 从项目页的「去刷这 20 道题」跳过来时，直接落在项目题上
+        let goPbl = null; try { goPbl = sessionStorage.getItem('ibank_exercise_pbl'); } catch (e2) {}
+        if (goPbl) { exPbl = '__all'; exCh = null; try { sessionStorage.removeItem('ibank_exercise_pbl'); } catch (e3) {} }
+        buildChips(); applyFilter(); });
 
       const exDoneBtn = document.getElementById('ex-done-btn');
       function syncExDone() { let d = false; try { d = localStorage.getItem('ibank_exercise_done') === '1'; } catch (e) {} exDoneBtn.classList.toggle('done', d); exDoneBtn.textContent = d ? '✓ 本次训练完成' : '标记本次训练完成'; }
@@ -2822,6 +2882,25 @@ document.addEventListener('keydown', function (e) {
       // 只读测试钩子：返回某错题当前变式题的正确选项下标（供自动化验收确定性点击，不影响用户交互）
       window.__wbVariA = function (qid) { var st = wbVari[qid]; return st ? st.q.a : -1; };
     })();
+
+    // 跨页跳转按钮分散在静态 HTML 与动态渲染两处，统一用 document 级委托，避免各段 IIFE 互相引用内部状态。
+    //   data-go-ex：项目详情页的「去刷这 20 道题」→ 先把标记写进 sessionStorage，再点习题页签
+    //   data-go-pj：案例库的「去课程项目」→ 直接切页（案例库不收录比亚迪，只在那一行里指路）
+    document.addEventListener('click', function (e) {
+      if (!e.target || !e.target.closest) return;
+      if (e.target.closest('[data-go-ex]')) {
+        try { sessionStorage.setItem('ibank_exercise_pbl', '1'); } catch (err) {}
+        var tb = document.querySelector('.tab-btn[data-page="p-exercise"]');
+        if (tb) tb.click();
+        window.scrollTo(0, 0);
+        return;
+      }
+      if (e.target.closest('[data-go-pj]')) {
+        var pb = document.querySelector('.tab-btn[data-page="p-project"]');
+        if (pb) pb.click();
+        window.scrollTo(0, 0);
+      }
+    });
 
 // ===== 学情画像（v56：真实数据驱动 + 雷达/条形双向联动 + 下钻）=====
     // 设计对标：ECharts/Highcharts radar 的 emphasis 联动 + Tableau 的 linked highlighting
@@ -5821,6 +5900,88 @@ document.addEventListener('keydown', function (e) {
             { role: '投资者席 · 3 组', duty: '判断这个价敢不敢买、这个折价接不接 —— 你们是出钱的一方，任务是砍价，不是配合', power: '报价权 · 弃配权：可以报低价、可以直接不买' },
             { role: '监管者席 · 2 组', duty: '盯信息披露、摊薄、利益冲突 —— 你们不提案也不出钱，只问，问到答不上来为止', power: '问询权 · 中止权：问询站不住，方案当场中止' }
           ],
+          // ---------- 案例背景：把十五年这条线摊开 ----------
+          // 学生进详情页只看得到「委托情境」一段话，撑不起十五年的跨度，也看不出三次的差别在哪。
+          // 这一块只讲过程性事实（当时处境 / 为什么只能走这条路 / 怎么走的 / 谁审审多久）——
+          // 这些是给学生算数的输入，不封；结果性数字一律 [[...]] 封存，与阶段任务同一套口径。
+          // 结论也不给：每段末尾只留一问，「定价权在谁手里」由学生自己填。
+          caseBg: {
+            lead: '比亚迪 2002 年在香港上市，2011 年回归 A 股，2016 年做过一次定向增发，2021 年在港股连做两次配售，2026 年在银行间市场发中期票据。同样是向市场要钱，每次拿到的条件都不同。变的不是公司——是每一次坐在桌子对面的人。',
+            note: '「三次」是按 IPO、再融资、债券分的。其中再融资这一次，比亚迪走了两条完全不同的路——先 A 股定增，后港股配售，同一笔钱的用途，两种拿法。真实成交结果仍然封着，等课上一起揭；结论也不在这里，在你自己那张表上。',
+            timeline: [
+              { y: '2002', t: '香港上市', d: '第一次向资本市场要钱，拿的是境外机构的钱' },
+              { y: '2011', t: '回归 A 股 · 中小板', d: '询价发行，对面是境内询价机构' },
+              { y: '2016', t: 'A 股定向增发', d: '锁价发行，对面是 35 名以内的特定投资者' },
+              { y: '2021', t: 'H 股两次配售', d: '按市价折让，对面是国际机构' },
+              { y: '2026', t: '银行间中期票据', d: '簿记建档，对面是银行与资管' }
+            ],
+            eras: [
+              {
+                no: 'IPO', year: '2011', title: '回归 A 股：市场给你定价',
+                situation: '2002 年就在香港上了市，2011 年回 A 股。老师给你的 2010 年净利润 29.19 亿元，是公司当时最好的年份之一。招股书里写清了这笔钱打算怎么花：拟募 21.92 亿元。',
+                why: '同一家公司、同一年的利润，在 A 股能卖到比港股更高的价。融资要趁估值高——这是所有发行人坐下来谈之前的第一直觉。',
+                how: '深交所中小板、询价制。主承销商带机构询价，给出 21.08—30.81 元的区间；计划发行 7,900 万股，占发行后总股本 3.36%。',
+                nums: [
+                  { v: '7,900 万股', k: '计划发行' },
+                  { v: '21.08—30.81 元', k: '承销商询价区间' },
+                  { v: '21.92 亿元', k: '招股书拟募' },
+                  { v: '20.47 倍', k: '发行市盈率' }
+                ],
+                seal: '[[发行价 18.00 元/股，实募 14.22 亿元（净额 13.54 亿元）——比询价区间下沿还低约 15%，比计划少募 7.7 亿元，缺口 35%]]',
+                ask: '区间是承销商报的，价是买方给的。这一段，定价权在谁手里？'
+              },
+              {
+                no: '再融资 ①', year: '2016', title: '定向增发：用锁价买确定性',
+                situation: '2015 年 6 月披露非公开发行预案。当时 A 股在牛市的高位，公司股价也在高位——57.40 元的锁定价放在当时看，并不算便宜。',
+                why: '定增不还本、不付利息，摊薄的是每股收益而不是现金流；锁价发行把价格在预案时就定死，发行人不必担心期间股价怎么走。买的是确定性。',
+                how: '锁价 57.40 元 × 2.61 亿股，约 150 亿元，发行对象不超过 35 名。要走证监会审核，是境内股权融资程序，快不了。',
+                nums: [
+                  { v: '57.40 元', k: '锁价' },
+                  { v: '2.61 亿股', k: '发行数量' },
+                  { v: '约 150 亿元', k: '计划募资' },
+                  { v: '≤ 35 名', k: '发行对象' }
+                ],
+                seal: '[[实际到账 143.69 亿元；从预案披露到资金到账走了 13 个月，期间市场已从高位下行]]',
+                ask: '价格锁住了，时间锁得住吗？'
+              },
+              {
+                no: '再融资 ②', year: '2021', title: 'H 股配售：用折价换速度',
+                situation: '2020—2021 年新能源车销量起量，扩产要钱，而且要快。等一年，窗口可能就没了。',
+                why: '港股配售不走境内审核程序，按市价折让给机构，几天内就能完成。代价明明白白写在折价率上，不用猜。',
+                how: '2021 年连做两次。第一次 1.33 亿股，占发行后 4.65%；第二次 5,000 万股，占 1.75%。',
+                nums: [
+                  { v: '1.33 亿股', k: '第一次配售（占 4.65%）' },
+                  { v: '5,000 万股', k: '第二次配售（占 1.75%）' },
+                  { v: '港交所', k: '不走境内审核' },
+                  { v: '几天', k: '从定价到到账' }
+                ],
+                seal: '[[两次折让 7.8% 与 6.9%，合计净募约 435 亿港元（298.01 + 137.44）]]',
+                ask: '7.8% 的折价买几天的速度，这笔账按什么算才不亏？'
+              },
+              {
+                no: '债券', year: '2026', title: '银行间中票：这次轮到三方定价',
+                situation: '需要一笔中长期限的人民币资金。当时市场缺资产、利率在低位，是发债的窗口。',
+                why: '债权融资不摊薄股权；科创债有政策窗口；银行间市场容量大，一次能拿走 50 亿元。',
+                how: '26比亚迪MTN003（科创债），50 亿元、3 年，申购区间 1.50%—2.00%，走簿记建档，对面是银行与资管。',
+                nums: [
+                  { v: '50 亿元', k: '发行规模' },
+                  { v: '3 年', k: '期限' },
+                  { v: '1.50%—2.00%', k: '申购区间' },
+                  { v: '科创债', k: '品种' }
+                ],
+                seal: '[[票面 1.72%；合规申购 18 家 109.2 亿元（2.18 倍），有效申购 11 家 56.9 亿元（1.14 倍）；承销团自营获配 26 亿元，占 52%]]',
+                ask: '压 1bp 就省 150 万元，为什么没有一路压到 1.50% 的下限？'
+              }
+            ],
+            cmpHead: ['年份', '方式', '对面是谁（谁出钱）', '谁审、审多久', '定价权在谁？'],
+            cmpRows: [
+              ['2011', '深交所中小板 IPO', '境内询价机构', '证监会发审委 · 数月', ''],
+              ['2016', '定向增发 · 锁价', '35 名以内特定投资者', '证监会发审委 · 以年计', ''],
+              ['2021', 'H 股配售', '国际机构', '港交所 · 几天', ''],
+              ['2026', '银行间中票（科创债）', '银行与资管', '交易商协会 · 两周内', '']
+            ],
+            cmpTip: '最后一列不给你答案——填完这一列，驱动问题就答完了一半。'
+          },
           stages: [
             {
               name: '第一段 · IPO：市场给你定价', week: '第 1 课时 · 前 18 分钟', output: '《IPO 定价测算表》', tool: 'p-valuation',
@@ -5905,7 +6066,7 @@ document.addEventListener('keydown', function (e) {
             { page: 'p-valuation', name: '企业估值实验（第一段用）' },
             { page: 'p-ipo', name: 'IPO 定价配售仿真（课后拓展）' }
           ],
-          milestone: { chapters: ['第3章', '第5章'], count: 12 },
+          milestone: { chapters: ['第3章', '第5章'], count: 20 },
           inquiry: [
             '本次发行定价低于可比公司估值水平，是否损害原有股东利益，主承销商如何履行受托责任？',
             '募资规模与募投项目是否匹配，前次募集资金的使用进度如何？',
@@ -6140,6 +6301,64 @@ document.addEventListener('keydown', function (e) {
             + '</button>';
         }).join('');
 
+        // 案例背景：时间轴 + 四张事件卡 + 一张留白待填的对比表。
+        // 结果性数字统一走 reveal(esc(seal))，与阶段任务同一套封存口径——不给答案，只给处境。
+        var bgHtml = '';
+        if (p.caseBg) {
+          var bg = p.caseBg;
+          var tlHtml = (bg.timeline || []).map(function (n) {
+            return '<li><b>' + esc(n.y) + '</b><span>' + esc(n.t) + '</span><em>' + esc(n.d) + '</em></li>';
+          }).join('');
+          var eraHtml = (bg.eras || []).map(function (e) {
+            var numHtml = (e.nums || []).map(function (n) {
+              return '<div class="pj-era-num"><b>' + esc(n.v) + '</b><span>' + esc(n.k) + '</span></div>';
+            }).join('');
+            return '<article class="pj-era">'
+              + '<header class="pj-era-h"><span class="pj-era-no">' + esc(e.no) + '</span>'
+              + '<b class="pj-era-y">' + esc(e.year) + '</b>'
+              + '<i class="pj-era-t">' + esc(e.title) + '</i></header>'
+              + '<div class="pj-era-body">'
+              + '<dl class="pj-era-dl">'
+              + '<dt>当时的处境</dt><dd>' + esc(e.situation) + '</dd>'
+              + '<dt>为什么走这条路</dt><dd>' + esc(e.why) + '</dd>'
+              + '<dt>怎么走的</dt><dd>' + esc(e.how) + '</dd>'
+              + '</dl>'
+              + '<div class="pj-era-nums">' + numHtml + '</div>'
+              + '</div>'
+              + '<p class="pj-era-seal"><span>成交结果</span>' + reveal(esc(e.seal)) + '</p>'
+              + (e.ask ? '<p class="pj-era-ask"><i>?</i>' + esc(e.ask) + '</p>' : '')
+              + '</article>';
+          }).join('');
+          var cmpHtml = '';
+          if (bg.cmpRows && bg.cmpRows.length) {
+            cmpHtml = '<table class="pj-cmp"><thead><tr>'
+              + bg.cmpHead.map(function (h) { return '<th>' + esc(h) + '</th>'; }).join('')
+              + '</tr></thead><tbody>'
+              + bg.cmpRows.map(function (r) {
+                return '<tr>' + r.map(function (c, i) {
+                  return i === r.length - 1
+                    ? '<td class="pj-cmp-fill"><span>自己填</span></td>'
+                    : '<td>' + esc(c) + '</td>';
+                }).join('') + '</tr>';
+              }).join('')
+              + '</tbody></table>';
+          }
+          bgHtml = '<section class="pj-sec pj-bg">'
+            + '<h3>案例背景：同一家公司，三次向市场要钱</h3>'
+            + '<p class="pj-bg-lead">' + esc(bg.lead) + '</p>'
+            + '<ol class="pj-tl">' + tlHtml + '</ol>'
+            + '<p class="pj-bg-note">' + esc(bg.note) + '</p>'
+            + eraHtml
+            + (cmpHtml ? '<h4 class="pj-bg-h4">把四次并排放在一张表上</h4>' + cmpHtml
+              + '<p class="pj-tip">' + esc(bg.cmpTip) + '</p>' : '')
+            // 出口：背景读完、表也填了，直接去刷这 20 道题。入口不放在背景开头——
+            // 先看完再做题，练习才是「验证判断」，不是「找答案」。
+            + '<div class="pj-bg-cta"><div class="pj-cta-txt"><b>这 20 道题，全部是比亚迪的</b>'
+            + '<span>按任务书四段打好了标记：任务一 IPO 定价、任务二 三条再融资路、任务三 簿记与承销团、任务四 定价权与伦理。做错的会进错题本，答题记录也计入学情画像的章节分。</span></div>'
+            + '<button type="button" class="pj-cta-btn" data-go-ex="pbl">去刷这 20 道题 →</button></div>'
+            + '</section>';
+        }
+
         elDetail.innerHTML =
           '<div class="pj-dhead">'
           + '<button type="button" class="pj-back" data-pj-back>← 返回项目列表</button>'
@@ -6164,6 +6383,8 @@ document.addEventListener('keydown', function (e) {
             + '<span>填一次就够，只用来把你们这组的判断送到教师后台，<b>不参与评分</b></span></div>'
             + '<div class="pj-opts">' + optHtml + '</div>'
             + '<p class="pj-tip">' + reveal(esc(p.pickHint || '')) + '</p></section>' : '')
+
+          + bgHtml
 
           + '<section class="pj-sec"><h3>你要用到的东西（老师已经准备好）</h3>'
           + '<ul class="pj-given">' + givenHtml + '</ul>'
@@ -6200,7 +6421,7 @@ document.addEventListener('keydown', function (e) {
           + '<div class="pj-tools">' + toolHtml + '</div></div>'
 
           + '<div class="pj-box pj-box-cta"><h4>里程碑检测</h4>'
-          + '<p class="pj-tip">按本项目覆盖章节自动抽题 ' + p.milestone.count + ' 道，检测通过即可进入下一阶段。</p>'
+          + '<p class="pj-tip">这 ' + p.milestone.count + ' 道题全部来自比亚迪本项目：任务一 5 道、任务二 6 道、任务三 5 道、任务四 4 道。答错自动进错题本，答题记录计入学情画像。</p>'
           + '<button type="button" class="pj-ms" data-pj-ms="' + p.id + '">开始检测 →</button>'
           + '</div>'
 
@@ -6212,7 +6433,8 @@ document.addEventListener('keydown', function (e) {
 
         elList.hidden = true;
         elChain.hidden = true;   // 详情页不显示流水线，避免与标题争夺视线
-        if (elEval) elEval.hidden = true;   // 评价设计属板块级说明，进详情后让位给任务书
+        var elEvalBox = document.getElementById('pj-eval');   // 该板块已删除，取不到就跳过，不能直接引用变量
+        if (elEvalBox) elEvalBox.hidden = true;   // 评价设计属板块级说明，进详情后让位给任务书
         elDetail.hidden = false;
         var pjRoot = document.getElementById('p-project');
         if (pjRoot) pjRoot.classList.add('in-detail');
@@ -6228,7 +6450,8 @@ document.addEventListener('keydown', function (e) {
         if (pjRoot2) pjRoot2.classList.remove('in-detail');
         elList.hidden = false;
         elChain.hidden = false;
-        if (elEval) elEval.hidden = false;
+        var elEvalBox2 = document.getElementById('pj-eval');
+        if (elEvalBox2) elEvalBox2.hidden = false;
         renderChain();
         renderList();
         window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -6302,7 +6525,8 @@ document.addEventListener('keydown', function (e) {
             var pid = ms.getAttribute('data-pj-ms'), proj = null;
             for (var i = 0; i < PROJECTS.length; i++) { if (PROJECTS[i].id === pid) { proj = PROJECTS[i]; break; } }
             if (!proj) return;
-            try { sessionStorage.setItem('ibank_exercise_filter', proj.milestone.chapters[0]); } catch (err) {}
+            // 走 PBL 标记而不是章节：本项目要检测的就是这 20 道项目题，不是第 3 章整章 28 道
+            try { sessionStorage.removeItem('ibank_exercise_filter'); sessionStorage.setItem('ibank_exercise_pbl', '1'); } catch (err) {}
             goPage('p-exercise');
             if (window.__ibankTrack) window.__ibankTrack('project', { project: pid, action: 'milestone' });
             return;

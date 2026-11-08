@@ -692,7 +692,7 @@
     .ex-filters { flex: 1 1 100%; min-width: 0; display: flex; flex-direction: column; gap: 10px; }
     .ex-fgroup { display: flex; align-items: center; gap: 8px; min-width: 0; flex-wrap: wrap; }
     .ex-flbl { flex: 0 0 auto; font-size: 12.5px; color: var(--dim); }
-    #ex-chips-ch, #ex-chips-type, #ex-chips-kp { display: flex; flex-wrap: wrap; gap: 8px; min-width: 0; flex: 1 1 auto; }
+    #ex-chips-ch, #ex-chips-type, #ex-chips-pbl, #ex-chips-kp { display: flex; flex-wrap: wrap; gap: 8px; min-width: 0; flex: 1 1 auto; }
     /* v65：知识点候选最多 9 个（随章节收窄），独占一行，否则会把章节/题型挤变形 */
     #ex-fgroup-kp { flex: 1 1 100%; align-items: flex-start; }
     #ex-fgroup-kp .ex-flbl { padding-top: 6px; }
@@ -710,6 +710,21 @@
     .ex-meta b { color: var(--accent-text); }
     .quiz-demo { font-size: 11px; color: var(--accent2); background: rgba(34,211,238,0.12); border: 1px solid rgba(34,211,238,0.3); border-radius: 6px; padding: 1px 7px; margin-left: 8px; }
     .q-tag { font-size: 11px; color: var(--accent-text); background: rgba(99,102,241,0.12); border: 1px solid rgba(99,102,241,0.3); border-radius: 6px; padding: 1px 7px; margin-left: 8px; }
+    /* 项目式教学（PBL）：琥珀色独立于站内靛蓝主色，让「这是比亚迪项目题」一眼可辨 */
+    .q-tags { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-left: 8px; vertical-align: middle; }
+    .q-tags .q-pbl, .q-tags .q-tag { margin-left: 0; }
+    .q-pbl { font-size: 11px; font-weight: 600; color: #b45309; background: rgba(245,158,11,0.12); border: 1px solid rgba(245,158,11,0.38); border-radius: 6px; padding: 1px 7px; margin-left: 8px; white-space: nowrap; }
+    .ql-pbl { color: #b45309; font-weight: 600; }
+    .ex-chip.pbl { border-color: rgba(245,158,11,0.45); color: #b45309; }
+    .ex-chip.pbl:hover { border-color: rgba(245,158,11,0.8); color: #92400e; }
+    .ex-chip.pbl.active { background: linear-gradient(135deg,#d97706,#b45309); color: #fff; border-color: transparent; }
+    body.dark:not(.light) .q-pbl { color: #fcd34d; background: rgba(245,158,11,0.16); border-color: rgba(245,158,11,0.42); }
+    body.dark:not(.light) .ql-pbl { color: #fcd34d; }
+    body.dark:not(.light) .ex-chip.pbl { color: #fcd34d; border-color: rgba(245,158,11,0.45); }
+    body.dark:not(.light) .ex-chip.pbl:hover { color: #fde68a; border-color: rgba(245,158,11,0.75); }
+    @media (max-width: 640px) {
+      .q-tags { margin-left: 0; margin-top: 4px; }
+    }
     .quiz-ans-box { font-size: 13px; line-height: 1.8; color: var(--muted); background: rgba(99,102,241,0.06); border: 1px dashed rgba(99,102,241,0.3); border-radius: 10px; padding: 12px 14px; margin-top: 12px; }
     .quiz-ans-box b { color: var(--text); }
     /* —— 答题卡（题号导航）+ 进度 —— */
@@ -1607,6 +1622,24 @@
     .cl-note b { display: block; font-size: 13.5px; font-weight: 600; color: var(--text); margin-bottom: 4px; }
     .cl-note span { display: block; font-size: 12.5px; line-height: 1.75; color: var(--text); }
     body.dark:not(.light) .cl-note { background: rgba(59,130,246,.14); border-color: rgba(59,130,246,.42); }
+
+    /* 案例库 → 项目主线的分工说明：独立一行，不并入上面的法律与数据口径（那段讲依据，这段讲去哪找）。
+       用琥珀色，与「项目式」标记同色系，学生一眼知道这条通向项目而不是又一条案例 */
+    .cl-xref { margin: 10px 0 2px; padding: 10px 14px 11px; border-radius: 10px;
+      border-left: 3px solid #d97706; background: rgba(245,158,11,.07); }
+    .cl-xref-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 3px; }
+    .cl-xref-head b { font-size: 13px; font-weight: 700; color: var(--text); }
+    .cl-xref-txt { display: block; font-size: 12.5px; line-height: 1.78; color: var(--muted);
+      text-wrap: balance;   /* 换行时让各行等长，避免末行只剩「始。」这两个字；不支持的浏览器按默认换行，无副作用 */ }
+    .cl-xref-go { flex: 0 0 auto; border: 1px solid rgba(217,119,6,.45); background: transparent;
+      cursor: pointer; border-radius: 999px; padding: 5px 14px; font-size: 12px; font-weight: 600;
+      color: #b45309; transition: background .15s, color .15s, border-color .15s; }
+    .cl-xref-go:hover { background: #d97706; border-color: #d97706; color: #fff; }
+    body.dark:not(.light) .cl-xref { background: rgba(245,158,11,.10); }
+    body.dark:not(.light) .cl-xref-go { color: #fcd34d; border-color: rgba(245,158,11,.45); }
+    body.dark:not(.light) .cl-xref-go:hover { background: #d97706; border-color: #d97706; color: #fff; }
+    @media (max-width: 640px) { .cl-xref-head { flex-wrap: wrap; } .cl-xref-go { margin-top: 2px; } }
+
     .cl-tools { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin: 4px 0 14px; }
     .cl-stats { display: flex; flex-wrap: wrap; gap: 8px; min-width: 0; }
     .cl-stat { display: inline-flex; align-items: baseline; gap: 6px; padding: 7px 12px;
@@ -2492,6 +2525,124 @@
       color: var(--good); font-size: 12px; font-weight: 700;
     }
     .pj-sec .pj-tip { margin-top: 10px; font-size: 12px; color: var(--muted); }
+
+    /* ---- 案例背景：时间轴 + 事件卡 + 待填对比表 ---- */
+    /* 学生进详情页原先只看到一段「委托情境」，撑不起十五年跨度，也看不出三次的差别在哪。
+       这一块只讲处境与条件，成交结果仍走 reveal() 封存，结论留给学生自己填 */
+    .pj-bg-lead { font-size: 13.5px; line-height: 1.9; color: var(--text); }
+    .pj-bg-note {
+      margin-top: 12px; font-size: 12px; line-height: 1.8; color: var(--muted);
+      padding: 9px 12px; border-radius: 8px; background: rgba(100, 116, 139, .07);
+    }
+
+    /* 时间轴：横向五节点；窄屏折两列，连线隐藏 */
+    .pj-tl {
+      list-style: none; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr));
+      margin: 16px 0 2px; position: relative;
+    }
+    .pj-tl::before {
+      content: ""; position: absolute; left: 4%; right: 4%; top: 15px; height: 2px;
+      background: linear-gradient(90deg, rgba(99,102,241,.14), rgba(99,102,241,.45), rgba(99,102,241,.14));
+    }
+    .pj-tl li { position: relative; padding: 0 5px; text-align: center; }
+    .pj-tl li b {
+      display: block; width: 32px; height: 32px; line-height: 29px; margin: 0 auto 8px;
+      border-radius: 50%; background: var(--panel-solid); border: 2px solid var(--accent);
+      color: var(--accent-text); font-size: 10px; font-weight: 700; position: relative; z-index: 1;
+    }
+    .pj-tl li span { display: block; font-size: 12px; font-weight: 700; color: var(--text); line-height: 1.42; }
+    .pj-tl li em { display: block; margin-top: 3px; font-style: normal; font-size: 10.5px; line-height: 1.55; color: var(--dim); }
+
+    /* 事件卡：左边讲处境/原因/路径，右边的数字块给算数用的输入 */
+    .pj-era {
+      border: 1px solid var(--panel-border); border-radius: 12px;
+      padding: 14px 16px 13px; margin-top: 14px; background: var(--panel);
+    }
+    .pj-era-h {
+      display: flex; align-items: baseline; gap: 9px; flex-wrap: wrap;
+      padding-bottom: 9px; margin-bottom: 11px; border-bottom: 1px dashed var(--panel-border);
+    }
+    .pj-era-no {
+      font-size: 11px; font-weight: 700; letter-spacing: .04em; color: var(--accent-text);
+      background: rgba(99, 102, 241, .11); padding: 2px 9px; border-radius: 999px;
+    }
+    .pj-era-y { font-size: 19px; font-weight: 700; color: var(--text); line-height: 1.1; }
+    .pj-era-t { font-style: normal; font-size: 13.5px; font-weight: 600; color: var(--text); }
+    .pj-era-body { display: grid; grid-template-columns: minmax(0, 1fr) 172px; gap: 16px; align-items: start; }
+    .pj-era-dl { margin: 0; }
+    .pj-era-dl dt { font-size: 11.5px; font-weight: 700; color: var(--accent-text); margin-bottom: 3px; }
+    .pj-era-dl dd { margin: 0 0 9px; font-size: 13px; line-height: 1.82; color: var(--muted); }
+    .pj-era-dl dd:last-child { margin-bottom: 0; }
+    .pj-era-nums { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; }
+    .pj-era-num { background: rgba(99, 102, 241, .06); border-radius: 9px; padding: 8px 9px; }
+    .pj-era-num b {
+      display: block; font-size: 12px; font-weight: 700; color: var(--text);
+      line-height: 1.45; word-break: break-word;
+    }
+    .pj-era-num span { display: block; margin-top: 2px; font-size: 10px; line-height: 1.45; color: var(--dim); }
+    .pj-era-seal {
+      margin-top: 11px; padding: 9px 12px; border-radius: 9px; font-size: 12.5px;
+      line-height: 1.75; color: var(--muted); background: rgba(100, 116, 139, .08);
+    }
+    .pj-era-seal > span {
+      display: inline-block; margin-right: 8px; font-size: 10.5px; font-weight: 700;
+      letter-spacing: .04em; color: var(--dim);
+    }
+    .pj-era-ask {
+      margin-top: 9px; display: flex; gap: 8px; align-items: flex-start;
+      font-size: 12.5px; font-weight: 600; line-height: 1.7; color: var(--accent-text);
+    }
+    .pj-era-ask i {
+      flex: 0 0 auto; width: 16px; height: 16px; border-radius: 50%; font-style: normal;
+      font-size: 10px; font-weight: 700; line-height: 16px; text-align: center;
+      background: var(--accent); color: #fff; margin-top: 2px;
+    }
+
+    /* 案例背景读完后的出口：直达 20 道项目题 */
+    .pj-bg-cta {
+      display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap;
+      margin-top: 18px; padding: 14px 16px; border-radius: 11px;
+      border: 1px dashed rgba(245, 158, 11, .5); background: rgba(245, 158, 11, .07);
+    }
+    .pj-cta-txt b { display: block; font-size: 13px; color: var(--text); margin-bottom: 4px; }
+    .pj-cta-txt span { display: block; font-size: 12px; line-height: 1.8; color: var(--muted); }
+    .pj-cta-btn {
+      flex: 0 0 auto; border: 0; cursor: pointer; border-radius: 999px; padding: 9px 18px;
+      font-size: 12.5px; font-weight: 600; color: #fff;
+      background: linear-gradient(135deg, #d97706, #b45309);
+      transition: transform .15s, box-shadow .15s;
+    }
+    .pj-cta-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 16px rgba(180, 83, 9, .28); }
+    @media (max-width: 640px) { .pj-bg-cta { flex-direction: column; align-items: stretch; } .pj-cta-btn { width: 100%; } }
+
+    /* 对比表：最后一列留白，是学生要填的那一栏 */
+    .pj-bg-h4 { margin: 20px 0 8px; font-size: 13px; font-weight: 700; color: var(--text); }
+    .pj-cmp { width: 100%; border-collapse: collapse; font-size: 12px; }
+    .pj-cmp th {
+      text-align: left; font-weight: 700; font-size: 11.5px; color: var(--dim);
+      padding: 6px 8px; border-bottom: 1px solid var(--panel-border);
+    }
+    .pj-cmp td {
+      padding: 8px; border-bottom: 1px solid var(--panel-border);
+      color: var(--text); line-height: 1.62; vertical-align: top;
+    }
+    .pj-cmp tbody tr:last-child td { border-bottom: 0; }
+    .pj-cmp td:first-child { font-weight: 700; color: var(--accent-text); white-space: nowrap; }
+    .pj-cmp-fill span {
+      display: inline-block; padding: 2px 10px; border-radius: 999px;
+      border: 1px dashed rgba(99, 102, 241, .45); color: var(--accent-text); font-size: 11px;
+    }
+
+    @media (max-width: 900px) {
+      .pj-tl { grid-template-columns: repeat(2, minmax(0, 1fr)); row-gap: 16px; }
+      .pj-tl::before { display: none; }
+      .pj-era-body { grid-template-columns: 1fr; }
+      .pj-era-nums { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+      .pj-cmp { font-size: 11px; }
+    }
+    @media (max-width: 560px) {
+      .pj-era-nums { grid-template-columns: 1fr 1fr; }
+    }
 
     /* ---- 任务书扩展：阶段动作、反思、评分要点、组内分工、合规三问 ---- */
     /* 目的：任务书要能照着做，而不只是「介绍一个项目」 */

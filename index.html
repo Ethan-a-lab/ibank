@@ -306,11 +306,12 @@
     <section class="page" id="p-exercise">
       <div class="panel">
         <div class="section-title"><span class="bar"></span>实务习题训练</div>
-        <div class="section-sub">题库覆盖第 1–7 章共 <span id="ex-total">133</span> 题（名词解释 / 选择（含多选）/ 简答 / 案例），题量按各章学时加权。可按「章节 → 题型 → 知识点」三级筛选定位到题；选择题与多选题提交后即时判分；名词解释、简答、案例提供作答框，提交后可对照参考要点、按关键词覆盖情况自行评定掌握程度。答错或自评未掌握的题自动进入「错题定位」；上方答题卡（含「看过答案」紫点标记）与题目一览可随时跳转到任意一题。</div>
+        <div class="section-sub">题库覆盖第 1–7 章共 <span id="ex-total">153</span> 题（名词解释 / 选择（含多选）/ 简答 / 案例），题量按各章学时加权。其中 <b>20 道为比亚迪项目式教学题</b>，按任务书四段打了「任务一 ~ 任务四」标记——选「项目任务」这一行即可整组刷，也可与章节 / 题型 / 知识点叠加筛选。选题逻辑是：同一家公司、四个不同的对手盘，一次只改一个变量（需求厚薄、审核快慢、摊薄与否、承销团托底多少），看定价权怎么移动。可按「章节 → 题型 → 项目任务 / 知识点」筛选定位到题；选择题与多选题提交后即时判分；名词解释、简答、案例提供作答框，提交后可对照参考要点、按关键词覆盖情况自行评定掌握程度。答错或自评未掌握的题自动进入「错题定位」；上方答题卡（含「看过答案」紫点标记）与题目一览可随时跳转到任意一题。</div>
         <div class="ex-toolbar">
           <div class="ex-filters">
             <div class="ex-fgroup"><span class="ex-flbl">章节</span><div id="ex-chips-ch"></div></div>
             <div class="ex-fgroup"><span class="ex-flbl">题型</span><div id="ex-chips-type"></div></div>
+            <div class="ex-fgroup" id="ex-fgroup-pbl"><span class="ex-flbl">项目任务</span><div id="ex-chips-pbl"></div></div>
             <div class="ex-fgroup" id="ex-fgroup-kp"><span class="ex-flbl">知识点</span><div id="ex-chips-kp"></div></div>
           </div>
           <div class="ex-timer-wrap"><span id="ex-timer"></span><button class="ch-done-btn" id="ex-done-btn">标记本次训练完成</button></div>
@@ -679,6 +680,15 @@
         <div class="cl-note">
           <b>教学使用说明</b>
           <span>案例依据中国证监会行政处罚决定、法院生效判决、交易所自律监管措施及上市公司公开披露信息整理，仅用于课堂研讨与专业训练。所述事实与数据截至各案例标注时点，此后市场与财务情况可能发生变化；对相关机构与个人的描述以生效文书为准，不构成对任何主体的评价，也不构成投资建议。课堂讨论请回到决策当时的信息集，避免以结果倒推对错。</span>
+        </div>
+
+        <!-- v82 · 说清「案例库」与「项目主线」的分工：比亚迪横跨四段任务，不是一个可以横向比较的条目 -->
+        <div class="cl-xref">
+          <div class="cl-xref-head">
+            <b>比亚迪不在这个库里。</b>
+            <button type="button" class="cl-xref-go" data-go-pj>去课程项目 →</button>
+          </div>
+          <span class="cl-xref-txt">它不是一个可以横向比较的案例，而是一条贯穿四段任务的主线：同一家公司，先 IPO，再两次再融资，最后发债，坐在对面的每次都不一样。它在本站的「课程项目」里，从「先押一条路」开始。</span>
         </div>
 
         <div class="cl-tools">
