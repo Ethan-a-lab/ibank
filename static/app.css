@@ -632,7 +632,15 @@
     .setup-actions { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-top: 10px; }
     .copy-sql-btn { border: 1px solid rgba(99, 102, 241, 0.4); background: rgba(99, 102, 241, 0.1); color: var(--accent-text); border-radius: 999px; padding: 7px 15px; font-size: 12.5px; font-weight: 700; cursor: pointer; transition: .18s; }
     .copy-sql-btn:hover { background: rgba(99, 102, 241, 0.2); }
+    a.copy-sql-btn { display: inline-block; text-decoration: none; }
+    /* 教室机器换组：破坏性按钮，第一下只进「待确认」态，配色跟着变红，避免与旁边几个导出按钮混淆 */
+    #pj-reset-btn.armed { border-color: rgba(220, 38, 38, .55); background: rgba(220, 38, 38, .12); color: #b91c1c; }
+    body.dark #pj-reset-btn.armed { border-color: rgba(248, 113, 113, .55); background: rgba(248, 113, 113, .16); color: #fca5a5; }
+    /* 后台面板里的小标题：把两组条形图分开（路径 vs 席位） */
+    .pj-bt-sub { margin: 14px 0 2px; font-size: 12px; font-weight: 700; color: var(--muted); }
     .ev-status { font-size: 12.5px; font-weight: 700; padding: 6px 13px; border-radius: 999px; border: 1px solid var(--panel-border); color: var(--dim); }
+    /* 空的状态位不该显示成一枚空心胶囊——它会看起来像一个没写字的按钮 */
+    .ev-status:empty { display: none; }
     .ev-status.ok { color: #0f9d58; border-color: rgba(15, 157, 88, 0.45); background: rgba(15, 157, 88, 0.1); }
     .ev-status.bad { color: #d93025; border-color: rgba(217, 48, 37, 0.45); background: rgba(217, 48, 37, 0.08); }
     .admin-head .ah-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
@@ -2292,8 +2300,25 @@
     .pj-bt-tag.ok { background: rgba(34, 197, 94, .14); color: var(--good); }
     .pj-bt-tag.split { background: rgba(245, 158, 11, .18); color: #b45309; }
     .pj-bt-tag.none { background: var(--cl-soft); color: var(--dim); }
+    /* v86：三次出价偏差 —— 偏高按 A 股习惯标红，偏低标绿 */
+    .pj-bench-dir {
+      display: inline-block; font-size: 11.5px; font-weight: 700; border-radius: 5px;
+      padding: 1px 7px; white-space: nowrap;
+    }
+    .pj-bench-dir.up { color: #b91c1c; background: rgba(185, 28, 28, .1); }
+    .pj-bench-dir.down { color: #047857; background: rgba(4, 120, 87, .1); }
+    .pj-bench-dir.flat { color: #475569; background: rgba(71, 85, 105, .1); }
+    .pj-bench-near { display: block; margin-top: 4px; font-style: normal; font-size: 10.5px; color: var(--dim); }
+    .pj-bench-none { font-size: 11.5px; color: var(--dim); }
+    body.dark:not(.light) .pj-bench-dir.up { color: #fca5a5; background: rgba(248, 113, 113, .16); }
+    body.dark:not(.light) .pj-bench-dir.down { color: #86efac; background: rgba(74, 222, 128, .14); }
+    body.dark:not(.light) .pj-bench-dir.flat { color: #cbd5e1; background: rgba(148, 163, 184, .16); }
     /* 押注看板第三条（银行间中票）单独配色：A/B/C 三派要能一眼分开，不能有两条同色 */
     .cb43-bar .fill.warm { background: #d97706; }
+    /* v86：偏差分档的标签更长（「低于现实 35% 以上」），单独放宽标签列 */
+    .cb43-bars.wide { margin-top: 16px; }
+    .cb43-bars.wide .cb43-bar { grid-template-columns: 146px minmax(0, 1fr) 96px; }
+    .cb43-bars.wide .cb43-bar .t { font-size: 12px; line-height: 1.5; }
     @media (max-width: 900px) {
       .cb-out { grid-template-columns: repeat(2, minmax(0,1fr)); }
       .cbr-fields { grid-template-columns: minmax(0,1fr); }
@@ -2492,6 +2517,26 @@
     .pj-opt-facts { font-size: 12px; line-height: 1.65; color: var(--muted); }
     .pj-opt-peers { font-size: 11.5px; line-height: 1.6; color: var(--dim); }
 
+    /* 本组席位：三选一，和工作包第 1 面勾的是同一栏 */
+    .pj-seatbox { margin: 0 0 14px; }
+    .pj-seath { display: flex; align-items: baseline; flex-wrap: wrap; gap: 4px 10px; margin-bottom: 8px; }
+    .pj-seath b { font-size: 12.5px; color: var(--text); font-weight: 600; }
+    .pj-seath span { font-size: 11.5px; color: var(--muted); line-height: 1.6; }
+    .pj-seats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+    .pj-seat {
+      display: flex; flex-direction: column; gap: 3px; text-align: left; cursor: pointer;
+      padding: 10px 12px; border: 1px solid var(--panel-border); border-radius: 10px;
+      background: var(--panel-solid); font: inherit; transition: .18s;
+    }
+    .pj-seat:hover { border-color: var(--accent); background: rgba(99, 102, 241, .06); }
+    .pj-seat.on { border-color: var(--accent); background: rgba(99, 102, 241, .10); box-shadow: 0 0 0 3px rgba(99, 102, 241, .12); }
+    .pj-seat-n { display: flex; align-items: baseline; gap: 6px; }
+    .pj-seat-n b { font-size: 13px; font-weight: 600; color: var(--text); }
+    .pj-seat-n i { font-style: normal; font-size: 11px; color: var(--dim); }
+    .pj-seat-p { font-size: 11.5px; color: var(--accent-text); }
+    .pj-seat-d { font-size: 11.5px; line-height: 1.55; color: var(--muted); }
+    .pj-seat.on .pj-seat-p { color: var(--accent); font-weight: 600; }
+
 
     .pj-stages { list-style: none; display: flex; flex-direction: column; gap: 2px; }
     /* 用子选择器，避免嵌套的动作清单 li 继承分隔线与内边距 */
@@ -2630,6 +2675,12 @@
     }
     .pj-era-y { font-size: 19px; font-weight: 700; color: var(--text); line-height: 1.1; }
     .pj-era-t { font-style: normal; font-size: 13.5px; font-weight: 600; color: var(--text); }
+    .pj-era-ref {
+      flex: 0 0 auto; margin-left: auto; font-style: normal; font-size: 10px; font-weight: 600;
+      letter-spacing: .04em; color: var(--muted); border: 1px solid var(--panel-border);
+      border-radius: 999px; padding: 1px 7px; background: var(--cl-soft, rgba(15,23,42,.035));
+    }
+    body.dark:not(.light) .pj-era-ref { color: var(--dim); border-color: rgba(148, 163, 184, .35); background: rgba(148, 163, 184, .1); }
     .pj-era-body { display: grid; grid-template-columns: minmax(0, 1fr) 172px; gap: 16px; align-items: start; }
     .pj-era-dl { margin: 0; }
     .pj-era-dl dt { font-size: 11.5px; font-weight: 700; color: var(--accent-text); margin-bottom: 3px; }
@@ -2642,6 +2693,17 @@
       line-height: 1.45; word-break: break-word;
     }
     .pj-era-num span { display: block; margin-top: 2px; font-size: 10px; line-height: 1.45; color: var(--dim); }
+    /* 还没对照现实：数字卡里的答案盖成问号，边框改成虚线，一眼看出「这是空的、等你填」 */
+    .pj-era-num.is-lock {
+      background: rgba(148, 163, 184, .10); border: 1px dashed rgba(148, 163, 184, .55);
+      padding: 7px 8px;
+    }
+    .pj-era-num.is-lock b { color: var(--dim); letter-spacing: 2px; }
+    .pj-how-num {
+      font-style: normal; color: var(--dim); background: rgba(148, 163, 184, .14);
+      border-radius: 6px; padding: 1px 6px; font-size: 12px;
+    }
+    .pj-how-num.is-on { color: var(--text); background: rgba(217, 119, 6, .12); font-weight: 600; }
     .pj-era-seal {
       margin-top: 11px; padding: 9px 12px; border-radius: 9px; font-size: 12.5px;
       line-height: 1.75; color: var(--muted); background: rgba(100, 116, 139, .08);
@@ -2658,6 +2720,83 @@
       flex: 0 0 auto; width: 16px; height: 16px; border-radius: 50%; font-style: normal;
       font-size: 10px; font-weight: 700; line-height: 16px; text-align: center;
       background: var(--accent); color: #fff; margin-top: 2px;
+    }
+
+    /* 三次出价：先自己定价，再点对照 —— 顺序反了就是抄答案 */
+    .pj-bench {
+      margin-top: 11px; padding: 11px 13px 12px; border-radius: 10px;
+      border: 1px solid rgba(217, 119, 6, .34); background: rgba(245, 158, 11, .07);
+    }
+    .pj-bench-h { display: flex; flex-wrap: wrap; align-items: baseline; gap: 7px; margin-bottom: 9px; }
+    .pj-bench-h b {
+      flex: 0 0 auto; font-size: 10.5px; font-weight: 700; letter-spacing: .06em;
+      color: #b45309; border: 1px solid rgba(217, 119, 6, .45); border-radius: 999px;
+      padding: 1px 8px;
+    }
+    .pj-bench-h span { font-size: 12.5px; font-weight: 600; line-height: 1.65; color: var(--text); }
+    .pj-bench-row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+    .pj-bench-row input {
+      width: 116px; padding: 7px 10px; border-radius: 8px; font-size: 14px; font-weight: 700;
+      text-align: right; color: var(--text); font-variant-numeric: tabular-nums;
+      border: 1px solid var(--panel-border); background: var(--panel-solid);
+      transition: border-color .15s, box-shadow .15s;
+    }
+    .pj-bench-row input:focus { outline: none; border-color: #d97706; box-shadow: 0 0 0 3px rgba(245, 158, 11, .18); }
+    .pj-bench-row input.need { border-color: #e11d48; box-shadow: 0 0 0 3px rgba(225, 29, 72, .14); }
+    .pj-bench-unit { font-size: 12px; color: var(--muted); }
+    .pj-bench-go {
+      border: 0; cursor: pointer; border-radius: 8px; padding: 8px 15px;
+      font-size: 12.5px; font-weight: 600; color: #fff;
+      background: linear-gradient(135deg, #d97706, #b45309);
+      transition: transform .15s, box-shadow .15s;
+    }
+    .pj-bench-go:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(180, 83, 9, .28); }
+    .pj-bench-go:active { transform: translateY(0); }
+    .pj-bench-note { margin: 8px 0 0; font-size: 11.5px; line-height: 1.7; color: var(--muted); }
+    .pj-bench-out { margin-top: 10px; }
+    .pj-bench-res {
+      border-radius: 9px; padding: 11px 12px; border-left: 3px solid var(--dim);
+      background: rgba(100, 116, 139, .07);
+    }
+    .pj-bench-res.ok { border-left-color: #15803d; background: rgba(21, 128, 61, .07); }
+    .pj-bench-res.near { border-left-color: #d97706; background: rgba(217, 119, 6, .08); }
+    .pj-bench-res.far { border-left-color: #e11d48; background: rgba(225, 29, 72, .07); }
+    .pj-bench-res.bad { border-left-color: #e11d48; background: rgba(225, 29, 72, .06); }
+    .pj-bench-kpi { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+    .pj-bench-kpi > div {
+      min-width: 0; padding: 7px 9px; border-radius: 7px; background: rgba(255, 255, 255, .62);
+    }
+    .pj-bench-kpi b {
+      display: block; font-size: 15px; font-weight: 700; line-height: 1.4;
+      color: var(--text); font-variant-numeric: tabular-nums; word-break: break-word;
+    }
+    .pj-bench-kpi span { display: block; margin-top: 1px; font-size: 10.5px; line-height: 1.5; color: var(--dim); }
+    .pj-bench-res.ok .pj-bench-kpi > div:last-child b { color: #15803d; }
+    .pj-bench-res.near .pj-bench-kpi > div:last-child b { color: #b45309; }
+    .pj-bench-res.far .pj-bench-kpi > div:last-child b { color: #be123c; }
+    .pj-bench-tip { margin: 9px 0 0; font-size: 12px; line-height: 1.8; color: var(--muted); }
+    .pj-bench-res.bad .pj-bench-tip { margin-top: 0; color: #be123c; }
+    .pj-bench-spread {
+      margin: 7px 0 0; padding-top: 7px; border-top: 1px dashed rgba(100, 116, 139, .28);
+      font-size: 11.5px; line-height: 1.75; color: var(--dim);
+    }
+
+    body.dark:not(.light) .pj-bench { border-color: rgba(251, 191, 36, .32); background: rgba(245, 158, 11, .1); }
+    body.dark:not(.light) .pj-bench-h b { color: #fcd34d; border-color: rgba(251, 191, 36, .4); }
+    body.dark:not(.light) .pj-bench-row input { background: rgba(15, 23, 42, .5); border-color: rgba(148, 163, 184, .35); }
+    body.dark:not(.light) .pj-bench-kpi > div { background: rgba(15, 23, 42, .42); }
+    body.dark:not(.light) .pj-bench-res.ok { background: rgba(21, 128, 61, .16); }
+    body.dark:not(.light) .pj-bench-res.near { background: rgba(217, 119, 6, .16); }
+    body.dark:not(.light) .pj-bench-res.far { background: rgba(225, 29, 72, .15); }
+    body.dark:not(.light) .pj-bench-res.ok .pj-bench-kpi > div:last-child b { color: #86efac; }
+    body.dark:not(.light) .pj-bench-res.near .pj-bench-kpi > div:last-child b { color: #fcd34d; }
+    body.dark:not(.light) .pj-bench-res.far .pj-bench-kpi > div:last-child b { color: #fda4af; }
+    body.dark:not(.light) .pj-bench-res.bad .pj-bench-tip { color: #fda4af; }
+
+    @media (max-width: 560px) {
+      .pj-bench-kpi { grid-template-columns: 1fr 1fr; }
+      .pj-bench-kpi > div:last-child { grid-column: 1 / -1; }
+      .pj-bench-row input { flex: 1 1 100px; width: auto; }
     }
 
     /* 案例背景读完后的出口：直达 20 道项目题 */
@@ -2758,7 +2897,34 @@
     @media (max-width: 640px) {
       .pj-fm-grid { grid-template-columns: 1fr; }
       .pj-fm-f:nth-child(5), .pj-fm-f:nth-child(6) { grid-column: auto; }
+      .pj-seats { grid-template-columns: 1fr; }
     }
+
+    /* 纸质工作包的线上版（问卷星）：一个入口，别在页面上再摊一遍四面 */
+    .pj-survey {
+      border: 1px solid rgba(14, 116, 144, .30); border-radius: 12px;
+      background: rgba(14, 116, 144, .045); padding: 14px 16px;
+    }
+    body.dark:not(.light) .pj-survey { background: rgba(34, 211, 238, .06); border-color: rgba(34, 211, 238, .26); }
+    .pj-sv-h { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; margin-bottom: 8px; }
+    .pj-sv-h h3 { margin: 0; border-left-color: #0e7490; }
+    body.dark:not(.light) .pj-sv-h h3 { border-left-color: #22d3ee; }
+    .pj-sv-src {
+      font-style: normal; font-size: 10.5px; font-weight: 700; letter-spacing: .04em;
+      color: #0e7490; background: rgba(14, 116, 144, .12); border-radius: 5px; padding: 1px 6px;
+    }
+    body.dark:not(.light) .pj-sv-src { color: #67e8f9; background: rgba(34, 211, 238, .16); }
+    .pj-survey .pj-sv-lead { margin: 0 0 10px; font-size: 12.5px; line-height: 1.85; color: var(--muted); }
+    .pj-sv-list { margin: 0 0 12px; padding-left: 18px; display: flex; flex-direction: column; gap: 4px; }
+    .pj-sv-list li { font-size: 12px; line-height: 1.7; color: var(--muted); }
+    .pj-sv-foot { display: flex; align-items: center; flex-wrap: wrap; gap: 4px 12px; }
+    .pj-sv-btn {
+      display: inline-flex; align-items: center; gap: 5px; padding: 7px 15px; border-radius: 9px;
+      background: #0e7490; color: #fff; font-size: 12.5px; font-weight: 600;
+      text-decoration: none; transition: .18s;
+    }
+    .pj-sv-btn:hover { background: #155e75; color: #fff; }
+    .pj-sv-note { font-size: 11.5px; line-height: 1.6; color: var(--dim); }
 
     /* 阶段任务底部指路：第三段的伦理追问在思政园地有整页对照 */
     .pj-szlink { margin-top: 10px; font-size: 12px; line-height: 1.9; color: var(--muted); }

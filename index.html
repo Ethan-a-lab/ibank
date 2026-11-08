@@ -2193,6 +2193,39 @@
         </div>
       </div>
 
+      <!-- 三次出价：学生先定价、再对照现实，这里看的是偏差往哪边偏 -->
+      <div class="admin-panel" style="margin-top:16px;">
+        <h4>比亚迪项目 · 三次出价与偏差</h4>
+        <div class="sub">学生在 2002 / 2011 / 2016 三段各先自己定一个价，点「对照现实」之后才看得到真实值（type = project，detail 里 action = bench）。这里要看的不是谁算得准，是<b>偏差的方向</b>：全班系统性偏高，说明对当年的市场窗口没有感觉；系统性偏低，说明把「发行人急着要钱，所以只能贱卖」当成了常态。教师账号不入统计。</div>
+        <div id="pj-bench-body"><div class="um-empty">加载中…</div></div>
+        <div class="setup-actions" style="margin-top:10px;">
+          <button class="copy-sql-btn" id="pj-bench-export-btn" type="button">⬇️ 导出三次出价（CSV）</button>
+          <span class="ev-status" id="pj-bench-status"></span>
+        </div>
+      </div>
+
+      <!-- 教室共用机器换下一组：只清学生留在这台机器上的状态，云端一条不动 -->
+      <div class="admin-panel" id="pj-reset-panel" style="margin-top:16px;">
+        <h4>教室机器 · 换下一组</h4>
+        <div class="sub">一台机器轮着用的时候，上一组填的<b>席位、组号、三段出价、第二段四栏</b>都还留在浏览器里，下一组点开就全看见了。这里把它们清干净，让下一个组从空白开始。<b>只清本机</b>——云端已经收上去的记录一条不删，上面几张表不受影响；也<b>不动</b>「清空本机数据」（那个按钮连云端本账号记录一起删，是给教师自己点测后收拾用的，两个别混）。学生用自己手机的，不用管这一栏。</div>
+        <div class="setup-actions" style="margin-top:10px;">
+          <button class="copy-sql-btn" id="pj-reset-btn" type="button">🧹 清空本机：席位 / 组号 / 出价 / 四栏</button>
+          <span class="ev-status" id="pj-reset-status"></span>
+        </div>
+        <p class="tip" id="pj-reset-detail" style="margin:8px 0 0;font-size:12px;color:var(--muted);">首次点击只做统计，不会清；再点一次才生效。</p>
+      </div>
+
+      <!-- 问卷星：纸质工作包的线上版。本站只做入口，分析在问卷星后台做 -->
+      <div class="admin-panel" id="pj-survey-panel" style="margin-top:16px;" hidden>
+        <h4>比亚迪项目 · 纸质工作包的线上版（问卷星）</h4>
+        <div class="sub">四面里那些「写一句话」的题，问卷星上有一份同样的：没带工作包、缺勤补交、或者想留个电子档，都走这份。<b>答案在问卷星后台看</b>——本站不另做一套分析面板，两处各算一遍只会互相打架。</div>
+        <div class="setup-actions" style="margin-top:10px;">
+          <a class="copy-sql-btn" id="pj-survey-open" href="#" target="_blank" rel="noopener">↗ 打开学生问卷</a>
+          <a class="copy-sql-btn" id="pj-survey-result" href="#" target="_blank" rel="noopener">↗ 打开问卷星结果</a>
+          <span class="ev-status" id="pj-survey-status"></span>
+        </div>
+      </div>
+
       <details class="fold-panel" id="stu-fold">
         <summary><span class="fp-t">学生学情明细</span><span class="fp-sub">逐个学生查看章节完成数、累计学习时长、答题量与正确率、最近活跃时间（点击某行展开章节与题型明细）。</span></summary>
         <div class="fp-body">

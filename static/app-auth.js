@@ -945,12 +945,27 @@ console.log('%c[iBank 数据自检]', 'font-weight:bold', out);
       // 数据源与 4.3 记录卡同源（events.type = 'project'），不掺演示数据。
       var PJ_ID = 'byd';
       var PJ_LABEL = { A: 'A 股定增', B: 'H 股配售', C: '银行间中票' };
+      var PJ_SEAT = { issuer: '发行人', investor: '投资者', regulator: '监管者' };
       var pjBetRows = [];
       var pjBetStamp = 0;
 
       // 解析押注事件：同一学生改主意时以最新一条为准；
       // 同一组里不同人押不同路是正常现象（说明组内还没谈拢），要原样保留、单独标出
+      // 席位（v85）：学生选席时发的是同一种 type='project'，但没有 pick。
+      //   所以先扫一遍取每人最新席位，再扫押注——否则「选了席但还没押路」的学生会被整条丢掉，
+      //   教师端就会看到「10 个组只有 6 个选了席」这种假象。
       function parseBetEvents(list) {
+        var seatOf = {}, seatTs = {};
+        (list || []).forEach(function (e) {
+          if (!e || e.type !== 'project' || !e.detail) return;
+          var d = null;
+          try { d = typeof e.detail === 'string' ? JSON.parse(e.detail) : e.detail; } catch (err) { return; }
+          if (!d || d.project !== PJ_ID || !d.seat || !PJ_SEAT[d.seat]) return;
+          var uid0 = e.uid || 'anon', ts0 = toMs(e.ts);
+          if (seatOf[uid0] && seatTs[uid0] > ts0) return;
+          seatOf[uid0] = String(d.seat);
+          seatTs[uid0] = ts0;
+        });
         var byUid = {};
         (list || []).forEach(function (e) {
           if (!e || e.type !== 'project' || !e.detail) return;
@@ -963,6 +978,7 @@ console.log('%c[iBank 数据自检]', 'font-weight:bold', out);
             uid: uid,
             pick: String(d.pick).toUpperCase(),
             group: String(d.group == null ? '' : d.group).trim(),
+            seat: seatOf[uid] || '',
             ts: ts
           };
         });
@@ -975,10 +991,14 @@ console.log('%c[iBank 数据自检]', 'font-weight:bold', out);
         rows.forEach(function (r) { var k = r.group || ''; (g[k] = g[k] || []).push(r); });
         var keys = Object.keys(g).filter(function (k) { return k; }).sort(function (a, b) { return (+a || 99) - (+b || 99); });
         if (g['']) keys.push('');
-        var html = '<table class="pj-bt-tb"><thead><tr><th>组号</th><th>已押</th><th>押注分布</th><th>状态</th></tr></thead><tbody>';
+        var html = '<table class="pj-bt-tb"><thead><tr><th>组号</th><th>已押</th><th>押注分布</th><th>席位</th><th>状态</th></tr></thead><tbody>';
         keys.forEach(function (k) {
           var arr = g[k], c = { A: 0, B: 0, C: 0, '?': 0 };
           arr.forEach(function (r) { c[PJ_LABEL[r.pick] ? r.pick : '?']++; });
+          // 组内席位取最新一条非空（全组同席是规则，出现两种说明这组没按规则坐）
+          var seats = arr.map(function (r) { return r.seat; }).filter(function (x) { return x; });
+          var seatTxt = seats.length ? PJ_SEAT[seats[seats.length - 1]] : '';
+          if (seats.length && seats.some(function (x) { return x !== seats[0]; })) seatTxt += ' ✽';
           var dist = ['A', 'B', 'C'].filter(function (x) { return c[x]; })
             .map(function (x) { return PJ_LABEL[x] + ' ' + c[x]; }).join(' · ')
             + (c['?'] ? (c.A + c.B + c.C ? ' · ' : '') + '其他 ' + c['?'] : '');
@@ -987,7 +1007,9 @@ console.log('%c[iBank 数据自检]', 'font-weight:bold', out);
             : (kinds > 1 ? '<span class="pj-bt-tag split">组内分歧</span>'
               : '<span class="pj-bt-tag ok">已统一</span>');
           html += '<tr><td class="num">' + (k ? '第 ' + esc(k) + ' 组' : '—') + '</td>'
-            + '<td class="num">' + arr.length + '</td><td>' + esc(dist) + '</td><td>' + tag + '</td></tr>';
+            + '<td class="num">' + arr.length + '</td><td>' + esc(dist) + '</td>'
+            + '<td>' + (seatTxt ? esc(seatTxt) : '<span class="pj-bt-tag none">未选席</span>') + '</td>'
+            + '<td>' + tag + '</td></tr>';
         });
         return html + '</tbody></table>';
       }
@@ -999,7 +1021,7 @@ console.log('%c[iBank 数据自检]', 'font-weight:bold', out);
         pjBetRows = rows;
         var st = document.getElementById('pj-bet-status');
         if (!rows.length) {
-          box.innerHTML = '<div class="um-empty">还没有小组押注记录。需学生账号在「项目式教学 → 比亚迪」页选一条路并填组号；教师账号的操作不入统计。</div>';
+          box.innerHTML = '<div class="um-empty">还没有小组押注记录。需学生账号在「项目式教学 → 比亚迪」页先填组号、选席位，再押一条路；教师账号的操作不入统计。</div>';
           if (st) st.textContent = note || '';
           return;
         }
@@ -1019,17 +1041,37 @@ console.log('%c[iBank 数据自检]', 'font-weight:bold', out);
             + '<span class="track"><span class="fill' + (cls ? ' ' + cls : '') + '" style="width:' + pct + '%"></span></span>'
             + '<span class="n">' + n + ' 人 · ' + pct + '%</span></div>';
         };
+        // 席位是「全组同席」，所以按组数而不是按人数算——一个组来五个人不会变成五票
+        var seatG = { issuer: [], investor: [], regulator: [], '': [] };
+        named.forEach(function (k) {
+          var s = groups[k].map(function (r) { return r.seat; }).filter(function (x) { return x; }).pop() || '';
+          seatG[s] ? seatG[s].push(k) : seatG[''].push(k);
+        });
+        var seatTotal = named.length || 0;
+        var barG = function (name, n, cls) {
+          var pct = seatTotal ? Math.round(n / seatTotal * 100) : 0;
+          return '<div class="cb43-bar"><span class="t">' + name + '</span>'
+            + '<span class="track"><span class="fill' + (cls ? ' ' + cls : '') + '" style="width:' + pct + '%"></span></span>'
+            + '<span class="n">' + n + ' 组 · ' + pct + '%</span></div>';
+        };
         box.innerHTML = '<div class="cb43-top">'
           + '<div class="cb43-kpi"><span class="k">已押注学生</span><span class="v">' + rows.length + '</span><span class="n">不含教师账号</span></div>'
           + '<div class="cb43-kpi"><span class="k">参与组数</span><span class="v">' + named.length + '</span><span class="n">已填组号</span></div>'
           + '<div class="cb43-kpi"><span class="k">组内分歧</span><span class="v">' + splitG.length + '</span><span class="n">'
           + (splitG.length ? '第 ' + splitG.join('、') + ' 组' : '各组均已统一') + '</span></div>'
-          + '<div class="cb43-kpi"><span class="k">未填组号</span><span class="v">' + noGroup + '</span><span class="n">不影响押注统计</span></div>'
+          + '<div class="cb43-kpi"><span class="k">未选席</span><span class="v">' + seatG[''].length + '</span><span class="n">'
+          + (noGroup ? '另有 ' + noGroup + ' 人未填组号' : '按组计') + '</span></div>'
           + '</div>'
           + '<div class="cb43-bars">' + bar('A 股定增', cnt.A) + bar('H 股配售', cnt.B, 'alt')
           + bar('银行间中票', cnt.C, 'warm') + (cnt['?'] ? bar('其他 / 无法识别', cnt['?'], 'gray') : '') + '</div>'
+          + (seatTotal ? '<p class="pj-bt-sub">三席分布（按组，全组同席）</p>'
+            + '<div class="cb43-bars">'
+            + barG('发行人席 · 5 组', seatG.issuer.length) + barG('投资者席 · 3 组', seatG.investor.length, 'alt')
+            + barG('监管者席 · 2 组', seatG.regulator.length, 'warm')
+            + (seatG[''].length ? barG('未选席', seatG[''].length, 'gray') : '') + '</div>' : '')
           + '<div class="pj-bt-wrap">' + pjGroupTable(rows) + '</div>'
           + '<div class="cb43-note">口径：同一学生改主意以最新一条为准；<b>组内分歧</b>指同一组里出现了两种以上选择 —— 课堂正需要先点这一组，让他们先谈拢再往下走。'
+          + '席位按组算，一个组来五个人也不会变成五票；组内出现两种席位会标 ✽，那是没按「全组同席」坐。'
           + (note ? ' ' + note : '') + '</div>';
         if (st) st.textContent = note || '';
       }
@@ -1062,13 +1104,13 @@ console.log('%c[iBank 数据自检]', 'font-weight:bold', out);
 
       function causeExportPjBet() {
         if (!pjBetRows.length) { if (typeof ibankToast === 'function') ibankToast('暂无押注记录可导出'); return; }
-        var head = ['组号', '押注路径', '学生uid', '提交时间'];
+        var head = ['组号', '席位', '押注路径', '学生uid', '提交时间'];
         var lines = [head.join(',')];
         pjBetRows.slice().sort(function (a, b) {
           return String(a.group || '999').localeCompare(String(b.group || '999'), undefined, { numeric: true });
         }).forEach(function (r) {
           lines.push([
-            csvCell(r.group || '未填'), csvCell(PJ_LABEL[r.pick] || r.pick), csvCell(r.uid),
+            csvCell(r.group || '未填'), csvCell(PJ_SEAT[r.seat] || '未选'), csvCell(PJ_LABEL[r.pick] || r.pick), csvCell(r.uid),
             r.ts ? new Date(r.ts).toLocaleString('zh-CN') : ''
           ].join(','));
         });
@@ -1200,6 +1242,178 @@ console.log('%c[iBank 数据自检]', 'font-weight:bold', out);
         setTimeout(function () { URL.revokeObjectURL(url); }, 1500);
       }
 
+      // ===== v86：三次出价与偏差 =====
+      // 学生先定价、点「对照现实」后才看到真实值。这里聚合的是偏差，
+      // 因为「谁算得准」不构成教学信息，「全班系统性往哪边偏」才是。
+      var pjBenchRows = [];
+      var pjBenchStamp = 0;
+      var BENCH_META = {
+        '2002': { label: '2002 · 香港 IPO', real: 10.95, unit: '港元' },
+        '2011': { label: '2011 · A 股 IPO', real: 18.00, unit: '元' },
+        '2016': { label: '2016 · 定向增发', real: 57.40, unit: '元' }
+      };
+      var BENCH_ORDER = ['2002', '2011', '2016'];
+
+      function parseBenchEvents(list) {
+        var map = {};
+        (list || []).forEach(function (e) {
+          if (!e || e.type !== 'project' || !e.detail) return;
+          var d = null;
+          try { d = typeof e.detail === 'string' ? JSON.parse(e.detail) : e.detail; } catch (err) { return; }
+          if (!d || d.action !== 'bench' || !BENCH_META[String(d.year)]) return;
+          var ts = toMs(e.ts), uid = e.uid || 'anon';
+          var my = Number(d.my);
+          if (!isFinite(my) || my <= 0) return;
+          var key = uid + '|' + d.year;
+          if (map[key] && map[key].ts > ts) return;   // 同一人改价，以最后一次为准
+          map[key] = {
+            uid: uid, year: String(d.year), my: my, ts: ts,
+            gap: d.gap == null ? (my - BENCH_META[String(d.year)].real) / BENCH_META[String(d.year)].real * 100
+              : Number(String(d.gap).replace('+', '')),
+            seat: String(d.seat || ''), group: String(d.group == null ? '' : d.group).trim()
+          };
+        });
+        return Object.keys(map).map(function (k) { return map[k]; });
+      }
+
+      function median(arr) {
+        if (!arr.length) return 0;
+        var a = arr.slice().sort(function (x, y) { return x - y; });
+        var m = Math.floor(a.length / 2);
+        return a.length % 2 ? a[m] : (a[m - 1] + a[m]) / 2;
+      }
+
+      function renderPjBench(list, note) {
+        var box = document.getElementById('pj-bench-body');
+        if (!box) return;
+        var rows = parseBenchEvents(list);
+        pjBenchRows = rows;
+        var st = document.getElementById('pj-bench-status');
+        if (st) st.textContent = note || '';
+        if (!rows.length) {
+          box.innerHTML = '<div class="um-empty">还没有出价记录。需学生账号在「课程项目 → 比亚迪 → 案例背景」里，'
+            + '在 2002 / 2011 / 2016 三段各填一个数并点「对照现实」；教师账号的操作不入统计，'
+            + '离线填写的记录会在联网上报后出现在这里。</div>';
+          return;
+        }
+        var byY = {}, seen = {};
+        rows.forEach(function (r) {
+          (byY[r.year] = byY[r.year] || []).push(r);
+          seen[r.uid] = (seen[r.uid] || 0) + 1;
+        });
+        var nUid = Object.keys(seen).length;
+        var nAll = Object.keys(seen).filter(function (k) { return seen[k] >= 3; }).length;
+        var absAll = rows.map(function (r) { return Math.abs(r.gap); });
+        var mAbs = absAll.length ? absAll.reduce(function (a, b) { return a + b; }, 0) / absAll.length : 0;
+        var kpi = function (k, v, n) {
+          return '<div class="cb43-kpi"><span class="k">' + k + '</span><span class="v">' + v + '</span><span class="n">' + n + '</span></div>';
+        };
+        var html = '<div class="cb43-top">'
+          + kpi('出过价的学生', nUid + ' 人', '三段合计 ' + rows.length + ' 次')
+          + kpi('三段都对照过', nAll + ' / ' + nUid, '缺的那段铃响前补一下')
+          + kpi('平均绝对偏差', mAbs.toFixed(1) + '%', '不看方向，只看离了多远')
+          + '</div>';
+
+        // 三段各一行：人数 / 学生中位数 / 现实 / 平均偏差 / 判断
+        html += '<table class="pj-bt-tb"><thead><tr><th>段</th><th>出价人数</th><th>学生中位数</th>'
+          + '<th>现实</th><th>平均偏差</th><th>这一班往哪边偏</th></tr></thead><tbody>';
+        BENCH_ORDER.forEach(function (y) {
+          var arr = byY[y] || [], m = BENCH_META[y];
+          if (!arr.length) {
+            html += '<tr><td>' + esc(m.label) + '</td><td class="num">0</td>'
+              + '<td colspan="4" class="pj-bench-none">这一段还没有人对照</td></tr>';
+            return;
+          }
+          var med = median(arr.map(function (r) { return r.my; }));
+          var mg = arr.reduce(function (a, r) { return a + r.gap; }, 0) / arr.length;
+          var dir, cls;
+          if (mg > 5) { dir = '系统性偏高 ' + mg.toFixed(1) + '%'; cls = 'up'; }
+          else if (mg < -5) { dir = '系统性偏低 ' + mg.toFixed(1) + '%'; cls = 'down'; }
+          else { dir = '基本贴住（' + (mg > 0 ? '+' : '') + mg.toFixed(1) + '%）'; cls = 'flat'; }
+          var near = arr.filter(function (r) { return Math.abs(r.gap) <= 15; }).length;
+          html += '<tr><td>' + esc(m.label) + '</td><td class="num">' + arr.length + '</td>'
+            + '<td class="num">' + med.toFixed(2) + ' ' + esc(m.unit) + '</td>'
+            + '<td class="num">' + m.real.toFixed(2) + ' ' + esc(m.unit) + '</td>'
+            + '<td class="num">' + (mg > 0 ? '+' : '') + mg.toFixed(1) + '%</td>'
+            + '<td><span class="pj-bench-dir ' + cls + '">' + esc(dir) + '</span>'
+            + '<em class="pj-bench-near">±15% 内 ' + near + ' / ' + arr.length + '</em></td></tr>';
+        });
+        html += '</tbody></table>';
+
+        // 三段叠在一起的分布条：一眼看出是「都偏高」还是「各段各的偏」
+        var buckets = [
+          { k: '低于现实 35% 以上', t: function (g) { return g <= -35; }, cls: 'down' },
+          { k: '低 15%—35%', t: function (g) { return g > -35 && g <= -15; }, cls: 'down' },
+          { k: '±15% 以内', t: function (g) { return g > -15 && g < 15; }, cls: 'flat' },
+          { k: '高 15%—35%', t: function (g) { return g >= 15 && g < 35; }, cls: 'up' },
+          { k: '高于现实 35% 以上', t: function (g) { return g >= 35; }, cls: 'up' }
+        ];
+        html += '<div class="cb43-bars wide">';
+        buckets.forEach(function (b) {
+          var n = rows.filter(function (r) { return b.t(r.gap); }).length;
+          var pct = Math.round(n / rows.length * 100);
+          html += '<div class="cb43-bar"><span class="t">' + b.k + '</span>'
+            + '<span class="track"><span class="fill' + (b.cls === 'down' ? ' alt' : (b.cls === 'up' ? ' warm' : '')) + '" style="width:' + pct + '%"></span></span>'
+            + '<span class="n">' + n + ' 次 · ' + pct + '%</span></div>';
+        });
+        html += '</div>';
+
+        html += '<div class="cb43-note">口径：同一学生在同一段改过多次，以最后一次为准；三段的偏差按各自真实值折算成百分比，所以能直接相加比较。'
+          + '<b>怎么用</b>：中位数离现实远、而 ±15% 内的比例又高，说明班里分成两拨——那一拨偏得离谱的，通常是把「发行人缺钱」直接等同于「只能贱卖」。'
+          + (note ? ' ' + note : '') + '</div>';
+        box.innerHTML = html;
+      }
+
+      async function loadPjBench(force) {
+        var box = document.getElementById('pj-bench-body');
+        if (!box) return;
+        if (!force && pjBenchRows.length && Date.now() - pjBenchStamp < 5000) return;
+        var local = [];
+        try { local = normEvents(JSON.parse(localStorage.getItem('ibank_events_local') || '[]')); } catch (e) {}
+        var locN = local.filter(function (e) { return e && e.type === 'project'; }).length;
+        if (locN) renderPjBench(local, '本机镜像 ' + locN + ' 条 · 云端同步中…');
+        if (OFFLINE || !db) {
+          pjBenchStamp = Date.now();
+          renderPjBench(local, '离线演示：仅统计本机镜像记录');
+          return;
+        }
+        var cloud = null;
+        try {
+          cloud = await Promise.race([
+            db.from('events').select('*').eq('type', 'project').limit(5000).then(function (r) { return (r && r.data) || []; }),
+            new Promise(function (res) { setTimeout(function () { res(null); }, 8000); })
+          ]);
+        } catch (e) { cloud = null; }
+        pjBenchStamp = Date.now();
+        if (!cloud) { renderPjBench(local, '云端读取超时，暂按本机 ' + locN + ' 条统计'); return; }
+        var cn = cloud.filter(function (e) { return e && e.type === 'project'; }).length;
+        renderPjBench(cloud.concat(local), '云端 ' + cn + ' 条 · 本机 ' + locN + ' 条 · ' + fmtDate(Date.now()));
+      }
+
+      function causeExportPjBench() {
+        if (!pjBenchRows.length) { if (typeof ibankToast === 'function') ibankToast('暂无出价记录可导出'); return; }
+        var head = ['段', '学生定价', '现实值', '偏差%', '席位', '组号', '提交时间', 'student_uid'];
+        var lines = [head.join(',')];
+        pjBenchRows.slice().sort(function (a, b) {
+          return a.year === b.year
+            ? String(a.group || '999').localeCompare(String(b.group || '999'), undefined, { numeric: true })
+            : a.year.localeCompare(b.year);
+        }).forEach(function (r) {
+          var m = BENCH_META[r.year];
+          lines.push([
+            csvCell(m.label), r.my.toFixed(2), m.real.toFixed(2), r.gap.toFixed(1),
+            csvCell(PJ_SEAT[r.seat] || r.seat || '未选席'), csvCell(r.group || '未填'),
+            r.ts ? new Date(r.ts).toLocaleString('zh-CN') : '', csvCell(r.uid)
+          ].join(','));
+        });
+        var blob = new Blob(['\ufeff' + lines.join('\r\n')], { type: 'text/csv;charset=utf-8' });
+        var url = URL.createObjectURL(blob);
+        var a = document.createElement('a');
+        a.href = url; a.download = 'iBank_三次出价偏差_' + new Date().toISOString().slice(0, 10) + '.csv';
+        document.body.appendChild(a); a.click(); document.body.removeChild(a);
+        setTimeout(function () { URL.revokeObjectURL(url); }, 1500);
+      }
+
       async function loadEventStats() {
         const kpiRow = document.getElementById('ev-kpi-row');
         const cEl = document.getElementById('ev-chapter');
@@ -1213,6 +1427,23 @@ console.log('%c[iBank 数据自检]', 'font-weight:bold', out);
         try { loadPjBet(); } catch (e) { /* 不阻断主看板 */ }
         // v84：第二段三路四栏，同样独立取数
         try { loadPjCmp(); } catch (e) { /* 不阻断主看板 */ }
+        // v86：三次出价与偏差
+        try { loadPjBench(); } catch (e) { /* 不阻断主看板 */ }
+        // v85：问卷星入口。链接没配就整块不显示，不占版面
+        try {
+          (function () {
+            var panel = document.getElementById('pj-survey-panel');
+            if (!panel) return;
+            var su = (window.__ibankSurveyUrl && window.__ibankSurveyUrl()) || '';
+            var ru = (window.__ibankResultUrl && window.__ibankResultUrl()) || '';
+            if (!su && !ru) { panel.hidden = true; return; }
+            panel.hidden = false;
+            var a1 = document.getElementById('pj-survey-open');
+            var a2 = document.getElementById('pj-survey-result');
+            if (a1) { if (su) a1.href = su; else a1.hidden = true; }
+            if (a2) { if (ru) a2.href = ru; else a2.hidden = true; }
+          })();
+        } catch (e) { /* 不阻断主看板 */ }
         if (OFFLINE) {
           let local = []; try { local = JSON.parse(localStorage.getItem('ibank_events_local') || '[]'); } catch (e) {}
           local = normEvents(local);
@@ -2338,6 +2569,75 @@ const actSrc = login.length ? login : study.concat(quiz, mod, qa);
       // v84：第二段三路四栏导出
       var pjCmpExportBtn = document.getElementById('pj-cmp-export-btn');
       if (pjCmpExportBtn) pjCmpExportBtn.addEventListener('click', causeExportPjCmp);
+      // v86：三次出价偏差导出
+      var pjBenchExportBtn = document.getElementById('pj-bench-export-btn');
+      if (pjBenchExportBtn) pjBenchExportBtn.addEventListener('click', causeExportPjBench);
+
+      // ── 教室机器换下一组：只清「学生留在这台机器上的状态」 ──
+      // 和 __ibankResetLocal 的根本区别（两个按钮别混）：
+      //   __ibankResetLocal 会连云端本账号的 events 一起删，是教师自己点测后收拾数据用的；
+      //   这里一个云端请求都不发，只动 localStorage 那四个键。
+      //   共用机器上学生可能正登录着自己的账号，删云端等于把学生的真实作业抹掉。
+      var PJ_STATE_KEYS = [
+        { k: 'ibank_project_seat', label: '席位' },
+        { k: 'ibank_project_group', label: '组号' },
+        { k: 'ibank_pj_bench_v1', label: '三段出价' },
+        { k: 'ibank_pj_cmp_v1', label: '第二段四栏' }
+      ];
+      var pjResetArm = 0;   // 待确认令牌：每次点击递增，过期或被覆盖的定时器自动作废
+      (function bindPjReset() {
+        var btn = document.getElementById('pj-reset-btn');
+        if (!btn) return;
+        var st = document.getElementById('pj-reset-status');
+        var dt = document.getElementById('pj-reset-detail');
+        var IDLE = '首次点击只做统计，不会清；再点一次才生效。';
+        function disarm() {
+          pjResetArm = 0;
+          btn.textContent = '🧹 清空本机：席位 / 组号 / 出价 / 四栏';
+          btn.classList.remove('armed');
+        }
+        btn.addEventListener('click', function () {
+          var live = [];
+          PJ_STATE_KEYS.forEach(function (it) {
+            var v = null;
+            try { v = localStorage.getItem(it.k); } catch (e) {}
+            if (v) live.push(it.label);
+          });
+
+          // 第一下：只报「会清掉什么」，不清。不可逆操作必须两道闸。
+          if (!pjResetArm) {
+            var myArm = ++pjResetArm;
+            btn.classList.add('armed');
+            btn.textContent = '⚠️ 再点一次确认清空';
+            if (st) st.textContent = live.length ? ('待清 ' + live.length + ' 项：' + live.join(' / ')) : '本机本来就是空的';
+            if (dt) dt.textContent = '再点一次才真正清掉；15 秒内没再点会自动撤销。不会删除云端任何记录。';
+            setTimeout(function () {
+              if (pjResetArm !== myArm) return;   // 已经清过或又被点过，这个定时器作废
+              disarm();
+              if (st) st.textContent = '';
+              if (dt) dt.textContent = IDLE;
+            }, 15000);
+            return;
+          }
+
+          // 第二下：真清。只清本机，不发任何请求。
+          pjResetArm = 0;
+          btn.classList.remove('armed');
+          btn.textContent = '🧹 清空本机：席位 / 组号 / 出价 / 四栏';
+          var n = 0;
+          PJ_STATE_KEYS.forEach(function (it) {
+            try {
+              if (localStorage.getItem(it.k) != null) { localStorage.removeItem(it.k); n++; }
+            } catch (e) {}
+          });
+          if (st) st.textContent = '已清 ' + n + ' 项，云端记录未动';
+          if (dt) dt.textContent = '下一个组打开项目页就是空白：席位没选、组号空着、三段出价空着。'
+            + '若这台机器上还开着项目页，按一下刷新。';
+          try {
+            window.dispatchEvent(new CustomEvent('ibank:pj-state-reset'));
+          } catch (e) {}
+        });
+      })();
 
       const adminTab = document.querySelector('.tab-btn[data-page="p-admin"]');
       if (adminTab) adminTab.addEventListener('click', function () { loadRealStats(); loadEventStats(); });

@@ -2283,7 +2283,7 @@ document.addEventListener('keydown', function (e) {
         { q: '2021 年比亚迪两次 H 股配售分别较市价折让 7.8% 与 6.9%。这笔折让在财务上的本质是？', opts: ['承销商的佣金', '为「时间」和「确定性」支付的价格', '一项应缴纳的税费', '汇率波动造成的损失'], a: 1, kp: '再融资成本', chapter: '第4章', type: '选择', pbl: '任务二 · 三条再融资路' },
         { q: '2026 年比亚迪发行银行间中期票据（科创债），相对于股权融资，下列说法正确的有？', opts: ['不摊薄现有股东股权', '利息可在税前扣除，具有税盾效应', '增加还本付息压力与财务风险', '须经证监会发审委审核', '期限通常长于短期借款，可匹配中长期项目'], a: [0, 1, 2, 4], multi: true, kp: '债务融资特点', chapter: '第5章', type: '选择', pbl: '任务二 · 三条再融资路' },
         { q: '同一家公司：2011 年用 IPO、2016 年用 A 股定增、2021 年用 H 股配售、2026 年用银行间中票。请说明这四次选择背后真正被权衡的三组关系，并各举一例。', opts: null, a: -1, kp: '融资方式选择', chapter: '第4章', type: '简答', pbl: '任务二 · 三条再融资路', pts: ['时间', '摊薄', '成本', '风险', '审核', '确定性', '控制权', '窗口'], ans: '①时间（审核周期）与确定性的权衡：定增要过证监会审核，周期以年计，期间股价与市场窗口都可能变；H 股配售与中票簿记不走境内股权审核，几天到两周就能拿到钱。2021 年扩产等不起，所以宁愿付 7.8% 的折让买速度。②摊薄（控制权）与成本的权衡：股权融资不还本，但摊薄每股收益与持股比例；债务融资不摊薄，利息还能抵税，代价是刚性兑付与财务风险。2026 年选 3 年中票，本质是用 1.72% 的票面利率换「不摊薄」。③融资成本与风险承担的权衡：成本最低的往往不是最合适的——内部留存最便宜但规模有限；定增锁价把价格定死、确定性高，却把期间风险转给了认购方，因此必须有折价补偿。三组关系没有标准答案，取决于当时「缺的是钱、是时间，还是控制权」。' },
-        { q: '2016 年比亚迪定向增发：锁定价 57.40 元/股，计划发行 2.61 亿股、募资约 150 亿元，发行对象不超过 35 名，最终实际到账 143.69 亿元。请计算：（1）实际发行股数约为多少亿股；（2）实际募资比计划少多少、缺口占比多少；（3）若按上限 35 名对象均分，人均认购多少亿元；这说明定增的钱主要来自谁？', opts: null, a: -1, kp: '定向增发', chapter: '第4章', type: '案例', pbl: '任务二 · 三条再融资路', pts: ['2.50', '6.31', '4.2', '35', '机构', '谈判'], ans: '（1）实际发行股数 ≈ 143.69 ÷ 57.40 ≈ 2.50 亿股，比计划的 2.61 亿股少约 0.11 亿股。（2）缺口 = 150 − 143.69 = 6.31 亿元，占计划募资约 4.2%。（3）若 35 名对象均分，人均 ≈ 143.69 ÷ 35 ≈ 4.11 亿元。这说明定增的钱来自极少数大资金——公募、保险、产业资本、私募，而不是公众投资者。由此可推出两条实务结论：一是定增定价不是「市场集合竞价」，而是与少数机构一对一谈判的结果，发行人的议价能力取决于这些机构对公司的判断；二是「发行对象不超过 35 名」这条规则本身就在控制股东人数，避免股权过度分散。' },
+        { q: '2016 年比亚迪定向增发：锁定价 57.40 元/股，预案拟发行 2.61 亿股、募资约 150 亿元，发行对象不超过 35 名。实际发行 2.5214 亿股，募资总额 144.73 亿元，扣除发行费用后净额 143.69 亿元。请计算：（1）按预案股数与锁价，计划募资多少？（2）实际募资总额比计划少多少、缺口占比多少？（3）为什么用 143.69 ÷ 57.40 倒推股数，会得出偏小的结果？（4）最终只有 6 家机构认购，这说明定增的钱主要来自谁？', opts: null, a: -1, kp: '定向增发', chapter: '第4章', type: '案例', pbl: '任务二 · 三条再融资路', pts: ['149.8', '150', '5.1', '5.27', '3.4', '3.5', '净额', '费用', '1.04', '6', '机构', '谈判'], ans: '（1）2.61 × 57.40 ≈ 149.8 亿元，与预案「约 150 亿」一致。（2）缺口 = 149.8 − 144.73 ≈ 5.1 亿元，占计划约 3.4%（按 150 亿口径算是 5.27 亿、占 3.5%）——预案也没募满。（3）143.69 是扣除约 1.04 亿元发行费用后的净额；拿净额除以锁价得 2.503 亿股，比实际发行的 2.5214 亿股少约 181 万股。净额对应「到账的钱」，总额对应「发出去的股」，差的正是承销保荐费——所以倒推股数必须用总额，不能用净额。（4）只有 6 家：国投先进制造 15.00 亿、建信基金 43.05 亿、国寿安保 31.95 亿、三星半导体 30.00 亿、兴业全球 16.73 亿、安信基金 8.00 亿。钱来自极少数大资金——公募、保险、产业资本，而不是公众投资者。由此可推出两条实务结论：一是定增定价不是「市场集合竞价」，而是与少数机构谈判的结果，发行人的议价能力取决于这些机构对公司的判断；二是「发行对象不超过 35 名」这条规则本身就在控制股东人数，避免股权过度分散。' },
 
         { q: '银行间市场中期票据的定价方式是？', opts: ['公开拍卖', '簿记建档（累计投标询价）', '发行人单方固定定价', '与主承销商一对一协议定价'], a: 1, kp: '簿记建档', chapter: '第5章', type: '选择', pbl: '任务三 · 簿记与承销团' },
         { q: '「簿记建档」', opts: null, a: -1, kp: '簿记建档', chapter: '第5章', type: '名词解释', pbl: '任务三 · 簿记与承销团', pts: ['申购区间', '订单', '需求', '票面利率', '配售'], ans: '簿记建档是债券发行的主流定价方式：主承销商先与发行人确定申购区间（如 1.50%—2.00%），再向投资者公开征集申购订单，把每一笔订单的利率与金额登记成册，形成一条真实的需求曲线；簿记结束后，发行人与主承销商根据订单分布确定最终票面利率与配售方案。它的本质是「用订单说话」——利率不是算出来的，是投出来的。比亚迪 2026 年那笔 50 亿元 3 年期科创中票，申购区间 1.50%—2.00%，最终票面 1.72%，就是簿记建档的结果：既没有定在上沿，也没有压到下沿，而是落在有效需求能够承接的位置。' },
@@ -5828,8 +5828,13 @@ document.addEventListener('keydown', function (e) {
       // 留空则对应按钮自动降级为「链接待配置」，上线前没填也不会出现死链。
       var CLASSROOM_LINKS = {
         submit: '',   // 学生提交本组定价，例：'https://www.wjx.cn/vm/xxxxxxxx.aspx'
-        result: ''    // 教师投屏用的实时结果页
+        result: '',   // 教师投屏用的实时结果页
+        survey: ''    // 纸质工作包的线上版（问卷星），例：'https://www.wjx.cn/vm/xxxxxxxx.aspx'
       };
+      // 后台（app-auth.js）也要读这两个地址，但它在另一个 IIFE 里。
+      // 用函数而不用变量：脚本加载顺序谁先谁后都不影响取值。
+      window.__ibankSurveyUrl = function () { return String(CLASSROOM_LINKS.survey || '').trim(); };
+      window.__ibankResultUrl = function () { return String(CLASSROOM_LINKS.result || '').trim(); };
 
       // ---------- 标准答案开关（只作用于「项目实践」板块）----------
       // 口径：网站是演算台，不是答案册。
@@ -5887,8 +5892,8 @@ document.addEventListener('keydown', function (e) {
           role: '三席任选其一 · 4 人一组 · 全班 10 组（发行人 5 组 / 投资者 3 组 / 监管者 2 组）',
           scenario: '比亚迪 2011 年回 A 股上市，2016 年做过一次定向增发，2026 年在银行间连发两期中期票据。同一家公司、同一个资本市场，三次向市场要钱的定价权却完全不在同一边：一次被砍到你没想到的价，一次钱拖到市场都变了，一次订单多到要按比例分。三段的原始数据老师都给你了——你要做的是把每一段的价格自己算出来、定下来，再用这三段回答一个问题：定价权到底在谁手里。',
           drivingQuestion: '同一家公司三次向市场要钱，为什么一次被砍价、一次被拖、一次被抢光？',
-          pickWord: '方案', pickTitle: '先押一条路',
-          pickHint: '先押个注：假设你是比亚迪的融资负责人，账上要补一笔大额资金，你走哪条路？先说一句——揭晓时你会发现，这三条路比亚迪全都真走过。所以这里没有「押错」这回事，要判断的是：你押的这一条，在什么条件下才成立、哪一年只能走它。选哪个不影响评分，影响评分的是你能不能把条件说清楚。',
+          pickWord: '方案', pickTitle: '先定席位，再押一条路',
+          pickHint: '三席都要押这一注：把自己当成比亚迪的融资负责人，账上要补一笔大额资金，你走哪条路？先说一句——揭晓时你会发现，这三条路比亚迪全都真走过。所以这里没有「押错」这回事，要判断的是：你押的这一条，在什么条件下才成立、哪一年只能走它。选哪个不影响评分，影响评分的是你能不能把条件说清楚。',
           options: [
             {
               code: 'A', name: 'A 股定向增发', tag: '股权 · 不还本 · 要审批',
@@ -5918,6 +5923,30 @@ document.addEventListener('keydown', function (e) {
             { role: '投资者席 · 3 组', duty: '判断这个价敢不敢买、这个折价接不接 —— 你们是出钱的一方，任务是砍价，不是配合', power: '报价权 · 弃配权：可以报低价、可以直接不买' },
             { role: '监管者席 · 2 组', duty: '盯信息披露、摊薄、利益冲突 —— 你们不提案也不出钱，只问，问到答不上来为止', power: '问询权 · 中止权：问询站不住，方案当场中止' }
           ],
+          // 本组席位：与工作包第 1 面「本组席位（勾一个，全组同席）」一一对应。
+          // 网页上必须能选，否则教师端只能看到「哪组押了哪条路」，看不到「这组是谁」——
+          // 而三席的任务本来就不一样：发行人算价、投资者砍价、监管者只问。
+          seatTitle: '你们坐哪一席',
+          seatLead: '全组同席，和工作包第 1 面勾的是同一个。选完才会知道这一段你们该交什么。',
+          seats: [
+            { code: 'issuer', name: '发行人席', groups: '5 组', power: '提案 · 撤回', duty: '算价格、选路、定利率' },
+            { code: 'investor', name: '投资者席', groups: '3 组', power: '报价 · 弃配', duty: '判断这个价敢不敢接' },
+            { code: 'regulator', name: '监管者席', groups: '2 组', power: '问询 · 中止', duty: '只问，问到答不上来' }
+          ],
+
+          // 纸质工作包的线上版：四面里那些「写一句话」的题，用问卷星再收一遍。
+          // 纸质仍是当堂主场（课上要算、要留改痕）；这份只为缺勤补交与教师汇总开放题。
+          survey: {
+            title: '纸质工作包的线上版',
+            lead: '课上是纸笔演算，四面的开放题在这份问卷里也有一版：没带工作包、缺勤补交、或者想把答案留个电子档，都走这里。两处都填的，以纸质那份为准。',
+            items: [
+              '第 1 面：课前押的那条路，一句理由',
+              '第 2 面：三条路四栏、你押的那条成立要满足什么、反过来那一问',
+              '第 3 面：五次压价记录、最终票面、再压 1bp 的代价、三条理由',
+              '第 4 面：三段并排（谁先开价 / 最后谁说了算）、三问、一条能迁移的规则'
+            ],
+            note: '题量不小，别在课上现填——课上的时间要花在算和辩上。'
+          },
           // ---------- 案例背景：把十五年这条线摊开 ----------
           // 学生进详情页只看得到「委托情境」一段话，撑不起十五年的跨度，也看不出三次的差别在哪。
           // 这一块只讲过程性事实（当时处境 / 为什么只能走这条路 / 怎么走的 / 谁审审多久）——
@@ -5935,35 +5964,70 @@ document.addEventListener('keydown', function (e) {
             ],
             eras: [
               {
-                no: 'IPO', year: '2011', title: '回归 A 股：市场给你定价',
+                no: 'IPO ①', year: '2002', title: '香港上市：第一次向市场要钱', role: 'main',
+                situation: '2002 年 7 月 31 日，香港主板。往前看，全球股市正处在道琼斯指数下挫 20% 的窗口里，机构几乎不在这个时点买新股；往后看，2003 年 1 月公司就要收购秦川汽车进入整车制造。这笔钱不能等。',
+                why: '当时 A 股对民营企业是核准制长队，H 股是几个月内能拿到境外资金的唯一一条路。代价是把自己交给国际机构定价——询价怎么走、定多少、卖给谁，发行人说了不算。',
+                how: '港交所主板，累计投标询价。保荐人 BNP 百富勤。发行 1.495 亿股，价格由询价结果定——发行人定不了。',
+                howNum: '最终定价 10.95 港元，创下当时 54 只 H 股的最高发行价纪录。',
+                nums: [
+                  { v: '10.95 港元', k: '发行价（当时 H 股最高）', lock: true },
+                  { v: '1.495 亿股', k: '发行数量' },
+                  { v: '16.37 亿港元', k: '募资总额' },
+                  { v: '2.4 / 7 倍', k: '散户 / 机构超额' }
+                ],
+                bench: {
+                  q: '这次发行价定在多少？', unit: '港元', real: 10.95, realTxt: '10.95 港元', step: '0.05',
+                  note: '先自己定一个数，再点对照。这个数没有对错，要你交代的是「凭什么」。'
+                },
+                seal: '[[10.95 港元 · 1.495 亿股 · 16.37 亿港元。散户 10% 公售部分超额认购 2.4 倍，机构配售超额 7 倍——在道指同期下挫 20% 的窗口里，它被当时的媒体称作「全球投资者惶恐期中成功发行的罕见个案」]]',
+                ask: '在一个没人愿意买股票的年头，为什么机构还愿意超额 7 倍？'
+              },
+              {
+                no: 'IPO ②', year: '2011', title: '回归 A 股：市场给你定价', role: 'main',
                 situation: '2002 年就在香港上了市，2011 年回 A 股。老师给你的 2010 年净利润 29.19 亿元，是公司当时最好的年份之一。招股书里写清了这笔钱打算怎么花：拟募 21.92 亿元。',
                 why: '同一家公司、同一年的利润，在 A 股能卖到比港股更高的价。融资要趁估值高——这是所有发行人坐下来谈之前的第一直觉。',
                 how: '深交所中小板、询价制。主承销商带机构询价，给出 21.08—30.81 元的区间；计划发行 7,900 万股，占发行后总股本 3.36%。',
+                // 这里原本有一格「20.47 倍 · 发行市盈率」，已撤下。两条理由：
+                // ① 它是事后披露的统计值，定价当时并不存在，放进「当年他知道什么」本身就是口径错误；
+                // ② 任务一要求「EPS × 可比公司市盈率上下限」，卡片把 PE 直接给了，等于替学生做完关键一步，
+                //    而按 29.19 亿 ÷ 23.5 亿股 ≈ 1.24 元反推，20.47 倍对应约 25.4 元，比真值 18.00 元高 41%——
+                //    照老师教的方法算、又信了这张卡的学生，会被自己的正确算法带进坑里。
+                // 换成一格净利润：这是算 EPS 真正的输入，学生自己去找可比公司 PE。
                 nums: [
                   { v: '7,900 万股', k: '计划发行' },
                   { v: '21.08—30.81 元', k: '承销商询价区间' },
                   { v: '21.92 亿元', k: '招股书拟募' },
-                  { v: '20.47 倍', k: '发行市盈率' }
+                  { v: '29.19 亿元', k: '2010 年归母净利' }
                 ],
-                seal: '[[发行价 18.00 元/股，实募 14.22 亿元（净额 13.54 亿元）——比询价区间下沿还低约 15%，比计划少募 7.7 亿元，缺口 35%]]',
+                bench: {
+                  q: '这次发行价定在多少？', unit: '元', real: 18.00, realTxt: '18.00 元', step: '0.1',
+                  note: '先填你的数，再点对照。承销商给的区间是 21.08—30.81 元，你可以不认它。',
+                  spread: '同一天，89 家配售对象的报价从 8.00 元到 19.88 元 —— 专业买方自己就没算成同一个数。'
+                },
+                seal: '[[发行价 18.00 元/股，实募 14.22 亿元（净额 13.54 亿元）——比询价区间下沿还低约 15%，比计划少募 7.7 亿元，缺口 35%。更值得看的是网下报价：89 家配售对象的出价从 8.00 元到 19.88 元（长江证券、国泰君安报 8 元，泰康资管报 19.88 元），最高最低差 1.48 倍；最终 11 家获配，认购倍数 4.9 倍。同一天、同一份招股书，专业买方给出的价差比最终定价的偏差还大]]',
                 ask: '区间是承销商报的，价是买方给的。这一段，定价权在谁手里？'
               },
               {
-                no: '再融资 ①', year: '2016', title: '定向增发：用锁价买确定性',
-                situation: '2015 年 6 月披露非公开发行预案。当时 A 股在牛市的高位，公司股价也在高位——57.40 元的锁定价放在当时看，并不算便宜。',
+                no: '再融资 ①', year: '2016', title: '定向增发：用锁价买确定性', role: 'main',
+                situation: '2015 年 6 月披露非公开发行预案。当时 A 股在牛市的高位，公司股价也在高位；锁价在预案时就定死，放在当时看并不算便宜。',
                 why: '定增不还本、不付利息，摊薄的是每股收益而不是现金流；锁价发行把价格在预案时就定死，发行人不必担心期间股价怎么走。买的是确定性。',
-                how: '锁价 57.40 元 × 2.61 亿股，约 150 亿元，发行对象不超过 35 名。要走证监会审核，是境内股权融资程序，快不了。',
+                how: '预案拟发 2.61 亿股、募 150 亿元，发行对象不超过 35 名；定价遵循「价格优先、认购金额优先、认购时间优先」。要走证监会审核，是境内股权融资程序，快不了。',
+                howNum: '锁价最终定在 57.40 元／股。',
                 nums: [
-                  { v: '57.40 元', k: '锁价' },
-                  { v: '2.61 亿股', k: '发行数量' },
-                  { v: '约 150 亿元', k: '计划募资' },
-                  { v: '≤ 35 名', k: '发行对象' }
+                  { v: '57.40 元', k: '锁价', lock: true },
+                  { v: '150 亿元', k: '预案拟募' },
+                  { v: '≤ 35 名', k: '发行对象上限' },
+                  { v: '6 家', k: '实际认购家数' }
                 ],
-                seal: '[[实际到账 143.69 亿元；从预案披露到资金到账走了 13 个月，期间市场已从高位下行]]',
+                bench: {
+                  q: '这次锁价定在多少？', unit: '元', real: 57.40, realTxt: '57.40 元', step: '0.1',
+                  note: '先填你的数，再点对照。预案披露时股价在高位，落地时已经跌了 18%。'
+                },
+                seal: '[[实际发行 2.5214 亿股、募资总额 144.73 亿元（净额约 143.69 亿），只有 6 家机构认购；从预案披露到资金到账走了 13 个月，期间市场已从高位下行]]',
                 ask: '价格锁住了，时间锁得住吗？'
               },
               {
-                no: '再融资 ②', year: '2021', title: 'H 股配售：用折价换速度',
+                no: '再融资 ②', year: '2021', title: 'H 股配售：用折价换速度', role: 'ref',
                 situation: '2020—2021 年新能源车销量起量，扩产要钱，而且要快。等一年，窗口可能就没了。',
                 why: '港股配售不走境内审核程序，按市价折让给机构，几天内就能完成。代价明明白白写在折价率上，不用猜。',
                 how: '2021 年连做两次。第一次 1.33 亿股，占发行后 4.65%；第二次 5,000 万股，占 1.75%。',
@@ -5977,7 +6041,7 @@ document.addEventListener('keydown', function (e) {
                 ask: '7.8% 的折价买几天的速度，这笔账按什么算才不亏？'
               },
               {
-                no: '债券', year: '2026', title: '银行间中票：这次轮到三方定价',
+                no: '债券', year: '2026', title: '银行间中票：这次轮到三方定价', role: 'ref',
                 situation: '需要一笔中长期限的人民币资金。当时市场缺资产、利率在低位，是发债的窗口。',
                 why: '债权融资不摊薄股权；科创债有政策窗口；银行间市场容量大，一次能拿走 50 亿元。',
                 how: '26比亚迪MTN003（科创债），50 亿元、3 年，申购区间 1.50%—2.00%，走簿记建档，对面是银行与资管。',
@@ -6002,29 +6066,30 @@ document.addEventListener('keydown', function (e) {
           },
           stages: [
             {
-              name: '第一段 · IPO：市场给你定价', week: '第 1 课时 · 前 18 分钟', output: '《IPO 定价测算表》', tool: 'p-valuation',
-              evidence: '发行人算出的区间与定价、投资者给出的买入上限、监管者追问的那条「凭什么破下沿」——三样摆在一起，就能看出你是按同行拍的，还是按公司自己算的',
+              name: '第一段 · 两次 IPO：2002 买方定价、2011 制度定价', week: '第 1 课时 · 08—36 分钟（两段各 14 分钟）', output: '《IPO 定价测算表》', tool: 'p-valuation',
+              evidence: '两段各自的出价与理由句、投资者给出的买入上限、监管者追问的那条「凭什么破下沿」——三段摆在一起，就能看出你是按同行拍的，还是按公司自己算的',
               todo: [
-                '【发行人】用上市前一年净利润除以发行前股本，算出每股收益；再乘 4 家可比公司的市盈率上下限，得到你自己的价格区间',
-                '【发行人】在区间里定一个数，写下为什么取它——真实发行价要到第 2 课时才揭晓',
+                '【发行人】2002 段：只给你三条约束（道指同期下挫 20%、2003 年 1 月要收秦川、A 股是核准长队），定一个发行价（港元）＋一句「凭什么这个价机构肯接」。这一段不给算式',
+                '【发行人】2011 段：用上市前一年净利润除以发行前股本算每股收益，乘 4 家可比公司的市盈率上下限，得到你自己的区间——只有这一段要求算式',
+                '【发行人】两段都在网页上先填自己的数，点「对照现实」之后真值才亮；改数会把结果重新盖上',
                 '【投资者】给这个价一个「我最多出到多少」的上限，说清跌破哪里你就不买了',
                 '【监管者】查一件事：主承销商给的询价区间下沿是 21.08 元，最后却发在更低的价上——凭什么可以破下沿'
               ],
               reflect: '主承销商给的询价区间下沿是 21.08 元，最后却发在更低的价上。是承销商故意报高了，还是市场当时就只肯给这个价？',
-              answer: '发行价 18.00 元，比询价区间下沿 21.08 元还低 15%；拟募 21.92 亿元，实募 14.22 亿元，缺口 35%。'
+              answer: '2002 段：10.95 港元、1.495 亿股、募 16.37 亿港元，机构配售超额 7 倍。2011 段：18.00 元，比询价区间下沿 21.08 元还低 15%；拟募 21.92 亿元、实募 14.22 亿元，缺口 35%。'
             },
             {
-              name: '第二段 · 再融资：三条路，三个条件', week: '第 1 课时 · 后 22 分钟（上到这里下课）', output: '《再融资方案对比表》',
+              name: '第二段 · 2016 定增：时间锁住发行人', week: '第 1 课时 · 36—50 分钟（下课铃在这段末尾）', output: '《再融资方案对比表》',
               evidence: '三派的陈述与互相质询：你说这条路成立要满足什么条件，对面说出它在哪一年根本走不通——这一栏最能看出取舍，也最能看出有没有读进去制度差异',
               todo: [
-                '【发行人】按你抽到的那条路，写清它成立的条件：什么公司、什么时点、什么样的市场环境才走得通',
-                '【发行人】补齐四栏：到账时间 × 摊薄幅度 × 折价或利率 × 谁审、审多久、要披露什么',
+                '【课前·发行人】按你押的那条路，写清它成立的条件：什么公司、什么时点、什么样的市场环境才走得通——四栏表在网页上填，课上只拿来用，不重填',
+                '【课上·发行人】2016 段：定锁价、定发多少股，回答一句「接受卖一年吗」',
                 '【投资者】给出你这条路的折价底线：折让超过多少你就不接，理由要落在可比数据上',
                 '【监管者】把三套审核口径列出来：定增过谁、H 股配售过谁、银行间中票过谁——三者不是同一个门',
-                '【三席】交叉质询：每组准备一句「对方那条路在这一年根本走不通」的致命一问'
+                '【三席】交叉质询：每组准备一句「对方那条路在这一年根本走不通」的致命一问；这一段只有 14 分钟，争到两分钟就收'
               ],
               reflect: '一条路要多付 7% 的折价但下周到账，另一条不用折价但要走一年多的流程。你按什么决定？',
-              answer: '三条路比亚迪全走过：2016 年定增，锁价 57.40 元 × 2.61 亿股 ≈ 150 亿元，实际到账 143.69 亿元，从预案到资金到账 13 个月；2021 年两次 H 股配售，折让 7.8% 与 6.9%，几天内完成；2026 年在银行间发中票，两周内完成。所以没有「押错」——只有「哪一年只能走这条」。'
+              answer: '三条路比亚迪全走过：2016 年定增，锁价 57.40 元，预案拟发 2.61 亿股募 150 亿元，实际发行 2.5214 亿股、募资总额 144.73 亿元（净 143.69 亿），只有 6 家机构接，从预案到资金到账 13 个月；2021 年两次 H 股配售，折让 7.8% 与 6.9%，几天内完成；2026 年在银行间发中票，两周内完成。所以没有「押错」——只有「哪一年只能走这条」。'
             },
             {
               name: '第三段 · 簿记对抗：这次轮到三方定价', week: '第 2 课时 · 前 25 分钟', output: '《簿记建档定价说明》', tool: 'p-bond',
@@ -6040,12 +6105,12 @@ document.addEventListener('keydown', function (e) {
               answer: '26比亚迪MTN003(科创债)：50 亿元 / 3 年，申购区间 1.50%—2.00%，最终票面 1.72%。合规申购 18 家 109.2 亿元（2.18 倍，最高报价 2.00%、最低 1.62%），有效申购 11 家 56.9 亿元（1.14 倍）；承销团自营资金获配 26 亿元（52%）。'
             },
             {
-              name: '第四段 · 复盘：定价权究竟在谁手里', week: '第 2 课时 · 最后 12 分钟', output: '《一页纸复盘》',
+              name: '第四段 · 偏差墙与复盘：定价权究竟在谁手里', week: '第 2 课时 · 25—50 分钟（偏差墙 8 ＋ 复盘 12 ＋ 收束 5）', output: '《一页纸复盘》',
               evidence: '三段各自的定价权归属判断 + 一条能迁移到别的公司的规则 + 监管者划下的那条红线——这一段是唯一能测「能否把三次经验归纳成一条规律」的证据',
               todo: [
-                '把三段并排列出来：谁先开的价、最后谁说了算、差多少',
+                '把四段并排列出来：谁先开的价、最后谁说了算、差多少',
                 '回答驱动问题：用一句话说清「股权融资和债权融资，定价权为什么不在同一边」',
-                '用课上揭晓的三段真实结果，回填你每一段的偏离，标出最大的那一处',
+                '三段偏差对照时已经记过一遍，这里并排列出来，标出最大的那一处',
                 '给出一条能用到别的公司身上的规则：什么条件下该发股、什么条件下该发债'
               ],
               reflect: '明天让你给另一家公司做融资顾问，你最先要问的三个问题是什么？',
@@ -6057,8 +6122,8 @@ document.addEventListener('keydown', function (e) {
           // 线上这份不替代纸：纸上是草稿，这里是交上去的那一份，六格填完才算这一段有痕迹。
           // 提交走 events.type='pj_cmp'，内容压进 detail（每格限 72 字，合计不超 500 字的列上限）。
           cmpForm: {
-            title: '第二段 · 三条路，四栏对比（课上填这一张）',
-            lead: '四条路你只填自己抽到的那一条。前四栏是这套方案的全部事实，后两栏决定这一段怎么给你算分：一条说清这条路上谁的利益被牺牲，一条给对面那条路一个致命提问。纸上那份是草稿，这里填完点提交，才算交上来。',
+            title: '课前 · 三条路，四栏对比（课前填，课上只拿来用）',
+            lead: '四条路你只填自己押的那一条。前四栏是这套方案的全部事实，后两栏决定这一段怎么给你算分：一条说清这条路上谁的利益被牺牲，一条给对面那条路一个致命提问。纸上那份是草稿，这里填完点提交，才算交上来——课上不再重填，只用来质询。',
             routeLabel: '我抽到的路',
             fields: [
               { k: 'arrive', l: '到账时间', ph: '从预案到钱到账大概多久，中间卡在哪一步' },
@@ -6073,7 +6138,7 @@ document.addEventListener('keydown', function (e) {
           },
           deliverables: [
             '《IPO 定价测算表》（第一段当堂交：发行人交区间与定价，投资者交买入上限，监管者交下沿质询）',
-            '《再融资方案对比表》（第二段当堂交：到账时间 × 摊薄 × 折价或利率 × 谁审、审多久、披露什么）',
+            '《再融资方案对比表》（课前交，课上只用来质询：到账时间 × 摊薄 × 折价或利率 × 谁审、审多久、披露什么）',
             '《簿记建档定价说明》（第三段当堂交：你定的利率、压价或报价过程、偏离分析、监管质询记录）',
             '《一页纸复盘》（课后提交，回答驱动问题，并给出监管者划的那条红线）'
           ],
@@ -6089,12 +6154,13 @@ document.addEventListener('keydown', function (e) {
           classroom: {
             title: '课堂现场 · 两课时怎么走',
             steps: [
-              { n: 1, label: '第1课时 · 0—10 分钟：读数据、押一条路、分席就位', note: '发行人 5 组 · 投资者 3 组 · 监管者 2 组，组号这时一起填' },
-              { n: 2, label: '第1课时 · 18 分钟算 IPO 价格', tool: 'p-valuation', note: '发行人定价、投资者给买入上限、监管者查下沿' },
-              { n: 3, label: '第1课时 · 22 分钟三条路辩论', note: '下课铃响在这儿，答案一句不揭' },
-              { n: 4, label: '第2课时 · 25 分钟簿记对抗', tool: 'p-bond', note: '发行人压价、投资者报量、监管者查自营获配' },
-              { n: 5, label: '第2课时 · 8 分钟揭晓真值', note: '一段一段亮，学生只填偏离' },
-              { n: 6, label: '第2课时 · 12 分钟复盘 + 5 分钟收束', note: '班内听证，问不住的方案当场撤回' }
+              { n: 1, label: '第1课时 · 00—08 分钟：就位、认席、读三行', note: '发行人 5 组 · 投资者 3 组 · 监管者 2 组，组号这时一起填' },
+              { n: 2, label: '第1课时 · 08—22 分钟：2002 香港 IPO，先定价再对照', note: '只给三条约束，不给算式——这一段定价权在买方' },
+              { n: 3, label: '第1课时 · 22—36 分钟：2011 A 股 IPO，市场砍价', tool: 'p-valuation', note: '只有这一段要求算式：0.88 × 23.97—35.04 倍' },
+              { n: 4, label: '第1课时 · 36—50 分钟：2016 定增，时间锁住发行人', note: '下课铃响在这儿，答案一句不揭' },
+              { n: 5, label: '课间 10 分钟：做对照组，顺手看一眼后台偏差', note: '不排序、不点评，只让学生看见班里有十个不同的价' },
+              { n: 6, label: '第2课时 · 25 分钟簿记对抗', tool: 'p-bond', note: '发行人压价、投资者报量、监管者查自营获配' },
+              { n: 7, label: '第2课时 · 8 分钟偏差墙 + 12 分钟复盘 + 5 分钟收束', note: '先念偏差、再亮真值；班内听证，问不住的方案当场撤回' }
             ]
           },
           chapters: ['第3章', '第4章', '第5章'],
@@ -6172,7 +6238,76 @@ document.addEventListener('keydown', function (e) {
         return g;
       }
 
-      // 状态循环：未开始 → 进行中 → 已完成 → 未开始
+      // 本组席位：issuer / investor / regulator。与组号一样存本机、随每次上报带上去。
+      // 不随账号走：同一台电脑一天可能要换好几个组演示，账号里记死了反而错。
+      var SEAT_KEY = 'ibank_project_seat';
+      var SEAT_TEXT = { issuer: '发行人', investor: '投资者', regulator: '监管者' };
+      function seatOf() {
+        var v = '';
+        try { v = localStorage.getItem(SEAT_KEY) || ''; } catch (e) {}
+        return SEAT_TEXT[v] ? v : '';
+      }
+      function setSeat(code) {
+        if (!SEAT_TEXT[code]) code = '';
+        try { if (code) localStorage.setItem(SEAT_KEY, code); else localStorage.removeItem(SEAT_KEY); } catch (e) {}
+        return code;
+      }
+
+      // 三次出价：每段学生先定一个数，点「对照现实」才看真实值。
+      // 存本机、按年份分开存；改了数就退回未对照状态，避免拿旧结论充数。
+      var BENCH_KEY = 'ibank_pj_bench_v1';
+      function loadBench() {
+        var o = {};
+        try { o = JSON.parse(localStorage.getItem(BENCH_KEY) || '{}') || {}; } catch (e) { o = {}; }
+        return o;
+      }
+      function saveBench(o) { try { localStorage.setItem(BENCH_KEY, JSON.stringify(o)); } catch (e) {} }
+      function benchOf(y) { return loadBench()[y] || {}; }
+      function benchOutHtml(bk, g) {
+        var real = Number(bk.real) || 0;
+        var dev = real ? (g - real) / real * 100 : 0;
+        var ad = Math.abs(dev);
+        var cls = ad <= 3 ? 'ok' : (ad <= 15 ? 'near' : 'far');
+        var dir = dev > 0.05 ? '比现实高' : (dev < -0.05 ? '比现实低' : '与现实一致');
+        var tip;
+        if (ad <= 3) tip = '几乎贴在真实值上。但先别急着算对——你的理由和当年买方一致，还是碰巧？';
+        else if (ad <= 15) tip = '这个幅度落在当年真实的报价分布里，不算离谱。要紧的是理由站不站得住。';
+        else if (ad <= 35) tip = '差距不算小。回头看那三段：处境、为什么、怎么走——你哪一条判断错了？';
+        else tip = '差得很远。先别改数，把「当时的处境」重读一遍，再回来。';
+        return '<div class="pj-bench-res ' + cls + '">'
+          + '<div class="pj-bench-kpi">'
+          + '<div><b>' + esc(g.toFixed(2)) + ' ' + esc(bk.unit) + '</b><span>你定的</span></div>'
+          + '<div><b>' + esc(bk.realTxt) + '</b><span>现实</span></div>'
+          + '<div><b>' + (dev > 0 ? '+' : '') + esc(dev.toFixed(1)) + '%</b><span>' + esc(dir) + '</span></div>'
+          + '</div>'
+          + '<p class="pj-bench-tip">' + esc(tip) + '</p>'
+          + (bk.spread ? '<p class="pj-bench-spread">' + esc(bk.spread) + '</p>' : '')
+          + '</div>';
+      }
+
+      // 出价之前，段内的答案必须在屏幕上消失：数字卡里的那一格盖成问号，
+      // 「怎么走的」结尾那句定价结果换成一句话占位。对照之后、或改了数，都走这一个口子同步。
+      // 不做这一步，「先自己定一个数」就退化成照抄旁边那张卡。
+      function syncEraLock(year, done) {
+        var y = String(year);
+        var cells = document.querySelectorAll('[data-num-lock="' + y + '"]');
+        for (var i = 0; i < cells.length; i++) {
+          var c = cells[i], v = c.getAttribute('data-v') || '', k = c.getAttribute('data-k') || '';
+          if (done) {
+            c.className = 'pj-era-num';
+            c.innerHTML = '<b>' + esc(v) + '</b><span>' + esc(k) + '</span>';
+          } else {
+            c.className = 'pj-era-num is-lock';
+            c.innerHTML = '<b>？</b><span>' + esc(k) + ' · 对照后揭晓</span>';
+          }
+        }
+        var hs = document.querySelectorAll('[data-how-num="' + y + '"]');
+        for (var j = 0; j < hs.length; j++) {
+          var h = hs[j], t = h.getAttribute('data-t') || '';
+          h.textContent = done ? t : '定价结果对照后揭晓';
+          h.className = done ? 'pj-how-num is-on' : 'pj-how-num';
+        }
+      }
       function cycleState(id) {
         var st = loadState(), cur = st[id] || 'todo';
         st[id] = cur === 'todo' ? 'doing' : (cur === 'doing' ? 'done' : 'todo');
@@ -6358,6 +6493,25 @@ document.addEventListener('keydown', function (e) {
             + '</button>';
         }).join('');
 
+        // 本组席位：三选一。位置在组号之后、押路之前——和工作包第 1 面的填写顺序一致。
+        var seat = seatOf();
+        var seatHtml = '';
+        if (p.seats && p.seats.length) {
+          var seatBtns = p.seats.map(function (s) {
+            var on = seat === s.code;
+            return '<button type="button" class="pj-seat' + (on ? ' on' : '') + '"'
+              + ' data-pj-seat="' + esc(s.code) + '" aria-pressed="' + (on ? 'true' : 'false') + '">'
+              + '<span class="pj-seat-n"><b>' + esc(s.name) + '</b><i>' + esc(s.groups) + '</i></span>'
+              + '<span class="pj-seat-p">' + esc(s.power) + '</span>'
+              + '<span class="pj-seat-d">' + esc(s.duty) + '</span></button>';
+          }).join('');
+          seatHtml = '<div class="pj-seatbox">'
+            + '<div class="pj-seath"><b>' + esc(p.seatTitle || '你们坐哪一席') + '</b>'
+            + '<span>' + esc(p.seatLead || '') + '</span></div>'
+            + '<div class="pj-seats" role="group" aria-label="' + esc(p.seatTitle || '本组席位') + '">'
+            + seatBtns + '</div></div>';
+        }
+
         // 案例背景：时间轴 + 四张事件卡 + 一张留白待填的对比表。
         // 结果性数字统一走 reveal(esc(seal))，与阶段任务同一套封存口径——不给答案，只给处境。
         var bgHtml = '';
@@ -6367,21 +6521,57 @@ document.addEventListener('keydown', function (e) {
             return '<li><b>' + esc(n.y) + '</b><span>' + esc(n.t) + '</span><em>' + esc(n.d) + '</em></li>';
           }).join('');
           var eraHtml = (bg.eras || []).map(function (e) {
+            var svE = e.bench ? benchOf(String(e.year)) : null;
+            var bDone = !!(svE && svE.done && svE.g != null && !isNaN(Number(svE.g)));
+            // 有出价框的那几段，答案不能先印在旁边的数字卡上——否则「先自己定一个数」
+            // 就变成了照抄。lock 的那一格在对照之前只显示问号。
             var numHtml = (e.nums || []).map(function (n) {
+              if (n.lock && !bDone) {
+                return '<div class="pj-era-num is-lock" data-num-lock="' + esc(e.year) + '"'
+                  + ' data-v="' + esc(n.v) + '" data-k="' + esc(n.k) + '">'
+                  + '<b>？</b><span>' + esc(n.k) + ' · 对照后揭晓</span></div>';
+              }
               return '<div class="pj-era-num"><b>' + esc(n.v) + '</b><span>' + esc(n.k) + '</span></div>';
             }).join('');
-            return '<article class="pj-era">'
+            // 只有主线三段（role: main）要学生先出价；2021 配售、2026 中票只作对照，不要求出价
+            var bHtml = '';
+            if (e.bench) {
+              var bk = e.bench, sv = benchOf(String(e.year));
+              var hasG = sv.g != null && !isNaN(Number(sv.g));
+              bHtml = '<div class="pj-bench" data-bench="' + esc(e.year) + '">'
+                + '<div class="pj-bench-h"><b>你来定</b><span>' + esc(bk.q) + '</span></div>'
+                + '<div class="pj-bench-row">'
+                + '<input type="number" inputmode="decimal" min="0" step="' + esc(bk.step) + '"'
+                + ' data-bench-in="' + esc(e.year) + '" placeholder="—" value="' + (hasG ? esc(sv.g) : '') + '" />'
+                + '<span class="pj-bench-unit">' + esc(bk.unit) + '</span>'
+                + '<button type="button" class="pj-bench-go" data-bench-go="' + esc(e.year) + '">对照现实</button>'
+                + '</div>'
+                + '<p class="pj-bench-note">' + esc(bk.note) + '</p>'
+                + '<div class="pj-bench-out" id="pj-bench-out-' + esc(e.year) + '"'
+                + (hasG && sv.done ? '' : ' hidden') + '>'
+                + (hasG && sv.done ? benchOutHtml(bk, Number(sv.g)) : '')
+                + '</div></div>';
+            }
+            // 2021 配售 / 2026 中票只作对照：挂一个「只作对照」的小标，
+            // 免得学生以为自己少填了一个出价框
+            var refTag = e.role === 'ref' ? '<em class="pj-era-ref">只作对照</em>' : '';
+            return '<article class="pj-era' + (e.role === 'ref' ? ' is-ref' : '') + '">'
               + '<header class="pj-era-h"><span class="pj-era-no">' + esc(e.no) + '</span>'
               + '<b class="pj-era-y">' + esc(e.year) + '</b>'
-              + '<i class="pj-era-t">' + esc(e.title) + '</i></header>'
+              + '<i class="pj-era-t">' + esc(e.title) + '</i>' + refTag + '</header>'
               + '<div class="pj-era-body">'
               + '<dl class="pj-era-dl">'
               + '<dt>当时的处境</dt><dd>' + esc(e.situation) + '</dd>'
               + '<dt>为什么走这条路</dt><dd>' + esc(e.why) + '</dd>'
-              + '<dt>怎么走的</dt><dd>' + esc(e.how) + '</dd>'
+              + '<dt>怎么走的</dt><dd>' + esc(e.how)
+              + (e.howNum ? ' <em class="pj-how-num' + (bDone ? ' is-on' : '') + '"'
+                + ' data-how-num="' + esc(e.year) + '" data-t="' + esc(e.howNum) + '">'
+                + (bDone ? esc(e.howNum) : '定价结果对照后揭晓') + '</em>' : '')
+              + '</dd>'
               + '</dl>'
               + '<div class="pj-era-nums">' + numHtml + '</div>'
               + '</div>'
+              + bHtml
               + '<p class="pj-era-seal"><span>成交结果</span>' + reveal(esc(e.seal)) + '</p>'
               + (e.ask ? '<p class="pj-era-ask"><i>?</i>' + esc(e.ask) + '</p>' : '')
               + '</article>';
@@ -6450,6 +6640,24 @@ document.addEventListener('keydown', function (e) {
             + '</section>';
         }
 
+        // 纸质工作包的线上版（问卷星）。链接没配就整块不渲染——
+        // 页面上不放「待配置」这种半成品，学生不需要知道后台还有一行地址没填。
+        var surveyUrl = String(CLASSROOM_LINKS.survey || '').trim();
+        var surveyHtml = '';
+        if (p.survey && surveyUrl) {
+          surveyHtml = '<section class="pj-sec pj-survey">'
+            + '<div class="pj-sv-h"><h3>' + esc(p.survey.title) + '</h3>'
+            + '<i class="pj-sv-src">问卷星</i></div>'
+            + '<p class="pj-sv-lead">' + esc(p.survey.lead) + '</p>'
+            + '<ul class="pj-sv-list">' + (p.survey.items || []).map(function (it) {
+              return '<li>' + esc(it) + '</li>';
+            }).join('') + '</ul>'
+            + '<div class="pj-sv-foot">'
+            + '<a class="pj-sv-btn" href="' + esc(surveyUrl) + '" target="_blank" rel="noopener" data-pj-link="survey">打开问卷 →</a>'
+            + (p.survey.note ? '<span class="pj-sv-note">' + esc(p.survey.note) + '</span>' : '')
+            + '</div></section>';
+        }
+
         elDetail.innerHTML =
           '<div class="pj-dhead">'
           + '<button type="button" class="pj-back" data-pj-back>← 返回项目列表</button>'
@@ -6467,11 +6675,12 @@ document.addEventListener('keydown', function (e) {
 
           + '<section class="pj-sec pj-dq"><h3>驱动问题</h3><p>' + reveal(esc(p.drivingQuestion)) + '</p></section>'
 
-          + (optHtml ? '<section class="pj-sec"><h3>' + esc(p.pickTitle || '先选一个标的') + '</h3>'
+          + ((optHtml || seatHtml) ? '<section class="pj-sec"><h3>' + esc(p.pickTitle || '先选一个标的') + '</h3>'
             + '<div class="pj-grp"><label for="pj-group-in">本组编号</label>'
             + '<input id="pj-group-in" type="text" inputmode="numeric" maxlength="2" autocomplete="off"'
             + ' data-pj-group placeholder="1—12" value="' + esc(groupOf()) + '" />'
             + '<span>填一次就够，只用来把你们这组的判断送到教师后台，<b>不参与评分</b></span></div>'
+            + seatHtml
             + '<div class="pj-opts">' + optHtml + '</div>'
             + '<p class="pj-tip">' + reveal(esc(p.pickHint || '')) + '</p></section>' : '')
 
@@ -6489,6 +6698,8 @@ document.addEventListener('keydown', function (e) {
           + '<button type="button" class="pj-linkbtn" data-go-sz>课程思政园地</button> 有整页对照。</p></section>'
 
           + fmHtml
+
+          + surveyHtml
 
           + '<section class="pj-sec"><h3>交付物</h3><ul class="pj-deliv">'
           + p.deliverables.map(function (d) { return '<li>' + reveal(esc(d)) + '</li>'; }).join('')
@@ -6616,6 +6827,27 @@ document.addEventListener('keydown', function (e) {
 
           if (t.closest('[data-pj-back]')) { showList(); return; }
 
+          // 选席位：三选一，只切选中态不重绘（重绘会把人拉回顶部）
+          var stb = t.closest('[data-pj-seat]');
+          if (stb) {
+            var scode = stb.getAttribute('data-pj-seat');
+            var sWas = stb.classList.contains('on');
+            var sAll = stb.parentNode.querySelectorAll('.pj-seat');
+            for (var m = 0; m < sAll.length; m++) {
+              sAll[m].classList.remove('on');
+              sAll[m].setAttribute('aria-pressed', 'false');
+            }
+            var spid = elDetail.getAttribute('data-pid') || '';
+            if (sWas) { setSeat(''); }
+            else {
+              stb.classList.add('on');
+              stb.setAttribute('aria-pressed', 'true');
+              setSeat(scode);
+              if (window.__ibankTrack) window.__ibankTrack('project', { project: spid, seat: scode, group: groupOf() });
+            }
+            return;
+          }
+
           // 选标的：只切选中态，不重绘整页（重绘会把页面拉回顶部）
           var pk = t.closest('[data-pj-pick]');
           if (pk) {
@@ -6627,7 +6859,7 @@ document.addEventListener('keydown', function (e) {
             else {
               pk.classList.add('on');
               setPick(ppid, pcode);
-              if (window.__ibankTrack) window.__ibankTrack('project', { project: ppid, pick: pcode, group: groupOf() });
+              if (window.__ibankTrack) window.__ibankTrack('project', { project: ppid, pick: pcode, group: groupOf(), seat: seatOf() });
             }
             return;
           }
@@ -6667,6 +6899,44 @@ document.addEventListener('keydown', function (e) {
           // 第二段表单：提交。四栏 + 利益冲突必须写满，最后那一问可留到质询环节
           if (t.closest('[data-cmp-submit]')) {
             cmpSubmit(elDetail.getAttribute('data-pid') || '');
+            return;
+          }
+
+          // 三次出价：点了「对照现实」才把真实值和偏差亮出来。
+          // 顺序不能反 —— 先自己定价、先写好理由，再对照；否则就是抄答案。
+          var bg2 = t.closest('[data-bench-go]');
+          if (bg2) {
+            var by = bg2.getAttribute('data-bench-go');
+            var bpid = elDetail.getAttribute('data-pid') || '';
+            var bprj = projOf(bpid), bera = null;
+            if (bprj && bprj.caseBg && bprj.caseBg.eras) {
+              for (var q = 0; q < bprj.caseBg.eras.length; q++) {
+                if (bprj.caseBg.eras[q].bench && String(bprj.caseBg.eras[q].year) === by) { bera = bprj.caseBg.eras[q]; break; }
+              }
+            }
+            if (!bera) return;
+            var bin = root.querySelector('[data-bench-in="' + by + '"]');
+            var bout = document.getElementById('pj-bench-out-' + by);
+            var bnum = bin ? Number(bin.value) : NaN;
+            if (!bout) return;
+            if (!bin || bin.value === '' || isNaN(bnum) || bnum <= 0) {
+              bout.hidden = false;
+              bout.innerHTML = '<div class="pj-bench-res bad"><p class="pj-bench-tip">先填一个你自己的数，再点对照。这个数是你判断的结果，不能空着过去。</p></div>';
+              if (bin) bin.classList.add('need');
+              return;
+            }
+            if (bin) bin.classList.remove('need');
+            var bst = loadBench();
+            bst[by] = { g: bnum, done: true };
+            saveBench(bst);
+            bout.hidden = false;
+            bout.innerHTML = benchOutHtml(bera.bench, bnum);
+            syncEraLock(by, true);
+            var bdev = Math.round((bnum - Number(bera.bench.real)) / Number(bera.bench.real) * 1000) / 10;
+            if (window.__ibankTrack) window.__ibankTrack('project', {
+              project: bpid, action: 'bench', year: by, my: bnum,
+              gap: (bdev > 0 ? '+' : '') + bdev, seat: seatOf(), group: groupOf()
+            });
             return;
           }
 
@@ -6727,6 +6997,22 @@ document.addEventListener('keydown', function (e) {
             cmpMsg('', '');
             return;
           }
+          // 出价：边打边存，但一改数就退回未对照状态 —— 屏幕上不能留着上一版的结论
+          var bi = e.target.closest('[data-bench-in]');
+          if (bi) {
+            var by2 = bi.getAttribute('data-bench-in');
+            var bv2 = Number(bi.value);
+            var ok2 = bi.value !== '' && !isNaN(bv2) && bv2 > 0;
+            var st2 = loadBench();
+            st2[by2] = { g: ok2 ? bv2 : null, done: false };
+            saveBench(st2);
+            var out2 = document.getElementById('pj-bench-out-' + by2);
+            if (out2) { out2.hidden = true; out2.innerHTML = ''; }
+            bi.classList.remove('need');
+            syncEraLock(by2, false);   // 改了数就把数字卡重新盖上，屏幕上不能留着上一版的答案
+            return;
+          }
+
           var gi = e.target.closest('[data-pj-group]');
           if (!gi) return;
           var g = setGroup(gi.value);
