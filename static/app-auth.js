@@ -945,14 +945,14 @@ console.log('%c[iBank 数据自检]', 'font-weight:bold', out);
       // 数据源与 4.3 记录卡同源（events.type = 'project'），不掺演示数据。
       var PJ_ID = 'byd';
       var PJ_LABEL = { A: 'A 股定增', B: 'H 股配售', C: '银行间中票' };
-      var PJ_SEAT = { issuer: '发行人', investor: '投资者', regulator: '监管者' };
+      var PJ_SEAT = { issuer: '发行者', underwriter: '承销商', investor: '投资者', regulator: '监管者' };
       var pjBetRows = [];
       var pjBetStamp = 0;
 
       // 解析押注事件：同一学生改主意时以最新一条为准；
       // 同一组里不同人押不同路是正常现象（说明组内还没谈拢），要原样保留、单独标出
-      // 席位（v85）：学生选席时发的是同一种 type='project'，但没有 pick。
-      //   所以先扫一遍取每人最新席位，再扫押注——否则「选了席但还没押路」的学生会被整条丢掉，
+      // 角色（v85 引入，v89 扩为四角色）：学生选角色时发的是同一种 type='project'，但没有 pick。
+      //   所以先扫一遍取每人最新角色，再扫押注——否则「选了席但还没押路」的学生会被整条丢掉，
       //   教师端就会看到「10 个组只有 6 个选了席」这种假象。
       function parseBetEvents(list) {
         var seatOf = {}, seatTs = {};
@@ -991,14 +991,17 @@ console.log('%c[iBank 数据自检]', 'font-weight:bold', out);
         rows.forEach(function (r) { var k = r.group || ''; (g[k] = g[k] || []).push(r); });
         var keys = Object.keys(g).filter(function (k) { return k; }).sort(function (a, b) { return (+a || 99) - (+b || 99); });
         if (g['']) keys.push('');
-        var html = '<table class="pj-bt-tb"><thead><tr><th>组号</th><th>已押</th><th>押注分布</th><th>席位</th><th>状态</th></tr></thead><tbody>';
+        var html = '<table class="pj-bt-tb"><thead><tr><th>组号</th><th>已押</th><th>押注分布</th><th>角色</th><th>状态</th></tr></thead><tbody>';
         keys.forEach(function (k) {
           var arr = g[k], c = { A: 0, B: 0, C: 0, '?': 0 };
           arr.forEach(function (r) { c[PJ_LABEL[r.pick] ? r.pick : '?']++; });
-          // 组内席位取最新一条非空（全组同席是规则，出现两种说明这组没按规则坐）
+          // 组内角色（v89）：四人各扮一角，全部列出来；同一角色出现两人说明抽签抽重了
           var seats = arr.map(function (r) { return r.seat; }).filter(function (x) { return x; });
-          var seatTxt = seats.length ? PJ_SEAT[seats[seats.length - 1]] : '';
-          if (seats.length && seats.some(function (x) { return x !== seats[0]; })) seatTxt += ' ✽';
+          var seatCnt = {};
+          seats.forEach(function (s) { seatCnt[s] = (seatCnt[s] || 0) + 1; });
+          var seatTxt = Object.keys(PJ_SEAT).filter(function (s) { return seatCnt[s]; })
+            .map(function (s) { return PJ_SEAT[s] + (seatCnt[s] > 1 ? '×' + seatCnt[s] : ''); }).join(' / ');
+          if (Object.keys(seatCnt).some(function (s) { return seatCnt[s] > 1; })) seatTxt += ' ✽';
           var dist = ['A', 'B', 'C'].filter(function (x) { return c[x]; })
             .map(function (x) { return PJ_LABEL[x] + ' ' + c[x]; }).join(' · ')
             + (c['?'] ? (c.A + c.B + c.C ? ' · ' : '') + '其他 ' + c['?'] : '');
@@ -1008,7 +1011,7 @@ console.log('%c[iBank 数据自检]', 'font-weight:bold', out);
               : '<span class="pj-bt-tag ok">已统一</span>');
           html += '<tr><td class="num">' + (k ? '第 ' + esc(k) + ' 组' : '—') + '</td>'
             + '<td class="num">' + arr.length + '</td><td>' + esc(dist) + '</td>'
-            + '<td>' + (seatTxt ? esc(seatTxt) : '<span class="pj-bt-tag none">未选席</span>') + '</td>'
+            + '<td>' + (seatTxt ? esc(seatTxt) : '<span class="pj-bt-tag none">未选角色</span>') + '</td>'
             + '<td>' + tag + '</td></tr>';
         });
         return html + '</tbody></table>';
@@ -1021,7 +1024,7 @@ console.log('%c[iBank 数据自检]', 'font-weight:bold', out);
         pjBetRows = rows;
         var st = document.getElementById('pj-bet-status');
         if (!rows.length) {
-          box.innerHTML = '<div class="um-empty">还没有小组押注记录。需学生账号在「项目式教学 → 比亚迪」页先填组号、选席位，再押一条路；教师账号的操作不入统计。</div>';
+          box.innerHTML = '<div class="um-empty">还没有小组押注记录。需学生账号在「项目式教学 → 比亚迪」页先填组号、选角色，再押一条路；教师账号的操作不入统计。</div>';
           if (st) st.textContent = note || '';
           return;
         }
@@ -1041,37 +1044,41 @@ console.log('%c[iBank 数据自检]', 'font-weight:bold', out);
             + '<span class="track"><span class="fill' + (cls ? ' ' + cls : '') + '" style="width:' + pct + '%"></span></span>'
             + '<span class="n">' + n + ' 人 · ' + pct + '%</span></div>';
         };
-        // 席位是「全组同席」，所以按组数而不是按人数算——一个组来五个人不会变成五票
-        var seatG = { issuer: [], investor: [], regulator: [], '': [] };
+        // 角色是「组内四人各扮一角」（v89 起不再是全组同席），所以按人头算——
+        // 一个角色在 11 个组里最多 11 人；哪个角色缺人，说明那个组有人没进状态
+        var seatG = { issuer: [], underwriter: [], investor: [], regulator: [], '': [] };
         named.forEach(function (k) {
-          var s = groups[k].map(function (r) { return r.seat; }).filter(function (x) { return x; }).pop() || '';
-          seatG[s] ? seatG[s].push(k) : seatG[''].push(k);
+          groups[k].forEach(function (r) {
+            var s = r.seat || '';
+            seatG[s] ? seatG[s].push(k) : seatG[''].push(k);
+          });
         });
-        var seatTotal = named.length || 0;
+        var seatTotal = seatG.issuer.length + seatG.underwriter.length
+          + seatG.investor.length + seatG.regulator.length + seatG[''].length;
         var barG = function (name, n, cls) {
           var pct = seatTotal ? Math.round(n / seatTotal * 100) : 0;
           return '<div class="cb43-bar"><span class="t">' + name + '</span>'
             + '<span class="track"><span class="fill' + (cls ? ' ' + cls : '') + '" style="width:' + pct + '%"></span></span>'
-            + '<span class="n">' + n + ' 组 · ' + pct + '%</span></div>';
+            + '<span class="n">' + n + ' 人 · ' + pct + '%</span></div>';
         };
         box.innerHTML = '<div class="cb43-top">'
           + '<div class="cb43-kpi"><span class="k">已押注学生</span><span class="v">' + rows.length + '</span><span class="n">不含教师账号</span></div>'
           + '<div class="cb43-kpi"><span class="k">参与组数</span><span class="v">' + named.length + '</span><span class="n">已填组号</span></div>'
           + '<div class="cb43-kpi"><span class="k">组内分歧</span><span class="v">' + splitG.length + '</span><span class="n">'
           + (splitG.length ? '第 ' + splitG.join('、') + ' 组' : '各组均已统一') + '</span></div>'
-          + '<div class="cb43-kpi"><span class="k">未选席</span><span class="v">' + seatG[''].length + '</span><span class="n">'
-          + (noGroup ? '另有 ' + noGroup + ' 人未填组号' : '按组计') + '</span></div>'
+          + '<div class="cb43-kpi"><span class="k">未选角色</span><span class="v">' + seatG[''].length + '</span><span class="n">'
+          + (noGroup ? '另有 ' + noGroup + ' 人未填组号' : '按人头计') + '</span></div>'
           + '</div>'
           + '<div class="cb43-bars">' + bar('A 股定增', cnt.A) + bar('H 股配售', cnt.B, 'alt')
           + bar('银行间中票', cnt.C, 'warm') + (cnt['?'] ? bar('其他 / 无法识别', cnt['?'], 'gray') : '') + '</div>'
-          + (seatTotal ? '<p class="pj-bt-sub">三席分布（按组，全组同席）</p>'
+          + (seatTotal ? '<p class="pj-bt-sub">四角色分布（按人头，每组四人各扮一角）</p>'
             + '<div class="cb43-bars">'
-            + barG('发行人席 · 5 组', seatG.issuer.length) + barG('投资者席 · 3 组', seatG.investor.length, 'alt')
-            + barG('监管者席 · 2 组', seatG.regulator.length, 'warm')
-            + (seatG[''].length ? barG('未选席', seatG[''].length, 'gray') : '') + '</div>' : '')
+            + barG('发行者', seatG.issuer.length) + barG('承销商', seatG.underwriter.length, 'alt')
+            + barG('投资者', seatG.investor.length, 'warm') + barG('监管者', seatG.regulator.length, 'gray')
+            + (seatG[''].length ? barG('未选角色', seatG[''].length, 'gray') : '') + '</div>' : '')
           + '<div class="pj-bt-wrap">' + pjGroupTable(rows) + '</div>'
           + '<div class="cb43-note">口径：同一学生改主意以最新一条为准；<b>组内分歧</b>指同一组里出现了两种以上选择 —— 课堂正需要先点这一组，让他们先谈拢再往下走。'
-          + '席位按组算，一个组来五个人也不会变成五票；组内出现两种席位会标 ✽，那是没按「全组同席」坐。'
+          + '角色按人头算，每组四人各扮一角；抽签抽重了的角色，当堂组内调换后请重新在项目页选一次。'
           + (note ? ' ' + note : '') + '</div>';
         if (st) st.textContent = note || '';
       }
@@ -1104,7 +1111,7 @@ console.log('%c[iBank 数据自检]', 'font-weight:bold', out);
 
       function causeExportPjBet() {
         if (!pjBetRows.length) { if (typeof ibankToast === 'function') ibankToast('暂无押注记录可导出'); return; }
-        var head = ['组号', '席位', '押注路径', '学生uid', '提交时间'];
+        var head = ['组号', '角色', '押注路径', '学生uid', '提交时间'];
         var lines = [head.join(',')];
         pjBetRows.slice().sort(function (a, b) {
           return String(a.group || '999').localeCompare(String(b.group || '999'), undefined, { numeric: true });
@@ -1392,7 +1399,7 @@ console.log('%c[iBank 数据自检]', 'font-weight:bold', out);
 
       function causeExportPjBench() {
         if (!pjBenchRows.length) { if (typeof ibankToast === 'function') ibankToast('暂无出价记录可导出'); return; }
-        var head = ['段', '学生定价', '现实值', '偏差%', '席位', '组号', '提交时间', 'student_uid'];
+        var head = ['段', '学生定价', '现实值', '偏差%', '角色', '组号', '提交时间', 'student_uid'];
         var lines = [head.join(',')];
         pjBenchRows.slice().sort(function (a, b) {
           return a.year === b.year
@@ -1402,7 +1409,7 @@ console.log('%c[iBank 数据自检]', 'font-weight:bold', out);
           var m = BENCH_META[r.year];
           lines.push([
             csvCell(m.label), r.my.toFixed(2), m.real.toFixed(2), r.gap.toFixed(1),
-            csvCell(PJ_SEAT[r.seat] || r.seat || '未选席'), csvCell(r.group || '未填'),
+            csvCell(PJ_SEAT[r.seat] || r.seat || '未选角色'), csvCell(r.group || '未填'),
             r.ts ? new Date(r.ts).toLocaleString('zh-CN') : '', csvCell(r.uid)
           ].join(','));
         });
@@ -2579,7 +2586,7 @@ const actSrc = login.length ? login : study.concat(quiz, mod, qa);
       //   这里一个云端请求都不发，只动 localStorage 那四个键。
       //   共用机器上学生可能正登录着自己的账号，删云端等于把学生的真实作业抹掉。
       var PJ_STATE_KEYS = [
-        { k: 'ibank_project_seat', label: '席位' },
+        { k: 'ibank_project_seat', label: '角色' },
         { k: 'ibank_project_group', label: '组号' },
         { k: 'ibank_pj_bench_v1', label: '三段出价' },
         { k: 'ibank_pj_cmp_v1', label: '第二段四栏' }
@@ -2593,7 +2600,7 @@ const actSrc = login.length ? login : study.concat(quiz, mod, qa);
         var IDLE = '首次点击只做统计，不会清；再点一次才生效。';
         function disarm() {
           pjResetArm = 0;
-          btn.textContent = '🧹 清空本机：席位 / 组号 / 出价 / 四栏';
+          btn.textContent = '🧹 清空本机：角色 / 组号 / 出价 / 四栏';
           btn.classList.remove('armed');
         }
         btn.addEventListener('click', function () {
@@ -2623,7 +2630,7 @@ const actSrc = login.length ? login : study.concat(quiz, mod, qa);
           // 第二下：真清。只清本机，不发任何请求。
           pjResetArm = 0;
           btn.classList.remove('armed');
-          btn.textContent = '🧹 清空本机：席位 / 组号 / 出价 / 四栏';
+          btn.textContent = '🧹 清空本机：角色 / 组号 / 出价 / 四栏';
           var n = 0;
           PJ_STATE_KEYS.forEach(function (it) {
             try {
@@ -2631,7 +2638,7 @@ const actSrc = login.length ? login : study.concat(quiz, mod, qa);
             } catch (e) {}
           });
           if (st) st.textContent = '已清 ' + n + ' 项，云端记录未动';
-          if (dt) dt.textContent = '下一个组打开项目页就是空白：席位没选、组号空着、三段出价空着。'
+          if (dt) dt.textContent = '下一个组打开项目页就是空白：角色没选、组号空着、三段出价空着。'
             + '若这台机器上还开着项目页，按一下刷新。';
           try {
             window.dispatchEvent(new CustomEvent('ibank:pj-state-reset'));

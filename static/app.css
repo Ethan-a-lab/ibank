@@ -3021,3 +3021,41 @@
       font-size: 10.5px; font-weight: 700; color: var(--accent-text);
       background: rgba(99, 102, 241, .12); border-radius: 5px; padding: 1px 4px;
     }
+
+/* ===== v88 课堂问卷多链接（项目详情页） ===== */
+.pj-sv-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+  gap: 10px;
+  margin: 10px 0 4px;
+}
+.pj-sv-card {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding: 13px 15px;
+  border: 1px solid var(--panel-border);
+  border-radius: 12px;
+  background: var(--panel);
+  text-decoration: none;
+  color: var(--text);
+  transition: border-color .15s ease, transform .15s ease;
+}
+.pj-sv-card:hover { border-color: var(--accent); transform: translateY(-1px); }
+.pj-sv-card:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.pj-sv-name { font-size: 14px; font-weight: 700; }
+.pj-sv-when { font-size: 11.5px; font-weight: 600; color: var(--accent2); }
+.pj-sv-who {
+  align-self: flex-start;
+  font-size: 10.5px;
+  padding: 1px 8px;
+  border-radius: 999px;
+  background: rgba(99, 102, 241, .12);
+  color: var(--accent-text);
+  width: fit-content;
+}
+.pj-sv-desc { font-size: 12px; line-height: 1.6; color: var(--muted); }
+.pj-sv-go { margin-top: 4px; font-size: 12.5px; font-weight: 600; color: var(--accent-text); }
+@media (max-width: 640px) {
+  .pj-sv-grid { grid-template-columns: 1fr; }
+}

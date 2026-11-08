@@ -15,7 +15,7 @@
  * 注意：Service Worker 只在 https 或 localhost 下生效；双击 file:// 打开时注册会被跳过。
  */
 
-const CACHE_VERSION = 'ibank-v3';   // v87：改了 app.css（.ev-status:empty、换组按钮待确认态），靠版本号把旧壳挤掉
+const CACHE_VERSION = 'ibank-v5';   // v89：改了 app-core.js（四角色 11 组口径、阶段/课堂时间轴重排、1.62% 与 60% 勘误）、app-auth.js（按人头聚合四角色）与 index.html（仿真页区间），靠版本号把旧壳挤掉
 const CACHE_NAME = `ibank-shell-${CACHE_VERSION}`;
 
 /* ★总开关：想把 PWA 停掉，只把这个 true 改成 false，然后推送一次。
