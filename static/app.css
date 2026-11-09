@@ -3060,6 +3060,45 @@
   .pj-sv-grid { grid-template-columns: 1fr; }
 }
 
+/* ===== v93：课堂问卷按角色分区 =====
+   追加式惯例：全部走既有 :root 变量，深浅色自动跟随，不改 v88 卡片本身 */
+.pj-sv-grouplist { display: flex; flex-direction: column; gap: 12px; margin: 12px 0 4px; }
+.pj-sv-group {
+  padding: 12px 14px 14px;
+  border: 1px solid var(--panel-border);
+  border-radius: 14px;
+  background: var(--panel);
+  transition: border-color .15s ease, box-shadow .15s ease;
+}
+.pj-sv-group.is-current { border-color: var(--accent); box-shadow: 0 0 0 2px rgba(99, 102, 241, .16); }
+.pj-sv-ghead { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; margin-bottom: 2px; }
+.pj-sv-gicon {
+  width: 26px; height: 26px; border-radius: 8px;
+  display: inline-grid; place-items: center; flex: none;
+  font-size: 12px; font-weight: 700; color: #fff; background: #0e7490;
+}
+body.dark:not(.light) .pj-sv-gicon { background: #22d3ee; color: #082f49; }
+.pj-sv-gname { font-size: 14px; font-weight: 700; color: var(--text); }
+.pj-sv-glead { font-size: 11.5px; line-height: 1.6; color: var(--muted); }
+.pj-sv-gmark {
+  display: none; margin-left: auto;
+  font-size: 11px; font-weight: 700; white-space: nowrap;
+  padding: 2px 9px; border-radius: 999px;
+  background: rgba(99, 102, 241, .14); color: var(--accent-text);
+}
+.pj-sv-group.is-current .pj-sv-gmark { display: inline-block; }
+.pj-sv-group .pj-sv-grid { margin: 8px 0 0; }
+.pj-sv-empty {
+  margin: 8px 0 0; padding: 10px 12px; border-radius: 10px;
+  font-size: 12px; line-height: 1.75; color: var(--muted);
+  background: rgba(99, 102, 241, .07);
+}
+body.dark:not(.light) .pj-sv-empty { background: rgba(99, 102, 241, .13); }
+@media (max-width: 640px) {
+  .pj-sv-gmark { margin-left: 0; }
+  .pj-sv-group { padding: 11px 12px 13px; }
+}
+
 /* ===== v91：课程项目顶部 MBTI 分组入口 =====
    只做入口，不复制题库；样式全部走 :root 变量，深浅色自动跟随 */
 .pj-mbti {

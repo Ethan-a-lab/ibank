@@ -5830,21 +5830,24 @@ document.addEventListener('keydown', function (e) {
         submit: '',   // 学生提交本组定价，例：'https://www.wjx.cn/vm/xxxxxxxx.aspx'
         result: '',   // 教师投屏用的实时结果页
         survey: '',   // 纸质工作包的线上版（问卷星），例：'https://www.wjx.cn/vm/xxxxxxxx.aspx'
-        // 课堂问卷（v88）：按课堂时点分卷的正式作答入口，学生自选。
+        // 课堂问卷（v93）：**按角色分区**的正式作答入口，7 份，链接已配置。
         //   与上面的 survey 单链接分工：survey = 工作包四面的线上补交版；
-        //   surveys = 各决策点当堂作答（问卷0 课前摸底 / 问卷1 盲猜 / 1b 组报价 /
-        //   问卷2 站队 / 3a-3c 簿记三轮 / 问卷4 出口票）。
+        //   surveys = 各决策点当堂作答（1 盲猜 / 1b 组报价 / 2 站队 /
+        //   3a-3c 簿记三轮 / 4 出口票）。q0 课前摸底已删。
+        //   roles 决定卡片落在哪一区：'all' 全员区；'issuer'/'underwriter'/
+        //   'investor'/'regulator' 角色区。没写 roles 的旧数据一律归全员区（兼容验收注入）。
         //   url 留空的卡不渲染；一条都没配则整块不出现——与 v85 同一口径，
-        //   页面上不放「待配置」半成品。发布问卷星后把链接粘进对应 url 即可。
+        //   页面上不放「待配置」半成品。
         surveys: [
-          { key: 'q0',  name: '问卷 0 · 课前摸底',          when: '课前 2–3 天',        who: '全体同学',            desc: '学情摸底与预习检查，4 题约 2 分钟。', url: '' },
-          { key: 'q1',  name: '问卷 1 · IPO 盲猜定价',      when: '第一节课 3–13 分钟', who: '全体同学 · 各答各的', desc: '先亮出你抽到的角色立场的报价与理由；问卷按角色自动出专属题。', url: '' },
-          { key: 'q1b', name: '问卷 1b · 本组最终报价',     when: '第一节课 合议后',    who: '本组承销商 · 每组 1 份', desc: '固定由本组承销商提交：合议结束后报本组看板报价与最硬的一条理由。', url: '' },
-          { key: 'q2',  name: '问卷 2 · 再融资站队',        when: '第二节课 0–7 分钟',  who: '每组 1 份 · 合议后填', desc: '2016 / 2021 / 2026 三个时点，定增 / 配售 / 发债三选一站队。', url: '' },
-          { key: 'q3a', name: '问卷 3a · 簿记第 1 轮报价',  when: '第二节课 18–33 分钟', who: '仅投资者作答',        desc: '9 档利率单选，全场实时统计投屏即簿记行情屏。', url: '' },
-          { key: 'q3b', name: '问卷 3b · 簿记第 2 轮报价',  when: '第二节课 18–33 分钟', who: '仅投资者作答',        desc: '第二轮请写明改价（或不改价）的理由。', url: '' },
-          { key: 'q3c', name: '问卷 3c · 簿记第 3 轮报价',  when: '第二节课 18–33 分钟', who: '仅投资者作答',        desc: '最后一轮，报出你能成交的价。', url: '' },
-          { key: 'q4',  name: '问卷 4 · 出口票',            when: '每节课最后 4 分钟',  who: '全体同学',            desc: '3 题反思：掌握程度 + 最想改的一个判断 + 最没懂的问题。', url: '' }
+          // 三轮簿记卷由各组「投资者」作答（每轮 1 份）；监管者本环节调岗簿记管理员，
+          // 只登记 11 组报价、排边际利率与认购倍数并向全场公布，不填组级报价卷。
+          { key: 'q1',  roles: 'all',         name: '问卷 1 · IPO 盲猜定价',      when: '第一节课 3–13 分钟', who: '全体同学 · 各答各的',  desc: '先亮出你抽到角色立场的报价与理由；问卷按角色自动出专属 8 题（含「你认为最终会定多少」）。', url: 'https://v.wjx.cn/vm/wvfBYVL.aspx' },
+          { key: 'q4',  roles: 'all',         name: '问卷 4 · 出口票',            when: '每节课最后 4 分钟',  who: '全体同学 · 两次',      desc: '掌握程度＋最想改的一个判断＋最没懂的问题；两节课各填一次，选对课次。', url: 'https://v.wjx.cn/vm/wA4GpiB.aspx' },
+          { key: 'q1b', roles: 'underwriter', name: '问卷 1b · 本组最终报价',     when: '第一节课 合议后',    who: '本组承销商 · 每组 1 份', desc: '组内亮底牌合议后，由承销商提交本组看板报价与最硬的一条理由。', url: 'https://v.wjx.cn/vm/PjKA8N9.aspx' },
+          { key: 'q2',  roles: 'issuer',      name: '问卷 2 · 再融资站队',        when: '第二节课 0–7 分钟',  who: '本组发行者 · 每组 1 份', desc: '2016 / 2021 / 2026 三个时点，定增 / 配售 / 发债三选一站队。', url: 'https://v.wjx.cn/vm/mtEsiOF.aspx' },
+          { key: 'q3a', roles: 'investor',    name: '问卷 3a · 簿记第 1 轮报价',  when: '第二节课 18–33 分钟', who: '仅本组投资者',        desc: '先选本组机构身份与四人合议出的合意收益率下限，再在 9 档利率里报价；第 8 题实时统计投屏即簿记行情屏。', url: 'https://v.wjx.cn/vm/Q4IhKQQ.aspx' },
+          { key: 'q3b', roles: 'investor',    name: '问卷 3b · 簿记第 2 轮报价',  when: '第二节课 18–33 分钟', who: '仅本组投资者',        desc: '第二轮：报价比你们的合意下限高还是低？改价（或不改价）的依据写在第 12 题。', url: 'https://v.wjx.cn/vm/Q54YhXU.aspx' },
+          { key: 'q3c', roles: 'investor',    name: '问卷 3c · 簿记第 3 轮报价',  when: '第二节课 18–33 分钟', who: '仅本组投资者',        desc: '最后一轮，报出你能成交的价；三轮加点会被画成一条折线，零线以下就是「低于自己底线」。', url: 'https://v.wjx.cn/vm/Otl1pQ8.aspx' }
         ],
         // MBTI 分组入口（v92）：课程项目页顶部那张卡的两个地址。
         //   test = 官方免费测评（固定外链，卡片里也有 href 兜底，这里改这里生效）；
@@ -5856,6 +5859,39 @@ document.addEventListener('keydown', function (e) {
           url: 'https://v.wjx.cn/vm/rwQp7Ei.aspx'   // 问卷星：MBTI 信息回收（2026-11-09 发布，末尾的 # 是问卷星自带的锚点，去掉不影响作答）
         }
       };
+      // ---------- v93：问卷按角色分区 ----------
+      // 角色在上课 00—03 分钟抽签定完，网页此时已经知道学生是谁，所以能按角色
+      // 把「他该填的卷」收在一起；此前 v88 按时点平铺 8 张，学生要自己从 8 张里挑。
+      // 监管者簿记环节调岗为簿记管理员、全程不报价，因此没有专属电子卷——
+      // 这一区给一句纸质任务说明，不放空区也不放假链接。
+      var SURVEY_GROUPS = [
+        { code: 'all',         icon: '全', name: '全员必填', lead: '四个角色都要填，各答各的', empty: '' },
+        { code: 'issuer',      icon: '发', name: '发行者',   lead: '本组发行者代表全组提交',   empty: '' },
+        { code: 'underwriter', icon: '承', name: '承销商',   lead: '本组承销商代表全组提交',   empty: '' },
+        { code: 'investor',    icon: '投', name: '投资者',   lead: '三轮簿记，每轮一个链接',   empty: '' },
+        { code: 'regulator',   icon: '监', name: '监管者',   lead: '本环节调岗簿记管理员',     empty: '本环节你不填电子问卷：调岗为簿记管理员，用纸质《监-C0 登记表》登记 11 组报价、按价格优先累加到 50 亿，向全场公布边际利率与认购倍数。上方「全员必填」的两份仍要填。' }
+      ];
+      // 一张卡只落一个区；没写 roles 的旧数据（含验收脚本注入的测试数据）归全员区。
+      function surveyGroupOf(s) {
+        var r = s && s.roles;
+        if (Array.isArray(r)) r = r[0];
+        if (r === 'issuer' || r === 'underwriter' || r === 'investor' || r === 'regulator') return r;
+        return 'all';
+      }
+      window.__ibankSurveyGroups = function () { return SURVEY_GROUPS.slice(); };
+      // 选角色时只切高亮，不重绘 DOM（重绘会把学生拉回页面顶部）。
+      // 高亮只是提示，不隐藏其他区——同组四人要能互相核对该交哪几份。
+      function syncSurveyGroups(code) {
+        var sec = document.querySelector('.pj-svlist');
+        if (!sec) return;
+        var gs = sec.querySelectorAll('.pj-sv-group');
+        for (var i = 0; i < gs.length; i++) {
+          var on = !!code && gs[i].getAttribute('data-role-group') === code;
+          if (on) gs[i].classList.add('is-current');
+          else gs[i].classList.remove('is-current');
+        }
+      }
+
       // 后台（app-auth.js）也要读这两个地址，但它在另一个 IIFE 里。
       // 用函数而不用变量：脚本加载顺序谁先谁后都不影响取值。
       window.__ibankSurveyUrl = function () { return String(CLASSROOM_LINKS.survey || '').trim(); };
@@ -6718,7 +6754,7 @@ document.addEventListener('keydown', function (e) {
             + '</div></section>';
         }
 
-        // 课堂问卷（v88）：按课堂时点分卷的正式作答入口，学生按卡片自选。
+        // 课堂问卷（v93）：按角色分区，学生进详情页先认自己那一区。
         // 与「纸质工作包的线上版」分工：那边是四面开放题的补交版，这边是当堂决策点作答。
         // 同 v85 口径：url 没配的卡不渲染，一条都没配则整块不出现。
         var surveyCards = window.__ibankSurveys().filter(function (s) {
@@ -6726,20 +6762,41 @@ document.addEventListener('keydown', function (e) {
         });
         var surveyListHtml = '';
         if (surveyCards.length) {
+          var buckets = {};
+          SURVEY_GROUPS.forEach(function (g) { buckets[g.code] = []; });
+          surveyCards.forEach(function (s) { buckets[surveyGroupOf(s)].push(s); });
+          var curSeat = seatOf();
+          var svCardHtml = function (s) {
+            return '<a class="pj-sv-card" href="' + esc(s.url) + '" target="_blank" rel="noopener"'
+              + ' data-pj-survey="' + esc(s.key || '') + '">'
+              + '<b class="pj-sv-name">' + esc(s.name) + '</b>'
+              + '<span class="pj-sv-when">' + esc(s.when) + '</span>'
+              + '<span class="pj-sv-who">' + esc(s.who) + '</span>'
+              + '<span class="pj-sv-desc">' + esc(s.desc) + '</span>'
+              + '<span class="pj-sv-go">进入问卷 →</span>'
+              + '</a>';
+          };
+          var groupsHtml = SURVEY_GROUPS.map(function (g) {
+            var cards = buckets[g.code] || [];
+            if (!cards.length && !g.empty) return '';
+            return '<section class="pj-sv-group' + (curSeat === g.code ? ' is-current' : '') + '"'
+              + ' data-role-group="' + esc(g.code) + '">'
+              + '<div class="pj-sv-ghead">'
+              + '<span class="pj-sv-gicon">' + esc(g.icon) + '</span>'
+              + '<b class="pj-sv-gname">' + esc(g.name) + '</b>'
+              + '<span class="pj-sv-glead">' + esc(g.lead) + '</span>'
+              + '<span class="pj-sv-gmark">你抽到的角色</span>'
+              + '</div>'
+              + (cards.length
+                  ? '<div class="pj-sv-grid">' + cards.map(svCardHtml).join('') + '</div>'
+                  : '<p class="pj-sv-empty">' + esc(g.empty) + '</p>')
+              + '</section>';
+          }).join('');
           surveyListHtml = '<section class="pj-sec pj-svlist">'
-            + '<div class="pj-sv-h"><h3>课堂问卷 · 按时点自选</h3><i class="pj-sv-src">问卷星</i></div>'
-            + '<p class="pj-sv-lead">项目各决策点的正式作答入口，与平台学习数据共同构成你的证据链。每份问卷开头三题固定：<b>学号、组号、角色</b>——角色是课上抽签定的，按你手里的任务册如实填；每份限答 1 次，提交前核对三题。</p>'
-            + '<div class="pj-sv-grid">' + surveyCards.map(function (s) {
-              return '<a class="pj-sv-card" href="' + esc(s.url) + '" target="_blank" rel="noopener"'
-                + ' data-pj-survey="' + esc(s.key || '') + '">'
-                + '<b class="pj-sv-name">' + esc(s.name) + '</b>'
-                + '<span class="pj-sv-when">' + esc(s.when) + '</span>'
-                + '<span class="pj-sv-who">' + esc(s.who) + '</span>'
-                + '<span class="pj-sv-desc">' + esc(s.desc) + '</span>'
-                + '<span class="pj-sv-go">进入问卷 →</span>'
-                + '</a>';
-            }).join('') + '</div>'
-            + '<p class="pj-tip">问卷 1 会按你选的角色自动出专属题；问卷 3（簿记报价）只由「投资者」作答——监管者这一环节是簿记管理员，全场只有他看得到 11 组的全部报价。作答记录计入项目评分证据链，请认真填写。</p>'
+            + '<div class="pj-sv-h"><h3>课堂问卷 · 按角色分区</h3><i class="pj-sv-src">问卷星</i></div>'
+            + '<p class="pj-sv-lead">项目各决策点的正式作答入口。<b>先认自己抽到的角色，只交自己那一区的卷</b>；上方「全员必填」两份四个角色都要填。每份问卷开头五题固定：<b>姓名、学号、班级、组号、角色</b>——学号是唯一身份主键；组号与角色当堂按组牌、抽签纸条现场选，课前不预设名单，请与网页项目页所选组号一致。除出口票外每份限答 1 次，提交前核对。</p>'
+            + '<div class="pj-sv-grouplist">' + groupsHtml + '</div>'
+            + '<p class="pj-tip">在项目页选中自己抽到的角色，对应分区会自动高亮；高亮只是提示，其他区仍可查看，方便同组互相核对。问卷 1 按你选的角色自动出专属题；问卷 3a–3c 只由各组投资者作答，三轮三个链接，别扫错；监管者这一环节调岗簿记管理员，交的是纸质《监-C0 登记表》，不填组级报价卷；问卷 4 两节课各填一次。作答记录计入项目评分证据链。</p>'
             + '</section>';
         }
 
@@ -6931,6 +6988,8 @@ document.addEventListener('keydown', function (e) {
               setSeat(scode);
               if (window.__ibankTrack) window.__ibankTrack('project', { project: spid, seat: scode, group: groupOf() });
             }
+            // v93：选完角色立刻把问卷对应分区高亮（只切 class，不重绘、不回顶）
+            syncSurveyGroups(sWas ? '' : scode);
             return;
           }
 
