@@ -3059,3 +3059,93 @@
 @media (max-width: 640px) {
   .pj-sv-grid { grid-template-columns: 1fr; }
 }
+
+/* ===== v91：课程项目顶部 MBTI 分组入口 =====
+   只做入口，不复制题库；样式全部走 :root 变量，深浅色自动跟随 */
+.pj-mbti {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 16px 22px;
+  padding: 18px 20px;
+  margin-bottom: 18px;
+  border: 1px solid var(--panel-border);
+  border-left: 3px solid var(--accent);
+  border-radius: var(--radius);
+  background: var(--panel-solid);
+}
+.pj-mbti-main { flex: 1 1 380px; min-width: 0; }
+.pj-mbti-tag {
+  display: inline-block;
+  margin-bottom: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .12em;
+  color: var(--accent-text);
+}
+.pj-mbti h3 {
+  margin: 0 0 6px;
+  font-size: 17px;
+  font-weight: 700;
+  line-height: 1.4;
+  color: var(--text);
+}
+.pj-mbti p {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.75;
+  color: var(--muted);
+}
+.pj-mbti p b { color: var(--text); font-weight: 600; }
+.pj-mbti-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 10px;
+}
+.pj-mbti-meta span {
+  padding: 2px 9px;
+  border: 1px solid var(--panel-border);
+  border-radius: 999px;
+  font-size: 11.5px;
+  color: var(--dim);
+}
+.pj-mbti-side {
+  flex: 0 1 268px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.pj-mbti-btn {
+  display: block;
+  padding: 11px 14px;
+  border-radius: 10px;
+  background: var(--accent-solid);
+  color: #fff;
+  font-size: 13.5px;
+  font-weight: 600;
+  text-align: center;
+  text-decoration: none;
+  transition: transform .15s ease, filter .15s ease;
+}
+.pj-mbti-btn:hover { transform: translateY(-1px); filter: brightness(1.08); }
+.pj-mbti-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.pj-mbti-note { font-size: 11.5px; line-height: 1.6; color: var(--dim); }
+/* 进入任务书详情后让位给正文，与 .section-sub 的处理保持一致 */
+#p-project.in-detail .pj-mbti { display: none; }
+@media (max-width: 640px) {
+  .pj-mbti { padding: 16px; }
+  .pj-mbti-main,
+  .pj-mbti-side { flex: 1 1 100%; }
+  .pj-mbti h3 { font-size: 16px; }
+}
+
+/* v92：MBTI 卡片第二个按钮——问卷星回收入口（幽灵按钮，与主按钮区分层级） */
+.pj-mbti-btn.is-ghost {
+  background: transparent;
+  color: var(--accent-text);
+  border: 1px solid var(--accent);
+}
+.pj-mbti-btn.is-ghost:hover { background: rgba(99, 102, 241, .10); filter: none; }
+/* 类上的 display:block 会压过 UA 的 [hidden]，这里显式兜一层 */
+.pj-mbti .pj-mbti-btn[hidden] { display: none !important; }

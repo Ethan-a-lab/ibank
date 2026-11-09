@@ -5845,7 +5845,16 @@ document.addEventListener('keydown', function (e) {
           { key: 'q3b', name: '问卷 3b · 簿记第 2 轮报价',  when: '第二节课 18–33 分钟', who: '仅投资者作答',        desc: '第二轮请写明改价（或不改价）的理由。', url: '' },
           { key: 'q3c', name: '问卷 3c · 簿记第 3 轮报价',  when: '第二节课 18–33 分钟', who: '仅投资者作答',        desc: '最后一轮，报出你能成交的价。', url: '' },
           { key: 'q4',  name: '问卷 4 · 出口票',            when: '每节课最后 4 分钟',  who: '全体同学',            desc: '3 题反思：掌握程度 + 最想改的一个判断 + 最没懂的问题。', url: '' }
-        ]
+        ],
+        // MBTI 分组入口（v92）：课程项目页顶部那张卡的两个地址。
+        //   test = 官方免费测评（固定外链，卡片里也有 href 兜底，这里改这里生效）；
+        //   url  = 信息回收问卷（问卷星），**留空则「填四个字母」按钮不出现**——
+        //          与 survey / surveys 同一口径：页面上不放「待配置」半成品。
+        //          问卷发布后把 https://www.wjx.cn/vm/xxxxxxx.aspx 粘到下面 url 即可，不用动 HTML。
+        mbti: {
+          test: 'https://www.16personalities.com/zh-hans/free-personality-test',
+          url: 'https://v.wjx.cn/vm/rwQp7Ei.aspx'   // 问卷星：MBTI 信息回收（2026-11-09 发布，末尾的 # 是问卷星自带的锚点，去掉不影响作答）
+        }
       };
       // 后台（app-auth.js）也要读这两个地址，但它在另一个 IIFE 里。
       // 用函数而不用变量：脚本加载顺序谁先谁后都不影响取值。
@@ -5854,6 +5863,11 @@ document.addEventListener('keydown', function (e) {
       // 课堂问卷列表：走函数同前——验收脚本可临时覆盖注入测试数据，不改渲染代码。
       window.__ibankSurveys = function () {
         return Array.isArray(CLASSROOM_LINKS.surveys) ? CLASSROOM_LINKS.surveys : [];
+      };
+      // MBTI 两个地址：验收脚本可临时覆盖注入，不改渲染代码（同上面几个函数的口径）
+      window.__ibankMbti = function () {
+        var m = CLASSROOM_LINKS.mbti || {};
+        return { test: String(m.test || '').trim(), url: String(m.url || '').trim() };
       };
 
       // ---------- 标准答案开关（只作用于「项目实践」板块）----------
@@ -6367,13 +6381,14 @@ document.addEventListener('keydown', function (e) {
         return true;
       }
 
-      var elChain = document.getElementById('pj-chain');
+      var elChain = document.getElementById('pj-chain');   // v91 起项目链已下线，取不到属正常，不能当退出条件
       var elList = document.getElementById('pj-list');
       var elDetail = document.getElementById('pj-detail');
-      if (!elChain || !elList || !elDetail) return;   // 页面未引入新板块时静默退出
+      if (!elList || !elDetail) return;   // 页面未引入新板块时静默退出
 
       // ---------- 视图一：项目链（横向流水线） ----------
       function renderChain() {
+        if (!elChain) return;   // 容器已被删掉，直接跳过，不影响列表渲染
         var st = loadState();
         var html = PROJECTS.map(function (p, i) {
           var s = st[p.id] || 'todo';
@@ -6810,7 +6825,7 @@ document.addEventListener('keydown', function (e) {
           + '</aside></div>';
 
         elList.hidden = true;
-        elChain.hidden = true;   // 详情页不显示流水线，避免与标题争夺视线
+        if (elChain) elChain.hidden = true;   // 详情页不显示流水线，避免与标题争夺视线
         elDetail.setAttribute('data-pid', p.id);   // 表单事件靠它找项目，避免闭包再存一份状态
         cmpT0 = Date.now();      // 这一段表填了多久，提交时一起上报
         var elEvalBox = document.getElementById('pj-eval');   // 该板块已删除，取不到就跳过，不能直接引用变量
@@ -6829,7 +6844,7 @@ document.addEventListener('keydown', function (e) {
         var pjRoot2 = document.getElementById('p-project');
         if (pjRoot2) pjRoot2.classList.remove('in-detail');
         elList.hidden = false;
-        elChain.hidden = false;
+        if (elChain) elChain.hidden = false;
         var elEvalBox2 = document.getElementById('pj-eval');
         if (elEvalBox2) elEvalBox2.hidden = false;
         renderChain();
@@ -7099,10 +7114,32 @@ document.addEventListener('keydown', function (e) {
         });
       }
 
+      // ---------- MBTI 分组入口的两个按钮（v92） ----------
+      // 卡片本身是静态 HTML，两个地址都从数据层取：改地址只动 CLASSROOM_LINKS.mbti，不用碰 HTML。
+      //   #pj-mbti-test   官方免费测评：配置为空时保留 HTML 里的兜底 href
+      //   #pj-mbti-report 问卷星信息回收：url 为空则整条按钮隐藏，不留「待配置」半成品
+      function bindMbtiCard() {
+        var cfg = (typeof window.__ibankMbti === 'function') ? window.__ibankMbti() : { test: '', url: '' };
+        var elTest = document.getElementById('pj-mbti-test');
+        if (elTest && cfg.test) elTest.setAttribute('href', cfg.test);
+        var elReport = document.getElementById('pj-mbti-report');
+        if (elReport) {
+          if (cfg.url) {
+            elReport.setAttribute('href', cfg.url);
+            elReport.hidden = false;
+          } else {
+            elReport.setAttribute('href', '#');
+            elReport.hidden = true;
+          }
+        }
+      }
+      window.__ibankMbtiBind = bindMbtiCard;   // 验收脚本注入地址后重绑，不改渲染代码
+
       // ---------- 首次进入时渲染 ----------
       var tab = document.querySelector('.tab-btn[data-page="p-project"]');
       if (tab) tab.addEventListener('click', function () { showList(); });
 
+      bindMbtiCard();
       renderChain();
       renderList();
       window.__ibankProjects = PROJECTS;   // 便于后台统计或其他模块引用

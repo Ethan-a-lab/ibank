@@ -226,13 +226,24 @@
          它要回答的是「学生凭什么能力被判为达标」，不是「这门课怎么组织教学」 -->
     <section class="page" id="p-project">
       <div class="panel">
-        <div class="section-title"><span class="bar"></span>课程项目 · 从做业务到评能力</div>
-        <div class="section-sub">本课程不改「让学生做业务」这件事，改的是「拿什么来评」。一个贯穿项目走完三段真实业务流程——先给比亚迪的 A 股 IPO 定价，再在定增与 H 股配售之间做取舍，最后进银行间市场亲手定出一个票面利率。三段串成一条线，是因为它们本来就是同一家公司的同一件事：十五年里三次向市场要钱，每一次定价权都不在同一边。每一段都在留下可归档的证据：算出的区间、拍板的理由、被质询时的应答、改过几版的判断。平台在过程中采集这些证据，折算成能力达成度，再回灌到下一轮教学。评分不看「定价准不准」——定价没有唯一正确答案——看证据链是否完整、理由是否站得住、修改痕迹能不能说清。</div>
+        <!-- MBTI 分组入口（v91）：本页顶部的第一屏，先认自己再分组。
+             本站只做入口，题目、计分与结果都在 16personalities 官方页，不复制题库、不在本地存结果 -->
+        <div class="pj-mbti">
+          <div class="pj-mbti-main">
+            <span class="pj-mbti-tag">分组前置 · 开课第一周</span>
+            <h3>MBTI 人格测评：先认一下自己，再决定和谁一组</h3>
+            <p>分组前先认一下自己：约 10 分钟拿到四个字母，填进下面的问卷，分组按维度自动排。</p>
+            <div class="pj-mbti-meta"><span>官方免费版</span><span>免注册</span><span>手机可做</span><span>结果四字母</span></div>
+          </div>
+          <div class="pj-mbti-side">
+            <a class="pj-mbti-btn" id="pj-mbti-test" href="https://www.16personalities.com/zh-hans/free-personality-test" target="_blank" rel="noopener noreferrer" title="16personalities 中文免费测试（新窗口打开）">↗ 开始测试 · 16personalities</a>
+            <!-- 信息回收入口（v92）：url 没配就整条隐藏，页面上不放「待配置」半成品 -->
+            <a class="pj-mbti-btn is-ghost" id="pj-mbti-report" href="#" target="_blank" rel="noopener noreferrer" hidden>✎ 填四个字母 · 问卷星</a>
+            <span class="pj-mbti-note">「高级报告」付费页关掉即可，四个字母的结果免费。</span>
+          </div>
+        </div>
 
-        <!-- 项目链：把项目串成一条业务流水线，末端接成果答辩 -->
-        <div class="pj-chain" id="pj-chain" aria-label="项目学习路径"></div>
-
-        <!-- 列表视图：四张项目卡 -->
+        <!-- 列表视图：项目卡 -->
         <div class="pj-list" id="pj-list"></div>
 
         <!-- 详情视图：与本页同容器切换，不新增路由 -->

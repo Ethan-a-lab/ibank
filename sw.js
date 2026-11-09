@@ -15,7 +15,7 @@
  * 注意：Service Worker 只在 https 或 localhost 下生效；双击 file:// 打开时注册会被跳过。
  */
 
-const CACHE_VERSION = 'ibank-v6';   // v90：改了 app-core.js（课堂时间轴按 50+10+50 共 110 分钟重排、五段与问卷时点同步），靠版本号把旧壳挤掉
+const CACHE_VERSION = 'ibank-v7';   // v91：课程项目顶部删掉标题/说明/项目链、改为 MBTI 入口卡（index.html + app-core.js + app.css 三处齐改），靠版本号把旧壳挤掉
 const CACHE_NAME = `ibank-shell-${CACHE_VERSION}`;
 
 /* ★总开关：想把 PWA 停掉，只把这个 true 改成 false，然后推送一次。
