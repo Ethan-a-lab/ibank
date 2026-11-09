@@ -5845,9 +5845,9 @@ document.addEventListener('keydown', function (e) {
           { key: 'q4',  roles: 'all',         name: '问卷 4 · 出口票',            when: '每节课最后 4 分钟',  who: '全体同学 · 两次',      desc: '掌握程度＋最想改的一个判断＋最没懂的问题；两节课各填一次，选对课次。', url: 'https://v.wjx.cn/vm/wA4GpiB.aspx' },
           { key: 'q1b', roles: 'underwriter', name: '问卷 1b · 本组最终报价',     when: '第一节课 合议后',    who: '本组承销商 · 每组 1 份', desc: '组内亮底牌合议后，由承销商提交本组看板报价与最硬的一条理由。', url: 'https://v.wjx.cn/vm/PjKA8N9.aspx' },
           { key: 'q2',  roles: 'issuer',      name: '问卷 2 · 再融资站队',        when: '第二节课 0–7 分钟',  who: '本组发行者 · 每组 1 份', desc: '2016 / 2021 / 2026 三个时点，定增 / 配售 / 发债三选一站队。', url: 'https://v.wjx.cn/vm/mtEsiOF.aspx' },
-          { key: 'q3a', roles: 'investor',    name: '问卷 3a · 簿记第 1 轮报价',  when: '第二节课 18–33 分钟', who: '仅本组投资者',        desc: '先选本组机构身份与资金成本档位，再在 9 档利率里报价；第 8 题实时统计投屏即簿记行情屏。', url: 'https://v.wjx.cn/vm/Q4IhKQQ.aspx' },
-          { key: 'q3b', roles: 'investor',    name: '问卷 3b · 簿记第 2 轮报价',  when: '第二节课 18–33 分钟', who: '仅本组投资者',        desc: '第二轮：报价相对你们的资金成本是高还是低？改价（或不改价）的依据写在第 12 题。', url: 'https://v.wjx.cn/vm/Q54YhXU.aspx' },
-          { key: 'q3c', roles: 'investor',    name: '问卷 3c · 簿记第 3 轮报价',  when: '第二节课 18–33 分钟', who: '仅本组投资者',        desc: '最后一轮，报出你能成交的价；三轮加点会被画成一条折线，零线以下就是「低于自己底线」。', url: 'https://v.wjx.cn/vm/Otl1pQ8.aspx' }
+          { key: 'q3a', roles: 'investor',    name: '问卷 3a · 簿记第 1 轮报价',  when: '第二节课 18–33 分钟', who: '仅本组投资者',        desc: '第 6 题选机构身份与资金成本，第 7 题选这轮的报价意图（高于/等于/低于成本），第 8 题在 9 档利率里报价；第 8 题实时统计投屏即簿记行情屏。', url: 'https://v.wjx.cn/vm/Q4IhKQQ.aspx' },
+          { key: 'q3b', roles: 'investor',    name: '问卷 3b · 簿记第 2 轮报价',  when: '第二节课 18–33 分钟', who: '仅本组投资者',        desc: '第二轮：报价相对你们的资金成本是高还是低？改价的依据写在第 10 题，理由写在第 12 题。', url: 'https://v.wjx.cn/vm/YDn3HIT.aspx' },
+          { key: 'q3c', roles: 'investor',    name: '问卷 3c · 簿记第 3 轮报价',  when: '第二节课 18–33 分钟', who: '仅本组投资者',        desc: '最后一轮，报出你能成交的价；三轮的「报价 − 资金成本」会被画成一条折线，零线以下就是报到了自己成本之下。', url: 'https://v.wjx.cn/vm/hcTv65J.aspx' }
         ],
         // MBTI 分组入口（v92）：课程项目页顶部那张卡的两个地址。
         //   test = 官方免费测评（固定外链，卡片里也有 href 兜底，这里改这里生效）；
