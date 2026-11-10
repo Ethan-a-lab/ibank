@@ -5677,6 +5677,8 @@ document.addEventListener('keydown', function (e) {
             + '</button>';
         }).join('');
         countEl.textContent = n;
+        var totEl = document.getElementById('cn-total');
+        if (totEl) totEl.textContent = String(CHAPTERS.length);
         syncHeroStats();
         barEl.style.width = (n / CHAPTERS.length * 100) + '%';
       }

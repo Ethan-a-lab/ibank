@@ -80,6 +80,14 @@ body.dark:not(.light) #p-bond {
 }
 #p-bond .bd-tbl td.got { font-variant-numeric: tabular-nums; text-align: right; font-size: 12.5px; color: var(--muted); }
 #p-bond .bd-tbl td.got.on { color: var(--bd-a); font-weight: 600; }
+
+/* 较上轮：价 / 量 两行小字 */
+#p-bond .bd-tbl td.dl { font-size: 10.5px; line-height: 1.4; text-align: right; color: var(--muted); }
+#p-bond .bd-tbl td.dl i { font-style: normal; display: block; font-variant-numeric: tabular-nums; }
+#p-bond .bd-tbl td.dl i.up { color: var(--bd-b); }
+#p-bond .bd-tbl td.dl i.down { color: var(--bd-ok); }
+#p-bond .bd-tbl td.dl i.amt { color: var(--muted); }
+#p-bond .bd-tbl td.dl .nl { opacity: .55; }
 #p-bond .bd-tbl tr.marg td { background: rgba(200, 16, 46, 0.06); }
 body.dark:not(.light) #p-bond .bd-tbl tr.marg td { background: rgba(248, 113, 113, 0.10); }
 #p-bond .bd-tbl tr.marg td.got { color: var(--bd-b); font-weight: 700; }
@@ -168,6 +176,97 @@ body.dark:not(.light) #p-bond .bd-tbl tr.marg td { background: rgba(248, 113, 11
 #p-bond .bd-btn.primary { background: var(--accent-solid); border-color: transparent; color: #fff; }
 #p-bond .bd-btn.primary:hover { filter: brightness(1.06); }
 #p-bond .bd-act { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+
+/* ---------- v96 · 边际曲线 ---------- */
+#p-bond .bd-curvecard { margin-bottom: 14px; }
+@media (max-width: 640px) {
+  #p-bond .bd-curvecard > h4 { flex-direction: column; align-items: flex-start; gap: 3px; }
+  #p-bond .bd-curvecard > h4 em { line-height: 1.5; }
+}
+#p-bond .bd-curvewrap { width: 100%; margin-top: 2px; }
+#p-bond #bdCurve { display: block; width: 100%; height: auto; overflow: visible; }
+
+#p-bond .bd-band-win { fill: rgba(23, 85, 140, 0.055); }
+#p-bond .bd-band-fail { fill: rgba(120, 132, 148, 0.09); }
+body.dark:not(.light) #p-bond .bd-band-win { fill: rgba(96, 165, 250, 0.09); }
+body.dark:not(.light) #p-bond .bd-band-fail { fill: rgba(148, 163, 184, 0.10); }
+
+#p-bond .bd-gl { stroke: var(--panel-border); stroke-width: 1; stroke-dasharray: 3 5; }
+#p-bond .bd-tick { fill: var(--muted); font-size: 10.5px; font-variant-numeric: tabular-nums; }
+#p-bond .bd-tick-50 { fill: var(--bd-b); font-weight: 700; }
+#p-bond .bd-axistitle { fill: var(--muted); font-size: 10.5px; }
+#p-bond .bd-bandtag { fill: var(--muted); font-size: 10px; letter-spacing: .3px; }
+
+#p-bond .bd-link { stroke: var(--panel-border); stroke-width: 1.2; }
+#p-bond .bd-seg { stroke-width: 6; stroke-linecap: butt; }
+#p-bond .bd-seg.win { stroke: var(--bd-a); }
+#p-bond .bd-seg.marg { stroke: var(--bd-b); }
+#p-bond .bd-seg.fail { stroke: #9aa7b4; }
+body.dark:not(.light) #p-bond .bd-seg.fail { stroke: #7c89a8; }
+
+#p-bond .bd-line50 { stroke: var(--bd-b); stroke-width: 1.6; stroke-dasharray: 5 4; opacity: .78; }
+#p-bond .bd-mline { stroke: var(--bd-b); stroke-width: 1; stroke-dasharray: 2 3; opacity: .5; }
+#p-bond .bd-dot { fill: var(--bd-b); stroke: var(--panel-solid); stroke-width: 2; }
+#p-bond .bd-tagrect { fill: var(--bd-b); }
+#p-bond .bd-tagtext { fill: #fff; font-size: 11px; font-weight: 700; font-variant-numeric: tabular-nums; }
+/* 已记下的前几轮：虚线台阶，越早越淡 */
+#p-bond .bd-ghost { fill: none; stroke: #8fa3bb; stroke-width: 1.7; stroke-dasharray: 5 4; opacity: .72; }
+body.dark:not(.light) #p-bond .bd-ghost { stroke: #7c8ba6; }
+
+/* ---------- 课堂三轮 ---------- */
+#p-bond .bd-rounds {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 6px 7px;
+  margin-top: 12px; padding-top: 11px; border-top: 1px dashed var(--panel-border);
+}
+#p-bond .bd-rounds-lab { font-size: 11.5px; color: var(--muted); margin-right: 3px; }
+#p-bond .bd-pill {
+  display: inline-flex; align-items: baseline; gap: 6px;
+  padding: 4px 10px; border-radius: 999px; font-size: 11.5px; line-height: 1.5;
+  border: 1px solid var(--panel-border); background: var(--panel); color: var(--muted);
+  font-variant-numeric: tabular-nums; white-space: nowrap;
+}
+#p-bond .bd-pill b { font-weight: 600; }
+#p-bond .bd-pill i { font-style: normal; font-weight: 700; }
+#p-bond .bd-pill u { text-decoration: none; font-size: 10.5px; }
+#p-bond .bd-pill u.up { color: var(--bd-b); }
+#p-bond .bd-pill u.down { color: var(--bd-ok); }
+#p-bond .bd-pill.now { border-color: var(--accent); background: var(--bd-soft); color: var(--text); }
+#p-bond .bd-pill.now i { color: var(--accent); }
+#p-bond .bd-pill.done i { color: var(--bd-a); }
+#p-bond .bd-pill.todo { border-style: dashed; opacity: .78; }
+#p-bond .bd-arrow { font-size: 11px; color: var(--muted); }
+#p-bond .bd-lockbtn { margin-left: 6px; }
+#p-bond .bd-lockbtn, #p-bond .bd-clearbtn { font-size: 12px; padding: 5px 11px; }
+@media (max-width: 640px) {
+  #p-bond .bd-rounds { gap: 6px; }
+  #p-bond .bd-arrow { display: none; }
+  #p-bond .bd-pill { padding: 3px 8px; }
+  /* 五列在 390px 下太窄，去掉数字框的上下箭头，把宽度让给数字本身 */
+  #p-bond .bd-tbl input[type="number"]::-webkit-outer-spin-button,
+  #p-bond .bd-tbl input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+  #p-bond .bd-tbl input[type="number"] { -moz-appearance: textfield; appearance: textfield; }
+}
+
+#p-bond .bd-curvefoot {
+  display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between;
+  gap: 8px 14px; margin-top: 6px;
+}
+#p-bond .bd-curvefoot .bd-legend { margin-top: 0; }
+#p-bond .bd-legend .sw-win { background: var(--bd-a); }
+#p-bond .bd-legend .sw-marg { background: var(--bd-b); }
+#p-bond .bd-legend .sw-fail { background: #9aa7b4; }
+body.dark:not(.light) #p-bond .bd-legend .sw-fail { background: #7c89a8; }
+#p-bond .bd-legend .sw-line { background: var(--bd-b); width: 2px; height: 12px; }
+#p-bond .bd-legend .sw-ghost { background: none; width: 14px; height: 0; border-top: 2px dashed #8fa3bb; border-radius: 0; }
+body.dark:not(.light) #p-bond .bd-legend .sw-ghost { border-top-color: #7c8ba6; }
+
+#p-bond .bd-read {
+  margin-top: 10px; padding: 9px 12px; border-radius: 9px;
+  background: var(--bd-soft); border: 1px solid var(--panel-border);
+  font-size: 12.5px; line-height: 1.7; color: var(--muted);
+}
+#p-bond .bd-read b { color: var(--text); font-weight: 600; }
+#p-bond .bd-read .hot { color: var(--bd-b); font-weight: 700; font-variant-numeric: tabular-nums; }
 
 /* ---- 答案封存（仅项目式教学）：未揭晓时页面只留演算台 ----
    口径与任务书一致：真实定价、申购倍数、融资时间线都由课堂投屏，

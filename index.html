@@ -258,7 +258,7 @@
         <div class="section-sub">按教学大纲 8 章（第0章 导论 + 第1–7章）组织，与教学日历一致。左侧选章，右侧按「课题知识回顾 → 配套视频 → 案例拓展 → 重点难点 → 核心概念 → 本章练习」学习；每章学满 1 小时自动标记完成，进度与计时自动保存在本机。</div>
         <div class="learn-layout">
           <aside class="chapter-nav" id="chapter-nav">
-            <div class="cn-title">课程章节 · 共 <b>9</b> 章 · 已学 <b id="cn-count">0</b>/9</div>
+            <div class="cn-title">课程章节 · 共 <b>8</b> 章 · 已学 <b id="cn-count">0</b>/<b id="cn-total">8</b></div>
             <div class="cn-bar"><i id="cn-bar-fill"></i></div>
             <div id="chapter-list"></div>
           </aside>
@@ -497,16 +497,47 @@
           <span>发行 50 亿元 / 3 年 / 申购区间 1.62%—2.00%</span>
           <span data-bd-seal>真实结果：18 家合规申购 109.2 亿（约 2.18 倍），其中报价达标的 11 家有效申购 56.9 亿（1.14 倍），定价 <b>1.72%</b></span>
           <span class="bd-lock">真实定价与申购倍数：课上揭晓</span>
-          <span data-bd-seal><span class="dot demo"></span>下表就是这 11 家有效申购，合计 57.4 亿元；与真实 56.9 亿的 0.5 亿差额来自单笔金额取整</span>
+          <span data-bd-seal><span class="dot demo"></span>下表为课堂 11 组账簿（公告 18 家合规压成 11 组）：有效 <b>9 组 / 56.9 亿</b>、1.14 倍、边际档配售 <b>82.26%</b>，与公告一致；落标 2 组共 14.6 亿，故合规 71.5 亿小于公告的 109.2 亿</span>
+        </div>
+
+        <!-- v96 · 边际曲线：报价台阶累加到 50 亿，切口就是票面利率
+             改左侧任一格 → 台阶重排 + 曲线动画；「演示排队」按低到高逐家垒起来。 -->
+        <div class="bd-card bd-curvecard">
+          <h4>边际曲线 <em>报价从低到高排队，切到 50 亿元的那一档就是票面利率</em></h4>
+          <p class="bd-hint">横轴是<b>累计申购金额</b>，纵轴是<b>机构的报价</b>。每一段台阶是一家机构，从左往右越垒越高；台阶撞上红色<b>发行线</b>的那一段，就是<b>边际档</b>。改动下面表格里任何一格，这条曲线会自己长出来。课堂走三轮，<b>每轮都是一次独立的 50 亿元簿记（不累加）</b>：每轮讲评前点<b>记下本轮</b>，前几轮的曲线留成虚线，三轮走完就是一条<b>边际轨迹</b>。</p>
+          <div class="bd-curvewrap" id="bdCurveWrap">
+            <svg id="bdCurve" role="img" aria-label="边际曲线：横轴累计申购金额，纵轴机构报价，与 50 亿元发行线的交点即边际利率"></svg>
+          </div>
+          <div class="bd-curvefoot">
+            <div class="bd-legend">
+              <span><i class="sw-win"></i>中标（全额）</span>
+              <span><i class="sw-marg"></i>边际档（按比例）</span>
+              <span><i class="sw-fail"></i>落标</span>
+              <span><i class="sw-line"></i>50 亿元发行线</span>
+              <span><i class="sw-ghost"></i>已记下的前几轮</span>
+            </div>
+            <button type="button" class="bd-btn" data-bd="play">▶ 演示：从低到高排队</button>
+          </div>
+          <div class="bd-rounds">
+            <span class="bd-rounds-lab">课堂三轮</span>
+            <span class="bd-pill" id="bdPill1">第 1 轮</span>
+            <span class="bd-arrow">→</span>
+            <span class="bd-pill" id="bdPill2">第 2 轮</span>
+            <span class="bd-arrow">→</span>
+            <span class="bd-pill" id="bdPill3">第 3 轮</span>
+            <button type="button" class="bd-btn primary bd-lockbtn" data-bd="lock">记下本轮 →</button>
+            <button type="button" class="bd-btn bd-clearbtn" data-bd="clear-rounds">重来</button>
+          </div>
+          <div class="bd-read" id="bdCurveRead">—</div>
         </div>
 
         <div class="bd-grid">
           <!-- 左：可编辑簿记簿 -->
           <div class="bd-card">
-            <h4>机构申购簿 <em>改报价或金额，右侧立即重算</em></h4>
-            <p class="bd-hint">承销商按报价从低到高累加，加到 50 亿元为止。<b>边际档</b>那一档的利率就是全场票面利率，这一档的机构按比例分剩下的量。</p>
+            <h4>机构申购簿 <em id="bdRoundTag">第 1 轮 · 改报价或金额，右侧立即重算</em></h4>
+            <p class="bd-hint">承销商按报价从低到高累加，加到 50 亿元为止。<b>边际档</b>那一档的利率就是全场票面利率，这一档的机构按比例分剩下的量。报价高于边际的行会变灰——一分钱也拿不到；哪一组本轮<b>不参与</b>，把它的金额改成 0。</p>
             <table class="bd-tbl">
-              <thead><tr><th style="width:38%">机构</th><th class="r" style="width:24%">报价 %</th><th class="r" style="width:22%">金额 亿</th><th class="r" style="width:16%">获配</th></tr></thead>
+              <thead><tr><th style="width:31%">机构</th><th class="r" style="width:19%">报价 %</th><th class="r" style="width:17%">金额 亿</th><th class="r" style="width:20%">较上轮</th><th class="r" style="width:13%">获配</th></tr></thead>
               <tbody id="bdRows"></tbody>
             </table>
             <div class="bd-act">
