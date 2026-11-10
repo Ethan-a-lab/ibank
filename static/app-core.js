@@ -5841,23 +5841,24 @@ document.addEventListener('keydown', function (e) {
         //   url 留空的卡不渲染；一条都没配则整块不出现——与 v85 同一口径，
         //   页面上不放「待配置」半成品。
         surveys: [
+          // 2026-11-10 更名：按答案册体系统一编号 A-1/A-2/B/C-1..C-3/D（用户提供的最新名单与链接）。
           // 三轮簿记卷由各组「投资者」作答（每轮 1 份）；监管者本环节调岗簿记管理员，
           // 只登记 11 组报价、排边际利率与认购倍数并向全场公布，不填组级报价卷。
-          { key: 'q1',  roles: 'all',         name: '问卷 1 · IPO 盲猜定价',      when: '第一节课 3–13 分钟', who: '全体同学 · 各答各的',  desc: '先亮出你抽到角色立场的报价与理由；问卷按角色自动出专属 8 题（含「你认为最终会定多少」）。', url: 'https://v.wjx.cn/vm/wvfBYVL.aspx' },
-          { key: 'q4',  roles: 'all',         name: '问卷 4 · 出口票',            when: '每节课最后 4 分钟',  who: '全体同学 · 两次',      desc: '掌握程度＋最想改的一个判断＋最没懂的问题；两节课各填一次，选对课次。', url: 'https://v.wjx.cn/vm/wA4GpiB.aspx' },
-          { key: 'q1b', roles: 'underwriter', name: '问卷 1b · 本组最终报价',     when: '第一节课 合议后',    who: '本组承销商 · 每组 1 份', desc: '组内亮底牌合议后，由承销商提交本组看板报价与最硬的一条理由。', url: 'https://v.wjx.cn/vm/PjKA8N9.aspx' },
-          { key: 'q2',  roles: 'issuer',      name: '问卷 2 · 再融资站队',        when: '第二节课 0–7 分钟',  who: '本组发行者 · 每组 1 份', desc: '2016 / 2021 / 2026 三个时点，定增 / 配售 / 发债三选一站队。', url: 'https://v.wjx.cn/vm/mtEsiOF.aspx' },
-          { key: 'q3a', roles: 'investor',    name: '问卷 3a · 簿记第 1 轮报价',  when: '第二节课 18–33 分钟', who: '仅本组投资者',        desc: '第 6 题选机构身份与资金成本，第 7 题选这轮的报价意图（高于/等于/低于成本），第 8 题在 9 档利率里报价；第 8 题实时统计投屏即簿记行情屏。', url: 'https://v.wjx.cn/vm/Q4IhKQQ.aspx' },
-          { key: 'q3b', roles: 'investor',    name: '问卷 3b · 簿记第 2 轮报价',  when: '第二节课 18–33 分钟', who: '仅本组投资者',        desc: '第二轮：报价相对你们的资金成本是高还是低？改价的依据写在第 10 题，理由写在第 12 题。', url: 'https://v.wjx.cn/vm/YDn3HIT.aspx' },
-          { key: 'q3c', roles: 'investor',    name: '问卷 3c · 簿记第 3 轮报价',  when: '第二节课 18–33 分钟', who: '仅本组投资者',        desc: '最后一轮，报出你能成交的价；三轮的「报价 − 资金成本」会被画成一条折线，零线以下就是报到了自己成本之下。', url: 'https://v.wjx.cn/vm/hcTv65J.aspx' }
+          { key: 'q1',  roles: 'all',         name: 'A-1 IPO 定价',      when: '第一节课 3–13 分钟', who: '全体同学 · 各答各的',  desc: '先亮出你抽到角色立场的报价与理由；问卷按角色自动出专属 8 题（含「你认为最终会定多少」）。', url: 'https://v.wjx.cn/vm/wvfBYVL.aspx' },
+          { key: 'q4',  roles: 'all',         name: 'D 出口票统计（反思与总结）', when: '每节课最后 4 分钟',  who: '全体同学 · 两次',      desc: '掌握程度＋最想改的一个判断＋最没懂的问题；两节课各填一次，选对课次。', url: 'https://v.wjx.cn/vm/wA4GpiB.aspx' },
+          { key: 'q1b', roles: 'underwriter', name: 'A-2 本组最终报价（第一节课合议后，固定由本组承销商提交）', when: '第一节课 合议后',    who: '本组承销商 · 每组 1 份', desc: '组内亮底牌合议后，由承销商提交本组看板报价与最硬的一条理由。', url: 'https://v.wjx.cn/vm/PjKA8N9.aspx' },
+          { key: 'q2',  roles: 'issuer',      name: 'B 再融资站队',        when: '第二节课 0–7 分钟',  who: '本组发行者 · 每组 1 份', desc: '2016 / 2021 / 2026 三个时点，定增 / 配售 / 发债三选一站队。', url: 'https://v.wjx.cn/vm/mtEsiOF.aspx' },
+          { key: 'q3a', roles: 'investor',    name: 'C-1 簿记第 1 轮报价',  when: '第二节课 18–33 分钟', who: '仅本组投资者',        desc: '第 6 题选机构身份与资金成本，第 7 题选这轮的报价意图（高于/等于/低于成本），第 8 题在 9 档利率里报价；第 8 题实时统计投屏即簿记行情屏。', url: 'https://v.wjx.cn/vm/Q4IhKQQ.aspx' },
+          { key: 'q3b', roles: 'investor',    name: 'C-2 簿记第 2 轮报价',  when: '第二节课 18–33 分钟', who: '仅本组投资者',        desc: '第二轮：报价相对你们的资金成本是高还是低？改价的依据写在第 10 题，理由写在第 12 题。', url: 'https://v.wjx.cn/vm/tTdGGox.aspx' },
+          { key: 'q3c', roles: 'investor',    name: 'C-3 簿记第 3 轮报价',  when: '第二节课 18–33 分钟', who: '仅本组投资者',        desc: '最后一轮，报出你能成交的价；三轮的「报价 − 资金成本」会被画成一条折线，零线以下就是报到了自己成本之下。', url: 'https://v.wjx.cn/vm/QL0hvDV.aspx' }
         ],
-        // MBTI 分组入口（v92）：课程项目页顶部那张卡的两个地址。
-        //   test = 官方免费测评（固定外链，卡片里也有 href 兜底，这里改这里生效）；
+        // MBTI 分组入口（v92，2026-11-10 换 OSJJ）：课程项目页顶部那张卡的两个地址。
+        //   test = 免费测评（OSJJ，48 题免登录无广告，卡片里也有 href 兜底，这里改这里生效）；
         //   url  = 信息回收问卷（问卷星），**留空则「填四个字母」按钮不出现**——
         //          与 survey / surveys 同一口径：页面上不放「待配置」半成品。
         //          问卷发布后把 https://www.wjx.cn/vm/xxxxxxx.aspx 粘到下面 url 即可，不用动 HTML。
         mbti: {
-          test: 'https://www.16personalities.com/zh-hans/free-personality-test',
+          test: 'https://osjj.cn/test/',
           url: 'https://v.wjx.cn/vm/rwQp7Ei.aspx'   // 问卷星：MBTI 信息回收（2026-11-09 发布，末尾的 # 是问卷星自带的锚点，去掉不影响作答）
         }
       };
@@ -6150,7 +6151,7 @@ document.addEventListener('keydown', function (e) {
                 '【承销商】任务单 A2：定你的询价区间上下限，想清楚让步底线在哪里',
                 '【投资者】任务单 A3：报你的价、换算成市盈率，写清跌破哪里你就放弃',
                 '【监管者】任务单 A4：过一遍信息披露检查清单，标出你最担心的一条',
-                '【全组】合议单亮底牌（每人 60 秒），吵出一个组报价写上看板，问卷 1 各交各的角色底牌，承销商再交问卷 1b',
+                '【全组】合议单亮底牌（每人 60 秒），吵出一个组报价写上看板，A-1 各交各的角色底牌，承销商再交 A-2',
                 '【全组】案例迁移 10 分钟：中芯国际 532 亿 vs 蚂蚁暂缓，定价环境差在哪——先问 AI 学伴，带着它的答案来质询'
               ],
               reflect: '发行者想卖 27 元，基金只肯给 15 元——这个冲突里，谁的定价权更硬？凭什么？',
@@ -6187,7 +6188,7 @@ document.addEventListener('keydown', function (e) {
               name: '决策点④ · 三轮簿记对抗：价格是市场撞出来的', week: '第二节课 · 18—33 分钟（三轮报价，每轮约 5 分钟）', output: '《簿记建档定价说明》＋ 三轮报价单', tool: 'p-bond',
               evidence: '你定的利率、报的量价、改价理由、喊停的那一问，与真实票面利率、真实倍数逐项对照——11 个组的投资者拼在一起才是完整申购簿，单组报价没有意义',
               todo: [
-                '【投资者】问卷 3a/3b/3c 每轮一报：9 档利率单选，全场实时统计投屏就是簿记行情屏——按你的资金成本报，可以报低价、可以弃配',
+                '【投资者】C-1/C-2/C-3 每轮一报：9 档利率单选，全场实时统计投屏就是簿记行情屏——按你的资金成本报，可以报低价、可以弃配',
                 '【承销商】每轮结束后 20 秒路演：引导全场报价收敛；备好认购不足的预案',
                 '【发行者】第 2 轮后表态：接受边际利率，还是施压压价？记住 1bp 按 50 亿 3 年算是 150 万元',
                 '【监管者】全场调岗当簿记管理员：登记 11 组报价、排序、公布边际利率与认购倍数，点名最离谱的报价；复盘时额外交「边际利率是怎么产生的」三句话答卷',
@@ -6242,24 +6243,8 @@ document.addEventListener('keydown', function (e) {
             { dim: '自主学习', w: 15, points: '过程留痕：三份测算表都在，且能看到修正痕迹——改过哪个数、为什么改，比一次做对更能说明在学', judge: 'AI 初评（比对历史提交版本）+ 教师抽检' }
           ],
           showcase: '班内听证：发行者组陈述「我的定价与选路」，承销商组做路演答辩，投资者组报「我为什么只出这个价」，监管者组当场问询＋簿记管理员公布边际利率——问不住的方案要当场撤回，改走另一条路',
-          // 课堂现场：课上学生真正要点的几个动作，直接固定在任务书最上方。
-          classroom: {
-            title: '课堂现场 · 两节课连排怎么走（每节 50 分钟 ＋ 课间 10 分钟，共 110 分钟）',
-            steps: [
-              { n: 1, label: '第一节课 · 00—03 分钟：就位、抽签定角色', note: '学号顺序 4 人一组（全班 11 组），每组 4 张纸条同时翻开定角色、发四角色任务册' },
-              { n: 2, label: '第一节课 · 03—13 分钟：决策点① 盲猜定价', note: '前 5 分钟互不通气各答各的（问卷 1），后 5 分钟亮底牌合议，组报价上押注看板' },
-              { n: 3, label: '第一节课 · 13—26 分钟：讲授询价制与三步定价', tool: 'p-valuation', note: '教师讲完再对底牌：4 家可比公司市盈率区间查表即用，只有这一段要求算式' },
-              { n: 4, label: '第一节课 · 26—37 分钟：案例迁移＋询价仿真', tool: 'p-ipo', note: '中芯国际 532 亿 vs 蚂蚁暂缓，定价环境差在哪；平台仿真快速走一遍 11 组报价看边际价怎么浮现；AI 提问记录计分' },
-              { n: 5, label: '第一节课 · 37—46 分钟：复盘对答案', note: '公布真实定价 18.00 元，算偏差、做归因、二次出价——偏差缩小就是增值证据' },
-              { n: 6, label: '第一节课 · 46—50 分钟：出口票', note: '平台 3 题＋一句反思（问卷 4 第一次）' },
-              { n: 7, label: '课间 · 50—60 分钟：教师看后台、不点评', note: '看一眼后台各组偏差分布与站队预备，不排序、不点评' },
-              { n: 8, label: '第二节课 · 00—07 分钟：决策点② 再融资站队', note: '任务单 B 三时点站队，先填直觉列；问卷 2 合议后提交' },
-              { n: 9, label: '第二节课 · 07—18 分钟：讲授三工具＋债券要素设计', tool: 'p-bond', note: '定增 / 配售 / 可转债对照讲，四角色拼《50 亿科创债发行条款表》——统一锁定项就是三轮报价的规则' },
-              { n: 10, label: '第二节课 · 18—33 分钟：决策点④ 三轮簿记对抗', note: '问卷 3a/3b/3c 每轮一报（约 5 分钟一轮：报价 2 ＋ 公布 1 ＋ 路演 2），实时统计投屏当簿记行情屏；监管者全场调岗当簿记管理员' },
-              { n: 11, label: '第二节课 · 33—42 分钟：押注揭晓＋颁奖', note: '对照真实 1.72% 与自营 60% 的伦理追问；最准组与「理由最佳组」分开颁奖，理由奖更重' },
-              { n: 12, label: '第二节课 · 42—50 分钟：驱动问题收束＋出口票', note: '「股权和债权，定价权为什么不在同一边」一句话收束；问卷 4 第二次，课后交一页纸复盘' }
-            ]
-          },
+          // 2026-11-10（v99）：「课堂现场 · 两节课连排怎么走」12 卡板块按用户要求整块删除
+          //（配置与渲染一并移除；节奏安排改由教师任务单线下把控，网页不再展示）。
           chapters: ['第3章', '第4章', '第5章'],
           tools: [
             { page: 'p-bond', name: '债券簿记建档仿真（第三段主用）' },
@@ -6551,32 +6536,7 @@ document.addEventListener('keydown', function (e) {
           return '<li><b>Q' + (i + 1) + '</b>' + esc(q) + '</li>';
         }).join('');
 
-        // 课堂现场：把「今天课上点哪几个地方」固定在顶部。
-        // 四种状态都要能渲染——内链、外链、纸质动作、外链未配置（降级不报错）。
-        var classHtml = '';
-        if (p.classroom && p.classroom.steps && p.classroom.steps.length) {
-          classHtml = '<section class="pj-sec pj-live"><h3>' + esc(p.classroom.title) + '</h3>'
-            + '<div class="pj-steps">'
-            + p.classroom.steps.map(function (st) {
-              var inner = '<em>' + st.n + '</em><b>' + reveal(esc(st.label)) + '</b>'
-                + (st.note ? '<span>' + reveal(esc(st.note)) + '</span>' : '');
-              if (st.link) {
-                var url = CLASSROOM_LINKS[st.link] || '';
-                if (!url) {
-                  return '<div class="pj-step is-off">' + inner
-                    + '<i class="pj-step-off">链接待配置</i></div>';
-                }
-                return '<a class="pj-step is-link" href="' + esc(url) + '" target="_blank"'
-                  + ' rel="noopener" data-pj-link="' + esc(st.link) + '">' + inner + '</a>';
-              }
-              if (st.tool) {
-                return '<button type="button" class="pj-step is-tool" data-pj-go="' + esc(st.tool) + '"'
-                  + (st.ch ? ' data-pj-toolch="' + esc(st.ch) + '"' : '') + '>' + inner + '</button>';
-              }
-              return '<div class="pj-step">' + inner + '</div>';
-            }).join('')
-            + '</div></section>';
-        }
+        // 课堂现场板块已删（v99）：配置与渲染一并移除。
 
         // 可选标的：给小组真正的选择权。三个方案数据不同、难度一致，
         // 选哪个不影响评分——但「自己选的」和「老师发的」是两回事
@@ -6798,7 +6758,7 @@ document.addEventListener('keydown', function (e) {
             + '<div class="pj-sv-h"><h3>课堂问卷 · 按角色分区</h3><i class="pj-sv-src">问卷星</i></div>'
             + '<p class="pj-sv-lead">项目各决策点的正式作答入口。<b>先认自己抽到的角色，只交自己那一区的卷</b>；上方「全员必填」两份四个角色都要填。每份问卷开头五题固定：<b>姓名、学号、班级、组号、角色</b>——学号是唯一身份主键；组号与角色当堂按组牌、抽签纸条现场选，课前不预设名单，请与网页项目页所选组号一致。除出口票外每份限答 1 次，提交前核对。</p>'
             + '<div class="pj-sv-grouplist">' + groupsHtml + '</div>'
-            + '<p class="pj-tip">在项目页选中自己抽到的角色，对应分区会自动高亮；高亮只是提示，其他区仍可查看，方便同组互相核对。问卷 1 按你选的角色自动出专属题；问卷 3a–3c 只由各组投资者作答，三轮三个链接，别扫错；监管者这一环节调岗簿记管理员，交的是纸质《监-C0 登记表》，不填组级报价卷；问卷 4 两节课各填一次。作答记录计入项目评分证据链。</p>'
+            + '<p class="pj-tip">在项目页选中自己抽到的角色，对应分区会自动高亮；高亮只是提示，其他区仍可查看，方便同组互相核对。A-1 按你选的角色自动出专属题；C-1–C-3 只由各组投资者作答，三轮三个链接，别扫错；监管者这一环节调岗簿记管理员，交的是纸质《监-C0 登记表》，不填组级报价卷；D 两节课各填一次。作答记录计入项目评分证据链。</p>'
             + '</section>';
         }
 
@@ -6810,8 +6770,6 @@ document.addEventListener('keydown', function (e) {
           + '<span class="pj-badge ' + s + '">' + STATE_TEXT[s] + '</span></div>'
           + '<p class="pj-dsub">' + esc(p.subtitle) + '｜' + esc(p.weeks) + '</p>'
           + '</div>'
-
-          + classHtml
 
           + '<div class="pj-dgrid"><div class="pj-dmain">'
 

@@ -59,6 +59,15 @@
       <!-- 注册面板 -->
       <form id="form-register" autocomplete="on" novalidate>
  <div id="panel-register" class="hidden">
+        <div class="reg-guide">
+          <b>注册三步走（重要，请照做）</b>
+          <ol>
+            <li><b>手机验证</b>：填手机号 → 点「获取验证码」→ 把收到的码填进验证码框。验证码可能延迟，也记得看手机的<strong>骚扰拦截箱</strong>。</li>
+            <li><b>设密码</b>：8–32 位，必须<strong>同时包含字母和数字</strong>（如 <code>byd2026ok</code>），不需要特殊字符；填入密码框和确认框。</li>
+            <li><b>二次验证</b>：点「注册并登录」后，系统<strong>自动发第二条「改密验证码」</strong>——把这条新码填回验证码框（<strong>替换原来那条</strong>），<strong>再点一次「注册并登录」</strong>才算注册完成。第一次点了没动静不是网站坏了，是在等第二条短信（有时要等约 1 分钟）。</li>
+          </ol>
+          验证码是个人凭证，请勿截图转发。
+        </div>
         <div class="lfield"><input id="reg-name" type="text" placeholder="姓名（必填）" /></div>
         <div class="lfield"><input id="reg-student-id" type="text" placeholder="学号（选填）" /></div>
         <div class="lfield">
@@ -72,7 +81,6 @@
           <input id="reg-sms-code" type="text" placeholder="短信验证码" />
           <button id="reg-sms-btn" type="button">获取验证码</button>
         </div>
-        <p class="login-note reg-tip" style="margin-top:-4px;margin-bottom:10px;font-size:12px;">注册需两次短信验证：① 先点「获取验证码」完成手机验证；② 点「注册并登录」后，系统会自动发送第二条<strong>改密验证码</strong>，把它填回本框（替换原码）再点一次即可设置登录密码。</p>
 <div class="lfield"><input id="reg-password" type="password" placeholder="设置密码（8-32位，含字母和数字）" autocomplete="new-password" /></div>
   <div class="lfield"><input id="reg-password2" type="password" placeholder="确认密码" autocomplete="new-password" /></div>
  <button class="lprimary" id="register-btn" type="button">注册并登录</button>
@@ -124,7 +132,7 @@
             <button class="tab-btn" data-page="p-ipo"><span class="dd-name">IPO 定价配售仿真</span><span class="dd-desc">科创板询价、定价与配售全流程</span></button>
             <button class="tab-btn" data-page="p-valuation"><span class="dd-name">企业估值实验</span><span class="dd-desc">市盈率法与现金流折现联动</span></button>
             <button class="tab-btn" data-page="p-bond"><span class="dd-name">债券簿记建档仿真</span><span class="dd-desc">亲手定出一个票面利率</span></button>
-            <a class="tab-btn" href="./ibank-game.html" style="text-decoration:none"><span class="dd-name">投行梗学闯关</span><span class="dd-desc">8 关 120 题 · 每关随机抽题 · 离线可玩</span></a>
+            <a class="tab-btn" href="./ibank-game.html" style="text-decoration:none"><span class="dd-name">投行梗学闯关</span><span class="dd-desc">8 关全解锁 · 每关 4 题 · 离线可玩</span></a>
           </div>
         </div>
 
@@ -206,7 +214,7 @@
           <div class="home-card" data-page="p-macro"><div class="ico">🌐</div><h4>宏观市场</h4><p>美元 · 黄金 · 股票 · 美债联动解读</p><span class="go">进入 →</span></div>
           <div class="home-card" data-page="p-sim"><div class="ico">📈</div><h4>股市模拟</h4><p>虚拟盘实战交易，体验市场博弈</p><span class="go">进入 →</span></div>
           <div class="home-card" data-page="p-sizheng"><div class="ico">🎓</div><h4>课程思政</h4><p>立德树人 · 金融强国价值引领</p><span class="go">进入 →</span></div>
-          <a class="home-card" href="./ibank-game.html" style="display:block;text-decoration:none;color:inherit"><div class="ico">🎮</div><h4>投行梗学闯关</h4><p>8 关 120 题，一关一个梗，每次抽 8 题不重样</p><span class="go">开玩 →</span></a>
+          <a class="home-card" href="./ibank-game.html" style="display:block;text-decoration:none;color:inherit"><div class="ico">🎮</div><h4>投行梗学闯关</h4><p>8 关全部开放，想做哪关做哪关；每关 4 题，顺序随机</p><span class="go">开玩 →</span></a>
           <div class="home-card is-locked" data-page="p-admin" data-lock="teacher"><div class="ico">🗂️</div><h4>教师后台<i class="hc-tag">教师端</i></h4><p>班级学情看板、模块使用占比与五维达成率汇总</p><span class="go">需教师账号</span></div>
         </div>
       </div>
@@ -226,20 +234,20 @@
          它要回答的是「学生凭什么能力被判为达标」，不是「这门课怎么组织教学」 -->
     <section class="page" id="p-project">
       <div class="panel">
-        <!-- MBTI 分组入口（v91）：本页顶部的第一屏，先认自己再分组。
-             本站只做入口，题目、计分与结果都在 16personalities 官方页，不复制题库、不在本地存结果 -->
+        <!-- MBTI 分组入口（v91，2026-11-10 换 OSJJ）：本页顶部的第一屏，先认自己再分组。
+             本站只做入口，题目、计分与结果都在 OSJJ 页，不复制题库、不在本地存结果 -->
         <div class="pj-mbti">
           <div class="pj-mbti-main">
             <span class="pj-mbti-tag">分组前置 · 开课第一周</span>
             <h3>MBTI 人格测评：先认一下自己，再决定和谁一组</h3>
-            <p>分组前先认一下自己：约 10 分钟拿到四个字母，填进下面的问卷，分组按维度自动排。</p>
-            <div class="pj-mbti-meta"><span>官方免费版</span><span>免注册</span><span>手机可做</span><span>结果四字母</span></div>
+            <p>分组前先认一下自己：48 题约 5–10 分钟拿到四个字母，填进下面的问卷，分组按维度自动排。</p>
+            <div class="pj-mbti-meta"><span>48 题精简版</span><span>免登录</span><span>无广告</span><span>结果四字母</span></div>
           </div>
           <div class="pj-mbti-side">
-            <a class="pj-mbti-btn" id="pj-mbti-test" href="https://www.16personalities.com/zh-hans/free-personality-test" target="_blank" rel="noopener noreferrer" title="16personalities 中文免费测试（新窗口打开）">↗ 开始测试 · 16personalities</a>
+            <a class="pj-mbti-btn" id="pj-mbti-test" href="https://osjj.cn/test/" target="_blank" rel="noopener noreferrer" title="OSJJ 免费人格测试，48 题约 5–10 分钟（新窗口打开）">↗ 开始测试 · OSJJ（48 题）</a>
             <!-- 信息回收入口（v92）：url 没配就整条隐藏，页面上不放「待配置」半成品 -->
             <a class="pj-mbti-btn is-ghost" id="pj-mbti-report" href="#" target="_blank" rel="noopener noreferrer" hidden>✎ 填四个字母 · 问卷星</a>
-            <span class="pj-mbti-note">「高级报告」付费页关掉即可，四个字母的结果免费。</span>
+            <span class="pj-mbti-note">测试完全免费、无需注册，测完把四个字母填进下面的问卷即可。</span>
           </div>
         </div>
 
@@ -490,11 +498,11 @@
     <section class="page" id="p-bond">
       <div class="panel">
         <div class="section-title"><span class="bar"></span>债券发行与承销 · 簿记建档仿真</div>
-        <div class="section-sub">你是主承销商，要为比亚迪 50 亿元 3 年期中期票据定出票面利率。11 家机构已经报价，改动任何一格，边际利率、认购倍数、配售比例全部实时重算。</div>
+        <div class="section-sub">你是主承销商，要为比亚迪 50 亿元 3 年期中期票据定出票面利率。11 个组的报价与金额逐行可改，改动任何一格，边际利率、认购倍数、配售比例全部实时重算；数据自动保存在本机浏览器，刷新不丢。</div>
 
         <div class="bd-src">
           <span><span class="dot"></span>底表为 <b>26比亚迪MTN003</b> 簿记建档还原</span>
-          <span>发行 50 亿元 / 3 年 / 申购区间 1.62%—2.00%</span>
+          <span>发行 50 亿元 / 3 年 / 申购区间 1.50%—2.00%</span>
           <span data-bd-seal>真实结果：18 家合规申购 109.2 亿（约 2.18 倍），其中报价达标的 11 家有效申购 56.9 亿（1.14 倍），定价 <b>1.72%</b></span>
           <span class="bd-lock">真实定价与申购倍数：课上揭晓</span>
           <span data-bd-seal><span class="dot demo"></span>下表为课堂 11 组账簿（公告 18 家合规压成 11 组）：有效 <b>9 组 / 56.9 亿</b>、1.14 倍、边际档配售 <b>82.26%</b>，与公告一致；落标 2 组共 14.6 亿，故合规 71.5 亿小于公告的 109.2 亿</span>
@@ -535,7 +543,7 @@
           <!-- 左：可编辑簿记簿 -->
           <div class="bd-card">
             <h4>机构申购簿 <em id="bdRoundTag">第 1 轮 · 改报价或金额，右侧立即重算</em></h4>
-            <p class="bd-hint">承销商按报价从低到高累加，加到 50 亿元为止。<b>边际档</b>那一档的利率就是全场票面利率，这一档的机构按比例分剩下的量。报价高于边际的行会变灰——一分钱也拿不到；哪一组本轮<b>不参与</b>，把它的金额改成 0。</p>
+            <p class="bd-hint">承销商按报价从低到高累加，加到 50 亿元为止。<b>边际档</b>那一档的利率就是全场票面利率，这一档的机构按比例分剩下的量。报价高于边际的行会变灰——一分钱也拿不到；哪一组本轮<b>不参与</b>，把它的金额改成 0。表格里现在是「还原真实簿记」的示例底稿——上课请逐行改成各组的实际报价，改错可随时还原。</p>
             <table class="bd-tbl">
               <thead><tr><th style="width:31%">机构</th><th class="r" style="width:19%">报价 %</th><th class="r" style="width:17%">金额 亿</th><th class="r" style="width:20%">较上轮</th><th class="r" style="width:13%">获配</th></tr></thead>
               <tbody id="bdRows"></tbody>
@@ -582,15 +590,15 @@
             </div>
             <div class="bd-save"><span class="sub" id="bdSaveSub">—</span></div>
             <div class="bd-verdict" style="background:var(--bd-soft);border-color:var(--panel-border);color:var(--muted)">
-              课堂追问：既然压价这么值钱，<b>为什么不一直压到 1.62% 的下限？</b>——因为认购倍数会掉下来，边际档配售比例会顶上去，最后变成发行失败或上市首日抛压。
+              课堂追问：既然压价这么值钱，<b>为什么不一直压到最低申报价位 1.62%？</b>——因为认购倍数会掉下来，边际档配售比例会顶上去，最后变成认购不足、发行失败，或者由主承销商余额包销。
             </div>
             <div style="margin-top:14px;font-size:11.5px;color:var(--muted);margin-bottom:2px">同样 50 亿元、3 年期，不同票面利率对应的利息总额：</div>
             <table class="bd-kv">
               <tbody>
-                <tr><td>1.62%（区间下沿）</td><td>2.43 亿</td></tr>
+                <tr><td>1.62%（最低申报价位）</td><td>2.43 亿</td></tr>
                 <tr><td>1.70%</td><td>2.55 亿</td></tr>
                 <tr data-bd-seal><td>1.72%（真实发行）</td><td>2.58 亿</td></tr>
-                <tr><td>2.00%（区间上沿）</td><td>3.00 亿</td></tr>
+                <tr><td>2.00%（最高申报价位）</td><td>3.00 亿</td></tr>
               </tbody>
             </table>
           </div>
@@ -616,7 +624,7 @@
               </div>
               <div class="bd-tl-row">
                 <span class="yr">2026</span>
-                <span class="tx"><b>银行间中票</b>　50 亿 / 3 年，申购区间 1.62%—2.00%<br><em>合规申购 109.2 亿，约 2.18 倍，定价 1.72%</em></span>
+                <span class="tx"><b>银行间中票</b>　50 亿 / 3 年，申购区间 1.50%—2.00%<br><em>合规申购 109.2 亿，约 2.18 倍，定价 1.72%</em></span>
                 <span class="rt">2.2 倍</span>
               </div>
             </div>

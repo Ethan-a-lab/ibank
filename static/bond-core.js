@@ -3,11 +3,11 @@
    IIFE 自包含，不改动 app-core.js 任何行为。
    数据来源：26比亚迪MTN003 公开披露的簿记建档记录
      · 发行规模 50 亿元，期限 3 年
-     · 申购区间 1.62%—2.00%
+     · 申购区间 1.50%—2.00%（最低/最高申报价位 1.62% / 2.00%）
      · 合规申购 18 家 / 109.2 亿元；有效申购 11 家 / 56.9 亿元
      · 最终票面利率 1.72%
-   下表 11 家机构为按上述区间与总额还原的教学用簿记簿（合计 57.4 亿元，
-   与真实 56.9 亿元的 0.5 亿元差额来自单笔金额取整），页面已明示。
+   下表 11 行为按公告总额还原的教学用簿记簿（合计 71.5 亿元：有效 56.9 亿
+   与公告一致；落标 14.6 亿是 18 家压成 11 组的简化），页面已明示。
    ============================================================ */
 (function () {
   'use strict';
@@ -33,26 +33,58 @@
   var REAL_RATE = 1.72;   // 真实票面利率
   var BP_VALUE = 150;     // 1bp 对应 3 年利息（万元）：50亿 × 0.01% × 3
 
-  /* 初始簿记簿：报价、金额（亿元）
-     按公告「九档申报 8 / 10 / 38.9 / 8 / 10 / 9 / 8 / 9 / 8.3」压成课堂 11 组：
-     1.62 一家 8 亿、1.67 一家 10 亿、1.72 七家共 38.9 亿、1.77 与 1.82 各一家（落标）。
+  /* 初始簿记簿（=「还原真实簿记」按钮载入的示例底稿）：报价、金额（亿元）
+     按底稿模拟表（对齐公告真值）压成课堂 11 行：1.62 一行 8 亿、1.67 一行 10 亿、
+     1.72 七行共 38.9 亿、1.82 与 1.87 各一行（落标，压给成本最高的保险资管两组）。
      这样有效申购 8+10+38.9 = 56.9 亿、边际档 38.9 亿、配售 32÷38.9 = 82.26%，
-     三个数与公告一致；合规 71.5 亿 < 公告 109.2 亿，是因为 18 家合规压成了 11 组。 */
+     三个数与公告一致；合规 71.5 亿 < 公告 109.2 亿，是因为 18 家合规压成了 11 组。
+     注意：示例的利率/金额沿真实底稿，与各组身份卡的资金成本只大致对应——
+     上课时请逐行改成各组的实际报价。 */
   var SEED = [
-    { n: '国有大行 A', r: 1.62, a: 8.0 },
-    { n: '股份行 B', r: 1.67, a: 10.0 },
-    { n: '城商行 C', r: 1.72, a: 6.5 },
-    { n: '城商行 D', r: 1.72, a: 6.0 },
-    { n: '城商行 E', r: 1.72, a: 6.0 },
-    { n: '公募基金 F', r: 1.72, a: 5.5 },
-    { n: '公募基金 G', r: 1.72, a: 5.0 },
-    { n: '理财子 H', r: 1.72, a: 5.0 },
-    { n: '券商资管 I', r: 1.72, a: 4.9 },
-    { n: '保险资管 J', r: 1.82, a: 8.0 },
-    { n: '其他机构 K', r: 1.87, a: 6.6 }
+    { n: '第 1 组 · 大行自营', r: 1.62, a: 8.0 },
+    { n: '第 2 组 · 股份行理财', r: 1.67, a: 10.0 },
+    { n: '第 3 组 · 券商公募', r: 1.72, a: 6.5 },
+    { n: '第 4 组 · 大行自营', r: 1.72, a: 6.0 },
+    { n: '第 5 组 · 保险资管', r: 1.82, a: 8.0 },
+    { n: '第 6 组 · 股份行理财', r: 1.72, a: 6.0 },
+    { n: '第 7 组 · 券商公募', r: 1.72, a: 5.5 },
+    { n: '第 8 组 · 大行自营', r: 1.72, a: 5.0 },
+    { n: '第 9 组 · 保险资管', r: 1.87, a: 6.6 },
+    { n: '第 10 组 · 股份行理财', r: 1.72, a: 5.0 },
+    { n: '第 11 组 · 券商公募', r: 1.72, a: 4.9 }
   ];
 
-  var bids = SEED.map(function (b) { return { n: b.n, r: b.r, a: b.a }; });
+  /* ---------- 自动保存：各组录入的报价/金额/轮次落到本机浏览器 ----------
+     刷新不丢、误关重开还在；「还原真实簿记」（两段确认）会覆盖。 */
+  var SAVE_KEY = 'ibank_bd_state_v1';
+  function bdLoadState() {
+    try {
+      var s = JSON.parse(localStorage.getItem(SAVE_KEY) || 'null');
+      if (!s || !Array.isArray(s.b) || s.b.length !== SEED.length) return null;
+      for (var i = 0; i < s.b.length; i++) {
+        if (!Array.isArray(s.b[i]) || typeof s.b[i][0] !== 'number' || !(s.b[i][0] > 0) ||
+            typeof s.b[i][1] !== 'number' || !(s.b[i][1] >= 0)) return null;
+      }
+      return s;
+    } catch (e) { return null; }
+  }
+  function saveState() {
+    try {
+      localStorage.setItem(SAVE_KEY, JSON.stringify({
+        no: roundNo,
+        b: bids.map(function (x) { return [x.r, x.a]; }),
+        rs: rounds.map(function (rd) {
+          if (!rd || typeof rd.rate !== 'number') return null;
+          return { no: rd.no, rate: rd.rate, failed: rd.failed,
+                   book: rd.book ? rd.book.map(function (x) { return [x.r, x.a]; }) : null };
+        })
+      }));
+    } catch (e) { /* 写不进（隐私模式等）不影响页面 */ }
+  }
+  var bdSaved = bdLoadState();
+  var bids = SEED.map(function (b, i) {
+    return { n: b.n, r: bdSaved ? bdSaved.b[i][0] : b.r, a: bdSaved ? bdSaved.b[i][1] : b.a };
+  });
 
   var tbody = document.getElementById('bdRows');
   var barBox = document.getElementById('bdBar');
@@ -278,6 +310,7 @@
     scheduleTrack(failed ? 0 : marginal, cover, ratio, failed);
 
     curveSet();
+    saveState();
   }
 
   /* ---------- 行为留痕：最终定价 + 改价次数 ----------
@@ -326,6 +359,19 @@
   /* 课堂三轮：每轮讲评前把当前簿记记下来，前几轮在图上留虚线 */
   var rounds = [];             // [{no, rate, failed, book:[{n,r,a}]}]
   var roundNo = 1;             // 当前轮（1..3）
+  /* 恢复上次自动保存的轮次（book 的利率/金额按行序还原，名字用当前组号） */
+  if (bdSaved && bdSaved.no >= 1 && bdSaved.no <= 3) {
+    roundNo = bdSaved.no;
+    for (var ri = 0; ri < roundNo - 1 && ri < 3; ri++) {
+      var rd = bdSaved.rs && bdSaved.rs[ri];
+      rounds[ri] = (rd && typeof rd.rate === 'number')
+        ? { no: rd.no, rate: rd.rate, failed: !!rd.failed,
+            book: (Array.isArray(rd.book) && rd.book.length === SEED.length)
+              ? rd.book.map(function (v, ix) { return { n: SEED[ix].n, r: v[0], a: v[1] }; })
+              : null }
+        : null;
+    }
+  }
   var pills = [document.getElementById('bdPill1'), document.getElementById('bdPill2'), document.getElementById('bdPill3')];
 
   function cNow() {
@@ -602,6 +648,19 @@
     var act = b.getAttribute('data-bd');
 
     if (act === 'reset') {
+      // 两段确认：数据有改动时，第一下只点亮确认文案，再点一下才真的覆盖
+      var dirty = rounds.length > 0;
+      if (!dirty) {
+        for (var di = 0; di < bids.length; di++) {
+          if (Math.abs(bids[di].r - SEED[di].r) > 1e-9 || Math.abs(bids[di].a - SEED[di].a) > 1e-9) { dirty = true; break; }
+        }
+      }
+      if (dirty && b.textContent.indexOf('确认') !== 0) {
+        b.textContent = '确认覆盖？再点一次';
+        setTimeout(function () { if (b.textContent.indexOf('确认') === 0) b.textContent = '还原真实簿记'; }, 4000);
+        return;
+      }
+      b.textContent = '还原真实簿记';
       bids = SEED.map(function (x) { return { n: x.n, r: x.r, a: x.a }; });
       renderTable(); calc();
     } else if (act === 'fail') {

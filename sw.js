@@ -15,7 +15,7 @@
  * 注意：Service Worker 只在 https 或 localhost 下生效；双击 file:// 打开时注册会被跳过。
  */
 
-const CACHE_VERSION = 'ibank-v8';   // v96：簿记建档页新增「边际曲线」卡片（index.html + bond.css + bond-core.js），靠版本号把旧壳挤掉
+const CACHE_VERSION = 'ibank-v9';   // v97：簿记簿行名改组号＋自动保存＋两段确认还原；申购区间口径改 1.50%—2.00%（index.html + bond-core.js），靠版本号把旧壳挤掉
 const CACHE_NAME = `ibank-shell-${CACHE_VERSION}`;
 
 /* ★总开关：想把 PWA 停掉，只把这个 true 改成 false，然后推送一次。
