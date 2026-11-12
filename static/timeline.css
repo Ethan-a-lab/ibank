@@ -191,3 +191,59 @@ body.dark #p-game #v-tl .tl-legend .sw-b{background:#85B7EB}
   #p-game #v-tl .tl-kp-r{grid-template-columns:1fr;gap:2px}
   #p-game #v-tl .tl-kp-hd{display:none}
 }
+
+/* ===== v112：报价从「点档位」改成「填具体数」 =====
+   定价基准块 + 11 个输入格 + 偏离提示 + 中位数 vs 真值。
+   旧的 .tl-bands / .tl-seats 样式保留不动（老存档重放时还可能命中）。 */
+#p-game #v-tl .tl-anchor{
+  display:flex;gap:10px;align-items:flex-start;
+  background:rgba(79,70,229,.06);border-left:3px solid var(--accent-solid);
+  border-radius:0 11px 11px 0;padding:11px 14px;margin:2px 0 14px;
+}
+#p-game #v-tl .tl-anchor .tl-an-h{
+  font-size:11.5px;font-weight:700;color:var(--accent-text);
+  white-space:nowrap;letter-spacing:.5px;padding-top:1px;
+}
+#p-game #v-tl .tl-anchor p{font-size:13px;line-height:1.65;color:var(--text);margin:0}
+
+#p-game #v-tl .tl-quote{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px}
+#p-game #v-tl .tl-q{
+  border:1.5px dashed var(--panel-border);border-radius:12px;padding:9px 10px;
+  display:flex;flex-direction:column;gap:5px;background:var(--panel);
+}
+#p-game #v-tl .tl-q.set{border-style:solid;border-color:var(--accent)}
+#p-game #v-tl .tl-qg{font-size:12px;font-weight:600;color:var(--muted)}
+#p-game #v-tl .tl-in{
+  width:100%;box-sizing:border-box;font:inherit;font-size:18px;font-weight:800;
+  padding:7px 9px;border-radius:9px;border:1.5px solid rgba(122,132,158,.42);
+  background:#fff;color:var(--text);
+  font-variant-numeric:tabular-nums;letter-spacing:.3px;
+}
+#p-game #v-tl .tl-in::placeholder{font-size:12.5px;font-weight:500;color:#9aa1b1;letter-spacing:0}
+#p-game #v-tl .tl-in:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(79,70,229,.16);background:#fff}
+#p-game #v-tl .tl-q{min-height:96px}
+body.dark #p-game #v-tl .tl-in{background:rgba(255,255,255,.07);border-color:rgba(255,255,255,.22);color:var(--text)}
+body.dark #p-game #v-tl .tl-in::placeholder{color:rgba(255,255,255,.42)}
+body.dark #p-game #v-tl .tl-in:focus{background:rgba(255,255,255,.1)}
+#p-game #v-tl .tl-qd{font-size:11.5px;color:var(--muted);font-weight:600;line-height:1.45;word-break:break-all}
+#p-game #v-tl .tl-q.set .tl-qd{color:var(--accent-text)}
+#p-game #v-tl .tl-dev{font-size:11px;color:var(--muted);font-style:normal;line-height:1.45}
+
+#p-game #v-tl .tl-gap{
+  margin:0 0 16px;padding:13px 15px;border-radius:12px;
+  background:var(--panel);border:1px solid var(--panel-border);
+}
+#p-game #v-tl .tl-gap-h{display:block;font-size:11px;font-weight:700;color:var(--muted);letter-spacing:.5px;margin-bottom:7px}
+#p-game #v-tl .tl-gap-r{display:flex;align-items:baseline;gap:9px;flex-wrap:wrap}
+#p-game #v-tl .tl-gap-r b{font-size:20px;font-weight:800;font-variant-numeric:tabular-nums;color:var(--text)}
+#p-game #v-tl .tl-gap-r i{font-style:normal;color:var(--muted)}
+#p-game #v-tl .tl-gap-r em{font-style:normal;font-size:14px;font-weight:800;color:#E24B4A;margin-left:4px;font-variant-numeric:tabular-nums}
+#p-game #v-tl .tl-gap p{margin:8px 0 0;font-size:12px;color:var(--muted);line-height:1.6}
+
+@media (max-width:1100px){#p-game #v-tl .tl-quote{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media (max-width:700px){
+  #p-game #v-tl .tl-quote{grid-template-columns:repeat(2,minmax(0,1fr))}
+  #p-game #v-tl .tl-anchor{flex-direction:column;gap:5px}
+  #p-game #v-tl .tl-gap-r b{font-size:17px}
+}
+body.dark #p-game #v-tl .tl-anchor{background:rgba(129,140,248,.10)}

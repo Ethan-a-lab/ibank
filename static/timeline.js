@@ -1,7 +1,7 @@
 /* ===================================================================
-   时点三连（教师控场 · 拍档猜价）
-   —— 一台设备投屏，11 组各拍一档，每轮多给一条信息、可改可不改，
-      三轮后翻出真值靶心，看全班判断怎么被信息推动。
+   时点三连（教师控场 · 三轮报价）
+   —— 一台设备投屏，11 组各报一档，每轮多给一条信息、可改可不改，
+      三轮后翻出真实结果，看全班报价怎么被信息推动。
    —— 零算术：题面不给可计算的材料，学生只口播一个数，教师点对应档。
    —— 全部数据取自 static/app-core.js 的 caseBg.eras（已核验底稿），
       不新增事实；英文文案为同一事实的简写，不进 i18n-dict.js。
@@ -35,39 +35,47 @@
     sec:       { zh: '课堂活动', en: 'Class activity' },
     tag:       { zh: '教师控场', en: 'Teacher-led' },
     pill:      { zh: '开场', en: 'Open' },
-    ename:     { zh: '时点三连 · 拍档猜价', en: 'Three Eras · Call the Price' },
-    esub:      { zh: '同一家公司四轮融资，每轮多给一条信息，改一次价', en: 'One company, three fundraisings; one new clue each round' },
+    ename:     { zh: '时点三连 · 三轮报价', en: 'Three Eras · Three Rounds of Bidding' },
+    esub:      { zh: '同一家公司四轮融资，每轮多给一条信息，重报一次价', en: 'One company, three fundraisings; one new clue each round, one re-quote' },
 
     rules_h:   { zh: '开组前 · 30 秒说清规则', en: 'Before you start · 30-second rules' },
-    rules_1:   { zh: '大屏给一道题和 7 个档位，各组口播一个数，教师点一下对应档位即可。不用算，也不用写。', en: 'The screen shows one question and seven bands. Each group calls out a number; the teacher taps its band. No maths, no writing.' },
+    rules_1:   { zh: '大屏给一道题和 7 个档位。各组报出自己这一档，并说一句依据——凭什么报这个位置。教师点对应档位记录。', en: 'The screen shows one question and seven bands. Each group calls a band and states its reason — why this level. The teacher taps the band.' },
     rules_2:   { zh: '每轮 60 秒，会多亮一条信息。可以改价，也可以不改。', en: 'Each round reveals one more clue. You may change your call or keep it.' },
-    rules_3:   { zh: '三轮后翻出真值靶心：离靶心档隔几档，就记几分，三题累计越低越好。', en: 'After three rounds the true band flips. Your score is how many bands away you are; lowest total across three questions wins.' },
-    rules_4:   { zh: '每次出价都会自动留在本机，作为「先承诺后教学」的增值基线，不用另填问卷。', en: 'Every call is saved locally as the pre-teaching baseline. No extra form to fill in.' },
+    rules_3:   { zh: '三轮后翻出真实结果：报价离它隔几档，就记几分，三题累计越低越好。', en: 'After three rounds the actual result flips. Your score is how many bands away you are; lowest total across three questions wins.' },
+    rules_4:   { zh: '每次报价都会自动留在本机，作为「先承诺后教学」的增值基线，不用另填问卷。', en: 'Every quote is saved locally as the pre-teaching baseline. No extra form to fill in.' },
     start:     { zh: '开始正赛', en: 'Start the round' },
     rounds:    { zh: '本组轮数', en: 'Rounds' },
     group:     { zh: '第 {1} 组题', en: 'Set {1}' },
     qof:       { zh: '第 {1} / 3 题', en: 'Question {1} of 3' },
     rof:       { zh: '第 {1} 轮 / 共 {2} 轮', en: 'Round {1} of {2}' },
-    what:      { zh: '你猜多少？', en: 'Your call' },
+    what:      { zh: '本轮报价', en: 'Your quote' },
+    base_h:    { zh: '定价基准', en: 'Pricing anchor' },
+    quote_h:   { zh: '各组报价 · 填数字，回车跳下一组', en: 'Each group’s quote · type a number, Enter jumps to the next' },
+    in_ph:     { zh: '填数', en: 'quote' },
+    dev_hi:    { zh: '高于基准', en: 'above anchor' },
+    dev_lo:    { zh: '低于基准', en: 'below anchor' },
+    dev_eq:    { zh: '等于基准', en: 'on the anchor' },
+    gap_h:     { zh: '全班中位数 vs 真值', en: 'Class median vs actual' },
+    gap_same:  { zh: '中位数正好落在真值上', en: 'The median lands right on the actual' },
     unit:      { zh: '单位', en: 'Unit' },
-    brush:     { zh: '先点档位，再点组号（可连续点多个组）', en: 'Pick a band, then tap group numbers (you can tap several in a row)' },
+    brush:     { zh: '选一个档位，再点组号（可连点）', en: 'Pick a band, then tap group numbers (you can tap several in a row)' },
     seats:     { zh: '11 组本轮的档位', en: 'Bands for the 11 groups' },
-    unset:     { zh: '未拍', en: 'Not set' },
+    unset:     { zh: '未报', en: 'No bid' },
     clue:      { zh: '本轮新信息', en: 'New clue this round' },
     clue0:     { zh: '起始情境', en: 'Starting context' },
     lock:      { zh: '锁定本轮 · 看轨迹', en: 'Lock this round' },
     lock2:     { zh: '锁定本轮 · 下一轮', en: 'Lock this round' },
-    need:      { zh: '还有 {1} 组没拍档', en: '{1} groups have not called yet' },
+    need:      { zh: '还有 {1} 组没报价', en: '{1} groups have not quoted yet' },
     inherit:   { zh: '本轮默认继承上轮，只点要改的组即可', en: 'Carries over from last round; tap only the groups that change' },
 
-    reveal_h:  { zh: '揭晓 · 真值靶心', en: 'Reveal · the true band' },
+    reveal_h:  { zh: '揭晓 · 真实结果', en: 'Reveal · the actual result' },
     truth:     { zh: '真值', en: 'Actual' },
     talk_h:    { zh: '讲评一句话', en: 'Debrief in one line' },
     evi_h:     { zh: '证据卡（底稿原始数据）', en: 'Evidence card (source figures)' },
     trail_h:   { zh: '全班判断怎么走', en: 'How the class moved' },
     median:    { zh: '全班中位数', en: 'Class median' },
     bestmove:  { zh: '最会改', en: 'Best correction' },
-    target:    { zh: '靶心档', en: 'Target band' },
+    target:    { zh: '真值档', en: 'True band' },
     score_h:   { zh: '本题记分（格数越小越好）', en: 'Score this question (fewer bands is better)' },
     total:     { zh: '累计', en: 'Total' },
     mostmove:  { zh: '最会改：{1}', en: 'Best correction: {1}' },
@@ -101,7 +109,7 @@
     gname:     { zh: '第 {1} 组', en: 'Group {1}' },
     bandshort: { zh: '第 {1} 档', en: 'Band {1}' },
     pts:       { zh: '{1} 格', en: '{1} bands' },
-    allset:    { zh: '全部 11 组已拍档', en: 'All 11 groups have called' },
+    allset:    { zh: '全部 11 组已报价', en: 'All 11 groups have quoted' },
     r1:        { zh: '轮 1', en: 'R1' },
     r2:        { zh: '轮 2', en: 'R2' },
     r3:        { zh: '轮 3', en: 'R3' }
@@ -121,10 +129,13 @@
         way: { zh: 'A 股 IPO · 询价制', en: 'A-share IPO · book building' },
         who: { zh: '境内询价机构', en: 'Domestic institutional bidders' },
         audit: { zh: '证监会发审委 · 数月', en: 'CSRC review · months' },
-        q: { zh: '2011 年比亚迪回 A 股，你觉得发行价定在多少元？', en: 'BYD returns to the A-share market in 2011. What was the offer price?' },
+        q: { zh: '2011 年比亚迪回 A 股，走网下询价。询价单上你这一栏填多少元？', en: 'BYD returns to the A-share market in 2011 via book building. What do you write on your bid form?' },
         unit: { zh: '元 / 股', en: 'CNY / share' },
         bands: ['≤15', '15–18', '18–21', '21–24', '24–27', '27–30', '≥30'],
         target: 3,
+        base: { v: 27.7, note: { zh: '募满价 21.92 亿 ÷ 7,900 万股 = 27.7 元。报在它上面募资够数、但可能卖不掉；报在下面就是主动少募。', en: 'Full-cover price: CNY 2.192bn ÷ 79m shares = 27.7. Above it the deal is covered but may not clear; below it you are choosing to raise less.' } },
+        tv: 18.00,
+        dec: 2,
         truth: { zh: '18.00 元 / 股', en: '18.00 CNY / share' },
         info: [
           { zh: '2011 年，比亚迪回 A 股，深交所中小板、询价制；招股书拟募 21.92 亿元，计划发行 7,900 万股（占发行后总股本 3.36%）。',
@@ -151,10 +162,13 @@
         way: { zh: 'A 股定向增发 · 锁价', en: 'A-share private placement · fixed price' },
         who: { zh: '35 名以内特定投资者', en: 'Up to 35 selected investors' },
         audit: { zh: '证监会发审委 · 以年计', en: 'CSRC review · over a year' },
-        q: { zh: '2015 年 6 月定增预案，价格在预案时就按锁价方式定死。你猜锁价定在多少元？', en: 'The June 2015 placement fixes its price at the proposal stage. What was that price?' },
+        q: { zh: '2015 年 6 月定增预案，锁价发行——价格在预案里写死，签完再等批文。你锁在哪个价？', en: 'The June 2015 placement locks its price at the proposal stage, then waits for approval. What price do you lock?' },
         unit: { zh: '元 / 股', en: 'CNY / share' },
         bands: ['≤40', '40–50', '50–60', '60–70', '70–80', '80–90', '≥90'],
         target: 3,
+        base: { v: 57.47, note: { zh: '募满价 150 亿 ÷ 2.61 亿股 ≈ 57.47 元。锁价只能贴着它定：高了认购方不签，低了募不满。', en: 'Full-cover price: CNY 15bn ÷ 261m shares ≈ 57.47. A fixed price has to sit on it — higher and nobody signs, lower and the deal falls short.' } },
+        tv: 57.40,
+        dec: 2,
         truth: { zh: '57.40 元 / 股', en: '57.40 CNY / share' },
         info: [
           { zh: '2015 年 6 月 A 股牛市高位，比亚迪披露定增预案：拟发 2.61 亿股、募约 150 亿元，对象不超过 35 名，价格在预案时就按锁价方式定死。',
@@ -181,10 +195,13 @@
         way: { zh: 'H 股配售 · 按市价折让', en: 'H-share placement · discount to market' },
         who: { zh: '国际机构', en: 'International institutions' },
         audit: { zh: '港交所 · 几天', en: 'HKEX · a few days' },
-        q: { zh: '2021 年比亚迪在港股连做两次配售，按市价折让给机构。你猜第一次折让了多少？', en: 'BYD did two H-share placements in 2021 at a discount to market. How large was the first discount?' },
+        q: { zh: '2021 年比亚迪在港股连做两次配售，按市价折让、当晚定价。这笔你要求几个点的折让？', en: 'BYD runs two H-share placements in 2021, priced at a discount overnight. How many points of discount do you demand?' },
         unit: { zh: '%（折让率）', en: '% discount' },
         bands: ['≤4', '4–6', '6–8', '8–10', '10–12', '12–14', '≥14'],
         target: 3,
+        base: { v: 0, note: { zh: '基准 = 当日市价（0 折让）。折让越低，老股东摊得越少；让得不够，机构当晚不接货。', en: 'Anchor = the market price (zero discount). A smaller discount dilutes existing holders less; too small and institutions will not take the stock overnight.' } },
+        tv: 7.8,
+        dec: 1,
         truth: { zh: '7.8%（第二次 6.9%）', en: '7.8% (6.9% for the second)' },
         info: [
           { zh: '2020—2021 年新能源车销量起量，扩产急需资金而且要快。比亚迪在港股连做两次配售，按市价折让给机构。',
@@ -212,10 +229,14 @@
         way: { zh: '银行间中期票据 · 簿记建档', en: 'Interbank MTN · book building' },
         who: { zh: '银行与资管', en: 'Banks and asset managers' },
         audit: { zh: '交易商协会 · 两周内', en: 'NAFMII · within two weeks' },
-        q: { zh: '2026 年一笔 50 亿元、3 年期的中期票据，市场缺资产、利率在低位。你猜票面定在多少？', en: 'A CNY 5bn, 3-year MTN in 2026, with scarce assets and low rates. What coupon was set?' },
+        q: { zh: '2026 年一笔 50 亿元、3 年期的中期票据，走簿记建档。你的申购利率填多少？', en: 'A CNY 5bn, 3-year MTN in 2026, sold by book building. What rate do you bid?' },
         unit: { zh: '%（票面利率）', en: '% coupon' },
         bands: ['≤1.60', '1.60–1.68', '1.68–1.76', '1.76–1.84', '1.84–1.92', '1.92–2.00', '≥2.00'],
         target: 3,
+        base: { v: 1.74, note: { zh: '同日 3 年期 AAA 中短票收益率 1.74%。报在它下面是把价压给发行人，报在它上面是给自己留安全垫。', en: 'The 3-year AAA MTN curve sits at 1.74% that day. Bidding below it squeezes the issuer; bidding above it buys you a cushion.' } },
+        tv: 1.72,
+        dec: 2,
+        money: { zh: '按 50 亿元、3 年期折算：1 个 bp ≈ 150 万元。', en: 'On CNY 5bn over three years, 1bp ≈ CNY 1.5m.' },
         truth: { zh: '1.72%', en: '1.72%' },
         info: [
           { zh: '2026 年，比亚迪要在银行间市场发一笔 50 亿元、3 年期的中期票据；当时市场缺资产、利率在低位。',
@@ -241,10 +262,13 @@
         way: { zh: 'A 股 IPO · 换个量纲看实募', en: 'A-share IPO · proceeds instead of price' },
         who: { zh: '境内询价机构', en: 'Domestic institutional bidders' },
         audit: { zh: '证监会发审委 · 数月', en: 'CSRC review · months' },
-        q: { zh: '同一年，招股书计划募 21.92 亿元；最终发行价 18.00 元，比询价区间下沿还低约 15%。你猜实际募到了多少亿？', en: 'The same IPO planned to raise CNY 2.192bn, but priced 15% below the range floor. How much was actually raised?' },
+        q: { zh: '同一年，招股书计划募 21.92 亿元；最终发行价 18.00 元，比询价区间下沿还低约 15%。按这个价，实募多少亿？', en: 'The same IPO planned to raise CNY 2.192bn, but priced 15% below the range floor. At that price, how much comes in?' },
         unit: { zh: '亿元（募资总额）', en: 'CNY 100m (gross)' },
         bands: ['≤10', '10–13', '13–16', '16–19', '19–22', '22–25', '≥25'],
         target: 3,
+        base: { v: 21.92, note: { zh: '基准 = 招股书计划募资 21.92 亿元。计划是分子，不是承诺——价一低，分母就缩。', en: 'Anchor = the CNY 2.192bn in the prospectus. A plan is not a promise: cut the price and the number shrinks.' } },
+        tv: 14.22,
+        dec: 2,
         truth: { zh: '14.22 亿元', en: 'CNY 1.422bn' },
         info: [
           { zh: '2011 年比亚迪回 A 股，招股书计划募 21.92 亿元；最终发行价定在 18.00 元，比承销商询价区间下沿还低约 15%。',
@@ -271,10 +295,13 @@
         way: { zh: 'A 股定增 · 换个量纲看认购家数', en: 'A-share placement · number of subscribers' },
         who: { zh: '35 名以内特定投资者', en: 'Up to 35 selected investors' },
         audit: { zh: '证监会发审委 · 以年计', en: 'CSRC review · over a year' },
-        q: { zh: '2016 年定增，规则允许向不超过 35 名特定投资者发行。你猜最后几家机构真掏了钱？', en: 'The 2016 placement allowed up to 35 investors. How many actually subscribed?' },
+        q: { zh: '2016 年定增，规则允许向不超过 35 名特定投资者发行。最后几家真掏了钱？', en: 'The 2016 placement allowed up to 35 investors. How many actually wired the money?' },
         unit: { zh: '家', en: 'institutions' },
         bands: ['≤2', '3–4', '5–6', '7–8', '9–10', '11–20', '≥21'],
         target: 3,
+        base: { v: 35, note: { zh: '基准 = 规则上限 35 名。上限是天花板，不是目标——真掏钱的往往只有个位数。', en: 'Anchor = the regulatory cap of 35. A cap is a ceiling, not a target — the real subscriber list is usually a single digit.' } },
+        tv: 6,
+        dec: 0,
         truth: { zh: '6 家', en: '6 institutions' },
         info: [
           { zh: '2016 年比亚迪定增，规则允许向不超过 35 名特定投资者发行；预案拟发 2.61 亿股、募约 150 亿元。',
@@ -318,7 +345,8 @@
     round: 1,
     rounds: 3,
     brush: 0,            // 当前画笔档位 1..7，0 = 未选
-    picks: {},           // picks[qid] = [[11 档], [11 档], [11 档]]
+    picks: {},           // picks[qid] = [[11 档], ...]  由 vals 反推，只用于计分与轨迹
+    vals: {},            // vals[qid]  = [[11 个具体数值], ...]  学生真正报的那个数
     scores: [],          // 11 组累计格数
     last: null,          // 本题结算结果，只在 lockRound 里算一次
     done: [],            // 已揭晓题 id
@@ -336,7 +364,7 @@
       if (!raw) return;
       var o = JSON.parse(raw);
       if (!o || typeof o !== 'object') return;
-      ['phase', 'gi', 'qi', 'round', 'rounds', 'brush', 'picks', 'scores', 'last', 'done'].forEach(function (k) {
+      ['phase', 'gi', 'qi', 'round', 'rounds', 'brush', 'picks', 'vals', 'scores', 'last', 'done'].forEach(function (k) {
         if (o[k] !== undefined) S[k] = o[k];
       });
       if (!Array.isArray(S.scores) || S.scores.length !== NG) S.scores = blankRows();
@@ -346,12 +374,13 @@
       if (S.round < 1) S.round = 1;
       if (S.round > S.rounds) S.round = S.rounds;
       if (S.phase === 'play' && !S.picks[cur().id]) S.picks[cur().id] = emptyPicks();
+      if (!S.vals || typeof S.vals !== 'object') S.vals = {};
     } catch (e) { /* 坏存档直接忽略，按新局走 */ }
   }
   function save() {
     try { localStorage.setItem(STORE, JSON.stringify({
       phase: S.phase, gi: S.gi, qi: S.qi, round: S.round, rounds: S.rounds,
-      brush: S.brush, picks: S.picks, scores: S.scores, last: S.last, done: S.done
+      brush: S.brush, picks: S.picks, vals: S.vals, scores: S.scores, last: S.last, done: S.done
     })); } catch (e) {}
   }
   function emptyPicks() {
@@ -361,6 +390,28 @@
   }
   function cur() { return QS[S.gi][S.qi]; }
   function pk() { var q = cur(); if (!S.picks[q.id]) S.picks[q.id] = emptyPicks(); return S.picks[q.id]; }
+  function vv() {
+    var q = cur();
+    if (!S.vals[q.id]) {
+      S.vals[q.id] = emptyPicks();
+      /* 老存档只有档位、没有具体数值（v112 之前的局）：按档位中点补一个，
+         否则续玩时输入框全是 0、偏离也全是 0。 */
+      var rows = pk(), r, g;
+      for (r = 0; r < rows.length; r++) {
+        for (g = 0; g < NG; g++) if (rows[r][g]) S.vals[q.id][r][g] = midOf(q, rows[r][g]);
+      }
+    }
+    return S.vals[q.id];
+  }
+  /* 写一个组的报价：数值进 vals，档位由数值反推进 picks —— 两个结构永远同步 */
+  function setVal(g, raw) {
+    var q = cur(), rows = pk(), vs = vv(), r = S.round - 1;
+    var txt = String(raw == null ? '' : raw).replace(/[^0-9.\-]/g, '');
+    var v = txt === '' ? NaN : parseFloat(txt);
+    if (!isFinite(v)) { vs[r][g] = 0; rows[r][g] = 0; return null; }
+    vs[r][g] = v; rows[r][g] = bandOf(q, v);
+    return v;
+  }
   function gname(i) { return t('gname', i + 1); }
 
   /* ---------------- 入口卡双语 ---------------- */
@@ -368,7 +419,7 @@
     sec: { zh: '课堂活动', en: 'Class activity' },
     tag: { zh: '教师控场', en: 'Teacher-led' },
     pill: { zh: '环节二', en: 'Step 2' },
-    name: { zh: '时点三连 · 拍档猜价', en: 'Three Eras · Call the Price' },
+    name: { zh: '时点三连 · 三轮报价', en: 'Three Eras · Three Rounds of Bidding' },
     sub: { zh: '同一家公司四轮融资，每轮多给一条信息，改一次价', en: 'One company, three fundraisings; one new clue each round' }
   };
   function setEntry() {
@@ -388,6 +439,56 @@
   function bandLabel(q, b) {
     if (!b) return t('unset');
     return q.bands[b - 1];
+  }
+
+  /* ---------------- 数值 ↔ 档位 ----------------
+     学生报的是一个具体数字（1.72 / 57.40 / 7.8），档位只是计分粒度，由这个数反推。
+     bands 是 '≤1.60' / '1.60–1.68' / '≥2.00' 这种字符串，解析成上下界后逐档比。
+     判档用严格小于：v 正好压在边界上就归下一档，不做特殊处理。 */
+  var BND = {};
+  function bounds(q) {
+    if (BND[q.id]) return BND[q.id];
+    var out = [], i, s, arr;
+    for (i = 0; i < q.bands.length; i++) {
+      s = q.bands[i];
+      if (s.indexOf('≤') === 0) out.push([-Infinity, parseFloat(s.slice(1))]);
+      else if (s.indexOf('≥') === 0) out.push([parseFloat(s.slice(1)), Infinity]);
+      else { arr = s.split('–'); out.push([parseFloat(arr[0]), parseFloat(arr[1])]); }
+    }
+    BND[q.id] = out;
+    return out;
+  }
+  function bandOf(q, v) {
+    var b = bounds(q), i;
+    for (i = 0; i < b.length; i++) if (v < b[i][1]) return i + 1;
+    return b.length;
+  }
+  /* 档位 → 一个代表性数值，只给验收脚本和老接口（TL.pick / TL.fill）用 */
+  function midOf(q, b) {
+    var r = bounds(q)[b - 1], lo = r[0], hi = r[1], eps;
+    if (!isFinite(lo)) { eps = Math.abs(hi) > 100 ? 1 : 0.01; return +(hi - eps).toFixed(2); }
+    if (!isFinite(hi)) { eps = Math.abs(lo) > 100 ? 1 : 0.01; return +(lo + eps).toFixed(2); }
+    return +((lo + hi) / 2).toFixed(2);
+  }
+  /* 数字与单位的统一写法：元/股 保留两位、% 不留空格、家数取整。
+     这些东西分散写会各自走样，所以只留一个出口。 */
+  function unitOf(q) { return tx(q.unit).split(/[（(]/)[0].trim().replace(/\s*\/\s*/g, '/'); }
+  function numTxt(q, v) {
+    var d = q.dec == null ? 2 : q.dec, u = unitOf(q);
+    var s = (+v).toFixed(d);
+    /* 英文 unit 是 '% coupon' 这种写法，首个字符是 % 就只拼百分号，单位名交给小标题 */
+    return u.charAt(0) === '%' ? s + '%' : s + ' ' + u;
+  }
+  /* 报价与基准的偏离怎么说：利率类按 bp，其余按原单位差 */
+  function devText(q, v) {
+    var b = q.base;
+    if (!b || !isFinite(v)) return '';
+    var d = v - b.v;
+    if (!d) return t('dev_eq');
+    var a = Math.abs(d), txt;
+    if (q.id === '2026') txt = (a * 100).toFixed(1) + ' bp';
+    else txt = numTxt(q, a);
+    return (d > 0 ? t('dev_hi') : t('dev_lo')) + ' ' + txt;
   }
 
   /* 三轮轨迹：全班中位数 + 最会改那一组 + 靶心档 */
@@ -466,23 +567,26 @@
     s += '<div class="tl-clue"><b>' + esc(S.round === 1 ? t('clue0') : t('clue')) + '</b>'
       + esc(tx(q.info[Math.min(S.round - 1, q.info.length - 1)])) + '</div>';
     if (S.round > 1) s += '<div class="tl-note slim">' + esc(t('inherit')) + '</div>';
-    s += head(t('brush'));
-    s += '<div class="tl-bands">';
-    for (i = 1; i <= NB; i++) {
-      /* 绝不能在未揭晓时给靶心档加高亮：那就等于把答案印在按钮上 */
-      s += '<button class="tl-band' + (S.brush === i ? ' on' : '') + '" data-act="brush" data-v="' + i + '">'
-        + '<span class="tl-bn">' + i + '</span><span class="tl-bv">' + esc(q.bands[i - 1]) + '</span></button>';
+    /* 定价基准：先给一个参照系，再让学生报数。没有基准的"填个数"就是猜。 */
+    if (q.base) {
+      s += '<div class="tl-anchor"><span class="tl-an-h">' + esc(t('base_h')) + '</span>'
+        + '<p>' + esc(tx(q.base.note)) + '</p></div>';
     }
-    s += '</div>';
-    s += head(t('seats'));
-    s += '<div class="tl-seats">';
+    s += head(t('quote_h'), tx(q.unit));
+    s += '<div class="tl-quote">';
+    var vs = vv();
     var left = 0;
     for (i = 0; i < NG; i++) {
-      var b = rows[S.round - 1][i];
+      var b = rows[S.round - 1][i], num = vs[S.round - 1][i];
       if (!b) left++;
-      s += '<button class="tl-seat' + (b ? ' set' : '') + '" data-act="pick" data-v="' + (i + 1) + '">'
-        + '<span class="tl-sg">' + esc(gname(i)) + '</span>'
-        + '<span class="tl-sb">' + esc(bandLabel(q, b)) + '</span></button>';
+      s += '<div class="tl-q' + (b ? ' set' : '') + '" data-g="' + (i + 1) + '">'
+        + '<span class="tl-qg">' + esc(gname(i)) + '</span>'
+        + '<input class="tl-in" type="number" step="any" inputmode="decimal" data-act="val" data-v="' + (i + 1) + '"'
+        + ' value="' + (b ? esc(num) : '') + '" placeholder="' + esc(t('in_ph')) + '"'
+        + ' aria-label="' + esc(gname(i)) + '">'
+        + '<span class="tl-qd">' + esc(b ? t('bandshort', b) + ' · ' + q.bands[b - 1] : t('unset')) + '</span>'
+        + (b ? '<em class="tl-dev">' + esc(devText(q, num)) + '</em>' : '')
+        + '</div>';
     }
     s += '</div>';
     s += '<div class="tl-foot"><span class="' + (left ? 'warn' : 'ok') + '">'
@@ -522,6 +626,23 @@
       + '<span class="tl-tv">' + esc(tx(q.truth)) + '</span>'
       + '<span class="tl-tb">' + esc(t('bandshort', q.target)) + ' · ' + esc(q.bands[q.target - 1]) + ' ' + esc(tx(q.unit)) + '</span></div>';
     s += '<div class="tl-reveal"><p>' + esc(tx(q.reveal)) + '</p></div>';
+    /* 全班中位数 vs 真值：把"差多少"落到具体数上，利率题再折成钱。
+       这是这一步唯一的"算"，也是学生最该带走的那个数。 */
+    var vs2 = vv(), nums = [], k;
+    for (k = 0; k < NG; k++) { var nv = vs2[S.rounds - 1][k]; if (nv) nums.push(nv); }
+    nums.sort(function (a, b) { return a - b; });
+    var medv = nums.length ? nums[Math.floor((nums.length - 1) / 2)] : 0;
+    if (q.tv != null && medv) {
+      var dd = medv - q.tv, ds;
+      if (!dd) ds = t('gap_same');
+      else if (q.id === '2026') ds = (dd > 0 ? '+' : '−') + Math.abs(dd * 100).toFixed(1) + ' bp';
+      else ds = (dd > 0 ? '+' : '−') + numTxt(q, Math.abs(dd));
+      s += '<div class="tl-gap"><span class="tl-gap-h">' + esc(t('gap_h')) + '</span>'
+        + '<div class="tl-gap-r"><b>' + esc(numTxt(q, medv)) + '</b><i>→</i><b>' + esc(numTxt(q, q.tv)) + '</b>'
+        + '<em>' + esc(ds) + '</em></div>'
+        + (q.money ? '<p>' + esc(tx(q.money)) + '</p>' : '')
+        + '</div>';
+    }
     s += head(t('trail_h'));
     s += '<div class="tl-chart">' + trajectory(q, rows) + '</div>';
     s += head(t('talk_h'));
@@ -590,6 +711,7 @@
   function start() {
     S.phase = 'play'; S.round = 1; S.brush = 0; S.last = null;
     S.picks[cur().id] = emptyPicks();
+    S.vals[cur().id] = emptyPicks();
     render();
   }
   function lockRound() {
@@ -598,7 +720,10 @@
     if (left) { flash(t('need', left)); return; }
     if (S.round < S.rounds) {
       /* 下一轮继承本轮档位，教师只点要改的组 */
-      for (i = 0; i < NG; i++) rows[S.round][i] = rows[S.round - 1][i];
+      for (i = 0; i < NG; i++) {
+        rows[S.round][i] = rows[S.round - 1][i];
+        vv()[S.round][i] = vv()[S.round - 1][i];
+      }
       S.round++; S.brush = 0; S.phase = 'play';
     } else {
       S.phase = 'reveal';
@@ -613,14 +738,14 @@
     else { S.phase = 'summary'; render(); }
   }
   function again() {
-    S.gi = 1; S.qi = 0; S.round = 1; S.brush = 0;
+    S.gi = 1; S.qi = 0; S.round = 1; S.brush = 0; S.vals = {};
     S.phase = 'rules'; S.resetArm = false; S.last = null;
     render();
   }
   function resetAll() {
     try { localStorage.removeItem(STORE); } catch (e) {}
     S.phase = 'rules'; S.gi = 0; S.qi = 0; S.round = 1; S.rounds = 3;
-    S.brush = 0; S.picks = {}; S.scores = blankRows();
+    S.brush = 0; S.picks = {}; S.vals = {}; S.scores = blankRows();
     S.last = null; S.done = []; S.resetArm = false;
     render();
   }
@@ -652,6 +777,67 @@
     }
   });
 
+  /* 报价输入：只就地改这一格，绝不调 render()——render 会重建 DOM，正在打字的光标会丢。
+     这是本环节唯一的高频交互，教师会在 11 个格子里连打，不能有一下卡顿。 */
+  function syncCell(el) {
+    var q = cur();
+    var g = parseInt(el.getAttribute('data-v'), 10) - 1;
+    var v = setVal(g, el.value);
+    var cell = el.closest ? el.closest('.tl-q') : null;
+    if (cell) {
+      cell.classList.toggle('set', v !== null);
+      var d = cell.querySelector('.tl-qd');
+      var rows = pk();
+      if (d) d.textContent = v !== null
+        ? t('bandshort', rows[S.round - 1][g]) + ' · ' + q.bands[rows[S.round - 1][g] - 1]
+        : t('unset');
+      var em = cell.querySelector('.tl-dev');
+      if (v !== null) {
+        if (!em) { em = document.createElement('em'); em.className = 'tl-dev'; cell.appendChild(em); }
+        em.textContent = devText(q, v);
+      } else if (em && em.parentNode) {
+        em.parentNode.removeChild(em);
+      }
+    }
+    var left = 0, i;
+    for (i = 0; i < NG; i++) if (!rows[S.round - 1][i]) left++;
+    var foot = root.querySelector('.tl-foot span');
+    if (foot) {
+      foot.textContent = left ? t('need', left) : t('allset');
+      foot.className = left ? 'warn' : 'ok';
+    }
+    save();
+  }
+
+  root.addEventListener('input', function (e) {
+    var el = e.target;
+    if (!el || !el.classList || !el.classList.contains('tl-in')) return;
+    syncCell(el);
+  });
+
+  /* 回车跳到下一组：教师顺序报完 11 组不用碰鼠标 */
+  root.addEventListener('keydown', function (e) {
+    var el = e.target;
+    if (!el || !el.classList || !el.classList.contains('tl-in')) return;
+    if (e.key !== 'Enter') return;
+    e.preventDefault();
+    var g = parseInt(el.getAttribute('data-v'), 10);
+    var nx = root.querySelector('.tl-in[data-v="' + (g >= NG ? 1 : g + 1) + '"]');
+    if (nx) { nx.focus(); nx.select(); }
+  });
+
+  /* 失焦时按本题精度补齐小数位：输 1.7 显示 1.70，十一格才对得齐。
+     放在 blur 而不是 input 里，是因为边打字边改格式会把光标顶到后面去。 */
+  root.addEventListener('blur', function (e) {
+    var el = e.target;
+    if (!el || !el.classList || !el.classList.contains('tl-in')) return;
+    var q = cur(), d = q.dec == null ? 2 : q.dec;
+    var v = parseFloat(el.value);
+    if (!isFinite(v)) { el.value = ''; return; }
+    el.value = v.toFixed(d);
+    save();
+  }, true);
+
   /* 语言切换：i18n 层同步派发 ibk:lang，另加 MutationObserver 兜底 */
   var lastLang = L();
   window.addEventListener('ibk:lang', function () { lastLang = L(); render(); });
@@ -668,16 +854,20 @@
     start: start,
     setRounds: function (n) { S.rounds = (n === 2 ? 2 : 3); render(); },
     setBrush: function (b) { S.brush = b; render(); },
+    /* 老接口保留：验收脚本还按档位调用，这里把档位换算成一个能反推回该档的数值 */
     pick: function (g, b) {
+      var q = cur();
       if (b != null) S.brush = b;
-      pk()[S.round - 1][g - 1] = S.brush;
+      setVal(g - 1, midOf(q, S.brush));
       render();
     },
     fill: function (b) {
-      var rows = pk(), i;
-      for (i = 0; i < NG; i++) rows[S.round - 1][i] = b;
+      var q = cur(), i;
+      for (i = 0; i < NG; i++) setVal(i, midOf(q, b));
       S.brush = b; render();
     },
+    setVal: function (g, v) { setVal(g - 1, v); render(); },
+    vals: function () { return vv(); },
     lock: lockRound,
     next: next,
     again: again,
