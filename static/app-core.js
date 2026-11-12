@@ -5648,11 +5648,12 @@ document.addEventListener('keydown', function (e) {
       // 与用户「其他相关的可能也要改」的要求同源——数字与数据脱节就会失真。
       // 这里三项分别取自 CHAPTERS / .home-card / .case-item，均为页面真实渲染结果，
       // 以后增删章节、模块、案例时首页自动跟随，不会再出现「宣称 N 实际 M」。
+      // unslop v117：去掉 padStart 前导零，统计数字与正文格式统一（8/14/20）
       function syncHeroStats() {
         var box = document.querySelector('#p-home .hero2-stats');
         if (!box) return;
-        var vals = [String(CHAPTERS.length).padStart(2, '0'),
-          String(document.querySelectorAll('#p-home .home-card').length).padStart(2, '0'),
+        var vals = [String(CHAPTERS.length),
+          String(document.querySelectorAll('#p-home .home-card').length),
           String(document.querySelectorAll('#p-case .case-item').length || 20),
           '∞'];
         var strongs = box.querySelectorAll('strong');
