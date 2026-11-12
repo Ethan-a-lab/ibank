@@ -41,18 +41,23 @@
      注意：示例的利率/金额沿真实底稿，与各组身份卡的资金成本只大致对应——
      上课时请逐行改成各组的实际报价。 */
   var SEED = [
-    { n: '第 1 组 · 大行自营', r: 1.62, a: 8.0 },
-    { n: '第 2 组 · 股份行理财', r: 1.67, a: 10.0 },
-    { n: '第 3 组 · 券商公募', r: 1.72, a: 6.5 },
-    { n: '第 4 组 · 大行自营', r: 1.72, a: 6.0 },
-    { n: '第 5 组 · 保险资管', r: 1.82, a: 8.0 },
-    { n: '第 6 组 · 股份行理财', r: 1.72, a: 6.0 },
-    { n: '第 7 组 · 券商公募', r: 1.72, a: 5.5 },
-    { n: '第 8 组 · 大行自营', r: 1.72, a: 5.0 },
-    { n: '第 9 组 · 保险资管', r: 1.87, a: 6.6 },
-    { n: '第 10 组 · 股份行理财', r: 1.72, a: 5.0 },
-    { n: '第 11 组 · 券商公募', r: 1.72, a: 4.9 }
+    { n: '第 1 组 · 大行自营', c: 1.45, r: 1.62, a: 8.0 },
+    { n: '第 2 组 · 股份行理财', c: 1.58, r: 1.67, a: 10.0 },
+    { n: '第 3 组 · 券商公募', c: 1.68, r: 1.72, a: 6.5 },
+    { n: '第 4 组 · 大行自营', c: 1.45, r: 1.72, a: 6.0 },
+    { n: '第 5 组 · 保险资管', c: 1.78, r: 1.82, a: 8.0 },
+    { n: '第 6 组 · 股份行理财', c: 1.58, r: 1.72, a: 6.0 },
+    { n: '第 7 组 · 券商公募', c: 1.68, r: 1.72, a: 5.5 },
+    { n: '第 8 组 · 大行自营', c: 1.45, r: 1.72, a: 5.0 },
+    { n: '第 9 组 · 保险资管', c: 1.78, r: 1.87, a: 6.6 },
+    { n: '第 10 组 · 股份行理财', c: 1.58, r: 1.72, a: 5.0 },
+    { n: '第 11 组 · 券商公募', c: 1.68, r: 1.72, a: 4.9 }
   ];
+
+  /* 每家的资金成本（与桌面「学生用-11 组身份卡」一一对应，教学习设定）
+     1、4、8 = 大行自营 1.45｜2、6、10 = 股份行理财 1.58
+     3、7、11 = 券商资管·公募 1.68｜5、9 = 保险资管 1.78
+     报价低于它就是「赔本抢量」：页面不拦，但算给你看——这一单亏多少 bp。 */
 
   /* ---------- 自动保存：各组录入的报价/金额/轮次落到本机浏览器 ----------
      刷新不丢、误关重开还在；「还原真实簿记」（两段确认）会覆盖。 */
@@ -83,7 +88,7 @@
   }
   var bdSaved = bdLoadState();
   var bids = SEED.map(function (b, i) {
-    return { n: b.n, r: bdSaved ? bdSaved.b[i][0] : b.r, a: bdSaved ? bdSaved.b[i][1] : b.a };
+    return { n: b.n, c: b.c, r: bdSaved ? bdSaved.b[i][0] : b.r, a: bdSaved ? bdSaved.b[i][1] : b.a };
   });
 
   var tbody = document.getElementById('bdRows');
@@ -95,17 +100,41 @@
     });
   }
 
+  /* 动态拼串（成本徽标、与成本的差、亏本家数）自带双语：
+     这类文本每次渲染都变，塞不进 i18n 字典，所以就地判断语言。
+     静态长句仍走 static/i18n-dict.js 的 block 词条。 */
+  function L() { return document.documentElement.lang === 'en' ? 'en' : 'zh'; }
+
   /* ---------- 渲染报价表 ---------- */
   function renderTable() {
+    var en = L() === 'en';
     tbody.innerHTML = bids.map(function (b, i) {
       return '<tr data-row="' + i + '">'
-        + '<td class="nm">' + esc(b.n) + '</td>'
-        + '<td><input type="number" step="0.01" min="0" max="9" value="' + b.r.toFixed(2) + '" data-i="' + i + '" data-k="r" aria-label="' + esc(b.n) + ' 报价"></td>'
+        + '<td class="nm">' + esc(b.n) + '<em class="bd-cost">' + (en ? 'Cost ' : '成本 ') + b.c.toFixed(2) + '%</em></td>'
+        + '<td><div class="bd-bidwrap"><input type="number" step="0.01" min="0" max="9" value="' + b.r.toFixed(2) + '" data-i="' + i + '" data-k="r" aria-label="' + esc(b.n) + ' 报价">'
+        + '<em class="bd-cmp" id="bdCmp' + i + '"></em></div></td>'
         + '<td><input type="number" step="0.1" min="0" max="99" value="' + b.a.toFixed(1) + '" data-i="' + i + '" data-k="a" aria-label="' + esc(b.n) + ' 申购金额"></td>'
         + '<td class="dl" id="bdDl' + i + '">—</td>'
         + '<td class="got" id="bdGot' + i + '">—</td>'
         + '</tr>';
     }).join('');
+    cmpAll();
+  }
+
+  /* 报价与自家资金成本的距离：正数＝这一单赚，负数＝赔本抢量。
+     11 家全程在场，不设淘汰——落标只是本轮没拿到量，下一轮照常报。 */
+  function cmpAll() {
+    var en = L() === 'en';
+    bids.forEach(function (b, i) {
+      var el = document.getElementById('bdCmp' + i);
+      if (!el) return;
+      var bp = Math.round((b.r - b.c) * 100);
+      if (bp === 0) { el.className = 'bd-cmp zero'; el.textContent = en ? 'at cost' : '正好等于成本'; return; }
+      el.className = 'bd-cmp' + (bp < 0 ? ' loss' : '');
+      el.textContent = bp > 0
+        ? (en ? '+' + bp + 'bp over cost' : '高于成本 +' + bp + 'bp')
+        : (en ? (Math.abs(bp)) + 'bp under cost' : '低于成本 ' + Math.abs(bp) + 'bp');
+    });
   }
 
   /* ---------- 核心计算：边际利率 + 比例配售 ----------
@@ -163,6 +192,7 @@
   }
 
   function calc() {
+    cmpAll();
     var S = settle(bids.map(function (b, i) {
       return { i: i, n: b.n, r: b.r, a: b.a };
     }));
@@ -240,6 +270,22 @@
       ? '缺口 ' + (SIZE - total).toFixed(1) + ' 亿'
       : (failAmt > 0.05 ? failAmt.toFixed(1) + ' 亿' : '无');
 
+    /* 赔本报价：报价低于自家资金成本的组。不拦，但要让学生看见自己有多少家在做亏钱单。 */
+    var lossN = 0, lossAmt = 0;
+    bids.forEach(function (b) {
+      if (b.a <= 0.001) return;
+      if (Math.round((b.r - b.c) * 100) < 0) { lossN++; lossAmt += b.a; }
+    });
+    var elLoss = document.getElementById('bdLoss');
+    if (elLoss) {
+      var en2 = L() === 'en';
+      elLoss.textContent = lossN
+        ? (en2 ? lossN + (lossN > 1 ? ' groups · RMB ' : ' group · RMB ') + (lossAmt / 10).toFixed(2) + 'bn'
+               : lossN + ' 家 · ' + lossAmt.toFixed(1) + ' 亿')
+        : (en2 ? 'None' : '无');
+      elLoss.className = lossN ? 'loss' : '';
+    }
+
     /* ---------- 条形图 ---------- */
     var html = '';
     sorted.forEach(function (b, k) {
@@ -285,21 +331,23 @@
     /* ---------- 省息换算 ---------- */
     var elSaveBig = document.getElementById('bdSaveBig');
     var elSaveSub = document.getElementById('bdSaveSub');
-    if (failed) {
-      elSaveBig.textContent = '—';
-      elSaveSub.textContent = '定价未成立，无法计算利息。';
-    } else {
-      var bp = (REAL_RATE - marginal) * 100;
-      var money = bp * BP_VALUE;             // 万元
-      var abs = Math.abs(money);
-      if (Math.abs(bp) < 0.05) {
-        elSaveBig.textContent = '与你一致';
-        elSaveSub.innerHTML = '你定的利率就是真实发行利率 <b>1.72%</b>。接下来要回答的是：这个数是怎么定出来的，不是猜出来的。';
+    if (elSaveBig && elSaveSub) {
+      if (failed) {
+        elSaveBig.textContent = '—';
+        elSaveSub.textContent = '定价未成立，无法计算利息。';
       } else {
-        elSaveBig.textContent = (money > 0 ? '省 ' : '多付 ')
-          + (abs >= 10000 ? (abs / 10000).toFixed(2) + ' 亿' : abs.toFixed(0) + ' 万');
-        elSaveSub.innerHTML = '与真实发行利率 1.72% 相比，偏离 <b>' + (bp > 0 ? '−' + bp.toFixed(0) : '+' + Math.abs(bp).toFixed(0))
-          + ' bp</b>；按 50 亿元、3 年期计，1 个 bp 就是 <b>150 万元</b>利息。';
+        var bp = (REAL_RATE - marginal) * 100;
+        var money = bp * BP_VALUE;             // 万元
+        var abs = Math.abs(money);
+        if (Math.abs(bp) < 0.05) {
+          elSaveBig.textContent = '与你一致';
+          elSaveSub.innerHTML = '你定的利率就是真实发行利率 <b>1.72%</b>。接下来要回答的是：这个数是怎么定出来的，不是猜出来的。';
+        } else {
+          elSaveBig.textContent = (money > 0 ? '省 ' : '多付 ')
+            + (abs >= 10000 ? (abs / 10000).toFixed(2) + ' 亿' : abs.toFixed(0) + ' 万');
+          elSaveSub.innerHTML = '与真实发行利率 1.72% 相比，偏离 <b>' + (bp > 0 ? '−' + bp.toFixed(0) : '+' + Math.abs(bp).toFixed(0))
+            + ' bp</b>；按 50 亿元、3 年期计，1 个 bp 就是 <b>150 万元</b>利息。';
+        }
       }
     }
 
@@ -734,6 +782,11 @@
       calc();
       renderDebrief();
     }
+  });
+
+  /* 语言切换：i18n 层派发 ibk:lang，把带数字的动态文本重新拼一遍 */
+  window.addEventListener('ibk:lang', function () {
+    renderTable(); calc(); refreshRounds(); renderDebrief();
   });
 
   renderTable();

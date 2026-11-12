@@ -546,9 +546,9 @@
           <!-- 左：可编辑簿记簿 -->
           <div class="bd-card">
             <h4>机构申购簿 <em id="bdRoundTag">第 1 轮 · 改报价或金额，右侧立即重算</em></h4>
-            <p class="bd-hint">承销商按报价从低到高累加，加到 50 亿元为止。<b>边际档</b>那一档的利率就是全场票面利率，这一档的机构按比例分剩下的量。报价高于边际的行会变灰——一分钱也拿不到；哪一组本轮<b>不参与</b>，把它的金额改成 0。表格里现在是「还原真实簿记」的示例底稿——上课请逐行改成各组的实际报价，改错可随时还原。</p>
+            <p class="bd-hint">承销商按报价从低到高累加，加到 50 亿元为止。<b>边际档</b>那一档的利率就是全场票面利率，这一档的机构按比例分剩下的量。报价高于边际的行会变灰——<b>只是本轮没拿到量，不等于出局</b>：11 家三轮全程在场，下一轮照常改价再报，不淘汰任何一家。每家名字下面写着<b>自己的资金成本</b>——报价低于它，这一单就是赔本抢量，页面会标红并算出亏了多少 bp；报多少不是随便说，你的下限是你的钱成本。表格里现在是「还原真实簿记」的示例底稿——上课请逐行改成各组的实际报价，改错可随时还原。</p>
             <table class="bd-tbl">
-              <thead><tr><th style="width:31%">机构</th><th class="r" style="width:19%">报价 %</th><th class="r" style="width:17%">金额 亿</th><th class="r" style="width:20%">较上轮</th><th class="r" style="width:13%">获配</th></tr></thead>
+              <thead><tr><th style="width:31%">机构 · 资金成本</th><th class="r" style="width:19%">报价 %</th><th class="r" style="width:17%">金额 亿</th><th class="r" style="width:20%">较上轮</th><th class="r" style="width:13%">获配</th></tr></thead>
               <tbody id="bdRows"></tbody>
             </table>
             <div class="bd-act">
@@ -570,6 +570,7 @@
                 <tr><td>认购倍数</td><td id="bdCover">—</td></tr>
                 <tr><td>边际档配售比例</td><td id="bdRatio">—</td></tr>
                 <tr><td>落标金额</td><td id="bdFail">—</td></tr>
+                <tr><td>低于成本的报价</td><td id="bdLoss">—</td></tr>
               </tbody>
             </table>
             <div class="bd-bar" id="bdBar"></div>
@@ -588,10 +589,10 @@
           <div class="bd-card">
             <h4>1 个基点值多少钱 <em>按你的定价算</em></h4>
             <p class="bd-hint">50 亿元、3 年期，票面利率每变动 1 个基点（0.01%），三年利息差 <b>150 万元</b>。这就是发行人为什么愿意耗一上午跟主承销商谈这零点几个百分点。</p>
-            <div class="bd-save">
+            <section class="bd-save">
               <span class="big" id="bdSaveBig">—</span>
-            </div>
-            <div class="bd-save"><span class="sub" id="bdSaveSub">—</span></div>
+            </section>
+            <section class="bd-save"><span class="sub" id="bdSaveSub">—</span></section>
             <div class="bd-verdict" style="background:var(--bd-soft);border-color:var(--panel-border);color:var(--muted)">
               课堂追问：既然压价这么值钱，<b>为什么不一直压到最低申报价位 1.62%？</b>——因为认购倍数会掉下来，边际档配售比例会顶上去，最后变成认购不足、发行失败，或者由主承销商余额包销。
             </div>
