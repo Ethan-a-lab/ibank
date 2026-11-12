@@ -141,7 +141,7 @@
 
   /* ---------------- 状态 ---------------- */
   var S = {
-    n: 12,            // 组数
+    n: 11,            // 组数（默认 11：本课四个角色共 11 组；12 组在设置页一键可切）
     sec: 20,          // 每组描述秒数
     mode: 'paper',    // paper 纸质号卡 | phone 手机领词
     phase: 'setup',   // setup | pushing | cards | describe | vote | reveal
@@ -573,7 +573,7 @@
     sec: { zh: '课堂活动', en: 'Classroom activity' },
     tag: { zh: '教师控场', en: 'Teacher-led' },
     pill: { zh: '开场', en: 'Open' },
-    name: { zh: '投行卧底 · 12 组对抗', en: 'Investment Banking Mole · 12 groups' },
+    name: { zh: '投行卧底 · {1} 组对抗', en: 'Investment Banking Mole · {1} groups' },
     sub: { zh: '发词卡、轮着描述、投票翻牌，一局 5 分钟', en: 'Deal cards, pitch in turn, vote and flip — five minutes a round' }
   };
 
@@ -582,7 +582,7 @@
     for (var id in map) {
       if (!map.hasOwnProperty(id)) continue;
       var el = document.getElementById(id);
-      if (el) el.textContent = ENTRY[map[id]][L()];
+      if (el) el.textContent = ENTRY[map[id]][L()].split('{1}').join(S.n);
     }
   }
 
