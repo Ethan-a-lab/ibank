@@ -23,6 +23,7 @@
   <link rel="stylesheet" href="static/bond.css">
   <link rel="stylesheet" href="static/i18n.css">
   <link rel="stylesheet" href="static/undercover.css">
+  <link rel="stylesheet" href="static/timeline.css">
 </head>
 <body>
   <!-- ===== 登录/注册遮罩 ===== -->
@@ -979,6 +980,14 @@ body.dark #p-game .blob{opacity:.16}
       </div>
       <span class="pill" id="uc-e-pill">开场</span>
     </button>
+    <button class="daily" id="btn-tl" onclick="TL.go()">
+      <div class="d-ico">📈</div>
+      <div class="d-body">
+        <h3 id="tl-e-name">时点三连 · 拍档猜价</h3>
+        <p id="tl-e-sub">同一家公司三次要钱，每轮多给一条信息，改一次价</p>
+      </div>
+      <span class="pill" id="tl-e-pill">开场</span>
+    </button>
 
     <div class="sec"><span class="bar"></span><h2>我的收藏</h2></div>
     <div class="daily" style="cursor:default">
@@ -1066,6 +1075,9 @@ body.dark #p-game .blob{opacity:.16}
 
   <!-- 投行卧底：教师控场，一台设备投屏；内容由 static/undercover.js 渲染 -->
   <section class="view" id="v-uc"><div id="uc-root"></div></section>
+
+  <!-- 时点三连：教师控场，11 组拍档猜价；内容由 static/timeline.js 渲染 -->
+  <section class="view" id="v-tl"><div id="tl-root"></div></section>
 </div>
 
 <div class="combo" id="combo"></div>
@@ -1437,7 +1449,7 @@ body.dark #p-game .blob{opacity:.16}
   var P = null;
 
   function show(v) {
-    var ids = ['home', 'play', 'res', 'ach', 'dex', 'uc'];
+    var ids = ['home', 'play', 'res', 'ach', 'dex', 'uc', 'tl'];
     for (var i = 0; i < ids.length; i++) {
       var node = $('v-' + ids[i]);
       if (node) node.classList.toggle('on', ids[i] === v);
@@ -3622,6 +3634,9 @@ body.dark #p-game .blob{opacity:.16}
 
   <!-- 投行卧底（教师控场）：独立模块，自带双语表，不经 i18n-dict.js -->
   <script src="static/undercover.js"></script>
+
+  <!-- 时点三连（教师控场）：独立模块，自带双语表 + 本机存档，不经 i18n-dict.js -->
+  <script src="static/timeline.js"></script>
 
   <!-- 二维码：只在「手机领词」模式用到。本地文件，不依赖 CDN（教室网络不可指望） -->
   <script src="static/qrcode.min.js" defer></script>

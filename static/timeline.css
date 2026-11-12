@@ -1,0 +1,169 @@
+/* ===================================================================
+   时点三连（教师控场 · 拍档猜价）—— 只作用于 #p-game #v-tl
+   依赖 app.css 变量：--panel --panel-solid --panel-border --text --muted
+                     --accent --accent-text --accent-solid --track
+   投屏优先：字号比学生页大一号，7 档与 11 组格子一屏放得下。
+   =================================================================== */
+
+#p-game #v-tl .tl-root{padding:6px 0 40px;font-size:14px;color:var(--text)}
+#p-game #v-tl .tl-root button{font-family:inherit;cursor:pointer}
+
+/* 段落标题 */
+#p-game #v-tl .tl-h{display:flex;align-items:center;gap:9px;margin:22px 0 10px}
+#p-game #v-tl .tl-h .bar{width:3px;height:16px;border-radius:2px;background:var(--accent-solid);flex:none}
+#p-game #v-tl .tl-h h3{font-size:15px;font-weight:700;line-height:1.5;margin:0}
+#p-game #v-tl .tl-h .r{margin-left:auto;font-size:12.5px;color:var(--muted);font-weight:600;white-space:nowrap}
+
+/* 说明条 */
+#p-game #v-tl .tl-note{
+  font-size:12.5px;line-height:1.75;color:var(--muted);
+  background:var(--panel);border:1px solid var(--panel-border);
+  border-radius:12px;padding:11px 14px;margin:12px 0;
+}
+#p-game #v-tl .tl-note.slim{margin:8px 0 0;padding:8px 12px;background:transparent}
+#p-game #v-tl .tl-note b{color:var(--text);font-weight:600}
+
+/* 规则卡 */
+#p-game #v-tl .tl-rules{
+  background:var(--panel-solid);border:1px solid var(--panel-border);
+  border-radius:12px;padding:14px 18px 14px 34px;margin:12px 0;
+}
+#p-game #v-tl .tl-rules ol{margin:0;padding-left:4px}
+#p-game #v-tl .tl-rules li{font-size:13.5px;line-height:1.85;margin:4px 0;color:var(--text)}
+
+/* 选项条 / 本组题单 */
+#p-game #v-tl .tl-opts{display:flex;align-items:center;gap:8px;margin:12px 0}
+#p-game #v-tl .tl-lb{font-size:13px;color:var(--muted);margin-right:4px}
+#p-game #v-tl .tl-chip{
+  font-size:13.5px;font-weight:600;padding:8px 18px;border-radius:10px;
+  background:var(--panel-solid);color:var(--text);border:1px solid var(--panel-border);transition:.16s;
+}
+#p-game #v-tl .tl-chip:hover{border-color:var(--accent)}
+#p-game #v-tl .tl-chip.on{background:var(--accent-solid);color:#fff;border-color:transparent}
+#p-game #v-tl .tl-qlist{
+  background:var(--panel);border:1px solid var(--panel-border);
+  border-radius:12px;padding:6px 14px;margin:12px 0 18px;
+}
+#p-game #v-tl .tl-qitem{font-size:13px;line-height:1.6;padding:9px 0;border-bottom:1px dashed var(--panel-border);color:var(--muted)}
+#p-game #v-tl .tl-qitem:last-child{border-bottom:0}
+#p-game #v-tl .tl-qitem b{color:var(--accent-text);font-weight:700;margin-right:8px}
+#p-game #v-tl .tl-qitem span{display:block;color:var(--text);margin-top:2px}
+
+/* 主按钮 */
+#p-game #v-tl .tl-btn{
+  display:block;width:100%;padding:15px;border-radius:12px;margin-top:14px;
+  font-size:15px;font-weight:700;letter-spacing:.3px;
+  background:var(--accent-solid);color:#fff;border:0;
+}
+#p-game #v-tl .tl-btn:hover{filter:brightness(1.06)}
+#p-game #v-tl .tl-btn.ghost{background:transparent;color:var(--muted);border:1px solid var(--panel-border);font-weight:600;margin-top:10px}
+
+/* 题面 */
+#p-game #v-tl .tl-meta{display:flex;flex-wrap:wrap;gap:8px 18px;font-size:12.5px;color:var(--muted);margin-bottom:12px}
+#p-game #v-tl .tl-clue{
+  background:var(--panel);border:1px solid var(--panel-border);border-left:3px solid var(--accent-solid);
+  border-radius:10px;padding:14px 16px;font-size:14px;line-height:1.85;color:var(--text);
+}
+#p-game #v-tl .tl-clue b{display:block;font-size:12px;color:var(--accent-text);font-weight:700;margin-bottom:5px;letter-spacing:.5px}
+
+/* 7 档画笔 */
+#p-game #v-tl .tl-bands{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:8px}
+#p-game #v-tl .tl-band{
+  display:flex;flex-direction:column;align-items:center;gap:5px;
+  padding:12px 4px;border-radius:11px;background:var(--panel-solid);
+  border:1px solid var(--panel-border);color:var(--text);transition:.14s;
+}
+#p-game #v-tl .tl-band:hover{border-color:var(--accent)}
+#p-game #v-tl .tl-band.on{background:var(--accent-solid);color:#fff;border-color:transparent}
+#p-game #v-tl .tl-band .tl-bn{font-size:11px;opacity:.65;font-weight:600}
+#p-game #v-tl .tl-band .tl-bv{font-size:14px;font-weight:700;white-space:nowrap}
+
+/* 11 组格子 */
+#p-game #v-tl .tl-seats{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:8px}
+#p-game #v-tl .tl-seat{
+  display:flex;flex-direction:column;align-items:center;gap:3px;
+  padding:9px 4px;border-radius:10px;background:var(--panel);
+  border:1px dashed var(--panel-border);color:var(--muted);transition:.14s;min-height:56px;
+}
+#p-game #v-tl .tl-seat:hover{border-color:var(--accent);border-style:solid}
+#p-game #v-tl .tl-seat.set{background:var(--panel-solid);border:1px solid var(--accent);border-style:solid;color:var(--text)}
+#p-game #v-tl .tl-seat .tl-sg{font-size:12px;font-weight:600}
+#p-game #v-tl .tl-seat .tl-sb{font-size:12.5px;font-weight:700;white-space:nowrap}
+
+#p-game #v-tl .tl-foot{display:flex;justify-content:flex-end;margin-top:10px;font-size:12.5px;font-weight:600}
+#p-game #v-tl .tl-foot .warn{color:var(--accent-text)}
+#p-game #v-tl .tl-foot .ok{color:#0F6E56}
+body.dark #p-game #v-tl .tl-foot .ok{color:#5DCAA5}
+
+/* 揭晓 */
+#p-game #v-tl .tl-truth{
+  display:flex;flex-wrap:wrap;align-items:baseline;gap:10px 16px;
+  background:var(--panel-solid);border:1px solid var(--panel-border);
+  border-radius:12px;padding:16px 18px;margin:10px 0;
+}
+#p-game #v-tl .tl-tl{font-size:12px;font-weight:700;color:var(--muted);letter-spacing:.5px}
+#p-game #v-tl .tl-tv{font-size:26px;font-weight:700;color:#A32D2D;line-height:1.2}
+body.dark #p-game #v-tl .tl-tv{color:#F09595}
+#p-game #v-tl .tl-tb{font-size:12.5px;color:var(--muted)}
+#p-game #v-tl .tl-reveal p{font-size:13.5px;line-height:1.9;color:var(--text);margin:0}
+#p-game #v-tl .tl-chart{background:var(--panel);border:1px solid var(--panel-border);border-radius:12px;padding:10px 12px}
+#p-game #v-tl .tl-svg{width:100%;height:auto;display:block}
+#p-game #v-tl .tl-ax{fill:var(--muted);font-size:11px;font-family:inherit}
+#p-game #v-tl .tl-tg{fill:#A32D2D;font-size:11px;font-family:inherit;font-weight:700}
+body.dark #p-game #v-tl .tl-tg{fill:#F09595}
+#p-game #v-tl .tl-legend{display:flex;flex-wrap:wrap;gap:14px;font-size:12px;color:var(--muted);margin-top:4px}
+#p-game #v-tl .tl-legend i{display:inline-block;width:14px;height:3px;border-radius:2px;vertical-align:middle;margin-right:5px}
+#p-game #v-tl .tl-legend .sw-a{background:#0F6E56}
+#p-game #v-tl .tl-legend .sw-b{background:#378ADD}
+#p-game #v-tl .tl-legend .sw-c{background:#E24B4A}
+body.dark #p-game #v-tl .tl-legend .sw-a{background:#5DCAA5}
+body.dark #p-game #v-tl .tl-legend .sw-b{background:#85B7EB}
+
+#p-game #v-tl .tl-talk{
+  background:var(--panel);border:1px solid var(--panel-border);border-left:3px solid #BA7517;
+  border-radius:10px;padding:14px 16px;font-size:13.5px;line-height:1.9;color:var(--text);
+}
+#p-game #v-tl .tl-evi{display:flex;flex-wrap:wrap;gap:8px}
+#p-game #v-tl .tl-ec{
+  font-size:12.5px;padding:7px 12px;border-radius:8px;
+  background:var(--panel);border:1px solid var(--panel-border);color:var(--text);
+}
+
+/* 记分格 */
+#p-game #v-tl .tl-scores{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:8px}
+#p-game #v-tl .tl-sc{
+  display:flex;flex-direction:column;gap:2px;padding:9px 10px;border-radius:10px;
+  background:var(--panel);border:1px solid var(--panel-border);
+}
+#p-game #v-tl .tl-sc.win{background:var(--panel-solid);border-color:#0F6E56}
+#p-game #v-tl .tl-sc b{font-size:12.5px;color:var(--text)}
+#p-game #v-tl .tl-sc span{font-size:14px;font-weight:700;color:var(--accent-text)}
+#p-game #v-tl .tl-sc em{font-size:11px;font-style:normal;color:var(--muted)}
+
+/* 收官对照表 */
+#p-game #v-tl .tl-cmp{border:1px solid var(--panel-border);border-radius:12px;overflow:hidden}
+#p-game #v-tl .tl-tr{
+  display:grid;grid-template-columns:.7fr 1.6fr 1.4fr 1.4fr 1.3fr;gap:8px;
+  padding:11px 12px;border-bottom:1px solid var(--panel-border);font-size:12.5px;line-height:1.6;
+}
+#p-game #v-tl .tl-tr:last-child{border-bottom:0}
+#p-game #v-tl .tl-tr:nth-child(odd){background:var(--panel)}
+#p-game #v-tl .tl-tr b{font-weight:700;color:var(--text)}
+#p-game #v-tl .tl-tr:first-child{background:var(--panel-solid)}
+#p-game #v-tl .tl-tr span{color:var(--text)}
+#p-game #v-tl .tl-blank{color:var(--muted);font-style:italic;border-bottom:1px dashed var(--panel-border)}
+#p-game #v-tl .tl-champ{
+  font-size:14px;color:var(--text);background:var(--panel);
+  border:1px solid var(--panel-border);border-radius:12px;padding:14px 16px;margin:14px 0;
+}
+#p-game #v-tl .tl-champ b{color:var(--accent-text);font-size:16px}
+
+/* 窄屏：7 档两行、组格 3 列，保证不横向溢出 */
+@media (max-width:700px){
+  #p-game #v-tl .tl-bands{grid-template-columns:repeat(4,minmax(0,1fr))}
+  #p-game #v-tl .tl-seats{grid-template-columns:repeat(3,minmax(0,1fr))}
+  #p-game #v-tl .tl-scores{grid-template-columns:repeat(3,minmax(0,1fr))}
+  #p-game #v-tl .tl-tr{grid-template-columns:1fr 1fr;gap:4px 10px}
+  #p-game #v-tl .tl-tr b{font-size:11.5px}
+  #p-game #v-tl .tl-tv{font-size:22px}
+}
