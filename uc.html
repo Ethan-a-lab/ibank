@@ -95,7 +95,8 @@
     loading: { zh: '正在取词…', en: 'Fetching…' },
     nonet:   { zh: '连不上服务器。检查一下网络，或直接看卡片上的字。', en: 'Cannot reach the server. Check your connection, or read the card.' },
     nologin: { zh: '服务端拒绝了这次取词。直接看卡片上的字，流程照常走。', en: 'The server refused this request. Read the word off your card instead.' },
-    badcode: { zh: '没有这个码。对一下卡片上的 6 位，注意区分 0 和 o。', en: 'Code not found. Check the six characters on your card.' },
+    badcode: { zh: '没有这个码。对一下卡片上的 6 位，都是小写字母和数字。', en: 'Code not found. Check the six characters — lowercase letters and digits.' },
+    short:   { zh: '卡片上一共 6 位，再数一遍。', en: 'The code has 6 characters — count again.' },
     group:   { zh: '第 {n} 组', en: 'Group {n}' },
     hint:    { zh: '别把屏幕给别人看，也别念出自己的词。轮到你时用一句话形容它，不许说出原词。', en: 'Do not show this screen or read the word aloud. When it is your turn, describe it in one sentence without saying it.' },
     gotit:   { zh: '我记住了', en: 'Got it' },
@@ -324,7 +325,7 @@
     var inp = document.getElementById('code');
     var code = (inp.value || '').trim().toLowerCase();
     state.err = '';
-    if (code.length < 4) { state.err = t('badcode'); document.getElementById('msg').textContent = state.err; return; }
+    if (code.length !== 6) { state.err = t('short'); document.getElementById('msg').textContent = state.err; return; }
     state.step = 'loading'; paint();
     try {
       var d = await peek(code);
