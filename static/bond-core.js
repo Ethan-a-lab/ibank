@@ -57,7 +57,9 @@
   /* 每家的资金成本（与桌面「学生用-11 组身份卡」一一对应，教学习设定）
      1、4、8 = 大行自营 1.45｜2、6、10 = 股份行理财 1.58
      3、7、11 = 券商资管·公募 1.68｜5、9 = 保险资管 1.78
-     报价低于它就是「赔本抢量」：页面不拦，但算给你看——这一单亏多少 bp。 */
+     ★ 保密（v121）：成本只印在发给本组的小纸片上，投屏答题期一律不显示；
+       三轮都记下、总榜生成后，才在「总排名」对应小组那一行显示，供讲评。
+       报价低于自家成本＝赔本抢量，同样只在总榜放开。 */
 
   /* ---------- 自动保存：各组录入的报价/金额/轮次落到本机浏览器 ----------
      刷新不丢、误关重开还在；「还原真实簿记」（两段确认）会覆盖。 */
@@ -102,20 +104,20 @@
     });
   }
 
-  /* 动态拼串（成本徽标、与成本的差、亏本家数）自带双语：
+  /* 动态拼串（总榜成本徽标、亏本标记）自带双语：
      这类文本每次渲染都变，塞不进 i18n 字典，所以就地判断语言。
-     静态长句仍走 static/i18n-dict.js 的 block 词条。 */
+     静态长句仍走 static/i18n-dict.js 的 block 词条。
+     申购簿里不再拼任何含成本的字符串——报价是公开的，差值会倒算出成本。 */
   function L() { return document.documentElement.lang === 'en' ? 'en' : 'zh'; }
 
   /* ---------- 渲染报价表 ---------- */
   function renderTable() {
-    var en = L() === 'en';
     tbody.innerHTML = bids.map(function (b, i) {
       return '<tr data-row="' + i + '">'
         + '<td class="rk" id="bdRk' + i + '">—</td>'
-        + '<td class="nm">' + esc(b.n) + '<em class="bd-cost">' + (en ? 'Cost ' : '成本 ') + b.c.toFixed(2) + '%</em></td>'
+        + '<td class="nm">' + esc(b.n) + '<em class="bd-cost" hidden></em></td>'
         + '<td><div class="bd-bidwrap"><input type="number" step="0.01" min="0" max="9" value="' + b.r.toFixed(2) + '" data-i="' + i + '" data-k="r" aria-label="' + esc(b.n) + ' 报价">'
-        + '<em class="bd-cmp" id="bdCmp' + i + '"></em></div></td>'
+        + '<em class="bd-cmp" id="bdCmp' + i + '" hidden></em></div></td>'
         + '<td><input type="number" step="0.1" min="0" max="99" value="' + b.a.toFixed(1) + '" data-i="' + i + '" data-k="a" aria-label="' + esc(b.n) + ' 申购金额"></td>'
         + '<td class="dl" id="bdDl' + i + '">—</td>'
         + '<td class="got" id="bdGot' + i + '">—</td>'
@@ -124,19 +126,16 @@
     cmpAll();
   }
 
-  /* 报价与自家资金成本的距离：正数＝这一单赚，负数＝赔本抢量。
+  /* v121 · 报价与成本的差值不再出现在申购簿：报价公开，差值会直接倒算出保密成本。
+     元素保留（旧验收脚本仍会按 id 取它），但永远留空并隐藏；讲评只在总榜放开。
      11 家全程在场，不设淘汰——落标只是本轮没拿到量，下一轮照常报。 */
   function cmpAll() {
-    var en = L() === 'en';
     bids.forEach(function (b, i) {
       var el = document.getElementById('bdCmp' + i);
       if (!el) return;
-      var bp = Math.round((b.r - b.c) * 100);
-      if (bp === 0) { el.className = 'bd-cmp zero'; el.textContent = en ? 'at cost' : '正好等于成本'; return; }
-      el.className = 'bd-cmp' + (bp < 0 ? ' loss' : '');
-      el.textContent = bp > 0
-        ? (en ? '+' + bp + 'bp over cost' : '高于成本 +' + bp + 'bp')
-        : (en ? (Math.abs(bp)) + 'bp under cost' : '低于成本 ' + Math.abs(bp) + 'bp');
+      el.className = 'bd-cmp';
+      el.textContent = '';
+      el.hidden = true;
     });
   }
 
@@ -277,21 +276,8 @@
       ? '缺口 ' + (SIZE - total).toFixed(1) + ' 亿'
       : (failAmt > 0.05 ? failAmt.toFixed(1) + ' 亿' : '无');
 
-    /* 赔本报价：报价低于自家资金成本的组。不拦，但要让学生看见自己有多少家在做亏钱单。 */
-    var lossN = 0, lossAmt = 0;
-    bids.forEach(function (b) {
-      if (b.a <= 0.001) return;
-      if (Math.round((b.r - b.c) * 100) < 0) { lossN++; lossAmt += b.a; }
-    });
-    var elLoss = document.getElementById('bdLoss');
-    if (elLoss) {
-      var en2 = L() === 'en';
-      elLoss.textContent = lossN
-        ? (en2 ? lossN + (lossN > 1 ? ' groups · RMB ' : ' group · RMB ') + (lossAmt / 10).toFixed(2) + 'bn'
-               : lossN + ' 家 · ' + lossAmt.toFixed(1) + ' 亿')
-        : (en2 ? 'None' : '无');
-      elLoss.className = lossN ? 'loss' : '';
-    }
+    /* v121 · 右栏「低于成本的报价」整行永久隐藏：家数＋金额能反查到具体组，
+       等于间接公开成本。讲评用的家数汇总改在总榜脚注，只在三轮锁定后输出。 */
 
     /* ---------- 条形图 ---------- */
     var html = '';
@@ -644,7 +630,8 @@
   /* ---------- v120 · 实时排名：以「本轮成功拿到的配额」为唯一评分口径 ----------
      表格 11 行位置固定，只填名次（学生录入时不跳行、不丢光标）；整宽榜单按成绩从高到低排。
      三轮都记下后，主排序从「本轮获配」切成「三轮累计」，形成总排名。
-     评分只看获配额；报价低于自家资金成本的组标红——拿得多不等于赚得多。 */
+     评分只看获配额。v121：各组成本与「赔本抢量」红标只在总榜（三轮锁定）后
+     显示在对应小组那一行，答题期一律保密——成本写在发给本组的小纸片上。 */
   function rankOf(vals) {
     var idx = vals.map(function (v, i) { return { i: i, v: v }; });
     idx.sort(function (a, b) { return (b.v - a.v) || (a.i - b.i); });
@@ -675,6 +662,7 @@
     var T = totals();
     var done = T.done, acc = T.t;
     var final = done >= 3;
+    var showCost = final;   // v121：只有总榜生成后才公开各组成本
     var primary = final ? acc : curAlloc;
     var order = rankOf(primary);
     var rankByGroup = [];
@@ -729,10 +717,11 @@
         cells.push(v === null ? '<span class="bd-rk-na">—</span>' : v.toFixed(1));
       }
       var bp = Math.round((b.r - SEED[i].c) * 100);
-      var loss = b.a > 0.001 && bp < 0;
-      var nm = esc(b.n) + (loss
-        ? '<em class="bd-rk-loss">' + (en ? 'under cost ' + Math.abs(bp) + 'bp' : '亏 ' + Math.abs(bp) + 'bp') + '</em>'
-        : '');
+      var loss = showCost && b.a > 0.001 && bp < 0;
+      var nm = esc(b.n)
+        + (showCost ? '<em class="bd-rk-cost">' + (en ? 'Cost ' : '成本 ') + SEED[i].c.toFixed(2) + '%</em>' : '')
+        + (loss ? '<em class="bd-rk-loss">' + (en ? 'under cost ' + Math.abs(bp) + 'bp' : '亏 ' + Math.abs(bp) + 'bp') + '</em>'
+                : '');
       return '<tr class="' + (x.rank <= 3 ? 'top' : '') + (loss ? ' loss' : '') + '" data-g="' + i + '">'
         + '<td class="rk">' + x.rank + '</td>'
         + '<td class="nm">' + nm + '</td>'
@@ -745,13 +734,19 @@
 
     if (foot) {
       var score = en ? 'Scoring: allocated quota only (CNY 100m). ' : '评分口径：只看成功拿到的配额（亿元）。';
-      var warn = lossN
-        ? (en ? ' ' + lossN + ' group(s) bid below their own funding cost — more quota is not more profit.'
-              : '红色标记是赔本抢量的组（' + lossN + ' 家）：拿得多不等于赚得多。')
-        : (en ? ' No group is bidding below its funding cost.' : '当前报价没有赔本抢量的组。');
       var progress = final ? '' : (en ? ' Completed rounds: ' + done + ' / 3; the total includes the round being edited.'
                                       : ' 已记下 ' + done + ' / 3 轮，累计含当前正在改的这一轮。');
-      foot.innerHTML = score + progress + warn
+      var privacy = showCost
+        ? (en ? ' The final board is locked; each row now shows that group\'s cost of funds for the debrief.'
+              : ' 总榜已锁定，每行显示该组资金成本，供讲评。')
+        : (en ? ' Costs stay on the paper slips until all three rounds are recorded and the final board appears.'
+              : ' 各组成本写在发到本组的小纸片上，三轮汇总、总榜出来后才显示。');
+      var warn = '';
+      if (showCost) warn = lossN
+        ? (en ? ' ' + lossN + ' group(s) bid below their own funding cost — more quota is not more profit.'
+              : ' 红色标记是赔本抢量的组（' + lossN + ' 家）：拿得多不等于赚得多。')
+        : (en ? ' No group is bidding below its funding cost.' : ' 当前报价没有赔本抢量的组。');
+      foot.innerHTML = score + progress + privacy + warn
         + (en ? ' Ties share a rank; the next rank is skipped.' : ' 获配相同并列同名次，下一名跳过。');
     }
   }

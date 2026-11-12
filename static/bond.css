@@ -69,7 +69,7 @@ body.dark:not(.light) #p-bond {
 #p-bond .bd-tbl td { padding: 5px 6px; border-bottom: 1px solid var(--panel-border); }
 #p-bond .bd-tbl tr:last-child td { border-bottom: 0; }
 #p-bond .bd-tbl td.nm { font-size: 12.5px; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-/* 资金成本：写在机构名下面，学生一眼看到自己的下限 */
+/* 资金成本徽标：v121 起申购簿不再输出数值，元素留空并隐藏；总榜另有 .bd-rk-cost */
 #p-bond .bd-tbl td.nm .bd-cost {
   display: block; font-style: normal; font-size: 10.5px; color: var(--muted);
   font-variant-numeric: tabular-nums; letter-spacing: .2px; margin-top: 1px;
@@ -359,6 +359,15 @@ body.dark:not(.light) #p-bond .bd-rank-tbl .bd-rk-loss{
 }
 #p-bond .bd-rank-tbl .bd-rk-na{opacity:.4}
 #p-bond .bd-rank-foot{margin-top:10px;font-size:11px;line-height:1.6;color:var(--muted)}
+/* ---------- v121 · 成本保密 ---------- */
+#p-bond .bd-tbl td.nm .bd-cost[hidden],
+#p-bond .bd-tbl .bd-cmp[hidden],
+#p-bond .bd-kv tr[hidden]{display:none!important}
+#p-bond .bd-rank-tbl .bd-rk-cost{
+  font-style:normal;margin-left:6px;padding:1px 5px;border-radius:5px;
+  font-size:10px;background:rgba(21,101,192,0.10);color:var(--bd-a);white-space:nowrap;
+}
+body.dark:not(.light) #p-bond .bd-rank-tbl .bd-rk-cost{background:rgba(96,165,250,0.16);color:#93C5FD}
 @media (max-width:640px){
   #p-bond .bd-rank-tbl{min-width:460px}
   #p-bond .bd-rank-tbl th,#p-bond .bd-rank-tbl td{padding:5px 5px}

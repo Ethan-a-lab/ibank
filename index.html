@@ -546,9 +546,9 @@
           <!-- 左：可编辑簿记簿 -->
           <div class="bd-card">
             <h4>机构申购簿 <em id="bdRoundTag">第 1 轮 · 改报价或金额，右侧立即重算</em></h4>
-            <p class="bd-hint">承销商按报价从低到高累加，加到 50 亿元为止。<b>边际档</b>那一档的利率就是全场票面利率，这一档的机构按比例分剩下的量。报价高于边际的行会变灰——<b>只是本轮没拿到量，不等于出局</b>：11 家三轮全程在场，下一轮照常改价再报，不淘汰任何一家。每家名字下面写着<b>自己的资金成本</b>——报价低于它，这一单就是赔本抢量，页面会标红并算出亏了多少 bp；报多少不是随便说，你的下限是你的钱成本。表格里现在是「还原真实簿记」的示例底稿——上课请逐行改成各组的实际报价，改错可随时还原。</p>
+            <p class="bd-hint">承销商按报价从低到高累加，加到 50 亿元为止。<b>边际档</b>那一档的利率就是全场票面利率，这一档的机构按比例分剩下的量。报价高于边际的行会变灰——<b>只是本轮没拿到量，不等于出局</b>：11 家三轮全程在场，下一轮照常改价再报，不淘汰任何一家。<b>每组的资金成本不一样，写在发到本组的小纸片上</b>——自己看好、别和别组换；报价低于自家成本，这一单就是赔本抢量。报多少不是随便说，你的下限是你的钱成本。三轮都记下、总排名出来后，投屏才会在对应小组那一行显示成本，供讲评。表格里现在是「还原真实簿记」的示例底稿——上课请逐行改成各组的实际报价，改错可随时还原。</p>
             <table class="bd-tbl">
-              <thead><tr><th class="r" style="width:9%" id="bdThRank"></th><th style="width:28%">机构 · 资金成本</th><th class="r" style="width:17%">报价 %</th><th class="r" style="width:15%">金额 亿</th><th class="r" style="width:19%">较上轮</th><th class="r" style="width:12%">获配</th></tr></thead>
+              <thead><tr><th class="r" style="width:9%" id="bdThRank"></th><th style="width:28%">机构</th><th class="r" style="width:17%">报价 %</th><th class="r" style="width:15%">金额 亿</th><th class="r" style="width:19%">较上轮</th><th class="r" style="width:12%">获配</th></tr></thead>
               <tbody id="bdRows"></tbody>
             </table>
             <div class="bd-act">
@@ -570,7 +570,7 @@
                 <tr><td>认购倍数</td><td id="bdCover">—</td></tr>
                 <tr><td>边际档配售比例</td><td id="bdRatio">—</td></tr>
                 <tr><td>落标金额</td><td id="bdFail">—</td></tr>
-                <tr><td>低于成本的报价</td><td id="bdLoss">—</td></tr>
+                <tr id="bdLossRow" hidden><td>低于成本的报价</td><td id="bdLoss">—</td></tr>
               </tbody>
             </table>
             <div class="bd-bar" id="bdBar"></div>
@@ -584,7 +584,7 @@
           </div>
         </div>
 
-        <!-- v120 · 实时排名：本轮获配额排序 + 三轮累计总榜。
+        <!-- v120 / v121 · 实时排名：本轮获配额排序 + 三轮累计总榜；成本只在总榜汇总后按组显示。
              所有文本由 bond-core.js 按当前语言填充，避免英文态出现中文残留。 -->
         <div class="bd-card bd-rankcard" id="bdRankCard">
           <h4 id="bdRankTitle"></h4>
