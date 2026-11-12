@@ -93,7 +93,8 @@
     go:      { zh: '查看我的词', en: 'Show my word' },
     again:   { zh: '换一个码', en: 'Use another code' },
     loading: { zh: '正在取词…', en: 'Fetching…' },
-    nonet:   { zh: '连不上服务器。检查一下网络，或直接看卡片上的字。', en: 'Cannot reach the server. Check your connection.' },
+    nonet:   { zh: '连不上服务器。检查一下网络，或直接看卡片上的字。', en: 'Cannot reach the server. Check your connection, or read the card.' },
+    nologin: { zh: '服务端拒绝了这次取词。直接看卡片上的字，流程照常走。', en: 'The server refused this request. Read the word off your card instead.' },
     badcode: { zh: '没有这个码。对一下卡片上的 6 位，注意区分 0 和 o。', en: 'Code not found. Check the six characters on your card.' },
     group:   { zh: '第 {n} 组', en: 'Group {n}' },
     hint:    { zh: '别把屏幕给别人看，也别念出自己的词。轮到你时用一句话形容它，不许说出原词。', en: 'Do not show this screen or read the word aloud. When it is your turn, describe it in one sentence without saying it.' },
@@ -189,23 +190,19 @@
     return null;
   }
 
+  /* 云就绪信号：init 与匿名登录都完成后 db 才可用 */
+  var ready = null, authErr = '';
+
   async function peek(token) {
-    if (db && typeof db.rpc === 'function') {
-      try {
-        var r = await db.rpc('uc_peek', { p_token: token });
-        if (r && !r.error) {
-          var d = norm(r);
-          if (d) return d;
-        }
-      } catch (e) {}
+    if (ready) { try { await ready; } catch (e) {} }
+    if (!db) throw new Error(authErr || 'nocloud');
+    if (typeof db.rpc !== 'function') throw new Error('norpc');
+    var r = await db.rpc('uc_peek', { p_token: token });
+    if (r && r.error) {
+      var c = String((r.error && (r.error.code || r.error.message)) || '');
+      throw new Error(/credential|401|jwt|permission|policy|login_type|disabled/i.test(c) ? 'auth' : (c || 'rpc'));
     }
-    var res = await fetch('https://' + ENV + '.api.tcloudbasegateway.com/v1/rdb/rest/rpc/uc_peek', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + KEY },
-      body: JSON.stringify({ p_token: token })
-    });
-    if (!res.ok) throw new Error('http' + res.status);
-    return norm(await res.json());
+    return norm(r);
   }
 
   async function submit() {
@@ -223,7 +220,8 @@
       paint();
     } catch (e) {
       state.step = 'input';
-      state.err = t('nonet') + (e && e.message ? ' (' + e.message + ')' : '');
+      var m = String((e && e.message) || '');
+      state.err = t(m === 'auth' ? 'nologin' : 'nonet') + (m && m !== 'auth' ? ' (' + m + ')' : '');
       paint();
     }
   }
@@ -236,17 +234,32 @@
 
   paint();
 
-  function initCloud() {
+  async function initCloud() {
     try {
-      if (typeof cloudbase === 'undefined') { db = null; return; }
+      if (typeof cloudbase === 'undefined') { authErr = 'nosdk'; return; }
       var app = cloudbase.init({ env: ENV, region: REGION, accessKey: KEY });
+      var auth;
+      try { auth = app.auth({ persistence: 'local' }); } catch (e) { auth = app.auth(); }
+      /* 已经登录过（比如主站登过）就直接用；否则匿名登录拿一个一次性的身份 */
+      var st = null;
+      try { st = await auth.getLoginState(); } catch (e) {}
+      if (!st || !st.user) {
+        var r = await auth.signInAnonymously();
+        if (r && r.error) {
+          authErr = String(r.error.code || r.error.message || 'nologin');
+          return;
+        }
+      }
       db = app.rdb();
-    } catch (e) { db = null; }
+    } catch (e) {
+      authErr = String((e && e.message) || e || 'nocloud');
+      db = null;
+    }
   }
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initCloud);
+    document.addEventListener('DOMContentLoaded', function () { ready = initCloud(); });
   } else {
-    initCloud();
+    ready = initCloud();
   }
 
   var q = new URLSearchParams(location.search).get('t');
@@ -257,7 +270,9 @@
       state.data = { seat: d.seat, word_zh: d.word_zh, word_en: d.word_en };
       state.step = 'word'; paint();
     }).catch(function (e) {
-      state.step = 'input'; state.err = t('nonet'); paint();
+      state.step = 'input';
+      state.err = t(String((e && e.message) || '') === 'auth' ? 'nologin' : 'nonet');
+      paint();
     });
   }
 })();

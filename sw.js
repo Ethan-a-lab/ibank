@@ -15,7 +15,7 @@
  * 注意：Service Worker 只在 https 或 localhost 下生效；双击 file:// 打开时注册会被跳过。
  */
 
-const CACHE_VERSION = 'ibank-v12';   // v103：新增学生领词页 uc.html 与本地二维码库 qrcode.min.js，靠版本号把旧壳挤掉
+const CACHE_VERSION = 'ibank-v13';   // v103：新增学生领词页 uc.html 与本地二维码库 qrcode.min.js，靠版本号把旧壳挤掉
 const CACHE_NAME = `ibank-shell-${CACHE_VERSION}`;
 
 /* ★总开关：想把 PWA 停掉，只把这个 true 改成 false，然后推送一次。
