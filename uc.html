@@ -117,7 +117,7 @@
 
   var panel = document.getElementById('panel');
   var btnLang = document.getElementById('lang');
-  var db = null;
+  var app = null, auth = null;
   var state = { step: 'input', data: null };
 
   function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
@@ -190,19 +190,134 @@
     return null;
   }
 
-  /* 云就绪信号：init 与匿名登录都完成后 db 才可用 */
-  var ready = null, authErr = '';
+  /* ---------- 云连接层 ----------
+     白名单学生零注册：优先复用主站登录态，没有就匿名登录。
 
+     ★2026-11-12 实测结论（动这里之前先读完）：
+       1) `db.rpc()` 的内部通道对匿名会话不稳定：同一个有效 token，调 rpc 时而
+          401 INVALID_CREDENTIALS，而把 auth.getAccessToken() 拿到的**同一个 token**
+          直接 POST 到网关，稳定 200。所以取词走裸 fetch，不依赖 db.rpc。
+       2) 学生扫码后「打开就输码」时，SDK（972KB）可能还没下载完。不能立刻报错，
+          要等它，否则会误报「连不上服务器 [nosdk]」。
+       3) token 本身没有生效延迟（实测登录后 295ms 就能用），所以不靠「多等几秒」，
+          靠的是失败后换一条路重试。 */
+
+  var ready = null, authErr = '';
+  var DBG = /[?&]debug=1/.test(location.search);
+  var GW = 'https://' + ENV + '.api.tcloudbasegateway.com/v1/rdb/rest/rpc/uc_peek';
+
+  function wait(ms) { return new Promise(function (r) { setTimeout(r, ms); }); }
+
+  async function waitSDK(ms) {
+    if (typeof cloudbase !== 'undefined') return true;
+    for (var i = 0; i < Math.ceil(ms / 120); i++) {
+      await wait(120);
+      if (typeof cloudbase !== 'undefined') return true;
+    }
+    return false;
+  }
+
+  /* ★关键：getLoginState() 会把 publishableKey 当成「已登录的匿名用户」返回，
+     让代码以为登录过了，于是跳过匿名登录，最后拿 publishableKey 当 Bearer 去调网关
+     —— 网关回 INVALID_CREDENTIALS，手机上就显示「服务端拒绝了这次取词」。
+     唯一可靠的判据是 JWT 里的 sub：publishableKey 固定是 'anon'，
+     真的登录过（含匿名登录）是随机用户 ID。 */
+  function jwtOf(t) {
+    try {
+      var b = String(t || '').replace(/^Bearer\s+/i, '').split('.')[1];
+      if (!b) return null;
+      b = b.replace(/-/g, '+').replace(/_/g, '/');
+      while (b.length % 4) b += '=';
+      return JSON.parse(atob(b));
+    } catch (e) { return null; }
+  }
+  function isJustKey(t) {
+    var o = jwtOf(t);
+    return !o || o.sub === 'anon';
+  }
+
+  async function currentToken() {
+    var tk = null;
+    try { tk = await auth.getAccessToken(); } catch (e) {}
+    return (typeof tk === 'string' ? tk : (tk && (tk.accessToken || tk.token))) || '';
+  }
+
+  async function bootCloud(force) {
+    if (!(await waitSDK(9000))) { authErr = 'nosdk'; return; }
+    try {
+      if (!app) {
+        app = cloudbase.init({ env: ENV, region: REGION, accessKey: KEY });
+        try { auth = app.auth({ persistence: 'local' }); } catch (e) { auth = app.auth(); }
+      }
+      if (force) { try { await auth.signOut(); } catch (e) {} }
+      if (!isJustKey(await currentToken())) { authErr = ''; return; }   // 手里已经是真身份
+
+      var r = await auth.signInAnonymously();
+      if (r && r.error) { authErr = String(r.error.code || r.error.message || 'nologin'); return; }
+      if (isJustKey(await currentToken())) { authErr = 'nologin'; return; }
+      authErr = '';
+    } catch (e) {
+      authErr = String((e && e.message) || e || 'nocloud');
+    }
+  }
+
+  async function callPeek(token) {
+    var at = await currentToken();
+    if (!at || isJustKey(at)) {
+      var e0 = new Error('auth');
+      e0.raw = authErr || ('only-key:' + (at ? '1' : '0'));
+      throw e0;
+    }
+
+    var res, txt;
+    try {
+      res = await fetch(GW, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + at },
+        body: JSON.stringify({ p_token: token })
+      });
+      txt = await res.text();
+    } catch (e) {
+      throw new Error('network');            // 断网 / 跨域被拦，交给上层重试
+    }
+    if (res.status === 401 || res.status === 403) {
+      var e1 = new Error('auth'); e1.raw = res.status + ' ' + txt.slice(0, 120); throw e1;
+    }
+    if (!res.ok) throw new Error('http' + res.status + ' ' + txt.slice(0, 80));
+
+    var data = null;
+    try { data = JSON.parse(txt); } catch (e) { throw new Error('badjson'); }
+    return norm(data);
+  }
+
+  /* 取词：失败退避重试。身份失效和网络抖动都能兜住，重试用尽才提示学生 */
   async function peek(token) {
     if (ready) { try { await ready; } catch (e) {} }
-    if (!db) throw new Error(authErr || 'nocloud');
-    if (typeof db.rpc !== 'function') throw new Error('norpc');
-    var r = await db.rpc('uc_peek', { p_token: token });
-    if (r && r.error) {
-      var c = String((r.error && (r.error.code || r.error.message)) || '');
-      throw new Error(/credential|401|jwt|permission|policy|login_type|disabled/i.test(c) ? 'auth' : (c || 'rpc'));
+    if (!auth) { ready = bootCloud(false); try { await ready; } catch (e) {} }
+    if (!auth) throw new Error(authErr || 'nocloud');
+
+    var last = null, delays = [300, 800, 1600, 2600];
+    for (var i = 0; i < delays.length; i++) {
+      try {
+        return await callPeek(token);
+      } catch (e) {
+        last = e;
+        var m = String((e && e.message) || '');
+        if (!/auth|network|badjson|^http5/i.test(m)) throw e;   // 真错误不重试
+        if (i === 1) { ready = bootCloud(true); try { await ready; } catch (e2) {} }
+        await wait(delays[i]);
+      }
     }
-    return norm(r);
+    throw last;
+  }
+
+  /* 统一出提示语。平时不暴露内部错误码，?debug=1 时才把原始码放进方括号里 */
+  function failText(e) {
+    var m = String((e && e.message) || '');
+    var raw = String((e && e.raw) || '');
+    var txt = t(m === 'auth' ? 'nologin' : 'nonet');
+    if (DBG) return txt + ' [' + String(raw || m || 'unknown').slice(0, 90) + ']';
+    return txt + (m && m !== 'auth' ? ' (' + m + ')' : '');
   }
 
   async function submit() {
@@ -220,8 +335,7 @@
       paint();
     } catch (e) {
       state.step = 'input';
-      var m = String((e && e.message) || '');
-      state.err = t(m === 'auth' ? 'nologin' : 'nonet') + (m && m !== 'auth' ? ' (' + m + ')' : '');
+      state.err = failText(e);
       paint();
     }
   }
@@ -234,28 +348,7 @@
 
   paint();
 
-  async function initCloud() {
-    try {
-      if (typeof cloudbase === 'undefined') { authErr = 'nosdk'; return; }
-      var app = cloudbase.init({ env: ENV, region: REGION, accessKey: KEY });
-      var auth;
-      try { auth = app.auth({ persistence: 'local' }); } catch (e) { auth = app.auth(); }
-      /* 已经登录过（比如主站登过）就直接用；否则匿名登录拿一个一次性的身份 */
-      var st = null;
-      try { st = await auth.getLoginState(); } catch (e) {}
-      if (!st || !st.user) {
-        var r = await auth.signInAnonymously();
-        if (r && r.error) {
-          authErr = String(r.error.code || r.error.message || 'nologin');
-          return;
-        }
-      }
-      db = app.rdb();
-    } catch (e) {
-      authErr = String((e && e.message) || e || 'nocloud');
-      db = null;
-    }
-  }
+  async function initCloud() { await bootCloud(false); }
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', function () { ready = initCloud(); });
   } else {
@@ -271,7 +364,7 @@
       state.step = 'word'; paint();
     }).catch(function (e) {
       state.step = 'input';
-      state.err = t(String((e && e.message) || '') === 'auth' ? 'nologin' : 'nonet');
+      state.err = failText(e);
       paint();
     });
   }
