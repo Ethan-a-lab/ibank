@@ -15,7 +15,7 @@
  * 注意：Service Worker 只在 https 或 localhost 下生效；双击 file:// 打开时注册会被跳过。
  */
 
-const CACHE_VERSION = 'ibank-v16';   // v106：新增「时点三连」课堂活动，预缓存清单加了两个静态资源
+const CACHE_VERSION = 'ibank-v17';   // v116：bond-core/bond.css/eval-core/eval.css 补进网络优先与预缓存（原先 cache-first，改版后老用户会卡在旧 JS）
 const CACHE_NAME = `ibank-shell-${CACHE_VERSION}`;
 
 /* ★总开关：想把 PWA 停掉，只把这个 true 改成 false，然后推送一次。
@@ -49,6 +49,10 @@ const PRECACHE_URLS = [
   './static/undercover.js',
   './static/timeline.css',
   './static/timeline.js',
+  './static/bond-core.js',
+  './static/bond.css',
+  './static/eval-core.js',
+  './static/eval.css',
   './static/qrcode.min.js',
   './static/mascot/panda.png',
   './static/mascot/panda@2x.png',
@@ -57,7 +61,7 @@ const PRECACHE_URLS = [
 ];
 
 // 与 HTML 结构强耦合、必须跟随线上最新的资源（后缀匹配，兼容 /ibank/ 子路径与将来换域名）
-const NETWORK_FIRST_ASSET = /\/static\/(app\.css|app-core\.js|app-auth\.js|i18n\.css|i18n\.js|i18n-dict\.js|undercover\.css|undercover\.js|timeline\.css|timeline\.js)$/;
+const NETWORK_FIRST_ASSET = /\/static\/(app\.css|app-core\.js|app-auth\.js|i18n\.css|i18n\.js|i18n-dict\.js|undercover\.css|undercover\.js|timeline\.css|timeline\.js|bond-core\.js|bond\.css|eval-core\.js|eval\.css)$/;
 
 /* 只缓存"应用外壳"类资源。白名单之外一律放行，不进缓存。
  *
