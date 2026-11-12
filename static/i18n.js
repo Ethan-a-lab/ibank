@@ -197,6 +197,10 @@
 
   function refresh() {
     document.documentElement.lang = (lang === 'en') ? 'en' : 'zh-CN';
+    /* 通知自带文案的独立模块（如 undercover.js）同步重渲染。
+       必须同步派发：selftest 是在 setLang() 返回后立刻统计残留的，
+       MutationObserver 的回调要等微任务，赶不上那一次统计。 */
+    try { window.dispatchEvent(new CustomEvent('ibk:lang', { detail: lang })); } catch (e) {}
     var tt = DICT[TITLE_ZH] || BLOCK[TITLE_ZH];
     document.title = (lang === 'en' && tt) ? tt : TITLE_ZH;
     if (TXT) TXT.textContent = (lang === 'en') ? '中文' : 'EN';

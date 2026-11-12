@@ -22,6 +22,7 @@
   <link rel="stylesheet" href="static/eval.css">
   <link rel="stylesheet" href="static/bond.css">
   <link rel="stylesheet" href="static/i18n.css">
+  <link rel="stylesheet" href="static/undercover.css">
 </head>
 <body>
   <!-- ===== 登录/注册遮罩 ===== -->
@@ -969,6 +970,16 @@ body.dark #p-game .blob{opacity:.16}
       <span class="pill" id="d-pill">开始</span>
     </button>
 
+    <div class="sec"><span class="bar"></span><h2 id="uc-e-sec">课堂活动</h2><span class="more" id="uc-e-tag">教师控场</span></div>
+    <button class="daily" id="btn-uc" onclick="UC.go()">
+      <div class="d-ico">🕵️</div>
+      <div class="d-body">
+        <h3 id="uc-e-name">投行卧底 · 12 组对抗</h3>
+        <p id="uc-e-sub">发词卡、轮着描述、投票翻牌，一局 5 分钟</p>
+      </div>
+      <span class="pill" id="uc-e-pill">开场</span>
+    </button>
+
     <div class="sec"><span class="bar"></span><h2>我的收藏</h2></div>
     <div class="daily" style="cursor:default">
       <div class="d-ico">🏆</div>
@@ -1052,6 +1063,9 @@ body.dark #p-game .blob{opacity:.16}
     <div class="dex-grid" id="dex-list"></div>
     <button class="nextbtn" style="background:var(--panel-solid);color:var(--text);border:1px solid var(--panel-border);box-shadow:none" onclick="GM.show('home')">回到地图</button>
   </section>
+
+  <!-- 投行卧底：教师控场，一台设备投屏；内容由 static/undercover.js 渲染 -->
+  <section class="view" id="v-uc"><div id="uc-root"></div></section>
 </div>
 
 <div class="combo" id="combo"></div>
@@ -1423,7 +1437,7 @@ body.dark #p-game .blob{opacity:.16}
   var P = null;
 
   function show(v) {
-    var ids = ['home', 'play', 'res', 'ach', 'dex'];
+    var ids = ['home', 'play', 'res', 'ach', 'dex', 'uc'];
     for (var i = 0; i < ids.length; i++) {
       var node = $('v-' + ids[i]);
       if (node) node.classList.toggle('on', ids[i] === v);
@@ -3605,6 +3619,9 @@ body.dark #p-game .blob{opacity:.16}
   <!-- 中英双语语言层：字典与运行时分离，补译文只需改 i18n-dict.js -->
   <script src="static/i18n-dict.js"></script>
   <script src="static/i18n.js"></script>
+
+  <!-- 投行卧底（教师控场）：独立模块，自带双语表，不经 i18n-dict.js -->
+  <script src="static/undercover.js"></script>
 
   <!-- PWA:begin Service Worker 注册。只在 https / localhost 下生效：
        file:// 双击场景没有 navigator.serviceWorker，也不会走到这里；

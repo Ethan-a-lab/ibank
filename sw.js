@@ -15,7 +15,7 @@
  * 注意：Service Worker 只在 https 或 localhost 下生效；双击 file:// 打开时注册会被跳过。
  */
 
-const CACHE_VERSION = 'ibank-v10';   // v97：簿记簿行名改组号＋自动保存＋两段确认还原；申购区间口径改 1.50%—2.00%（index.html + bond-core.js），靠版本号把旧壳挤掉
+const CACHE_VERSION = 'ibank-v11';   // v97：簿记簿行名改组号＋自动保存＋两段确认还原；申购区间口径改 1.50%—2.00%（index.html + bond-core.js），靠版本号把旧壳挤掉
 const CACHE_NAME = `ibank-shell-${CACHE_VERSION}`;
 
 /* ★总开关：想把 PWA 停掉，只把这个 true 改成 false，然后推送一次。
@@ -44,6 +44,8 @@ const PRECACHE_URLS = [
   './static/i18n.css',
   './static/i18n-dict.js',
   './static/i18n.js',
+  './static/undercover.css',
+  './static/undercover.js',
   './static/mascot/panda.png',
   './static/mascot/panda@2x.png',
   './static/icons/icon-192.png',
@@ -51,7 +53,7 @@ const PRECACHE_URLS = [
 ];
 
 // 与 HTML 结构强耦合、必须跟随线上最新的资源（后缀匹配，兼容 /ibank/ 子路径与将来换域名）
-const NETWORK_FIRST_ASSET = /\/static\/(app\.css|app-core\.js|app-auth\.js|i18n\.css|i18n\.js|i18n-dict\.js)$/;
+const NETWORK_FIRST_ASSET = /\/static\/(app\.css|app-core\.js|app-auth\.js|i18n\.css|i18n\.js|i18n-dict\.js|undercover\.css|undercover\.js)$/;
 
 /* 只缓存"应用外壳"类资源。白名单之外一律放行，不进缓存。
  *

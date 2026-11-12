@@ -1,0 +1,193 @@
+/* ===================================================================
+   投行卧底（教师控场版）—— 只作用于 #p-game #v-uc，不污染站内其他区块
+   依赖 app.css 里的变量：--accent --accent-text --accent-solid --text
+                        --muted --panel --panel-solid --panel-border --track
+   =================================================================== */
+
+#p-game #v-uc .uc-root{padding-bottom:40px}
+
+/* 顶部说明条 */
+#p-game .uc-note{
+  display:flex;gap:10px;align-items:flex-start;
+  font-size:12.5px;line-height:1.7;color:var(--muted);
+  background:var(--panel);border:1px solid var(--panel-border);
+  border-radius:12px;padding:12px 14px;margin:14px 0;
+}
+#p-game .uc-note b{color:var(--text);font-weight:600}
+
+/* 段落标题 */
+#p-game .uc-h{
+  display:flex;align-items:center;gap:9px;margin:22px 0 10px;
+}
+#p-game .uc-h .bar{width:3px;height:15px;border-radius:2px;background:linear-gradient(180deg,#4f46e5,#8b5cf6)}
+#p-game .uc-h h3{font-size:15px;font-weight:700}
+#p-game .uc-h .r{margin-left:auto;font-size:12px;color:var(--muted);font-weight:600}
+
+/* 选项条 */
+#p-game .uc-opts{display:flex;flex-wrap:wrap;gap:8px}
+#p-game .uc-chip{
+  font-size:13.5px;font-weight:600;padding:9px 16px;border-radius:10px;
+  background:var(--panel-solid);color:var(--text);
+  border:1px solid var(--panel-border);
+  transition:.16s;
+}
+#p-game .uc-chip:hover{border-color:var(--accent)}
+#p-game .uc-chip.on{
+  background:var(--accent-solid);color:#fff;border-color:transparent;
+  box-shadow:0 4px 12px rgba(99,102,241,.28);
+}
+
+/* 主按钮 */
+#p-game .uc-btn{
+  display:block;width:100%;padding:15px;border-radius:12px;
+  font-size:15px;font-weight:700;letter-spacing:.3px;
+  background:var(--accent-solid);color:#fff;
+  box-shadow:0 6px 18px rgba(99,102,241,.28);
+  transition:.16s;
+}
+#p-game .uc-btn:hover{transform:translateY(-1px)}
+#p-game .uc-btn:disabled{opacity:.4;box-shadow:none;transform:none;cursor:not-allowed}
+#p-game .uc-btn.ghost{
+  background:var(--panel-solid);color:var(--text);
+  border:1px solid var(--panel-border);box-shadow:none;
+  font-weight:600;
+}
+#p-game .uc-btn + .uc-btn{margin-top:9px}
+#p-game .uc-btn-row{display:flex;gap:9px}
+#p-game .uc-btn-row .uc-btn{margin-top:0}
+
+/* 倒计时大屏 */
+#p-game .uc-stage{
+  background:var(--panel);border:1px solid var(--panel-border);
+  border-radius:16px;padding:26px 22px;text-align:center;
+}
+#p-game .uc-stage .lab{font-size:12.5px;color:var(--muted);font-weight:600;letter-spacing:1px}
+#p-game .uc-who{
+  font-size:64px;font-weight:800;line-height:1.1;margin:6px 0 2px;
+  color:var(--accent-text);font-variant-numeric:tabular-nums;
+}
+#p-game .uc-who em{font-size:20px;font-style:normal;font-weight:700;color:var(--muted);margin-left:4px}
+#p-game .uc-clock{
+  font-size:34px;font-weight:800;font-variant-numeric:tabular-nums;
+  color:var(--text);margin-top:8px;
+}
+#p-game .uc-clock.warn{color:#e24b4a}
+#p-game .uc-clock small{font-size:14px;color:var(--muted);font-weight:600;margin-left:3px}
+#p-game .uc-timebar{
+  height:6px;border-radius:99px;background:var(--track);overflow:hidden;margin:12px 0 4px;
+}
+#p-game .uc-timebar i{display:block;height:100%;border-radius:99px;background:var(--accent-solid);transition:width .3s linear}
+
+/* 顺序条 */
+#p-game .uc-order{display:flex;flex-wrap:wrap;gap:7px;margin-top:16px;justify-content:center}
+#p-game .uc-order span{
+  min-width:38px;padding:7px 10px;border-radius:9px;font-size:13px;font-weight:700;
+  background:var(--panel-solid);color:var(--muted);
+  border:1px solid var(--panel-border);font-variant-numeric:tabular-nums;
+}
+#p-game .uc-order span.done{opacity:.4;text-decoration:line-through}
+#p-game .uc-order span.now{
+  background:var(--accent-solid);color:#fff;border-color:transparent;
+  box-shadow:0 3px 10px rgba(99,102,241,.3);
+}
+
+/* 投票格 */
+#p-game .uc-grid{display:grid;gap:9px;grid-template-columns:repeat(4,1fr)}
+#p-game .uc-g{
+  position:relative;padding:14px 6px 12px;border-radius:12px;
+  background:var(--panel-solid);border:1px solid var(--panel-border);
+  color:var(--text);text-align:center;transition:.14s;overflow:hidden;
+}
+#p-game .uc-g:hover{border-color:var(--accent);transform:translateY(-2px)}
+#p-game .uc-g .n{font-size:24px;font-weight:800;line-height:1.1;font-variant-numeric:tabular-nums}
+#p-game .uc-g .u{font-size:10.5px;color:var(--muted);font-weight:600;margin-top:1px}
+#p-game .uc-g .v{
+  display:inline-block;min-width:22px;margin-top:6px;padding:1px 7px;border-radius:99px;
+  font-size:12.5px;font-weight:800;background:var(--track);color:var(--muted);
+  font-variant-numeric:tabular-nums;
+}
+#p-game .uc-g.has{border-color:var(--accent);background:rgba(99,102,241,.09)}
+#p-game .uc-g.has .v{background:var(--accent-solid);color:#fff}
+#p-game .uc-g.top{border-color:#e24b4a;box-shadow:0 0 0 2px rgba(226,75,74,.18)}
+#p-game .uc-g.top .v{background:#e24b4a;color:#fff}
+#p-game .uc-g .minus{
+  position:absolute;top:6px;right:6px;width:22px;height:22px;border-radius:999px;
+  font-size:13px;line-height:20px;color:var(--muted);
+  background:var(--track);opacity:.75;
+}
+#p-game .uc-g .minus:hover{opacity:1;color:var(--text);background:var(--panel-border)}
+
+#p-game .uc-tally{
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  font-size:13px;color:var(--muted);margin:12px 0;font-weight:600;
+}
+#p-game .uc-tally b{font-size:17px;color:var(--text);font-variant-numeric:tabular-nums}
+
+/* 翻牌结果 */
+#p-game .uc-res{
+  border-radius:16px;padding:22px;text-align:center;
+  background:var(--panel);border:1px solid var(--panel-border);
+}
+#p-game .uc-res.win-c{border-color:rgba(29,158,117,.5);background:rgba(29,158,117,.07)}
+#p-game .uc-res.win-u{border-color:rgba(226,75,74,.5);background:rgba(226,75,74,.07)}
+#p-game .uc-res .em{font-size:40px;line-height:1}
+#p-game .uc-res h4{font-size:20px;font-weight:800;margin:8px 0 4px}
+#p-game .uc-res .sub{font-size:13px;color:var(--muted);line-height:1.7}
+#p-game .uc-vs{
+  display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:16px 0 6px;
+}
+#p-game .uc-vs > div{
+  border-radius:12px;padding:14px 10px;border:1px solid var(--panel-border);
+  background:var(--panel-solid);
+}
+#p-game .uc-vs .k,#p-game .uc-vs .w,#p-game .uc-vs .e{border:0;background:none;padding:0;border-radius:0}
+#p-game .uc-vs .k{font-size:11px;color:var(--muted);font-weight:700;letter-spacing:.5px}
+#p-game .uc-vs .w{font-size:19px;font-weight:800;margin-top:4px}
+#p-game .uc-vs .e{font-size:11.5px;color:var(--muted);margin-top:3px}
+#p-game .uc-vs .odd{border-color:rgba(226,75,74,.45);background:rgba(226,75,74,.07)}
+#p-game .uc-vs .odd .k{color:#e24b4a}
+#p-game .uc-tip{
+  font-size:12.5px;line-height:1.75;color:var(--muted);text-align:left;
+  border-left:2px solid var(--accent);padding-left:10px;margin:14px 0 4px;
+}
+#p-game .uc-score{
+  display:flex;justify-content:center;gap:22px;font-size:12.5px;color:var(--muted);
+  font-weight:600;margin-top:10px;
+}
+#p-game .uc-score b{font-size:16px;color:var(--text);font-variant-numeric:tabular-nums}
+
+/* ============ 打印：只留号卡纸，其余全部压掉 ============ */
+#uc-print{display:none}
+@media print{
+  @page{size:A4 portrait;margin:8mm}
+  body.uc-printing > *:not(#uc-print){display:none !important}
+  body.uc-printing #uc-print{display:block !important}
+  body.uc-printing{background:#fff !important}
+  .uc-sheet{width:194mm;margin:0 auto;color:#000;font-family:var(--font-sans,"Microsoft YaHei",sans-serif)}
+  .uc-sheet .sh-head{display:flex;justify-content:space-between;align-items:flex-end;
+    border-bottom:1.5px solid #000;padding-bottom:3mm;margin-bottom:4mm}
+  .uc-sheet .sh-head h1{font-size:13pt;font-weight:700}
+  .uc-sheet .sh-head p{font-size:8pt}
+  .uc-sheet .sh-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:3mm}
+  .uc-card{
+    position:relative;border:1px dashed #666;border-radius:2mm;height:56mm;
+    display:flex;flex-direction:column;overflow:hidden;page-break-inside:avoid;
+  }
+  .uc-card .top{
+    height:20mm;display:flex;align-items:center;justify-content:center;gap:2mm;
+    border-bottom:1px dashed #999;font-size:10pt;
+  }
+  .uc-card .top .gno{font-size:17pt;font-weight:800;letter-spacing:1px}
+  .uc-card .top .gtag{font-size:7.5pt;color:#444}
+  .uc-card .bot{
+    flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+    text-align:center;padding:2mm;
+  }
+  .uc-card .bot .cw{font-size:16pt;font-weight:800;line-height:1.25}
+  .uc-card .bot .ce{font-size:8.5pt;color:#333;margin-top:1mm}
+  .uc-card .fold{
+    position:absolute;left:0;right:0;bottom:1.5mm;text-align:center;
+    font-size:6.5pt;color:#777;letter-spacing:2px;
+  }
+  .uc-sheet .sh-foot{margin-top:4mm;font-size:7.5pt;color:#333;display:flex;justify-content:space-between}
+}
