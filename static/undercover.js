@@ -25,7 +25,7 @@
     s_groups:  { zh: '场上分几组', en: 'Groups on stage' },
     s_sec:     { zh: '每组描述限时', en: 'Seconds per pitch' },
     s_words:   { zh: '词包', en: 'Word pack' },
-    s_pack:    { zh: '投行对立词对 · 12 组', en: 'Banking pairs · 12 sets' },
+    s_pack:    { zh: '投行对立词对 · 12 对', en: '12 banking word pairs' },
     s_go:      { zh: '生成号卡，开局', en: 'Generate cards and start' },
     s_rule_h:  { zh: '一局怎么玩', en: 'How a round works' },
     s_r1:      { zh: '每组领一张号卡，只自己看，别让邻组瞄到。', en: 'Each group gets one card. Read it privately.' },
