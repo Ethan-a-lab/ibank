@@ -173,10 +173,10 @@
         info: [
           { zh: '2015 年 6 月股价正高，比亚迪公布方案：准备发 2.61 亿股、收约 150 亿元，最多卖给 10 家，价格在方案里就写死。',
             en: 'June 2015, at a market high: BYD files a placement plan for 261m shares and about CNY 15bn, with no more than 10 investors and a price fixed at proposal stage.' },
-          { zh: '写死价格时股价在高位，但从公布方案到钱到账走了 13 个月；到时候市价约 47 元，比 57.40 元写死的价低约 18%——这是跟写死的价差，不是大盘跌了多少。',
-            en: 'The price was set at a high, but 13 months passed before the cash arrived. By then the market price was about CNY 47, roughly 18% below the CNY 57.40 lock — a gap to the lock price, not a fall in the index.' },
-          { zh: '分给谁按「谁出价高、谁买得多、谁先报名」排；最后一共收到 144.73 亿元，连 150 亿元都没收够。',
-            en: 'Allocation follows price, size, then time priority. Gross proceeds came to CNY 14.473bn — short of the 15bn plan.' }
+          { zh: '签完字还得等批准，钱到账要拖很久，这期间股价涨还是跌都得买的人自己扛。当时能看到的：股价正处在几年里的最高位，往后更可能往下走而不是接着涨；买的人会要求比当时市价便宜一点，给自己留个余地。可公司要收够 150 亿，价又不能往下让太多——两头一夹，能动的余地很小。',
+            en: 'After signing, approval takes a long time and the cash arrives much later; whatever the share price does in between falls on the buyer. What was visible at the time: the stock sat at a multi-year high, so a pullback looked more likely than another rally, and institutions would ask to pay less than the market to leave themselves room. But the company needed CNY 15bn, so the price could not be cut much either — the two sides leave very little room to move.' },
+          { zh: '再加两条当时就写在方案里的规矩：这个价有个地板，按方案公布前 20 天平均股价的九成算（不是拿 57.47 再打折），报得比它低监管不认；买到的新股要放满 12 个月才能卖，这一年跌了也跑不掉。买的人会为这一年风险再压一点价，可地板托着，能降的幅度有限。',
+            en: 'Two more rules were already written into the proposal and known at the time: the price has a floor set at 90% of the average share price over the 20 trading days before the plan was announced (not 90% of 57.47), and anything below it is not allowed. The new shares also cannot be sold for 12 months, so buyers cannot get out if the price falls. Buyers will push the price down a bit more to cover that year of risk, but the floor holds, so the cut can only be small.' }
         ],
         reveal: { zh: '写死 57.40 元/股；实际发了 2.5214 亿股、一共收到 144.73 亿元（扣掉费用约 143.69 亿元），连 150 亿元都没收够。',
           en: 'CNY 57.40 per share; 252.14m shares issued for CNY 14.473bn gross (about 14.369bn net) — short of plan.' },
@@ -299,15 +299,15 @@
         unit: { zh: '元 / 股', en: 'CNY / share' },
         bands: ['≤38', '38–41', '41–44', '44–47', '47–52', '52–57', '≥57'],
         target: 3,
-        base: { v: 57.40, note: { zh: '最多肯出的钱 = 将来能卖掉的价 ÷ 1.08。公司想卖 57.40——先拿它算个上限；「将来能卖掉的价」第 2 轮才告诉你。先给个方向：到时候市价会明显低于写死的价（大约低两成），别直接把 57.40 当答案。', en: 'Your ceiling = the price you can exit at ÷ (1 + 8%). The issuer wants 57.40 — start from that and compute a ceiling. What you can actually exit at arrives in round 2. One hint for now: by closing, the market price sits clearly below the lock (roughly 20% lower), so do not just write 57.40 as your ceiling.' } },
+        base: { v: 57.40, note: { zh: '最多肯出的钱 = 将来能卖掉的价 ÷ 1.08。公司想卖 57.40——先拿它算个上限；「将来能卖掉的价」第 2 轮才告诉你。先说清楚：这是回头算账，第 2 轮给的市价是后来才知道的，不是当时能看到的。先给个方向：到时候市价会明显低于写死的价（大约低两成），别直接把 57.40 当答案。', en: 'Your ceiling = the price you can exit at ÷ (1 + 8%). The issuer wants 57.40 — start from that and compute a ceiling. What you can actually exit at arrives in round 2. To be clear: this is a review after the fact, and the market price given in round 2 was not visible at the time. One hint for now: by closing, the market price sits clearly below the lock (roughly 20% lower), so do not just write 57.40 as your ceiling.' } },
         tv: 43.5,
         dec: 1,
         truth: { zh: '43.5 元 / 股（47 ÷ 1.08）', en: 'CNY 43.5 (47 ÷ 1.08)' },
         info: [
           { zh: '2015 年 6 月的方案：按写死的 57.40 元/股发 2.61 亿股、收约 150 亿元，最多卖给 10 家。价格在方案里就写死，签完字只能等批准——这 13 个月里股价涨还是跌，都是买的人自己扛。',
             en: 'The June 2015 proposal: 261m shares at a locked CNY 57.40, about CNY 15bn, to no more than ten subscribers. The price is fixed in the proposal; after signing you can only wait for approval — and the market is your problem for thirteen months.' },
-          { zh: '2015 年 6 月正赶上股价最高的时候。等到 2016 年 7 月钱到账，市价只剩约 47 元——写死的 57.40 已经比市价高 22%，一签字账面上就亏了。',
-            en: 'June 2015 was the top of that bull run. By the time the deal closed in July 2016 the market price was about CNY 47 — the subscription price of 57.40 sat 22% above it, underwater from day one.' },
+          { zh: '（下面这条是后来才知道的市价，拿它回头算账用的，不是当时能看到的）2015 年 6 月正赶上股价最高的时候。等到 2016 年 7 月钱到账，市价只剩约 47 元——写死的 57.40 已经比市价高 22%，一签字账面上就亏了。',
+            en: '(Known only afterwards and used here to work backwards — not something visible at the time.) June 2015 was the top of that bull run. By the time the deal closed in July 2016 the market price was about CNY 47 — the subscription price of 57.40 sat 22% above it, underwater from day one.' },
           { zh: '新股还要再放 12 个月才能卖，这期间不能退、也不能另买保险。最后只有 6 家掏钱：保险公司、银行系基金、做实业的钱，没有一家是只想靠这笔赚差价的基金。',
             en: 'The shares are then locked for another twelve months — no exit, no hedge. Only six subscribers signed: insurers, bank-backed funds and strategic capital. Not one pure financial investor.' }
         ],
