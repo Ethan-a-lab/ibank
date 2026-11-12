@@ -20,6 +20,15 @@
       }
       const DEMO_TIP = '当前为离线演示模式（未连接云服务），将以本地演示身份进入，学习与训练功能均可正常使用。';
 
+      /* 把已登录的云实例暴露出去，供其它模块（如投行卧底的联网发词）复用。
+         必须复用同一个 app：另起 cloudbase.init 会拿到新的匿名会话，写表会被 RLS 拒。 */
+      window.__ibankCloud = {
+        get app() { return app; },
+        get auth() { return auth; },
+        get db() { return db; },
+        get offline() { return OFFLINE; }
+      };
+
       const overlay = document.getElementById('login-overlay');
       const logoutBtn = document.getElementById('logout-btn');
       const loginTopBtn = document.getElementById('login-top-btn');

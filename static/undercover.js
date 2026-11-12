@@ -32,6 +32,10 @@
     s_r2:      { zh: '按屏幕给的顺序，轮着用一句话描述自己的词，不许说破。', en: 'In the order shown, pitch your word in one sentence without giving it away.' },
     s_r3:      { zh: '全场投票，教师点组号记票，翻牌看有没有抓到卧底。', en: 'Everyone votes. The teacher taps group numbers to count, then the card is flipped.' },
     s_note:    { zh: '一整局 5 分钟左右。想再来一局就换一套词，累计比分不清零。', en: 'A full round takes about 5 minutes. Start another to switch word sets; the score carries over.' },
+    s_mode:    { zh: '发词方式', en: 'How words are dealt' },
+    s_m_paper: { zh: '纸质号卡', en: 'Paper cards' },
+    s_m_phone: { zh: '手机领词', en: 'Phones' },
+    s_mode_tip:{ zh: '手机领词：卡片上只印领词码、不印词，学生扫码输码看自己的词。需要教师账号已登录。', en: 'Phones: the card carries only an access code, not the word. Students scan, type the code, and read their own word. Requires a signed-in teacher account.' },
 
     /* ---- 号卡 ---- */
     c_h:       { zh: '号卡已生成', en: 'Cards are ready' },
@@ -39,6 +43,21 @@
     c_print:   { zh: '打印号卡', en: 'Print cards' },
     c_go:      { zh: '号卡发完，开始描述', en: 'Cards dealt, start pitching' },
     c_tip:     { zh: '屏幕上从头到尾不会出现任何词，学生只能看自己手里那张。', en: 'No word ever appears on screen. Students only see their own card.' },
+
+    /* ---- 手机领词 ---- */
+    c_ph_desc: { zh: '打印后裁开发给各组。卡片上只有领词码，没有词 —— 学生扫屏幕上的二维码打开领词页，输入自己卡片上的 6 位码。', en: 'Print and cut, then hand one to each group. Cards carry an access code only. Students scan the QR on screen and type their six-character code.' },
+    c_qr_h:    { zh: '学生扫码入口', en: 'Student entry' },
+    c_qr_tip:  { zh: '二维码只指向领词页，不带任何码。学生仍需输入自己卡片上的 6 位码。', en: 'The QR only opens the page — no codes inside. Students still type their own six characters.' },
+    c_push:    { zh: '正在把号卡写入云端…', en: 'Publishing cards…' },
+    c_pushed:  { zh: '号卡已写入云端', en: 'Cards published' },
+    c_nocloud: { zh: '没连上云服务，已退回纸质模式。先确认教师账号已登录，再点「重新生成」。', en: 'No cloud connection — fell back to paper. Make sure you are signed in, then regenerate.' },
+    c_nologin: { zh: '写入被拒绝：当前不是已登录的教师账号。请先登录再开这一局。', en: 'Write denied: not a signed-in teacher account. Sign in first.' },
+    c_regen:   { zh: '重新生成', en: 'Regenerate' },
+    c_room:    { zh: '房间码', en: 'Room' },
+    c_cnt:     { zh: '{1} 张已就绪', en: '{1} codes ready' },
+    p_tok_tag: { zh: '领词码', en: 'access code' },
+    p_tok_tip: { zh: '扫老师屏幕上的二维码，输入此码', en: 'Scan the teacher’s QR, then type this code' },
+
 
     /* ---- 描述 ---- */
     d_now:     { zh: '现在轮到', en: 'Now pitching' },
@@ -77,6 +96,8 @@
     /* ---- 打印纸 ---- */
     p_title:   { zh: '投行卧底 · 号卡', en: 'Investment Banking Mole · Cards' },
     p_meta:    { zh: '第 {1} 局 · {2} 组 · 沿虚线裁开，对折后发放', en: 'Round {1} · {2} groups · Cut along dashed lines and fold' },
+    p_meta2:   { zh: '第 {1} 局 · {2} 组', en: 'Round {1} · {2} groups' },
+    c_h_fail:  { zh: '没能生成领词卡', en: 'Could not create the cards' },
     p_fold:    { zh: '— 沿此线对折 —', en: '— fold here —' },
     p_tag:     { zh: '只自己看', en: 'private' }
   };
@@ -122,10 +143,15 @@
   var S = {
     n: 12,            // 组数
     sec: 20,          // 每组描述秒数
-    phase: 'setup',   // setup | cards | describe | vote | reveal
+    mode: 'paper',    // paper 纸质号卡 | phone 手机领词
+    phase: 'setup',   // setup | pushing | cards | describe | vote | reveal
     round: 0,
     pair: null,
+    pairIdx: -1,
     odd: -1,          // 卧底组（1..n）
+    room: '',         // 云端房间码（phone 模式）
+    tokens: [],       // 各组领词码（1..n）
+    net: '',          // '' | ok | nocloud | nologin
     order: [],        // 描述顺序
     cur: 0,
     end: 0,           // 本组倒计时截止时间戳
@@ -190,15 +216,88 @@
   function newRound() {
     S.round++;
     var pool = PAIRS.slice(0, PAIRS.length);
-    S.pair = pool[rnd(pool.length)];
+    S.pairIdx = rnd(pool.length);
+    S.pair = pool[S.pairIdx];
     S.odd = rnd(S.n) + 1;
     var ord = []; for (var i = 1; i <= S.n; i++) ord.push(i);
     S.order = shuffle(ord);
     S.cur = 0;
     S.votes = {}; S.total = 0; S.picked = 0; S.tie = null;
-    S.phase = 'cards';
+    S.room = ''; S.tokens = []; S.net = '';
     stopClock();
+    if (S.mode === 'phone') {
+      S.phase = 'pushing'; render(); pushRoom();
+    } else {
+      S.phase = 'cards'; render();
+    }
+  }
+
+  /* ---------------- 手机领词：把这一局的号卡写进云端 ---------------- */
+  /* 6 位码去掉了 0/1/i/l/o，避免学生把 0 看成 o */
+  var CODE_AB = '23456789abcdefghjkmnpqrstuvwxyz';
+  function genCode(k) {
+    var s = '', buf, i;
+    if (window.crypto && window.crypto.getRandomValues) {
+      buf = new Uint8Array(k);
+      window.crypto.getRandomValues(buf);
+      for (i = 0; i < k; i++) s += CODE_AB[buf[i] % CODE_AB.length];
+    } else {
+      for (i = 0; i < k; i++) s += CODE_AB[rnd(CODE_AB.length)];
+    }
+    return s;
+  }
+
+  function cloudDb() {
+    var c = window.__ibankCloud;
+    if (!c || c.offline) return null;
+    return c.db || null;
+  }
+
+  function failNet(why) {
+    S.net = why;
+    S.phase = 'cards';
     render();
+  }
+
+  function pushRoom() {
+    var db = cloudDb();
+    if (!db) { failNet('nocloud'); return; }
+    var code = genCode(4);
+    var tokens = [], rows = [], i, w, tk;
+    for (i = 1; i <= S.n; i++) {
+      w = (i === S.odd) ? S.pair.b : S.pair.a;
+      tk = genCode(6);
+      tokens.push(tk);
+      rows.push({
+        room_code: code, seat: i, token: tk,
+        word_zh: w.zh, word_en: w.en, is_mole: (i === S.odd)
+      });
+    }
+    Promise.resolve()
+      .then(function () {
+        return db.from('uc_rooms').insert({
+          code: code, round_no: S.round, n_seats: S.n,
+          pair_idx: S.pairIdx, mole_seat: S.odd, order_json: S.order
+        });
+      })
+      .then(function (r1) {
+        if (r1 && r1.error) throw new Error(r1.error.message || 'room insert failed');
+        return db.from('uc_seats').insert(rows);
+      })
+      .then(function (r2) {
+        if (r2 && r2.error) throw new Error(r2.error.message || 'seats insert failed');
+        S.room = code; S.tokens = tokens; S.net = 'ok';
+        S.phase = 'cards'; render();
+      })
+      .catch(function (e) {
+        var m = (e && e.message) || '';
+        failNet(/permission|denied|policy|rls|\b40[13]\b|jwt/i.test(m) ? 'nologin' : 'nocloud');
+      });
+  }
+
+  function ucUrl() {
+    var p = location.pathname.replace(/[^/]*$/, '');
+    return location.origin + p + 'uc.html';
   }
 
   function startDescribe() {
@@ -262,6 +361,7 @@
   function resetAll() {
     stopClock();
     S.phase = 'setup'; S.round = 0; S.pair = null; S.odd = -1;
+    S.room = ''; S.tokens = []; S.net = '';
     S.votes = {}; S.total = 0; S.picked = 0; S.tie = null;
     S.score = { c: 0, u: 0 };
     render();
@@ -276,7 +376,19 @@
     var box = document.createElement('div');
     box.id = 'uc-print';
     var cells = '';
+    var phone = (S.mode === 'phone' && S.tokens.length === S.n);
     for (var i = 1; i <= S.n; i++) {
+      if (phone) {
+        /* 手机模式：纸上只有领词码，没有任何词 —— 纸被传阅也泄不了题 */
+        cells += '<div class="uc-card">'
+          + '<div class="top"><span class="gno">' + gl(i) + '</span>'
+          + '<span class="gtag">' + esc(t('p_tok_tag')) + '</span>'
+          + '<span class="fold">' + esc(t('p_fold')) + '</span></div>'
+          + '<div class="bot"><div class="ctok">' + esc(S.tokens[i - 1]) + '</div>'
+          + '<div class="ce">' + esc(t('p_tok_tip')) + '</div>'
+          + '</div></div>';
+        continue;
+      }
       var isOdd = (i === S.odd);
       var w = isOdd ? S.pair.b : S.pair.a;
       /* 卡面主词跟随当前语言；中文课顺手带上英文术语，英文课只印英文 */
@@ -334,6 +446,12 @@
       + '<div class="uc-opts">' + s2 + '</div>'
       + head(t('s_words'))
       + '<div class="uc-opts"><button class="uc-chip on" style="cursor:default">' + esc(t('s_pack')) + '</button></div>'
+      + head(t('s_mode'))
+      + '<div class="uc-opts">'
+      + '<button class="uc-chip' + (S.mode === 'paper' ? ' on' : '') + '" onclick="UC.setMode(\'paper\')">' + esc(t('s_m_paper')) + '</button>'
+      + '<button class="uc-chip' + (S.mode === 'phone' ? ' on' : '') + '" onclick="UC.setMode(\'phone\')">' + esc(t('s_m_phone')) + '</button>'
+      + '</div>'
+      + (S.mode === 'phone' ? '<div class="uc-note" style="display:block">' + esc(t('s_mode_tip')) + '</div>' : '')
       + '<div style="height:20px"></div>'
       + '<button class="uc-btn" onclick="UC.newRound()">' + esc(t('s_go')) + '</button>'
       + '<div class="uc-h"><span class="bar"></span><h3>' + esc(t('s_rule_h')) + '</h3></div>'
@@ -345,8 +463,30 @@
   }
 
   function rCards() {
-    return '<div class="uc-h" style="margin-top:2px"><span class="bar"></span><h3>' + esc(t('c_h')) + '</h3>'
-      + '<span class="r">' + esc(t('p_meta', S.round, S.n)) + '</span></div>'
+    var h = '<div class="uc-h" style="margin-top:2px"><span class="bar"></span><h3>' + esc(t('c_h')) + '</h3>'
+      + '<span class="r">' + esc(t('p_meta', S.round, S.n)) + '</span></div>';
+
+    if (S.mode === 'phone') {
+      if (S.net === 'nocloud' || S.net === 'nologin') {
+        h = '<div class="uc-h" style="margin-top:2px"><span class="bar"></span><h3>' + esc(t('c_h_fail')) + '</h3>'
+          + '<span class="r">' + esc(t('p_meta2', S.round, S.n)) + '</span></div>';
+        return h
+          + '<div class="uc-note" style="display:block;border-color:rgba(226,75,74,.5);color:#e24b4a">'
+          + esc(S.net === 'nologin' ? t('c_nologin') : t('c_nocloud')) + '</div>'
+          + '<button class="uc-btn" onclick="UC.regen()">' + esc(t('c_regen')) + '</button>'
+          + '<button class="uc-btn ghost" onclick="UC.setMode(\'paper\')">' + esc(t('s_m_paper')) + '</button>';
+      }
+      return h
+        + '<div class="uc-note" style="display:block">' + esc(t('c_ph_desc')) + '</div>'
+        + '<div class="uc-qr" id="uc-qr"></div>'
+        + '<div class="uc-qr-url" id="uc-qr-url">' + esc(ucUrl()) + '</div>'
+        + '<div class="uc-note" style="display:block">' + esc(t('c_qr_tip')) + '</div>'
+        + '<div class="uc-tally">' + esc(t('c_pushed')) + ' · <b>' + esc(t('c_cnt', S.tokens.length)) + '</b></div>'
+        + '<button class="uc-btn" onclick="UC.print()">' + esc(t('c_print')) + '</button>'
+        + '<button class="uc-btn ghost" onclick="UC.startDescribe()">' + esc(t('c_go')) + '</button>';
+    }
+
+    return h
       + '<div class="uc-note" style="display:block">' + esc(t('c_desc')) + '</div>'
       + '<button class="uc-btn" onclick="UC.print()">' + esc(t('c_print')) + '</button>'
       + '<button class="uc-btn ghost" onclick="UC.startDescribe()">' + esc(t('c_go')) + '</button>'
@@ -446,9 +586,38 @@
     }
   }
 
+  function rPushing() {
+    return '<div class="uc-h" style="margin-top:2px"><span class="bar"></span><h3>' + esc(t('c_h')) + '</h3></div>'
+      + '<div class="uc-note" style="display:block">' + esc(t('c_push')) + '</div>';
+  }
+
+  /* 二维码不是必需路径：库没加载上就只留一行网址，学生手输也能进 */
+  function afterRender() {
+    if (S.phase !== 'cards' || S.mode !== 'phone' || S.net !== 'ok') return;
+    var el = document.getElementById('uc-qr');
+    if (!el) return;
+    if (!window.QRCode) {
+      if (el.parentNode) el.parentNode.removeChild(el);
+      return;
+    }
+    try {
+      el.innerHTML = '';
+      new window.QRCode(el, {
+        text: ucUrl(), width: 168, height: 168,
+        colorDark: '#1a2233', colorLight: '#ffffff',
+        correctLevel: window.QRCode.CorrectLevel.M
+      });
+      var u = document.getElementById('uc-qr-url');
+      if (u) u.style.display = 'none';
+    } catch (e) {
+      if (el.parentNode) el.parentNode.removeChild(el);
+    }
+  }
+
   function render() {
     var body;
-    if (S.phase === 'cards') body = rCards();
+    if (S.phase === 'pushing') body = rPushing();
+    else if (S.phase === 'cards') body = rCards();
     else if (S.phase === 'describe') body = rDescribe();
     else if (S.phase === 'vote') body = rVote();
     else if (S.phase === 'reveal') body = rReveal();
@@ -456,6 +625,7 @@
 
     root.innerHTML = '<div class="uc-root">' + body + '</div>';
     setEntry();
+    afterRender();
   }
 
   /* 语言切换：i18n 层同步派发 ibk:lang，收到就地重渲染一遍。
@@ -475,6 +645,14 @@
     go: function () { render(); if (window.GM) window.GM.show('uc'); },
     setN: function (n) { S.n = n; render(); },
     setSec: function (s) { S.sec = s; render(); },
+    setMode: function (m) {
+      S.mode = (m === 'phone') ? 'phone' : 'paper';
+      if (S.phase === 'cards' || S.phase === 'pushing') {
+        S.room = ''; S.tokens = []; S.net = ''; S.phase = 'setup';
+      }
+      render();
+    },
+    regen: function () { S.phase = 'pushing'; S.net = ''; S.room = ''; S.tokens = []; render(); pushRoom(); },
     newRound: newRound,
     startDescribe: startDescribe,
     next: nextGroup,

@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#f6f7fb">
+<title>投行卧底 · 领词</title>
+<style>
+  :root{
+    --bg:#f6f7fb;--panel-solid:#fff;--panel-border:rgba(15,23,42,.10);
+    --text:#1a2233;--muted:#5b6478;--dim:#646b80;
+    --accent:#6366f1;--accent-text:#4f46e5;--accent-solid:#4f46e5;
+    --radius:14px;--shadow-sm:0 2px 10px rgba(15,23,42,.05);
+    --shadow-md:0 14px 40px rgba(15,23,42,.09);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    font-family:"PingFang SC","Microsoft YaHei","Segoe UI",system-ui,sans-serif;
+    background:var(--bg);color:var(--text);min-height:100vh;
+    display:flex;flex-direction:column;padding:18px;padding-bottom:28px;
+    -webkit-text-size-adjust:100%;
+  }
+  header{display:flex;align-items:center;justify-content:space-between;margin-bottom:22px}
+  .brand{display:flex;align-items:center;gap:9px;font-size:15px;font-weight:500}
+  .dot{width:9px;height:9px;border-radius:50%;background:var(--accent-solid)}
+  #lang{
+    border:1px solid var(--panel-border);background:var(--panel-solid);color:var(--muted);
+    border-radius:999px;padding:6px 14px;font-size:13px;cursor:pointer;font-family:inherit;
+  }
+  main{flex:1;display:flex;align-items:center;justify-content:center}
+  .panel{
+    width:100%;max-width:440px;background:var(--panel-solid);border:1px solid var(--panel-border);
+    border-radius:var(--radius);box-shadow:var(--shadow-md);padding:26px 22px;
+  }
+  h1{font-size:19px;font-weight:500;margin-bottom:8px}
+  .sub{font-size:13px;color:var(--muted);line-height:1.7;margin-bottom:22px}
+  input[type=text]{
+    width:100%;font-size:26px;letter-spacing:.34em;text-align:center;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
+    padding:16px 8px;border:1px solid var(--panel-border);border-radius:12px;background:var(--bg);
+    color:var(--text);outline:none;text-transform:lowercase;
+  }
+  input[type=text]::placeholder{
+    letter-spacing:normal;font-size:15px;font-family:inherit;
+    color:var(--dim);text-transform:none;
+  }
+  input[type=text]:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(99,102,241,.14)}
+  .btn{
+    width:100%;margin-top:14px;padding:15px;border:0;border-radius:12px;font-size:15px;font-weight:500;
+    background:var(--accent-solid);color:#fff;cursor:pointer;font-family:inherit;
+  }
+  .btn:disabled{opacity:.55;cursor:default}
+  .btn.ghost{background:transparent;color:var(--muted);border:1px solid var(--panel-border);margin-top:10px}
+  .msg{font-size:13px;line-height:1.6;margin-top:12px;color:#b91c1c;min-height:20px}
+  .gno{
+    display:inline-block;font-size:13px;color:var(--accent-text);background:rgba(99,102,241,.10);
+    border-radius:999px;padding:5px 14px;margin-bottom:18px;
+  }
+  .word{font-size:46px;font-weight:500;line-height:1.18;letter-spacing:.02em;margin-bottom:6px;
+    word-break:normal;overflow-wrap:break-word;hyphens:none}
+  .word-en{font-size:15px;color:var(--dim);margin-bottom:20px}
+  .hint{font-size:13px;color:var(--muted);line-height:1.7;border-top:1px dashed var(--panel-border);padding-top:14px}
+  .masked{font-size:17px;color:var(--muted);line-height:1.8;text-align:center;padding:16px 0}
+  .rules{margin-top:16px;font-size:12.5px;color:var(--dim);line-height:1.9}
+  .rules b{font-weight:500;color:var(--muted)}
+  .loading{font-size:14px;color:var(--muted);text-align:center;padding:26px 0}
+  .spin{display:inline-block;width:15px;height:15px;border:2px solid var(--panel-border);border-top-color:var(--accent);border-radius:50%;animation:sp .8s linear infinite;vertical-align:-2px;margin-right:8px}
+  @keyframes sp{to{transform:rotate(360deg)}}
+  @media (prefers-reduced-motion:no-preference){
+    .panel{animation:in .22s ease-out}
+    @keyframes in{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+  }
+</style>
+<script src="https://static.cloudbase.net/cloudbase-js-sdk/latest/cloudbase.full.js" defer></script>
+</head>
+<body>
+<header>
+  <div class="brand"><span class="dot"></span><span id="brand">投行卧底</span></div>
+  <button id="lang" type="button">EN</button>
+</header>
+<main><div class="panel" id="panel"></div></main>
+
+<script>
+(function () {
+  var ENV = 'ibank-d5gq5pejl54eb2748';
+  var REGION = 'ap-shanghai';
+  var KEY = 'eyJhbGciOiJSUzI1NiIsImtpZCI6IjRjNTAzMTA1LTJlOWItNDNiNC04ZjJiLWVlZGExOTAzMjVmZCJ9.eyJpc3MiOiJodHRwczovL2liYW5rLWQ1Z3E1cGVqbDU0ZWIyNzQ4LmFwLXNoYW5naGFpLnRjYi1hcGkudGVuY2VudGNsb3VkYXBpLmNvbSIsInN1YiI6ImFub24iLCJhdWQiOiJpYmFuay1kNWdxNXBlamw1NGViMjc0OCIsImV4cCI6NDA5NDc3MTY0NSwiaWF0IjoxNzkxMDg4NDQ1LCJub25jZSI6IjZJS1NFVDlWUXFpbXpqVzVNc0djQlEiLCJhdF9oYXNoIjoiNklLU0VUOVZRcWltempXNU1zR2NCUSIsIm5hbWUiOiJBbm9ueW1vdXMiLCJzY29wZSI6ImFub255bW91cyIsInByb2plY3RfaWQiOiJpYmFuay1kNWdxNXBlamw1NGViMjc0OCIsIm1ldGEiOnsicGxhdGZvcm0iOiJQdWJsaXNoYWJsZUtleSJ9LCJyb2xlIjoiYW5vbiIsImlzX2Fub255bW91cyI6dHJ1ZSwiYXBwX21ldGFkYXRhIjp7InByb3ZpZGVyIjoiYW5vbnltb3VzIiwicHJvdmlkZXJzIjpbImFub255bW91cyJdfSwidXNlcl9tZXRhZGF0YSI6eyJuYW1lIjoiQW5vbnltb3VzIn0sInVzZXJfdHlwZSI6IiIsImNsaWVudF90eXBlIjoiY2xpZW50X3VzZXIiLCJpc19zeXN0ZW1fYWRtaW4iOmZhbHNlfQ.V0BoXCLEhWRnvthNUSlBt3P6z-I4l90Kk6tH4rWx_kvxB2mNEU5iFVwfE-GbOeXl8fJzFvvzO0OGOlMj8O5vrJYfwKEbcyAEy5cTN5XZzicBP64P5OW0RiBKLcpAvs5uVxfMPVUb3lJAFuL6GwcR3vgiFYSmHdOStE-KOQ2YoXOiiHyx8iYcmMK6ahYupRhUtG-mXVWVivE-rnQyh83dnIxVfoZ37pBn9F3QYD7GBUV_YPlMwn2DpXw5fGXflX4K7SSP28ITrC30B45LwWzcIGQ-1yCq6B5wGAVciecT4ZiV6zWMBe-RQ95CATAedkXKXMzA0aZrmYX--6kHHEIxHQ';
+
+  var T = {
+    brand:   { zh: '投行卧底', en: 'IB Undercover' },
+    title:   { zh: '领你的词', en: 'Get your word' },
+    sub:     { zh: '输入卡片上的 6 位码。这个词只有你和同组的人看得到，看完请收起手机。', en: 'Enter the 6-character code on your card. Only you and your group can see it — put the phone away afterwards.' },
+    ph:      { zh: '输入 6 位码', en: '6-char code' },
+    go:      { zh: '查看我的词', en: 'Show my word' },
+    again:   { zh: '换一个码', en: 'Use another code' },
+    loading: { zh: '正在取词…', en: 'Fetching…' },
+    nonet:   { zh: '连不上服务器。检查一下网络，或直接看卡片上的字。', en: 'Cannot reach the server. Check your connection.' },
+    badcode: { zh: '没有这个码。对一下卡片上的 6 位，注意区分 0 和 o。', en: 'Code not found. Check the six characters on your card.' },
+    group:   { zh: '第 {n} 组', en: 'Group {n}' },
+    hint:    { zh: '别把屏幕给别人看，也别念出自己的词。轮到你时用一句话形容它，不许说出原词。', en: 'Do not show this screen or read the word aloud. When it is your turn, describe it in one sentence without saying it.' },
+    gotit:   { zh: '我记住了', en: 'Got it' },
+    masked:  { zh: '已收起。把手机扣在桌上，听别人怎么描述。', en: 'Hidden. Put the phone face down and listen.' },
+    rulesT:  { zh: '本局规则', en: 'How this round works' },
+    r1:      { zh: '大多数组拿到的是同一个词，只有一组拿到相近的另一个词。', en: 'Most groups share one word; only one group gets a near-synonym.' },
+    r2:      { zh: '没有谁知道自己是哪一组 —— 也不知道场上到底有几个异类。', en: 'Nobody knows which side they are on.' },
+    r3:      { zh: '每组说一句话，然后全班投票，票最多的那一组翻牌。', en: 'One sentence each, then the class votes and the top group is flipped.' },
+    r4:      { zh: '翻出来是卧底，平民赢；翻错了，卧底赢。', en: 'Hit the mole and the civilians win, miss and the mole wins.' }
+  };
+  var lang = (function () {
+    try { var v = localStorage.getItem('ibank_lang'); if (v === 'en') return 'en'; } catch (e) {}
+    return 'zh';
+  })();
+  function t(k, n) {
+    var s = (T[k] && (T[k][lang] || T[k].zh)) || k;
+    return n === undefined ? s : s.replace('{n}', n);
+  }
+
+  var panel = document.getElementById('panel');
+  var btnLang = document.getElementById('lang');
+  var db = null;
+  var state = { step: 'input', data: null };
+
+  function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+
+  /* 长词自动缩号：按「中日韩字算 1 个字宽、拉丁字母算 0.62 个字宽」估宽，
+     保证一行放得下；估不出就退回 46px，宁可换行也不截断 */
+  function fitWord(s) {
+    s = String(s || '');
+    var w = 0;
+    for (var i = 0; i < s.length; i++) {
+      w += /[\u3000-\u9fff\uff00-\uffef]/.test(s.charAt(i)) ? 1 : 0.62;
+    }
+    if (!w) return 46;
+    return Math.max(26, Math.min(46, Math.floor(310 / w)));
+  }
+
+  function paint() {
+    document.documentElement.lang = lang === 'en' ? 'en' : 'zh-CN';
+    document.getElementById('brand').textContent = t('brand');
+    btnLang.textContent = lang === 'en' ? '中' : 'EN';
+    if (state.step === 'input') {
+      panel.innerHTML = '<h1>' + esc(t('title')) + '</h1>'
+        + '<p class="sub">' + esc(t('sub')) + '</p>'
+        + '<input id="code" type="text" maxlength="8" placeholder="' + esc(t('ph')) + '" autocomplete="off" autocapitalize="off" spellcheck="false">'
+        + '<button class="btn" id="go">' + esc(t('go')) + '</button>'
+        + '<div class="msg" id="msg"></div>'
+        + rulesHtml();
+      var inp = document.getElementById('code');
+      var go = document.getElementById('go');
+      go.onclick = submit;
+      inp.onkeydown = function (e) { if (e.key === 'Enter') submit(); };
+      inp.oninput = function () { inp.value = inp.value.replace(/\s/g, '').toLowerCase(); };
+      setTimeout(function () { try { inp.focus(); } catch (e) {} }, 60);
+      if (state.err) document.getElementById('msg').textContent = state.err;
+    } else if (state.step === 'loading') {
+      panel.innerHTML = '<div class="loading"><span class="spin"></span>' + esc(t('loading')) + '</div>';
+    } else if (state.step === 'word') {
+      var d = state.data;
+      var big = (lang === 'en') ? d.word_en : d.word_zh;
+      /* 英文态只显示英文，与纸质号卡保持一致；中文课才附一行英文术语 */
+      panel.innerHTML = '<span class="gno">' + esc(t('group', d.seat)) + '</span>'
+        + '<div class="word" style="font-size:' + fitWord(big) + 'px">' + esc(big) + '</div>'
+        + (lang === 'en' ? '' : '<div class="word-en">' + esc(d.word_en) + '</div>')
+        + '<p class="hint">' + esc(t('hint')) + '</p>'
+        + '<button class="btn" id="got">' + esc(t('gotit')) + '</button>'
+        + '<button class="btn ghost" id="back">' + esc(t('again')) + '</button>';
+      document.getElementById('got').onclick = function () { state.step = 'masked'; paint(); };
+      document.getElementById('back').onclick = function () { state.step = 'input'; state.data = null; paint(); };
+    } else if (state.step === 'masked') {
+      panel.innerHTML = '<span class="gno">' + esc(t('group', state.data ? state.data.seat : 0)) + '</span>'
+        + '<div class="masked">' + esc(t('masked')) + '</div>'
+        + '<button class="btn ghost" id="back">' + esc(t('again')) + '</button>';
+      document.getElementById('back').onclick = function () { state.step = 'input'; state.data = null; paint(); };
+    }
+  }
+
+  function rulesHtml() {
+    return '<div class="rules"><b>' + esc(t('rulesT')) + '</b><br>'
+      + '· ' + esc(t('r1')) + '<br>'
+      + '· ' + esc(t('r2')) + '<br>'
+      + '· ' + esc(t('r3')) + '<br>'
+      + '· ' + esc(t('r4')) + '</div>';
+  }
+
+  function norm(x) {
+    if (Array.isArray(x)) return x[0] || null;
+    if (x && Array.isArray(x.data)) return x.data[0] || null;
+    if (x && x.data) return x.data;
+    if (x && x.seat) return x;
+    return null;
+  }
+
+  async function peek(token) {
+    if (db && typeof db.rpc === 'function') {
+      try {
+        var r = await db.rpc('uc_peek', { p_token: token });
+        if (r && !r.error) {
+          var d = norm(r);
+          if (d) return d;
+        }
+      } catch (e) {}
+    }
+    var res = await fetch('https://' + ENV + '.api.tcloudbasegateway.com/v1/rdb/rest/rpc/uc_peek', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + KEY },
+      body: JSON.stringify({ p_token: token })
+    });
+    if (!res.ok) throw new Error('http' + res.status);
+    return norm(await res.json());
+  }
+
+  async function submit() {
+    var inp = document.getElementById('code');
+    var code = (inp.value || '').trim().toLowerCase();
+    state.err = '';
+    if (code.length < 4) { state.err = t('badcode'); document.getElementById('msg').textContent = state.err; return; }
+    state.step = 'loading'; paint();
+    try {
+      var d = await peek(code);
+      if (!d) { state.step = 'input'; state.err = t('badcode'); paint(); return; }
+      state.data = { seat: d.seat, word_zh: d.word_zh, word_en: d.word_en };
+      state.step = 'word';
+      try { localStorage.setItem('uc_last', JSON.stringify({ c: code, at: Date.now() })); } catch (e) {}
+      paint();
+    } catch (e) {
+      state.step = 'input';
+      state.err = t('nonet') + (e && e.message ? ' (' + e.message + ')' : '');
+      paint();
+    }
+  }
+
+  btnLang.onclick = function () {
+    lang = lang === 'en' ? 'zh' : 'en';
+    try { localStorage.setItem('ibank_lang', lang); } catch (e) {}
+    paint();
+  };
+
+  paint();
+
+  function initCloud() {
+    try {
+      if (typeof cloudbase === 'undefined') { db = null; return; }
+      var app = cloudbase.init({ env: ENV, region: REGION, accessKey: KEY });
+      db = app.rdb();
+    } catch (e) { db = null; }
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initCloud);
+  } else {
+    initCloud();
+  }
+
+  var q = new URLSearchParams(location.search).get('t');
+  if (q) {
+    state.step = 'loading'; paint();
+    peek(q.trim().toLowerCase()).then(function (d) {
+      if (!d) { state.step = 'input'; state.err = t('badcode'); paint(); return; }
+      state.data = { seat: d.seat, word_zh: d.word_zh, word_en: d.word_en };
+      state.step = 'word'; paint();
+    }).catch(function (e) {
+      state.step = 'input'; state.err = t('nonet'); paint();
+    });
+  }
+})();
+</script>
+</body>
+</html>

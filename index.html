@@ -3623,6 +3623,9 @@ body.dark #p-game .blob{opacity:.16}
   <!-- 投行卧底（教师控场）：独立模块，自带双语表，不经 i18n-dict.js -->
   <script src="static/undercover.js"></script>
 
+  <!-- 二维码：只在「手机领词」模式用到。本地文件，不依赖 CDN（教室网络不可指望） -->
+  <script src="static/qrcode.min.js" defer></script>
+
   <!-- PWA:begin Service Worker 注册。只在 https / localhost 下生效：
        file:// 双击场景没有 navigator.serviceWorker，也不会走到这里；
        即使注册失败也不抛出到控制台红字，只在 warn 里留一行说明。 -->

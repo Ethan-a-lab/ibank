@@ -185,9 +185,26 @@
   }
   .uc-card .bot .cw{font-size:16pt;font-weight:800;line-height:1.25}
   .uc-card .bot .ce{font-size:8.5pt;color:#333;margin-top:1mm}
+  .uc-card .bot .ctok{
+    font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    font-size:23pt;font-weight:800;letter-spacing:4px;line-height:1.1;
+  }
   .uc-card .fold{
     position:absolute;left:0;right:0;bottom:1.5mm;text-align:center;
     font-size:6.5pt;color:#777;letter-spacing:2px;
   }
   .uc-sheet .sh-foot{margin-top:4mm;font-size:7.5pt;color:#333;display:flex;justify-content:space-between}
+}
+
+/* 学生扫码入口（手机领词模式） */
+#p-game .uc-qr{
+  display:flex;align-items:center;justify-content:center;
+  min-height:186px;padding:9px;margin:10px 0 8px;
+  background:#fff;border:1px solid var(--panel-border);border-radius:14px;
+}
+#p-game .uc-qr img,#p-game .uc-qr canvas{display:block;border:0}
+#p-game .uc-qr-url{
+  text-align:center;font-size:12px;color:var(--muted);line-height:1.6;
+  font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
+  word-break:break-all;margin-bottom:10px;
 }

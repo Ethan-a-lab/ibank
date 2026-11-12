@@ -15,7 +15,7 @@
  * 注意：Service Worker 只在 https 或 localhost 下生效；双击 file:// 打开时注册会被跳过。
  */
 
-const CACHE_VERSION = 'ibank-v11';   // v97：簿记簿行名改组号＋自动保存＋两段确认还原；申购区间口径改 1.50%—2.00%（index.html + bond-core.js），靠版本号把旧壳挤掉
+const CACHE_VERSION = 'ibank-v12';   // v103：新增学生领词页 uc.html 与本地二维码库 qrcode.min.js，靠版本号把旧壳挤掉
 const CACHE_NAME = `ibank-shell-${CACHE_VERSION}`;
 
 /* ★总开关：想把 PWA 停掉，只把这个 true 改成 false，然后推送一次。
@@ -37,6 +37,7 @@ const PRECACHE_URLS = [
   './',
   './index.html',
   './ibank-game.html',
+  './uc.html',
   './manifest.webmanifest',
   './static/app.css',
   './static/app-core.js',
@@ -46,6 +47,7 @@ const PRECACHE_URLS = [
   './static/i18n.js',
   './static/undercover.css',
   './static/undercover.js',
+  './static/qrcode.min.js',
   './static/mascot/panda.png',
   './static/mascot/panda@2x.png',
   './static/icons/icon-192.png',
