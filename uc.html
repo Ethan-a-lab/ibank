@@ -95,6 +95,7 @@
     loading: { zh: '正在取词…', en: 'Fetching…' },
     nonet:   { zh: '连不上服务器。检查一下网络，或直接看卡片上的字。', en: 'Cannot reach the server. Check your connection, or read the card.' },
     nologin: { zh: '服务端拒绝了这次取词。直接看卡片上的字，流程照常走。', en: 'The server refused this request. Read the word off your card instead.' },
+    stale:   { zh: '这台设备的登录已过期。回主站重新登录一次再来扫码，卡片上的字照常可用。', en: 'This device\'s session expired. Sign in again on the main site, then rescan. The card still works.' },
     badcode: { zh: '没有这个码。对一下卡片上的 6 位，都是小写字母和数字。', en: 'Code not found. Check the six characters — lowercase letters and digits.' },
     short:   { zh: '卡片上一共 6 位，再数一遍。', en: 'The code has 6 characters — count again.' },
     group:   { zh: '第 {n} 组', en: 'Group {n}' },
@@ -243,6 +244,21 @@
     return (typeof tk === 'string' ? tk : (tk && (tk.accessToken || tk.token))) || '';
   }
 
+  /* 这台设备的 localStorage 里是不是存着一个「真人账号」的会话。
+     CloudBase 的会话键 credentials_<env> / user_info_<env> 是同域名共用的，
+     本页一匿名登录就会覆盖掉主站的教师登录 —— 2026-11-12 就这么把老师变成了学生。
+     所以：只要发现存着真人账号，本页绝不匿名登录、也绝不 signOut。 */
+  function storedRealUser() {
+    try {
+      var raw = localStorage.getItem('user_info_' + ENV);
+      if (!raw) return false;
+      var o = JSON.parse(raw);
+      var c = (o && o.content) || o || {};
+      var sub = c.sub || (c.user && c.user.sub) || '';
+      return !!sub && sub !== 'anon';
+    } catch (e) { return false; }
+  }
+
   async function bootCloud(force) {
     if (!(await waitSDK(9000))) { authErr = 'nosdk'; return; }
     try {
@@ -250,8 +266,13 @@
         app = cloudbase.init({ env: ENV, region: REGION, accessKey: KEY });
         try { auth = app.auth({ persistence: 'local' }); } catch (e) { auth = app.auth(); }
       }
-      if (force) { try { await auth.signOut(); } catch (e) {} }
-      if (!isJustKey(await currentToken())) { authErr = ''; return; }   // 手里已经是真身份
+      /* 手里已经是真身份（教师账号 / 学生上次的匿名账号都算）→ 直接用，什么都不做。
+         ★这里不能有 signOut：一旦退掉，主站的教师登录也跟着没了。 */
+      if (!isJustKey(await currentToken())) { authErr = ''; return; }
+
+      /* 存着真人账号但拿不到有效 token（多半是过期了）：
+         宁可提示去主站重登，也不能用匿名身份把人家顶掉。 */
+      if (storedRealUser()) { authErr = 'stale'; return; }
 
       var r = await auth.signInAnonymously();
       if (r && r.error) { authErr = String(r.error.code || r.error.message || 'nologin'); return; }
@@ -265,7 +286,7 @@
   async function callPeek(token) {
     var at = await currentToken();
     if (!at || isJustKey(at)) {
-      var e0 = new Error('auth');
+      var e0 = new Error(authErr === 'stale' ? 'stale' : 'auth');
       e0.raw = authErr || ('only-key:' + (at ? '1' : '0'));
       throw e0;
     }
@@ -316,9 +337,9 @@
   function failText(e) {
     var m = String((e && e.message) || '');
     var raw = String((e && e.raw) || '');
-    var txt = t(m === 'auth' ? 'nologin' : 'nonet');
+    var txt = t(m === 'auth' ? 'nologin' : (m === 'stale' ? 'stale' : 'nonet'));
     if (DBG) return txt + ' [' + String(raw || m || 'unknown').slice(0, 90) + ']';
-    return txt + (m && m !== 'auth' ? ' (' + m + ')' : '');
+    return txt + (m && m !== 'auth' && m !== 'stale' ? ' (' + m + ')' : '');
   }
 
   async function submit() {

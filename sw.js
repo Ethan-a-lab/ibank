@@ -15,7 +15,7 @@
  * 注意：Service Worker 只在 https 或 localhost 下生效；双击 file:// 打开时注册会被跳过。
  */
 
-const CACHE_VERSION = 'ibank-v14';   // v104：学生页加会话自愈（旧会话失效时清掉重登再试）
+const CACHE_VERSION = 'ibank-v15';   // v105：学生页不再 signOut 抢主站登录，主站拒绝把匿名身份当学生
 const CACHE_NAME = `ibank-shell-${CACHE_VERSION}`;
 
 /* ★总开关：想把 PWA 停掉，只把这个 true 改成 false，然后推送一次。

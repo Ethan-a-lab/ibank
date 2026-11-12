@@ -77,9 +77,53 @@
         catch (e) { return null; }
       }
 
+      /* 身份是不是「匿名登录」留下的（学生领词页用的就是匿名身份）。
+         为什么必须单独判一次：CloudBase 的会话存在固定键
+         `credentials_<env>` / `user_info_<env>` 里，同一域名下所有页面共用。
+         学生页一旦匿名登录，主站读到的就是那个匿名 uid；它没有 profiles 记录，
+         走「自愈补建」就会插一条 role=student 的空档，于是教师被显示成「同学 / 学生」。
+         2026-11-12 真实事故：教师在自己的电脑上变成了学生。 */
+      function decodeJwt(t) {
+        try {
+          const b = String(t || '').replace(/^Bearer\s+/i, '').split('.')[1];
+          if (!b) return null;
+          const s = b.replace(/-/g, '+').replace(/_/g, '/');
+          const pad = s + '==='.slice((s.length + 3) % 4);
+          return JSON.parse(atob(pad));
+        } catch (e) { return null; }
+      }
+
+      async function isAnonymousSession() {
+        if (OFFLINE) return false;
+        try {
+          const tk = await auth.getAccessToken();
+          const raw = typeof tk === 'string' ? tk : (tk && (tk.accessToken || tk.token));
+          const o = decodeJwt(raw);
+          if (!o) return false;
+          return o.sub === 'anon' || o.is_anonymous === true || o.role === 'anon';
+        } catch (e) { return false; }
+      }
+
+      /* 清掉云服务会话：先让 SDK 自己退，再兜底抹掉它写的那几个键。
+         signOut 偶尔会「静默失败」（网络抖动 / 会话已失效时最容易），
+         失败后页面一刷新又是登录态，表现就是「退出登录按了没反应」。
+         ★只清 credentials_/user_info_/login_state_ 这几类，绝不碰 ibank_ 开头的学习数据。 */
+      function clearCloudKeys() {
+        try {
+          const kill = [];
+          for (let i = 0; i < localStorage.length; i++) {
+            const k = localStorage.key(i) || '';
+            if (/^(credentials_|user_info_|login_state_|auth_)/i.test(k)) kill.push(k);
+          }
+          kill.forEach(function (k) { localStorage.removeItem(k); });
+          return kill.length;
+        } catch (e) { return -1; }
+      }
+
       // 自愈：登录后发现 profiles 无记录（老账号/后台误删），自动补建学生行
       async function ensureProfile(uid) {
         if (OFFLINE) return { role: 'student', name: '演示同学' };
+        if (await isAnonymousSession()) return { role: 'student', name: '' };  // 匿名身份不建档
         try {
           const { data } = await db.from('profiles').select('id, role, name').eq('id', uid);
           if (!data || data.length === 0) {
@@ -2669,6 +2713,18 @@ const actSrc = login.length ? login : study.concat(quiz, mod, qa);
           return;
         }
         const uid = await getUserId();
+        /* 匿名身份不算「登录」：不给它建学生档，也不让它顶替教师显示。
+           清掉它就回到未登录态，用户点「登录」用真账号进。 */
+        if (uid && await isAnonymousSession()) {
+          try { await auth.signOut(); } catch (e) {}
+          clearCloudKeys();
+          applyRole('student');
+          overlay.classList.add('hidden');
+          loginTopBtn.classList.remove('hidden');
+          logoutBtn.classList.add('hidden');
+          navAccount.classList.add('hidden');
+          return;
+        }
         if (uid) {
           await onLoggedIn();
         } else {
@@ -2682,8 +2738,23 @@ const actSrc = login.length ? login : study.concat(quiz, mod, qa);
 
       logoutBtn.addEventListener('click', async function () {
         try { await auth.signOut(); } catch (e) {}
+        clearCloudKeys();          // 兜底：SDK 没清干净时，别让页面一刷新又「登录着」
         location.reload();
       });
+
+      /* 应急出口：地址栏加 ?logout=1 直接清会话并回到未登录态。
+         用在「按了退出登录没反应」的时候，不依赖按钮是否还活着。 */
+      try {
+        if (/[?&]logout=1\b/.test(location.search)) {
+          (async function () {
+            try { await auth.signOut(); } catch (e) {}
+            clearCloudKeys();
+            const u = new URL(location.href);
+            u.searchParams.delete('logout');
+            location.replace(u.toString());
+          })();
+        }
+      } catch (e) {}
 
       document.querySelectorAll('.login-tabs button').forEach(function (b) {
         b.addEventListener('click', function () {
