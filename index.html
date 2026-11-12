@@ -135,7 +135,7 @@
             <button class="tab-btn" data-page="p-ipo"><span class="dd-name">IPO 定价配售仿真</span><span class="dd-desc">科创板询价、定价与配售全流程</span></button>
             <button class="tab-btn" data-page="p-valuation"><span class="dd-name">企业估值实验</span><span class="dd-desc">市盈率法与现金流折现联动</span></button>
             <button class="tab-btn" data-page="p-bond"><span class="dd-name">债券簿记建档仿真</span><span class="dd-desc">亲手定出一个票面利率</span></button>
-            <button class="tab-btn" data-page="p-game"><span class="dd-name">投行梗学闯关</span><span class="dd-desc">8 关全解锁 · 每关 4 题 · 离线可玩</span></button>
+            <button class="tab-btn" data-page="p-game"><span class="dd-name">玩转投行</span><span class="dd-desc">梗学闯关 · 投行卧底 · 时点三连</span></button>
           </div>
         </div>
 
@@ -218,7 +218,7 @@
           <div class="home-card" data-page="p-macro"><div class="ico">🌐</div><h4>宏观市场</h4><p>美元 · 黄金 · 股票 · 美债联动解读</p><span class="go">进入 →</span></div>
           <div class="home-card" data-page="p-sim"><div class="ico">📈</div><h4>股市模拟</h4><p>虚拟盘实战交易，体验市场博弈</p><span class="go">进入 →</span></div>
           <div class="home-card" data-page="p-sizheng"><div class="ico">🎓</div><h4>课程思政</h4><p>立德树人 · 金融强国价值引领</p><span class="go">进入 →</span></div>
-          <div class="home-card" data-page="p-game"><div class="ico">🎮</div><h4>投行梗学闯关</h4><p>8 关全部开放，想做哪关做哪关；每关 4 题，顺序随机</p><span class="go">开玩 →</span></div>
+          <div class="home-card" data-page="p-game"><div class="ico">🎮</div><h4>玩转投行</h4><p>三种玩法并列：梗学闯关 8 关全开放、投行卧底、时点三连</p><span class="go">开玩 →</span></div>
           <div class="home-card is-locked" data-page="p-admin" data-lock="teacher"><div class="ico">🗂️</div><h4>教师后台<i class="hc-tag">教师端</i></h4><p>班级学情看板、模块使用占比与五维达成率汇总</p><span class="go">需教师账号</span></div>
         </div>
       </div>
@@ -651,7 +651,7 @@
 
     <!-- ⑧ 企业估值实操实验 -->
     
-<!-- ==== 投行梗学闯关：由 ibank-game.html 内嵌，样式已作用域化到 #p-game ==== -->
+<!-- ==== 玩转投行（原「投行梗学闯关」）：由 ibank-game.html 内嵌，样式已作用域化到 #p-game ==== -->
 <style id="ibkg-style">
 #p-game{
     --bg:#f6f7fb; --panel:rgba(255,255,255,.9); --panel-solid:#fff;
@@ -750,7 +750,45 @@ body.dark #p-game .blob{opacity:.16}
 #p-game .sec h2{font-size:15.5px;font-weight:700}
 #p-game .sec .more{margin-left:auto;font-size:12.5px;color:var(--muted);font-weight:600}
 #p-game .sec .more:hover{color:var(--accent-text)}
+/* 「梗学闯关」的 8 关：从属于上面那张玩法卡，做成二级面板（淡紫底 + 细边），
+   免得标题「关卡地图」看着像与「三种玩法」平级的第四块内容。
+   滚动定位时避让固定导航的偏移量由 goLevels() 按 .navbar 实测高度算，
+   不写死 CSS 数值——桌面 65px、手机 99px，写死会在其中一端遮住标题行 */
+#p-game .mode-panel{
+    margin-top:12px;padding:14px 15px 15px;border-radius:18px;
+    background:linear-gradient(180deg,rgba(99,102,241,.07),rgba(99,102,241,.028));
+    border:1px solid rgba(99,102,241,.17);
+  }
+body.dark #p-game .mode-panel{
+    background:linear-gradient(180deg,rgba(129,140,248,.10),rgba(129,140,248,.035));
+    border-color:rgba(129,140,248,.22);
+  }
+#p-game .mp-head{display:flex;align-items:flex-start;gap:10px;margin:0 0 13px}
+#p-game .mp-ico{
+    width:30px;height:30px;border-radius:10px;flex:none;display:flex;align-items:center;justify-content:center;
+    font-size:15px;background:var(--panel-solid);border:1px solid var(--panel-border);
+  }
+#p-game .mp-tt{flex:1;min-width:0}
+#p-game .mp-tt h2{font-size:14px;font-weight:700;line-height:1.35}
+#p-game .mp-tt p{font-size:11.5px;color:var(--muted);line-height:1.6;margin-top:3px}
+#p-game .mp-more{font-size:12.5px;color:var(--muted);font-weight:600;flex:none;padding-top:3px}
 #p-game .levels{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+/* 三种玩法并列：三列等宽卡片，窄屏自动落成一列 */
+#p-game .modes{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+#p-game .mode{
+    display:flex;flex-direction:column;align-items:flex-start;gap:8px;text-align:left;
+    padding:15px 16px;border-radius:14px;background:var(--panel);border:1px solid var(--panel-border);
+    transition:.2s;overflow:hidden;
+  }
+#p-game .mode:hover{transform:translateY(-2px);border-color:var(--accent);box-shadow:var(--shadow-md)}
+#p-game .mode .m-ico{
+    width:40px;height:40px;border-radius:12px;flex:none;display:flex;align-items:center;justify-content:center;
+    font-size:19px;background:linear-gradient(135deg,rgba(79,70,229,.14),rgba(124,58,237,.10));
+    border:1px solid var(--panel-border);
+  }
+#p-game .mode h3{font-size:13.5px;font-weight:700;line-height:1.45}
+#p-game .mode p{font-size:11.5px;color:var(--muted);line-height:1.6;flex:1;min-height:2.6em}
+#p-game .mode .pill{align-self:flex-start;margin-top:2px}
 #p-game .lv{
     position:relative;text-align:left;padding:15px 16px;border-radius:14px;
     background:var(--panel);border:1px solid var(--panel-border);
@@ -922,7 +960,11 @@ body.dark #p-game .blob{opacity:.16}
 @keyframes ibkg-tin{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
 #p-game .empty{text-align:center;padding:40px 20px;color:var(--muted);font-size:13px}
 @media(max-width:640px){#p-game .wrap{padding:0 14px 50px}
+/* 手机上导航折成两行（99px 高），topbar 也是 sticky top:0、z-index 更低，
+   滚动时会露出半截被切掉的「返回课程」文字，这里让它跟着内容滚走 */
+#p-game .topbar{position:static}
 #p-game .levels{grid-template-columns:1fr}
+#p-game .modes{grid-template-columns:1fr}
 #p-game .ach-grid{grid-template-columns:1fr}
 #p-game .brand{font-size:13.5px}
 #p-game .stem{font-size:15px}
@@ -938,7 +980,7 @@ body.dark #p-game .blob{opacity:.16}
 <div class="wrap">
   <div class="topbar">
     <button class="back" type="button" data-goto="p-home" aria-label="返回课程"><span class="ar">←</span><span class="bt">返回课程</span></button>
-    <div class="brand"><span class="dot"></span><span>投行梗学闯关</span></div>
+    <div class="brand"><span class="dot"></span><span>玩转投行</span></div>
     <div class="stat-chip" id="c-gold">💰 0</div>
     <button class="icon-btn" id="c-theme" title="切换深浅色">🌙</button>
   </div>
@@ -958,8 +1000,41 @@ body.dark #p-game .blob{opacity:.16}
       <div class="hero-foot"><span id="h-foot-l">距下一段位还需 500 金币</span><span id="h-foot-r">0%</span></div>
     </div>
 
-    <div class="sec"><span class="bar"></span><h2>关卡地图</h2><span class="more" id="h-cleared">0 / 8 关</span></div>
-    <div class="levels" id="levels"></div>
+    <!-- 三种玩法并列：梗学闯关（本页 8 关）／投行卧底／时点三连 -->
+    <div class="sec"><span class="bar"></span><h2>三种玩法</h2><span class="more">点卡片进入</span></div>
+    <div class="modes">
+      <button class="mode" type="button" id="btn-meme" onclick="goLevels()">
+        <div class="m-ico">🎓</div>
+        <h3>梗学闯关</h3>
+        <p>一关一个梗，把投行概念嚼碎</p>
+        <span class="pill">下方 8 关 ↓</span>
+      </button>
+      <button class="mode" type="button" id="btn-uc" onclick="UC.go()">
+        <div class="m-ico">🕵️</div>
+        <h3 id="uc-e-name">投行卧底 · 12 组对抗</h3>
+        <p id="uc-e-sub">发词卡、轮着描述、投票翻牌，一局 5 分钟</p>
+        <span class="pill" id="uc-e-pill">开场</span>
+      </button>
+      <button class="mode" type="button" id="btn-tl" onclick="TL.go()">
+        <div class="m-ico">📈</div>
+        <h3 id="tl-e-name">时点三连 · 拍档猜价</h3>
+        <p id="tl-e-sub">同一家公司三次要钱，每轮多给一条信息，改一次价</p>
+        <span class="pill" id="tl-e-pill">开场</span>
+      </button>
+    </div>
+
+    <!-- 梗学闯关的 8 关：属于上面那张玩法卡，做成二级面板，不与「三种玩法」平级 -->
+    <div class="mode-panel" id="lv-map">
+      <div class="mp-head">
+        <span class="mp-ico">🎓</span>
+        <div class="mp-tt">
+          <h2>梗学闯关 · 关卡地图</h2>
+          <p>8 关全开放，想做哪关做哪关；每关 4 题，顺序随机</p>
+        </div>
+        <span class="mp-more" id="h-cleared">0 / 8 关</span>
+      </div>
+      <div class="levels" id="levels"></div>
+    </div>
 
     <div class="sec"><span class="bar"></span><h2>每日挑战</h2><span class="more" id="daily-date"></span></div>
     <button class="daily" id="btn-daily">
@@ -969,24 +1044,6 @@ body.dark #p-game .blob{opacity:.16}
         <p id="d-sub">题目由题模实时生成，同一考点换一组数字</p>
       </div>
       <span class="pill" id="d-pill">开始</span>
-    </button>
-
-    <div class="sec"><span class="bar"></span><h2 id="uc-e-sec">课堂活动</h2><span class="more" id="uc-e-tag">教师控场</span></div>
-    <button class="daily" id="btn-uc" onclick="UC.go()">
-      <div class="d-ico">🕵️</div>
-      <div class="d-body">
-        <h3 id="uc-e-name">投行卧底 · 12 组对抗</h3>
-        <p id="uc-e-sub">发词卡、轮着描述、投票翻牌，一局 5 分钟</p>
-      </div>
-      <span class="pill" id="uc-e-pill">开场</span>
-    </button>
-    <button class="daily" id="btn-tl" onclick="TL.go()">
-      <div class="d-ico">📈</div>
-      <div class="d-body">
-        <h3 id="tl-e-name">时点三连 · 拍档猜价</h3>
-        <p id="tl-e-sub">同一家公司三次要钱，每轮多给一条信息，改一次价</p>
-      </div>
-      <span class="pill" id="tl-e-pill">开场</span>
     </button>
 
     <div class="sec"><span class="bar"></span><h2>我的收藏</h2></div>
@@ -1551,6 +1608,20 @@ body.dark #p-game .blob{opacity:.16}
     }
     return a.slice(0, Math.min(n, a.length));
   }
+
+  /* 点「梗学闯关」卡片：滚到它下面的 8 关面板。
+     原来用 scrollIntoView({block:'start'})，面板标题会正好顶到视口 0 位、
+     被 65px（手机 99px）的固定导航盖住，学生落地只看见 8 张关卡卡、不知道自己在哪个游戏里。
+     这里按导航实测高度留 16px 呼吸位，换视口/换语言换行导致导航变高也不会再遮。 */
+  function goLevels() {
+    var t = document.getElementById('lv-map');
+    if (!t) return;
+    var nb = document.querySelector('.navbar');
+    var off = (nb ? nb.getBoundingClientRect().height : 0) + 16;
+    var top = t.getBoundingClientRect().top + (window.pageYOffset || document.documentElement.scrollTop || 0) - off;
+    window.scrollTo({ top: Math.max(0, top), behavior: 'smooth' });
+  }
+  window.goLevels = goLevels;
 
   function startLevel(no) {
     var pool = [];

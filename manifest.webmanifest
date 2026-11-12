@@ -1,7 +1,7 @@
 {
   "name": "iBank平台 · 投资银行学智慧课堂",
   "short_name": "iBank",
-  "description": "《投资银行学》智慧教学平台：课程导航、互动题库、案例数据与投行梗学闯关。",
+  "description": "《投资银行学》智慧教学平台：课程导航、互动题库、案例数据与玩转投行（三种玩法）。",
   "lang": "zh-CN",
   "dir": "ltr",
   "start_url": "./?source=pwa",
@@ -41,8 +41,8 @@
       "icons": [{ "src": "static/icons/icon-192.png", "sizes": "192x192" }]
     },
     {
-      "name": "投行梗学闯关",
-      "short_name": "梗学闯关",
+      "name": "玩转投行",
+      "short_name": "玩转投行",
       "url": "./ibank-game.html?source=pwa-shortcut",
       "icons": [{ "src": "static/icons/icon-192.png", "sizes": "192x192" }]
     }
