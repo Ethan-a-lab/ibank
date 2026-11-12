@@ -36,60 +36,60 @@
     tag:       { zh: '教师控场', en: 'Teacher-led' },
     pill:      { zh: '开场', en: 'Open' },
     ename:     { zh: '时点三连 · 三轮报价', en: 'Three Eras · Three Rounds of Bidding' },
-    esub:      { zh: '同一家公司四轮融资，每轮多给一条信息，重报一次价', en: 'One company, three fundraisings; one new clue each round, one re-quote' },
+    esub:      { zh: '同一家公司四次融资，每轮多给一条信息，可以改一次价', en: 'One company, four fundraisings; one new clue each round, one re-quote' },
 
     rules_h:   { zh: '开组前 · 30 秒说清规则', en: 'Before you start · 30-second rules' },
-    rules_1:   { zh: '大屏给一道题和一条定价基准。各组报一个具体数字，再说一句依据——凭什么报这个数。教师按组号记下，档位由数字自动折算。', en: 'The screen shows one question and one pricing anchor. Each group calls a specific number and states its reason; the teacher records it by group and the band is derived from that number.' },
+    rules_1:   { zh: '大屏给一道题和一个参考数。各组报一个具体数字，再说一句为什么报这个数。教师按组号记下，系统自动归到第几档。', en: 'The screen shows one question and one reference number. Each group calls a number and says why. The teacher records it by group; the band is worked out automatically.' },
     rules_2:   { zh: '每轮 60 秒，会多亮一条信息。可以改价，也可以不改。', en: 'Each round reveals one more clue. You may change your call or keep it.' },
     rules_3:   { zh: '三轮后翻出真实结果：报价离它隔几档，就记几分，三题累计越低越好。', en: 'After three rounds the actual result flips. Your score is how many bands away you are; lowest total across three questions wins.' },
-    rules_4:   { zh: '每次报价都会自动留在本机，作为「先承诺后教学」的增值基线，不用另填问卷。', en: 'Every quote is saved locally as the pre-teaching baseline. No extra form to fill in.' },
-    start:     { zh: '开始正赛', en: 'Start the round' },
+    rules_4:   { zh: '每次报的数都自动存在这台电脑里，讲完可以回头比第一次报了多少，不用另填问卷。', en: 'Every number is saved on this computer, so you can compare it with your first call later. No extra form to fill in.' },
+    start:     { zh: '开始答题', en: 'Start' },
     rounds:    { zh: '本组轮数', en: 'Rounds' },
     group:     { zh: '第 {1} 组题', en: 'Set {1}' },
     qof:       { zh: '第 {1} / 3 题', en: 'Question {1} of 3' },
     rof:       { zh: '第 {1} 轮 / 共 {2} 轮', en: 'Round {1} of {2}' },
     what:      { zh: '本轮报价', en: 'Your quote' },
-    base_h:    { zh: '定价基准', en: 'Pricing anchor' },
+    base_h:    { zh: '参考数', en: 'Reference number' },
     quote_h:   { zh: '各组报价 · 填数字，回车跳下一组', en: 'Quote per group · type a number, Enter jumps to the next' },
     in_ph:     { zh: '填数', en: 'quote' },
-    dev_hi:    { zh: '高于基准', en: 'above anchor' },
-    dev_lo:    { zh: '低于基准', en: 'below anchor' },
-    dev_eq:    { zh: '等于基准', en: 'on the anchor' },
-    gap_h:     { zh: '全班中位数 vs 真值', en: 'Class median vs actual' },
-    gap_same:  { zh: '中位数正好落在真值上', en: 'The median lands right on the actual' },
+    dev_hi:    { zh: '比参考数高', en: 'above the reference' },
+    dev_lo:    { zh: '比参考数低', en: 'below the reference' },
+    dev_eq:    { zh: '正好等于参考数', en: 'on the reference' },
+    gap_h:     { zh: '全班中位数 → 真实结果', en: 'Class median → actual result' },
+    gap_same:  { zh: '全班中位数正好等于真实结果', en: 'The median equals the actual result' },
     unit:      { zh: '单位', en: 'Unit' },
-    brush:     { zh: '选一个档位，再点组号（可连点）', en: 'Pick a band, then tap group numbers (you can tap several in a row)' },
+    brush:     { zh: '先选一档，再点组号（可连点）', en: 'Pick a band, then tap group numbers (you can tap several in a row)' },
     seats:     { zh: '11 组本轮的档位', en: 'Bands for the 11 groups' },
     unset:     { zh: '未报', en: 'No bid' },
     clue:      { zh: '本轮新信息', en: 'New clue this round' },
-    clue0:     { zh: '起始情境', en: 'Starting context' },
-    lock:      { zh: '锁定本轮 · 看轨迹', en: 'Lock this round' },
+    clue0:     { zh: '题目背景', en: 'Background' },
+    lock:      { zh: '锁定本轮 · 看报价怎么变', en: 'Lock this round' },
     lock2:     { zh: '锁定本轮 · 下一轮', en: 'Lock this round' },
     need:      { zh: '还有 {1} 组没报价', en: '{1} groups have not quoted yet' },
-    inherit:   { zh: '本轮默认继承上轮，只点要改的组即可', en: 'Carries over from last round; tap only the groups that change' },
+    inherit:   { zh: '上一轮的数自动带过来，只改要改的组就行', en: 'Last round carries over; change only the groups that need it' },
 
     reveal_h:  { zh: '揭晓 · 真实结果', en: 'Reveal · the actual result' },
-    truth:     { zh: '真值', en: 'Actual' },
+    truth:     { zh: '真实结果', en: 'Actual result' },
     talk_h:    { zh: '讲评一句话', en: 'Debrief in one line' },
-    evi_h:     { zh: '证据卡（底稿原始数据）', en: 'Evidence card (source figures)' },
-    trail_h:   { zh: '全班判断怎么走', en: 'How the class moved' },
-    median:    { zh: '全班中位数', en: 'Class median' },
+    evi_h:     { zh: '证据卡（公告里的原始数字）', en: 'Evidence card (published figures)' },
+    trail_h:   { zh: '全班报价怎么变', en: 'How the class moved' },
+    median:    { zh: '全班中位数（排在正中间那个）', en: 'Class median (the middle number)' },
     bestmove:  { zh: '最会改', en: 'Best correction' },
-    target:    { zh: '真值档', en: 'True band' },
+    target:    { zh: '答案在第几档', en: 'Answer band' },
     score_h:   { zh: '本题记分（格数越小越好）', en: 'Score this question (fewer bands is better)' },
     total:     { zh: '累计', en: 'Total' },
     mostmove:  { zh: '最会改：{1}', en: 'Best correction: {1}' },
     stubborn:  { zh: '一动不动：{1}', en: 'Never moved: {1}' },
     none:      { zh: '无', en: 'None' },
     nextq:     { zh: '下一题', en: 'Next question' },
-    summary:   { zh: '本组收官 · 三时点对照', en: 'Set complete · three eras compared' },
+    summary:   { zh: '本组小结 · 三次融资对照', en: 'Set summary · three fundraisings compared' },
 
     cmp_h:     { zh: '同一家公司，不同的定价权', en: 'One company, different pricing power' },
-    kp_h:      { zh: '本组要点 · 三个公式', en: 'Debrief · three formulas' },
-    kp_c1:     { zh: '概念', en: 'Concept' },
+    kp_h:      { zh: '本组要点 · 三个算法', en: 'Key takeaways · three calculations' },
+    kp_c1:     { zh: '算什么', en: 'What it works out' },
     kp_c2:     { zh: '怎么算', en: 'Formula' },
-    kp_c3:     { zh: '本题数字代入', en: 'This set, worked' },
-    kp_note:   { zh: '这三个数都是刚才你们自己报过的题，换成一算就出来了。', en: 'All three come from the numbers you just called.' },
+    kp_c3:     { zh: '把本题的数放进去', en: 'With this set of numbers' },
+    kp_note:   { zh: '这三个数都来自刚才做过的题，换个问法一算就出来。', en: 'All three come from the questions you just answered.' },
     c1:        { zh: '年份', en: 'Year' },
     c2:        { zh: '方式', en: 'Instrument' },
     c3:        { zh: '对面是谁（谁出钱）', en: 'Who pays' },
@@ -102,8 +102,8 @@
     again2:    { zh: '两组都打完了 · 回到首页', en: 'Both sets done · back home' },
     reset:     { zh: '清空本机记录', en: 'Clear local record' },
     reset2:    { zh: '确认清空？再点一次', en: 'Confirm clear? Tap again' },
-    g2:        { zh: '第 2 组 · 换个量纲再看一次', en: 'Set 2 · the same eras, different measures' },
-    g1:        { zh: '第 1 组 · 三条股权融资路', en: 'Set 1 · three equity routes' },
+    g2:        { zh: '第 2 组 · 同样的年份，改问另一个数', en: 'Set 2 · the same years, a different number' },
+    g1:        { zh: '第 1 组 · 三次卖股票找钱', en: 'Set 1 · three ways of selling shares' },
     keep:      { zh: '上一组比分保留，累计计分', en: 'Previous scores kept; totals accumulate' },
     done:      { zh: '已打完的题', en: 'Questions played' },
     gname:     { zh: '第 {1} 组', en: 'Group {1}' },
@@ -126,201 +126,201 @@
     [
       {
         id: '2011', year: '2011',
-        way: { zh: 'A 股 IPO · 询价制', en: 'A-share IPO · book building' },
-        who: { zh: '境内询价机构', en: 'Domestic institutional bidders' },
-        audit: { zh: '证监会发审委 · 数月', en: 'CSRC review · months' },
-        q: { zh: '2011 年比亚迪回 A 股，走网下询价。询价单上你这一栏填多少元？', en: 'BYD returns to the A-share market in 2011 via book building. What do you write on your bid form?' },
+        way: { zh: '国内上市 · 先问机构肯出多少', en: 'A-share IPO · book building' },
+        who: { zh: '国内的大机构（基金、券商）', en: 'Domestic institutional bidders' },
+        audit: { zh: '监管部门审批 · 几个月', en: 'CSRC review · months' },
+        q: { zh: '2011 年比亚迪回 国内上市，要先问一圈机构愿意出多少钱。你这一栏填多少元？', en: 'BYD returns to the A-share market in 2011. Institutions are first asked what they would pay. What number do you write?' },
         unit: { zh: '元 / 股', en: 'CNY / share' },
         bands: ['≤15', '15–18', '18–21', '21–24', '24–27', '27–30', '≥30'],
         target: 3,
-        base: { v: 27.75, note: { zh: '募满价 21.92 亿 ÷ 7,900 万股 = 27.75 元。报在它上面募资够数、但可能卖不掉；报在下面就是主动少募。', en: 'Full-cover price: CNY 2.192bn ÷ 79m shares = 27.75. Above it the deal is covered but may not clear; below it you are choosing to raise less.' } },
+        base: { v: 27.75, note: { zh: '要想募够 21.92 亿，每股得卖 21.92 亿 ÷ 7,900 万股 = 27.75 元。这只是按计划算出来的数，不是真成交价。同一天买方报价从 8 元到 22 元、多数在 20 元以下——你要报的是买方肯掏的数，别贴着计划价往上写。', en: 'Full-cover price: CNY 2.192bn ÷ 79m shares = 27.75 — a teaching reference for a fully raised plan, not a traded price. Buyers bid from 8.00 to 22.00 that day, mostly below 20. Quote what buyers will pay, not the plan price.' } },
         tv: 18.00,
         dec: 2,
         truth: { zh: '18.00 元 / 股', en: '18.00 CNY / share' },
         info: [
-          { zh: '2011 年，比亚迪回 A 股，深交所中小板、询价制；招股书拟募 21.92 亿元，计划发行 7,900 万股（占发行后总股本 3.36%）。',
+          { zh: '2011 年，比亚迪回 国内上市；上市材料里写计划募 21.92 亿元，计划发行 7,900 万股。',
             en: '2011: BYD lists on the Shenzhen SME board via book building. The prospectus plans to raise CNY 2.192bn by issuing 79m shares (3.36% of enlarged capital).' },
-          { zh: '主承销商带机构询价后，给出的估值区间是 21.08—30.81 元。',
-            en: 'The lead underwriter runs institutional book building and sets a valuation range of CNY 21.08–30.81.' },
-          { zh: '2011 年 A 股估值整体下行；网下 89 个配售对象报价从 8.00 元到 22.00 元（国泰君安、长江证券报 8 元，兴业基金报 22 元），最高比最低高 1.75 倍。',
-            en: 'A-share valuations fall through 2011. Bids from 89 offline placees range from CNY 8.00 to 22.00 — the top is 1.75x the bottom.' }
+          { zh: '帮它卖股票的那家券商写了份估值报告，觉得每股值 21.08—30.81 元，向机构介绍完后建议卖 22 元；这只是券商估的范围，不是让大家照着报的价。那阵子新股一上市就比发行价低，很常见，比亚迪的港股已从 88 港元跌到 22.95 港元。',
+            en: 'The valuation report of the lead underwriter gives a fair-value range of CNY 21.08–30.81 and recommends 22 after the roadshow — a valuation range, not a bidding range. New issues were breaking price at the time and BYD H-shares had fallen from HKD 88 to 22.95.' },
+          { zh: '2011 年国内股市整体变便宜；来报价的 89 家机构，报价从 8.00 元到 22.00 元（国泰君安、长江证券报 8 元，兴业基金报 22 元），最高比最低高 1.75 倍。公司表态「要让价，而且不是让 1 元、2 元」，宁愿少收钱也要把价降到买方肯出的一侧。',
+            en: 'A-share valuations fall through 2011. Bids from 89 offline placees range from CNY 8.00 to 22.00 — the top is 1.75x the bottom. The issuer says it must give on price, and not by one or two yuan, accepting a smaller raise to meet buyers.' }
         ],
-        reveal: { zh: '18.00 元/股，实募 14.22 亿元（净额 13.54 亿元）——比估值区间下沿还低约 15%，比计划少募 7.70 亿元、缺口 35%；有效报价 7,700 万股，是网下发行量 1,500 万股的 5.13 倍。',
+        reveal: { zh: '最后卖 18.00 元/股，一共收到 14.22 亿元（扣掉费用到手 13.54 亿元）——比券商估的最低价还低约 15%，比计划少收 7.70 亿元、少了 35%；出价不低于 18 元的申报有 7,700 万股，是给机构那部分 1,500 万股的 5.13 倍。',
           en: 'CNY 18.00 per share; gross proceeds CNY 1.422bn (net 1.354bn) — about 15% below the bottom of the valuation range, 35% short of plan. Eligible bids of 77m shares were 5.13x the 15m offered offline.' },
-        talk: { zh: '区间是承销商报的，价是买方给的。第 2 轮一亮区间，多数人往高处挪，真值却比下沿还低 15%。同一天 89 个配售对象从 8 元报到 22 元，他们自己也没算齐——定价权在出钱的人手里，议价能力取决于谁更等得起。',
-          en: 'The underwriter proposes the range; buyers set the price. Once the range appears, most guesses drift upward — yet the truth sits 15% below its floor. 89 offline placees bid from 8.00 to 22.00 the same day. Pricing power sits with the buyer; bargaining power depends on who can wait.' },
+        talk: { zh: '估值范围是券商报的，最后卖多少钱是买方说了算，真实结果比券商估的最低价还低约 15%。同一天 89 家机构从 8 元报到 22 元，连他们自己都没算到一块去——定价权在出钱的人手里，谁更等得起谁说了算。',
+          en: 'The underwriter proposes the range; buyers set the price — the truth sits about 15% below the floor of that range. 89 offline placees bid from 8.00 to 22.00 the same day. Pricing power sits with the buyer; bargaining power depends on who can wait.' },
         evidence: [
           { zh: '18.00 元 / 股', en: 'CNY 18.00 / share' },
           { zh: '21.92 亿 → 14.22 亿', en: '2.192bn → 1.422bn' },
           { zh: '21.08—30.81 元', en: 'CNY 21.08–30.81' },
           { zh: '8.00—22.00 元', en: 'CNY 8.00–22.00' },
-          { zh: '有效报价 7,700 万股 · 5.13 倍', en: '77m eligible shares · 5.13x' }
+          { zh: '出价够 18 元的 7,700 万股 · 5.13 倍', en: '77m eligible shares · 5.13x' }
         ]
       },
       {
         id: '2016', year: '2016',
-        way: { zh: 'A 股定向增发 · 锁价', en: 'A-share private placement · fixed price' },
-        who: { zh: '10 名以内特定投资者', en: 'Up to 10 selected investors' },
-        audit: { zh: '证监会发审委 · 以年计', en: 'CSRC review · over a year' },
-        q: { zh: '2015 年 6 月定增预案，锁价发行——价格在预案里写死，签完再等批文。你锁在哪个价？', en: 'The June 2015 placement locks its price at the proposal stage, then waits for approval. What price do you lock?' },
+        way: { zh: '国内增发 · 只卖给几家、价格写死', en: 'A-share private placement · fixed price' },
+        who: { zh: '不超过 10 家机构', en: 'Up to 10 selected investors' },
+        audit: { zh: '监管部门审批 · 一年多', en: 'CSRC review · over a year' },
+        q: { zh: '2015 年 6 月，公司定了个方案：只卖给几家机构，价格当场写死，签完再等批准。这个价你定多少？', en: 'In June 2015 BYD agrees to sell shares to a few institutions at a price fixed on the spot, then waits for approval. What price do you fix?' },
         unit: { zh: '元 / 股', en: 'CNY / share' },
         bands: ['≤40', '40–50', '50–60', '60–70', '70–80', '80–90', '≥90'],
         target: 3,
-        base: { v: 57.47, note: { zh: '募满价 150 亿 ÷ 2.61 亿股 ≈ 57.47 元。锁价只能贴着它定：高了认购方不签，低了募不满。', en: 'Full-cover price: CNY 15bn ÷ 261m shares ≈ 57.47. A fixed price has to sit on it — higher and nobody signs, lower and the deal falls short.' } },
+        base: { v: 57.47, note: { zh: '要想收够 150 亿，2.61 亿股每股得卖 150 亿 ÷ 2.61 亿股 ≈ 57.47 元（按方案里的数倒推的课堂参照，不是公告里的算法）。写死的价只能贴着它定：定高了买的人不签，定低了钱收不够。', en: 'Full-cover price: CNY 15bn ÷ 261m shares ≈ 57.47 — a teaching back-calculation from the plan, not the official pricing formula. A fixed price has to sit on it: higher and nobody signs, lower and the deal falls short.' } },
         tv: 57.40,
         dec: 2,
         truth: { zh: '57.40 元 / 股', en: '57.40 CNY / share' },
         info: [
-          { zh: '2015 年 6 月 A 股牛市高位，比亚迪披露定增预案：拟发 2.61 亿股、募约 150 亿元，对象不超过 10 名，价格在预案时就按锁价方式定死。',
+          { zh: '2015 年 6 月股价正高，比亚迪公布方案：准备发 2.61 亿股、收约 150 亿元，最多卖给 10 家，价格在方案里就写死。',
             en: 'June 2015, at a market high: BYD files a placement plan for 261m shares and about CNY 15bn, with no more than 10 investors and a price fixed at proposal stage.' },
-          { zh: '锁价定死时股价在高位，但从预案披露到资金到账走了 13 个月，期间市场已从高位下行、落地时股价跌了约 18%。',
-            en: 'The price was set at a high, but 13 months passed before the cash arrived; by then the market had fallen about 18%.' },
-          { zh: '定价遵循「价格优先、认购金额优先、认购时间优先」；实际募资总额 144.73 亿元，连 150 亿元都没募满。',
+          { zh: '写死价格时股价在高位，但从公布方案到钱到账走了 13 个月；到时候市价约 47 元，比 57.40 元写死的价低约 18%——这是跟写死的价差，不是大盘跌了多少。',
+            en: 'The price was set at a high, but 13 months passed before the cash arrived. By then the market price was about CNY 47, roughly 18% below the CNY 57.40 lock — a gap to the lock price, not a fall in the index.' },
+          { zh: '分给谁按「谁出价高、谁买得多、谁先报名」排；最后一共收到 144.73 亿元，连 150 亿元都没收够。',
             en: 'Allocation follows price, size, then time priority. Gross proceeds came to CNY 14.473bn — short of the 15bn plan.' }
         ],
-        reveal: { zh: '57.40 元/股；实际发行 2.5214 亿股、募资总额 144.73 亿元（净额约 143.69 亿元），连 150 亿元都没募满。',
+        reveal: { zh: '写死 57.40 元/股；实际发了 2.5214 亿股、一共收到 144.73 亿元（扣掉费用约 143.69 亿元），连 150 亿元都没收够。',
           en: 'CNY 57.40 per share; 252.14m shares issued for CNY 14.473bn gross (about 14.369bn net) — short of plan.' },
-        talk: { zh: '价格锁住了，时间锁不住。锁价买的是确定性，代价是这 13 个月里市场怎么走都得自己扛。钱只来自 6 家大机构——定增定价本质是跟少数人谈出来的，不是市场集合竞价。',
+        talk: { zh: '价格写死了，时间锁不住。好处是价格不再变，代价是这 13 个月里股价涨还是跌都得买的人自己扛。最后只有 6 家大机构掏钱——这个价是跟少数几家谈出来的，不是大家公开竞价。',
           en: 'The price was locked; the clock was not. Fixing the price buys certainty at the cost of carrying 13 months of market risk. Only six institutions subscribed — a placement is negotiated with a few big funds, not an open auction.' },
         evidence: [
           { zh: '57.40 元 / 股', en: 'CNY 57.40 / share' },
           { zh: '2.61 亿股 → 2.5214 亿股', en: '261m → 252.14m shares' },
           { zh: '150 亿 → 144.73 亿', en: '15bn → 14.473bn' },
           { zh: '13 个月', en: '13 months' },
-          { zh: '6 家机构认购', en: '6 subscribers' }
+          { zh: '6 家机构买了', en: '6 subscribers' }
         ]
       },
       {
         id: '2021', year: '2021',
-        way: { zh: 'H 股配售 · 按市价折让', en: 'H-share placement · discount to market' },
-        who: { zh: '国际机构', en: 'International institutions' },
+        way: { zh: '港股增发 · 比市价便宜卖', en: 'H-share placement · discount to market' },
+        who: { zh: '境外的大机构', en: 'International institutions' },
         audit: { zh: '港交所 · 几天', en: 'HKEX · a few days' },
-        q: { zh: '2021 年比亚迪在港股连做两次配售，按市价折让、当晚定价。这笔你要求几个点的折让？', en: 'BYD runs two H-share placements in 2021, priced at a discount overnight. How many points of discount do you demand?' },
-        unit: { zh: '%（折让率）', en: '% discount' },
+        q: { zh: '2021 年比亚迪在港股连着两次增发新股，都比当时的市价便宜一点、当晚就定价。你要求便宜百分之几？', en: 'BYD runs two H-share placements in 2021, priced at a discount overnight. How many points of discount do you demand?' },
+        unit: { zh: '%（比市价便宜多少）', en: '% discount' },
         bands: ['≤4', '4–6', '6–8', '8–10', '10–12', '12–14', '≥14'],
         target: 3,
-        base: { v: 0, note: { zh: '基准 = 0% 折让，即按当日市价 244 港元白拿。机构凭什么当晚接 299 亿的货？折让越低，老股东摊得越少；让得不够，当晚没人接货。', en: 'Anchor = zero discount: taking the stock at the HKD 244 market price. Why would institutions take HKD 29.9bn overnight at full price? A smaller discount dilutes existing holders less; too small and nobody signs.' } },
+        base: { v: 0, note: { zh: '参考数 = 一点不便宜，就按当天市价 244 港元卖——这只是「最低能低到哪」，不是答案。当天想买的人特别多（200 多家大基金抢，要买的量远超要卖的量），所以这是近几年同类大单里让价最少的一次：便宜的幅度是个位数，而且偏小。便宜得越少，老股东越不吃亏；但一点不便宜，当晚没人肯接。', en: 'Anchor = zero discount: taking the stock at the HKD 244 market price — that is the floor, not the landing point. Over 200 long-only and sovereign funds joined and the deal was heavily oversubscribed, making it the smallest discount among comparable HK placements in years: a single-digit figure, on the low side. A smaller discount dilutes existing holders less; too small and nobody signs.' } },
         tv: 7.8,
         dec: 1,
         truth: { zh: '7.8%（第二次 6.9%）', en: '7.8% (6.9% for the second)' },
         info: [
-          { zh: '2021 年 1 月，比亚迪 H 股市价 244 港元，正处历史高位。它要一次性卖 1.33 亿股新股、毛额约 299 亿港元，不走境内审核，几天内到账。',
+          { zh: '2021 年 1 月，比亚迪港股市价 244 港元，是当时最高的时候。它要一次卖 1.33 亿股新股、总共能收约 299 亿港元，不用等国内审批，几天钱就到账。',
             en: 'January 2021: BYD H-shares trade at HKD 244, a historic high. It sells 133m new shares at once — about HKD 29.9bn gross — with no domestic review and cash arriving in days.' },
-          { zh: '接货方第二天就能卖，但要一口吃下约 299 亿港元：砸价风险和资金占用全自己扛，不给「批发折扣」当晚没人接。对照 2016 年定增：锁价后等了 13 个月批文、再禁售 12 个月——锁定那么久，对价远不止几个点；这次几天到账，不为时间付费。',
-            en: 'Buyers can sell the next day, yet must swallow about HKD 29.9bn at once — price impact and funding sit with them, and without a wholesale discount nobody signs that night. Compare 2016: the locked price waited 13 months for approval plus a 12-month lock-up — for a hold that long, buyers demand far more than a few points. Here it settles in days, so you are not being paid for time.' },
-          { zh: '折让每多 1 个点，公司就少募约 3.2 亿港元（1.33 亿股 × 244 港元 × 1%，教学推算）——扩产正等着这笔钱，折让是真金白银的让渡。而且年内还想再发一批，折扣名声坏了，下次就没人接。',
-            en: 'Each extra point of discount costs the company about HKD 320m (133m shares × 244 × 1%, a teaching estimate) — cash it needs for capacity, and the year is not over: give away too much now and nobody will trust the next price.' }
+          { zh: '买的人第二天就能卖，但得一口气拿出约 299 亿港元：把股价买跌的风险、钱压在那里的成本，都得自己扛，所以不给「批发折扣」当晚没人肯接。但这次想买的人特别多——200 多家大基金抢，要买的量远超要卖的量，便宜的幅度被压成近几年同类大单里最小。对照 2016 年那次：从定方案到钱到账约 13 个月，拿到股票后还有 12 个月不能卖，压这么久，要的好处远不止这几个点。',
+            en: 'Buyers can sell the next day, yet must swallow about HKD 29.9bn at once — price impact and funding sit with them, and without a wholesale discount nobody signs that night. But demand was exceptional: over 200 long-only and sovereign funds, multiple times covered, so the discount was compressed to the smallest among comparable deals in years. Compare 2016: about 13 months from plan to cash plus a 12-month lock-up — a hold that long costs far more than a few points.' },
+          { zh: '每多便宜 1 个点，公司就少收约 3.2 亿港元（1.33 亿股 × 244 港元 × 1%，课堂估算）——扩建工厂正等这笔钱。而且年内还想再卖一次，这次让太多，下次就没人按好价钱接了。这里的百分比是拿「前一天收盘价」比的，先认清是跟谁比。',
+            en: 'Each extra point of discount costs the company about HKD 320m (133m shares × 244 × 1%, a teaching estimate) — cash it needs for capacity, and the year is not over: give away too much now and nobody will trust the next price. The discount is measured against the previous trading day close; fix that convention before you answer.' }
         ],
-        reveal: { zh: '第一次：按市价口径值约 324.5 亿港元，实收 299.25 亿——约 25 亿港元买了「几天到账」。第二次折让 6.9%；两次净募约 435 亿港元。',
+        reveal: { zh: '第一次：按当天市价值约 324.5 亿港元，实际只收 299.25 亿——少收的约 25 亿港元，换的是「几天就拿到钱」。第二次便宜 6.9%；两次扣掉费用共到手约 435 亿港元。',
           en: 'At the market price the first tranche was worth about HKD 32.45bn; it raised 29.925bn — about HKD 2.5bn paid for settling in days. The second took a 6.9% discount; net proceeds of the two together about HKD 43.5bn.' },
-        talk: { zh: '7.8% 不是佣金，是买方收的风险与资金占用补偿——也正是公司为「几天到账」付的速度费。同一笔钱，买方叫它折扣，发行人叫它买速度的价。2016 年定增锁价 13 个月、再禁售 12 个月，签的是战略资金；这次几天到账，来的是纯财务机构。',
-          en: 'The 7.8% is not a commission; it is the risk-and-funding compensation the buyers charge — which is exactly what the company pays for settling in days. The same money is a discount to one side and the price of speed to the other. The 2016 placement was locked for 13 months plus 12 more, and strategic capital signed; here it settles in days, and the money comes from pure financial investors.' },
+        talk: { zh: '7.8% 不是手续费，是买的人替公司承担风险和压着钱要的补偿；因为想买的人太多，被压到个位数，成了近几年同类大单里最小的一次。对公司来说，这点让价换来几天到账、不用等批准——同一笔钱，买方叫它便宜，公司叫它买速度的价。2016 年那次从定方案到钱到账约 13 个月、再 12 个月不能卖，来的是有长期打算的钱；这次几天到账，来的是只想做财务投资的机构。',
+          en: 'The 7.8% is not a commission; it is the risk-and-funding compensation buyers charge. Demand was so strong that it was compressed into single digits, the smallest discount among comparable deals in years. For the issuer, that concession buys settlement in days with no approval wait — the same money is a discount to one side and the price of speed to the other. The 2016 placement took about 13 months from plan to cash plus 12 more locked up, and strategic capital signed; here it settles in days, and the money comes from pure financial investors.' },
         evidence: [
-          { zh: '折让 7.8% / 6.9%', en: '7.8% / 6.9% discount' },
-          { zh: '1.33 亿股 · 4.65%', en: '133m shares · 4.65%' },
-          { zh: '5,000 万股 · 1.75%', en: '50m shares · 1.75%' },
-          { zh: '净募 298.01 + 137.44 亿港元', en: 'Net HKD 29.801 + 13.744bn' }
+          { zh: '便宜 7.8% / 6.9%', en: '7.8% / 6.9% discount' },
+          { zh: '1.33 亿股 · 占 4.65%', en: '133m shares · 4.65%' },
+          { zh: '5,000 万股 · 占 1.75%', en: '50m shares · 1.75%' },
+          { zh: '到手 298.01 + 137.44 亿港元', en: 'Net HKD 29.801 + 13.744bn' }
         ]
       }
     ],
     [
       {
         id: '2026', year: '2026',
-        way: { zh: '银行间中期票据 · 簿记建档', en: 'Interbank MTN · book building' },
-        who: { zh: '银行与资管', en: 'Banks and asset managers' },
-        audit: { zh: '交易商协会 · 两周内', en: 'NAFMII · within two weeks' },
-        q: { zh: '2026 年一笔 50 亿元、3 年期的中期票据，走簿记建档。你的申购利率填多少？', en: 'A CNY 5bn, 3-year MTN in 2026, sold by book building. What rate do you bid?' },
-        unit: { zh: '%（票面利率）', en: '% coupon' },
+        way: { zh: '发 3 年期债券 · 收集报价定价', en: 'Interbank MTN · book building' },
+        who: { zh: '银行、理财和基金', en: 'Banks and asset managers' },
+        audit: { zh: '银行间市场备案 · 两周内', en: 'NAFMII · within two weeks' },
+        q: { zh: '2026 年比亚迪要借 50 亿元、借 3 年。做法是让各家机构报一个自己能接受的利息，最后定一个统一的利息。你猜最后会定在多少？', en: 'In 2026 BYD borrows CNY 5bn for three years. Investors each name an interest rate they accept, and one rate is set for everyone. What do you think the final rate will be?' },
+        unit: { zh: '%（每年利息）', en: '% coupon' },
         bands: ['≤1.60', '1.60–1.68', '1.68–1.76', '1.76–1.84', '1.84–1.92', '1.92–2.00', '≥2.00'],
         target: 3,
-        base: { v: 1.74, note: { zh: '同日 3 年期 AAA 中短票收益率 1.74%。报在它下面是把价压给发行人，报在它上面是给自己留安全垫。', en: 'The 3-year AAA MTN curve sits at 1.74% that day. Bidding below it squeezes the issuer; bidding above it buys you a cushion.' } },
+        base: { v: 1.74, note: { zh: '同一天，别家差不多条件、信用最好的 3 年期债券，利息大约 1.74%。报得比它低，等于帮公司省钱、也更可能分到；报得比它高，是想多拿点利息，但一旦超过最后定的那个数，就一分都拿不到。', en: 'The 3-year AAA MTN curve sits at 1.74% that day. Bidding below it squeezes the issuer and makes an allocation more likely; bidding above it asks for more yield, but once it exceeds the final coupon you are out.' } },
         tv: 1.72,
         dec: 2,
-        money: { zh: '按 50 亿元、3 年期折算：1 个 bp ≈ 150 万元。', en: 'On CNY 5bn over three years, 1bp ≈ CNY 1.5m.' },
+        money: { zh: '按 50 亿元、借 3 年算：利息每差 0.01 个百分点，三年就差约 150 万元。', en: 'On CNY 5bn over three years, 1bp ≈ CNY 1.5m.' },
         truth: { zh: '1.72%', en: '1.72%' },
         info: [
-          { zh: '2026 年，比亚迪要在银行间市场发一笔 50 亿元、3 年期的中期票据；当时市场缺资产、利率在低位。',
+          { zh: '2026 年，比亚迪要向机构借 50 亿元、借 3 年；那阵子好资产少、利息普遍很低。',
             en: 'In 2026 BYD issues a CNY 5bn, 3-year MTN in the interbank market, amid scarce assets and low rates.' },
-          { zh: '簿记建档只定一个票面：报在票面以下的一分拿不到。这类发行两周就能发完，发行人随时可以换个窗口再来——你压得太狠，空手的是你。',
-            en: 'Book building sets a single coupon: bids below it get nothing. This kind of deal prices within about two weeks, so the issuer can always come back later — push too hard and you are the one left empty-handed.' },
-          { zh: '合规申购 18 家共 109.2 亿元（约 2.18 倍），其中报价达标的只有 11 家、有效申购 56.9 亿元（1.14 倍）。',
+          { zh: '最后只定一个统一的利息：谁报得比它高，一分都买不到；报得不高的人，都按这个统一利息拿。这种发行两周就能办完，公司等不起还能换个时间再发——所以利息报太高，空手的是你。',
+            en: 'Book building sets a single coupon: bids above the final coupon get nothing, while bids at or below it are filled at that same coupon. This deal prices within about two weeks, so the issuer can always come back later — bid too high and you are the one left empty-handed.' },
+          { zh: '一共 18 家来报、报了 109.2 亿元（约是发行量的 2.18 倍），但其中只有 11 家报的利息没超线，这 11 家一共要 56.9 亿元（1.14 倍）。',
             en: '18 compliant bids totalling CNY 10.92bn (about 2.18x), but only 11 qualified: eligible demand CNY 5.69bn (1.14x).' }
         ],
-        reveal: { zh: '票面 1.72%；边际档按比例配售；承销商自营获配合计 60%。',
+        reveal: { zh: '最后定的利息是 1.72%；刚好报在这个数上的，大家按申报金额比例分；帮它卖债券的券商自己拿走了 60%。',
           en: 'A 1.72% coupon; the marginal band is allocated pro rata; underwriter proprietary accounts took 60% in total.' },
-        talk: { zh: '2.18 倍是「来了多少人看」，1.14 倍是「多少人真掏钱」——做承销的人只认后一个。票面每压 1 个基点，三年省 150 万元，但一路压到底就没人下单、甚至发行失败，所以停在 1.72%。',
+        talk: { zh: '2.18 倍只是「来了多少人」，1.14 倍才是「真肯按这个利息掏钱的人」，做承销只看后一个。利息每压低 0.01 个百分点，三年就省 150 万元；但压太狠就没人买了，甚至发不出去，所以停在 1.72%。',
           en: 'The 2.18x is how many showed up; 1.14x is how many actually paid — underwriters only use the latter. Each basis point saves CNY 1.5m over three years, but pushing too far kills demand, so it stops at 1.72%.' },
         evidence: [
-          { zh: '票面 1.72%', en: '1.72% coupon' },
-          { zh: '合规 109.2 亿 · 2.18 倍', en: 'Compliant 10.92bn · 2.18x' },
-          { zh: '有效 56.9 亿 · 1.14 倍', en: 'Eligible 5.69bn · 1.14x' },
-          { zh: '自营获配 60%', en: '60% to proprietary desks' }
+          { zh: '统一利息 1.72%', en: '1.72% coupon' },
+          { zh: '来报的 109.2 亿 · 2.18 倍', en: 'Compliant 10.92bn · 2.18x' },
+          { zh: '真肯买的 56.9 亿 · 1.14 倍', en: 'Eligible 5.69bn · 1.14x' },
+          { zh: '券商自己拿走 60%', en: '60% to proprietary desks' }
         ]
       },
       {
         id: '2011b', year: '2011',
-        way: { zh: 'A 股 IPO · 换个量纲看实募', en: 'A-share IPO · proceeds instead of price' },
-        who: { zh: '境内询价机构', en: 'Domestic institutional bidders' },
-        audit: { zh: '证监会发审委 · 数月', en: 'CSRC review · months' },
-        q: { zh: '同一年，招股书计划募 21.92 亿元；最终发行价 18.00 元，比估值区间下沿还低约 15%。按这个价，实募多少亿？', en: 'The same IPO planned to raise CNY 2.192bn, but priced 15% below the valuation range floor. At that price, how much comes in?' },
-        unit: { zh: '亿元（募资总额）', en: 'CNY 100m (gross)' },
+        way: { zh: '国内上市 · 改问「一共收到多少钱」', en: 'A-share IPO · proceeds instead of price' },
+        who: { zh: '国内的大机构（基金、券商）', en: 'Domestic institutional bidders' },
+        audit: { zh: '监管部门审批 · 几个月', en: 'CSRC review · months' },
+        q: { zh: '同一年，上市材料里写计划募 21.92 亿元；最后每股只卖 18.00 元，比券商估的最低价还低约 15%。按这个价，公司一共收到多少亿？', en: 'The same listing planned to raise CNY 2.192bn, but sold at CNY 18.00 per share, about 15% below the lowest price the underwriter estimated. How much did the company actually receive?' },
+        unit: { zh: '亿元（一共收到的钱）', en: 'CNY 100m (gross)' },
         bands: ['≤10', '10–13', '13–16', '16–19', '19–22', '22–25', '≥25'],
         target: 3,
-        base: { v: 21.92, note: { zh: '基准 = 计划募资 21.92 亿元。股数 7,900 万股不变，价从 27.75 元（21.92 ÷ 0.79）掉到 18.00 元，募资就按同比例缩。', en: 'Anchor = the planned CNY 2.192bn. With 79m shares fixed, the price drops from CNY 27.75 (2.192bn ÷ 79m) to 18.00 — proceeds shrink in the same proportion.' } },
+        base: { v: 21.92, note: { zh: '参考数 = 计划募 21.92 亿元。股数 7,900 万股没变，每股从 27.75 元（21.92 ÷ 0.79）降到 18.00 元，收到的钱就按同样比例缩水。', en: 'Anchor = the planned CNY 2.192bn. With 79m shares fixed, the price drops from CNY 27.75 (2.192bn ÷ 79m) to 18.00 — proceeds shrink in the same proportion.' } },
         tv: 14.22,
         dec: 2,
         truth: { zh: '14.22 亿元', en: 'CNY 1.422bn' },
         info: [
-          { zh: '2011 年比亚迪回 A 股，招股书计划募 21.92 亿元、发行 7,900 万股；最终发行价定在 18.00 元，比承销商估值区间下沿还低约 15%。',
+          { zh: '2011 年比亚迪回 国内上市，上市材料里写计划募 21.92 亿元、发行 7,900 万股；最后每股定在 18.00 元，比券商估的最低价还低约 15%。',
             en: 'BYD returns to the A-share market in 2011: the prospectus plans to raise CNY 2.192bn on 79m shares, but the deal prices at CNY 18.00 — about 15% below the bottom of the valuation range.' },
-          { zh: '询价机构报价中枢下移、需求不足；报价不低于 18 元的有效申报累计 7,700 万股，是网下发行量 1,500 万股的 5.13 倍。',
-            en: 'Bids drifted down and demand was thin: eligible bids at CNY 18 or above came to 77m shares, 5.13x the 15m offered offline.' },
-          { zh: '同一天 89 个配售对象报价从 8.00 元到 22.00 元，专业买方自己也没算成同一个数；发行人有定价意愿，没有议价能力。',
+          { zh: '来报价的机构越报越低、一起压价；出价不低于 18 元的申报累计 7,700 万股，是给机构那部分 1,500 万股的 5.13 倍——少收钱是因为价钱低，不是没人要。',
+            en: 'Bids drifted down as institutions pushed the price lower: eligible bids at CNY 18 or above came to 77m shares, 5.13x the 15m offered offline. The shortfall came from price, not from a lack of demand.' },
+          { zh: '同一天来报价的 89 家机构，从 8.00 元报到 22.00 元，连专业买家自己都没算成同一个数；公司想卖个好价，但说了不算。',
             en: 'The same day, 89 placees bid from CNY 8.00 to 22.00 — professional buyers did not agree either. The issuer wanted a price but had no bargaining power.' }
         ],
-        reveal: { zh: '实募 14.22 亿元（净额 13.54 亿元），比计划少募 7.7 亿元、缺口 35%。',
+        reveal: { zh: '一共收到 14.22 亿元（扣掉费用到手 13.54 亿元），比计划少收 7.7 亿元、少了 35%。',
           en: 'Gross proceeds CNY 1.422bn (net 1.354bn), CNY 770m or 35% short of plan.' },
-        talk: { zh: '21.92 亿元是计划，不是承诺。7,900 万股一股没少发，7.70 亿的缺口 100% 来自价格——发行人让的是价，不是量。',
+        talk: { zh: '21.92 亿元是计划，不是保证。7,900 万股一股没少发，7.70 亿的差额全来自价钱——公司让掉的是价钱，不是股数。',
           en: 'CNY 2.192bn was a plan, not a promise. All 79m shares were issued; the CNY 770m gap came entirely from price — the issuer gave up price, not size.' },
         evidence: [
           { zh: '计划 21.92 亿', en: 'Planned 2.192bn' },
-          { zh: '实募 14.22 亿', en: 'Raised 1.422bn' },
-          { zh: '净额 13.54 亿', en: 'Net 1.354bn' },
-          { zh: '缺口 35%', en: '35% short' },
-          { zh: '有效报价 7,700 万股 · 5.13 倍', en: '77m eligible shares · 5.13x' }
+          { zh: '实际收到 14.22 亿', en: 'Raised 1.422bn' },
+          { zh: '扣费用后 13.54 亿', en: 'Net 1.354bn' },
+          { zh: '比计划少 35%', en: '35% short' },
+          { zh: '出价够 18 元的 7,700 万股 · 5.13 倍', en: '77m eligible shares · 5.13x' }
         ]
       },
       {
         id: '2016b', year: '2016',
-        way: { zh: 'A 股定增 · 买方视角：这笔账不划算', en: 'A-share placement · the buyer\'s side' },
-        who: { zh: '保险、银行系基金、产业资本', en: 'Insurers, bank-backed funds, strategic capital' },
-        audit: { zh: '证监会发审委 · 以年计', en: 'CSRC review · over a year' },
-        q: { zh: '锁价 57.40 元、锁 12 个月。按 8% 的资金成本，这一单你最高接受多少元的认购价？', en: 'The price is locked at CNY 57.40 for 12 months. With an 8% cost of funds, what is the highest price you would accept?' },
+        way: { zh: '国内增发 · 站在买的人这边：这笔账不划算', en: 'A-share placement · the buyer\'s side' },
+        who: { zh: '保险公司、银行系基金、做实业的钱', en: 'Insurers, bank-backed funds, strategic capital' },
+        audit: { zh: '监管部门审批 · 一年多', en: 'CSRC review · over a year' },
+        q: { zh: '价格提前写死 57.40 元，买到后 12 个月不能卖。你的钱一年要赚 8% 才划算，那你最多肯出多少钱一股？', en: 'The price is fixed at CNY 57.40 and the shares cannot be sold for 12 months. If your money needs to earn 8% a year, what is the most you would pay per share?' },
         unit: { zh: '元 / 股', en: 'CNY / share' },
         bands: ['≤38', '38–41', '41–44', '44–47', '47–52', '52–57', '≥57'],
         target: 3,
-        base: { v: 57.40, note: { zh: '最高接受价 = 你将来能卖出的价 ÷（1 + 8%）。发行人想卖 57.40——先按这个价算一个上限；至于"能卖出的价"到底是多少，第 2 轮才给你。', en: 'Your ceiling = the price you can exit at ÷ (1 + 8%). The issuer wants 57.40 — start from that and compute a ceiling. What you can actually exit at arrives in round 2.' } },
+        base: { v: 57.40, note: { zh: '最多肯出的钱 = 将来能卖掉的价 ÷ 1.08。公司想卖 57.40——先拿它算个上限；「将来能卖掉的价」第 2 轮才告诉你。先给个方向：到时候市价会明显低于写死的价（大约低两成），别直接把 57.40 当答案。', en: 'Your ceiling = the price you can exit at ÷ (1 + 8%). The issuer wants 57.40 — start from that and compute a ceiling. What you can actually exit at arrives in round 2. One hint for now: by closing, the market price sits clearly below the lock (roughly 20% lower), so do not just write 57.40 as your ceiling.' } },
         tv: 43.5,
         dec: 1,
         truth: { zh: '43.5 元 / 股（47 ÷ 1.08）', en: 'CNY 43.5 (47 ÷ 1.08)' },
         info: [
-          { zh: '2015 年 6 月的预案：按锁价 57.40 元/股发 2.61 亿股、募约 150 亿元，对象不超过 10 名。价格在预案里就写死，签字之后只能等批文——这 13 个月里涨跌都是买方的事。',
+          { zh: '2015 年 6 月的方案：按写死的 57.40 元/股发 2.61 亿股、收约 150 亿元，最多卖给 10 家。价格在方案里就写死，签完字只能等批准——这 13 个月里股价涨还是跌，都是买的人自己扛。',
             en: 'The June 2015 proposal: 261m shares at a locked CNY 57.40, about CNY 15bn, to no more than ten subscribers. The price is fixed in the proposal; after signing you can only wait for approval — and the market is your problem for thirteen months.' },
-          { zh: '2015 年 6 月是那一轮牛市的高点。等到 2016 年 7 月落地，市价只剩约 47 元——认购价 57.40 已经比市价高 22%，签字那天就浮亏。',
+          { zh: '2015 年 6 月正赶上股价最高的时候。等到 2016 年 7 月钱到账，市价只剩约 47 元——写死的 57.40 已经比市价高 22%，一签字账面上就亏了。',
             en: 'June 2015 was the top of that bull run. By the time the deal closed in July 2016 the market price was about CNY 47 — the subscription price of 57.40 sat 22% above it, underwater from day one.' },
-          { zh: '新股还要再锁 12 个月才能卖，这期间不能退、也不能对冲。最后只有 6 家认购：保险、银行系基金、产业资本，没有一家纯财务私募。',
+          { zh: '新股还要再放 12 个月才能卖，这期间不能退、也不能另买保险。最后只有 6 家掏钱：保险公司、银行系基金、做实业的钱，没有一家是只想靠这笔赚差价的基金。',
             en: 'The shares are then locked for another twelve months — no exit, no hedge. Only six subscribers signed: insurers, bank-backed funds and strategic capital. Not one pure financial investor.' }
         ],
-        reveal: { zh: '47 ÷ 1.08 ≈ 43.5 元。实际锁价 57.40，比这个上限高 32%。换更低的资金成本也救不回来：5% 对应 44.8、12% 对应 42.0，全都落在 57.40 之下——差距不在资金成本，在价格本身倒挂。',
-          en: '47 ÷ 1.08 ≈ 43.5. The actual lock price of 57.40 sits 32% above that ceiling. Cheaper money does not rescue it: 5% gives 44.8 and 12% gives 42.0 — all below 57.40. The gap is not the cost of funds, it is the price.' },
-        talk: { zh: '锁价发行把 13 个月的审批风险和 12 个月的价格风险一起推给买方。2015 年 6 月锁价、正赶上牛市顶部，落地时市价已经比认购价低 22%——任何按回报率算账的钱都会走，剩下的是不靠这笔赚钱的钱：建信 43.05 亿、国寿安保 31.95 亿（保险）、三星半导体 30.00 亿（产业）、兴业全球 16.73、国投先进制造 15.00、安信 8.00。6 家、144.73 亿、单家 24.1 亿：只有管理规模几百亿的机构才吃得下这个数。',
+        reveal: { zh: '47 ÷ 1.08 ≈ 43.5 元（这是拿后来的市价回头算的课堂上限，不是历史上的成交价）。写死的价 57.40 比它高 32%。就算钱的成本更低也救不回来：5% 对应 44.8、12% 对应 42.0，全都比 57.40 低——问题不在钱的成本，在价钱本身比市价高。',
+          en: '47 ÷ 1.08 ≈ 43.5 — a teaching ceiling reconstructed after the fact from the closing market price, not a historical trade. The actual lock price of 57.40 sits 32% above that ceiling. Cheaper money does not rescue it: 5% gives 44.8 and 12% gives 42.0 — all below 57.40. The gap is not the cost of funds, it is the price.' },
+        talk: { zh: '价格提前写死，等批准的 13 个月和不能卖的 12 个月，涨跌都得买的人自己扛。2015 年 6 月正赶上股价最高，等到 2016 年 7 月钱到账，市价已经比买价低 22%——凡是算回报的钱都走了，最后来的 6 家都不是靠这笔赚差价：建信 43.05 亿、国寿安保 31.95 亿（保险）、三星半导体 30.00 亿（做实业）、兴业全球 16.73、国投先进制造 15.00、安信 8.00。6 家一共 144.73 亿，平均每家 24.1 亿——只有管着几百亿的大机构才拿得出这个数。',
           en: 'A fixed price pushes thirteen months of approval risk and twelve months of price risk onto the buyer. Locked in June 2015 at the top of the cycle, the price was already 22% above the market when the deal closed — anyone pricing for a return walks away, and what is left is money that is not trying to earn on this trade: CCB Principal 4.305bn, China Life AMP 3.195bn (insurance), Samsung Semiconductor 3.000bn (strategic), Aegon-Industrial 1.673bn, SDIC Advanced Manufacturing 1.500bn, Essence Fund 0.800bn. Six subscribers, CNY 14.473bn, CNY 2.41bn each — only institutions managing tens of billions can write that cheque.' },
         evidence: [
-          { zh: '锁价 57.40 元', en: 'Locked 57.40' },
-          { zh: '落地市价约 47 元', en: 'Market ≈ 47' },
-          { zh: '倒挂 22%', en: '22% above market' },
-          { zh: '你的上限 43.5 元', en: 'Your ceiling 43.5' },
-          { zh: '缺口 32%', en: '32% gap' }
+          { zh: '写死的价 57.40 元', en: 'Locked 57.40' },
+          { zh: '当时市价约 47 元', en: 'Market ≈ 47' },
+          { zh: '比市价高 22%', en: '22% above market' },
+          { zh: '你最多肯出 43.5 元', en: 'Your ceiling 43.5' },
+          { zh: '相差 32%', en: '32% gap' }
         ]
       }
     ]
@@ -330,12 +330,12 @@
      只用在「本组收官」页，讲的是刚才那道题本身怎么算，
      不改题面、不进题面，所以不会提前泄答案。 */
   var KP = {
-    '2011':  { n: '募资缺口率', f: '1 − 实募 ÷ 计划募资', v: '1 − 14.22 ÷ 21.92 = 35%' },
-    '2016':  { n: '锁价偏离', f: '(锁价 − 落地市价) ÷ 落地市价', v: '锁价 57.40 元，落地时市价低约 18%' },
-    '2021':  { n: '稀释比例', f: '新发股数 ÷ 发行后总股本', v: '1.33 ÷ 28.6 ≈ 4.65%' },
-    '2026':  { n: '有效认购倍数', f: '有效申购 ÷ 发行规模', v: '56.9 ÷ 50 = 1.14 倍（合规口径 2.18 倍）' },
-    '2011b': { n: '隐含计划价', f: '计划募资 ÷ 发行股数', v: '21.92 ÷ 0.79 = 27.75 元（实际发 18.00）' },
-    '2016b': { n: '买方最高接受价', f: '可卖出价 ÷（1 + 资金成本）', v: '47 ÷ 1.08 ≈ 43.5 元；锁价 57.40 高出 32%' }
+    '2011':  { n: '比计划少收了多少', f: '1 − 实际收到的 ÷ 计划要收的', v: '1 − 14.22 ÷ 21.92 = 35%' },
+    '2016':  { n: '写死的价比市价高多少', f: '(写死的价 − 当时市价) ÷ 当时市价', v: '写死 57.40 元，当时市价低约 18%' },
+    '2021':  { n: '新股占多大比例', f: '新发的股数 ÷ 发完后的总股数', v: '1.33 ÷ 28.6 ≈ 4.65%' },
+    '2026':  { n: '真肯买的是要发的几倍', f: '真肯买的钱 ÷ 要发的量', v: '56.9 ÷ 50 = 1.14 倍（按来报的人数算是 2.18 倍）' },
+    '2011b': { n: '按计划倒算的每股价钱', f: '计划要收的钱 ÷ 要发的股数', v: '21.92 ÷ 0.79 = 27.75 元（实际只卖 18.00）' },
+    '2016b': { n: '买方最多肯出多少钱', f: '将来能卖的价 ÷（1 + 要求的回报）', v: '47 ÷ 1.08 ≈ 43.5 元；写死的 57.40 比它高 32%' }
   };
 
   /* ---------------- 状态 ---------------- */
@@ -421,7 +421,7 @@
     tag: { zh: '教师控场', en: 'Teacher-led' },
     pill: { zh: '环节二', en: 'Step 2' },
     name: { zh: '时点三连 · 三轮报价', en: 'Three Eras · Three Rounds of Bidding' },
-    sub: { zh: '同一家公司四轮融资，每轮多给一条信息，改一次价', en: 'One company, three fundraisings; one new clue each round' }
+    sub: { zh: '同一家公司四次融资，每轮多给一条信息，可以改一次价', en: 'One company, four fundraisings; one new clue each round' }
   };
   function setEntry() {
     var map = { 'tl-e-sec': 'sec', 'tl-e-tag': 'tag', 'tl-e-pill': 'pill', 'tl-e-name': 'name', 'tl-e-sub': 'sub' };
@@ -487,7 +487,7 @@
     var d = v - b.v;
     if (!d) return t('dev_eq');
     var a = Math.abs(d), txt;
-    if (q.id === '2026') txt = (a * 100).toFixed(1) + ' bp';
+    if (q.id === '2026') txt = a.toFixed(2) + (L() === 'zh' ? ' 个百分点' : ' percentage points');
     else txt = numTxt(q, a);
     return (d > 0 ? t('dev_hi') : t('dev_lo')) + ' ' + txt;
   }
@@ -636,7 +636,7 @@
     if (q.tv != null && medv) {
       var dd = medv - q.tv, ds;
       if (!dd) ds = t('gap_same');
-      else if (q.id === '2026') ds = (dd > 0 ? '+' : '−') + Math.abs(dd * 100).toFixed(1) + ' bp';
+      else if (q.id === '2026') ds = (dd > 0 ? '+' : '−') + Math.abs(dd).toFixed(2) + (L() === 'zh' ? ' 个百分点' : ' percentage points');
       else ds = (dd > 0 ? '+' : '−') + numTxt(q, Math.abs(dd));
       s += '<div class="tl-gap"><span class="tl-gap-h">' + esc(t('gap_h')) + '</span>'
         + '<div class="tl-gap-r"><b>' + esc(numTxt(q, medv)) + '</b><i>→</i><b>' + esc(numTxt(q, q.tv)) + '</b>'
