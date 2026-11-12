@@ -316,3 +316,50 @@ body.bd-sealed #p-bond [data-bd-seal] { display: none; }
 @media (max-width:640px){
   .bd-db-kv td:first-child{width:42%}
 }
+
+/* ===== v120：实时排名（表格名次列 + 独立榜单） ===== */
+#p-bond .bd-tbl td.rk{
+  text-align:right;font-variant-numeric:tabular-nums;
+  font-size:12px;font-weight:700;color:var(--muted);
+}
+#p-bond .bd-tbl td.rk.top{color:var(--bd-a)}
+#p-bond .bd-tbl td.rk.zero{opacity:.5}
+#p-bond .bd-rankcard{margin-top:18px}
+#p-bond .bd-rank-wrap{overflow-x:auto}
+#p-bond .bd-rank-tbl{width:100%;border-collapse:collapse;font-size:12.5px;table-layout:fixed}
+#p-bond .bd-rank-tbl th{
+  padding:7px 8px;text-align:right;font-size:11px;font-weight:700;
+  color:var(--muted);border-bottom:1px solid var(--panel-border);white-space:nowrap;
+}
+#p-bond .bd-rank-tbl th:nth-child(1){width:9%}
+#p-bond .bd-rank-tbl th:nth-child(2){width:36%;text-align:left}
+#p-bond .bd-rank-tbl th:nth-child(n+3){width:11%}
+#p-bond .bd-rank-tbl th:last-child{width:22%}
+#p-bond .bd-rank-tbl td{
+  padding:6px 8px;border-bottom:1px solid var(--panel-border);text-align:right;
+  font-variant-numeric:tabular-nums;color:var(--text);
+}
+#p-bond .bd-rank-tbl td.nm{
+  text-align:left;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+#p-bond .bd-rank-tbl td.rk{font-weight:800;color:var(--muted)}
+#p-bond .bd-rank-tbl td.tot{font-weight:800;color:var(--bd-a)}
+#p-bond .bd-rank-tbl tr:last-child td{border-bottom:0}
+#p-bond .bd-rank-tbl tr.top td{background:rgba(200,16,46,0.045)}
+#p-bond .bd-rank-tbl tr.top td.rk{color:var(--bd-a)}
+body.dark:not(.light) #p-bond .bd-rank-tbl tr.top td{background:rgba(248,113,113,0.08)}
+#p-bond .bd-rank-tbl tr.loss td.nm{color:#C8102E}
+body.dark:not(.light) #p-bond .bd-rank-tbl tr.loss td.nm{color:#F87171}
+#p-bond .bd-rank-tbl .bd-rk-loss{
+  font-style:normal;margin-left:6px;padding:1px 5px;border-radius:5px;
+  font-size:10px;background:rgba(200,16,46,0.10);color:#C8102E;white-space:nowrap;
+}
+body.dark:not(.light) #p-bond .bd-rank-tbl .bd-rk-loss{
+  background:rgba(248,113,113,0.14);color:#F87171;
+}
+#p-bond .bd-rank-tbl .bd-rk-na{opacity:.4}
+#p-bond .bd-rank-foot{margin-top:10px;font-size:11px;line-height:1.6;color:var(--muted)}
+@media (max-width:640px){
+  #p-bond .bd-rank-tbl{min-width:460px}
+  #p-bond .bd-rank-tbl th,#p-bond .bd-rank-tbl td{padding:5px 5px}
+}

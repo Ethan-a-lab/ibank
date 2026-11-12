@@ -81,7 +81,8 @@
         rs: rounds.map(function (rd) {
           if (!rd || typeof rd.rate !== 'number') return null;
           return { no: rd.no, rate: rd.rate, failed: rd.failed,
-                   book: rd.book ? rd.book.map(function (x) { return [x.r, x.a]; }) : null };
+                   book: rd.book ? rd.book.map(function (x) { return [x.r, x.a]; }) : null,
+                   alloc: Array.isArray(rd.alloc) && rd.alloc.length === SEED.length ? rd.alloc.slice() : null };
         })
       }));
     } catch (e) { /* 写不进（隐私模式等）不影响页面 */ }
@@ -93,6 +94,7 @@
 
   var tbody = document.getElementById('bdRows');
   var barBox = document.getElementById('bdBar');
+  var curAlloc = bids.map(function () { return 0; });   // 当前轮每组实时获配（评分依据）
 
   function esc(s) {
     return String(s == null ? '' : s).replace(/[&<>"']/g, function (m) {
@@ -110,6 +112,7 @@
     var en = L() === 'en';
     tbody.innerHTML = bids.map(function (b, i) {
       return '<tr data-row="' + i + '">'
+        + '<td class="rk" id="bdRk' + i + '">—</td>'
         + '<td class="nm">' + esc(b.n) + '<em class="bd-cost">' + (en ? 'Cost ' : '成本 ') + b.c.toFixed(2) + '%</em></td>'
         + '<td><div class="bd-bidwrap"><input type="number" step="0.01" min="0" max="9" value="' + b.r.toFixed(2) + '" data-i="' + i + '" data-k="r" aria-label="' + esc(b.n) + ' 报价">'
         + '<em class="bd-cmp" id="bdCmp' + i + '"></em></div></td>'
@@ -197,6 +200,10 @@
       return { i: i, n: b.n, r: b.r, a: b.a };
     }));
     var sorted = S.sorted, total = S.total, alloc = S.alloc, marginal = S.marginal;
+
+    /* 把 settle() 的获配（按报价排序后的下标）映回 11 个组的固定下标 */
+    curAlloc = bids.map(function () { return 0; });
+    sorted.forEach(function (b, k) { curAlloc[b.i] = alloc[k]; });
 
     /* 边际档配售比例 */
     var mAmt = 0, mGot = 0;
@@ -358,6 +365,7 @@
     scheduleTrack(failed ? 0 : marginal, cover, ratio, failed);
 
     curveSet();
+    renderRank();
     saveState();
   }
 
@@ -410,14 +418,19 @@
   /* 恢复上次自动保存的轮次（book 的利率/金额按行序还原，名字用当前组号） */
   if (bdSaved && bdSaved.no >= 1 && bdSaved.no <= 3) {
     roundNo = bdSaved.no;
-    for (var ri = 0; ri < roundNo - 1 && ri < 3; ri++) {
+    /* v120：按实际保存的轮次恢复，不再用 roundNo-1 截断。
+       第三轮记下后 roundNo 仍为 3，旧写法会漏掉 rounds[2]，刷新后总榜少一轮。
+       无效项必须 continue，不能赋 null——稀疏数组会让 renderDebrief 读到 null。 */
+    for (var ri = 0; ri < 3; ri++) {
       var rd = bdSaved.rs && bdSaved.rs[ri];
-      rounds[ri] = (rd && typeof rd.rate === 'number')
-        ? { no: rd.no, rate: rd.rate, failed: !!rd.failed,
-            book: (Array.isArray(rd.book) && rd.book.length === SEED.length)
-              ? rd.book.map(function (v, ix) { return { n: SEED[ix].n, r: v[0], a: v[1] }; })
-              : null }
-        : null;
+      if (!rd || typeof rd.rate !== 'number') continue;
+      rounds[ri] = {
+        no: rd.no, rate: rd.rate, failed: !!rd.failed,
+        book: (Array.isArray(rd.book) && rd.book.length === SEED.length)
+          ? rd.book.map(function (v, ix) { return { n: SEED[ix].n, r: v[0], a: v[1] }; })
+          : null,
+        alloc: (Array.isArray(rd.alloc) && rd.alloc.length === SEED.length) ? rd.alloc.slice() : null
+      };
     }
   }
   var pills = [document.getElementById('bdPill1'), document.getElementById('bdPill2'), document.getElementById('bdPill3')];
@@ -628,18 +641,136 @@
         : '；这一档之上没有人落标。');
   }
 
+  /* ---------- v120 · 实时排名：以「本轮成功拿到的配额」为唯一评分口径 ----------
+     表格 11 行位置固定，只填名次（学生录入时不跳行、不丢光标）；整宽榜单按成绩从高到低排。
+     三轮都记下后，主排序从「本轮获配」切成「三轮累计」，形成总排名。
+     评分只看获配额；报价低于自家资金成本的组标红——拿得多不等于赚得多。 */
+  function rankOf(vals) {
+    var idx = vals.map(function (v, i) { return { i: i, v: v }; });
+    idx.sort(function (a, b) { return (b.v - a.v) || (a.i - b.i); });
+    var last = null, pos = 0;
+    return idx.map(function (x, k) {
+      if (last === null || Math.abs(x.v - last) > 1e-9) pos = k + 1;
+      last = x.v;
+      return { i: x.i, v: x.v, rank: pos };
+    });
+  }
+
+  function totals() {
+    var t = bids.map(function () { return 0; });
+    var done = 0;
+    for (var r = 0; r < 3; r++) {
+      var rd = rounds[r];
+      if (!rd || !Array.isArray(rd.alloc)) continue;
+      done++;
+      for (var i = 0; i < t.length; i++) t[i] += (rd.alloc[i] || 0);
+    }
+    /* 三轮都记下后，总榜锁定在三轮快照，不再叠加学生后来又改动的当前簿记 */
+    if (done < 3) for (var j = 0; j < t.length; j++) t[j] += curAlloc[j];
+    return { t: t, done: done };
+  }
+
+  function renderRank() {
+    var en = L() === 'en';
+    var T = totals();
+    var done = T.done, acc = T.t;
+    var final = done >= 3;
+    var primary = final ? acc : curAlloc;
+    var order = rankOf(primary);
+    var rankByGroup = [];
+    order.forEach(function (x) { rankByGroup[x.i] = x.rank; });
+
+    /* 表格里的名次列：行位置不动，只更新数字 */
+    bids.forEach(function (b, i) {
+      var cell = document.getElementById('bdRk' + i);
+      if (!cell) return;
+      cell.textContent = rankByGroup[i];
+      cell.className = 'rk' + (rankByGroup[i] <= 3 ? ' top' : '') + (curAlloc[i] <= 0.001 ? ' zero' : '');
+    });
+
+    var th = document.getElementById('bdThRank');
+    if (th) th.textContent = final ? (en ? 'Total' : '总名次') : (en ? 'Round' : '本轮名次');
+
+    var title = document.getElementById('bdRankTitle');
+    var hint = document.getElementById('bdRankHint');
+    var head = document.getElementById('bdRankHead');
+    var body = document.getElementById('bdRankBody');
+    var foot = document.getElementById('bdRankFoot');
+    if (!title || !head || !body) return;
+
+    title.textContent = final
+      ? (en ? 'Final leaderboard · three rounds combined' : '总排名 · 三轮累计')
+      : (en ? 'Live leaderboard · round ' + roundNo : '实时排名 · 第 ' + roundNo + ' 轮');
+    if (hint) hint.textContent = final
+      ? (en ? 'Ranked by total allocated quota across all three rounds. Each round is an independent CNY 5bn book.'
+            : '按三轮累计拿到的配额从高到低排。每轮都是一次独立的 50 亿元簿记，配额可以累加比较。')
+      : (en ? 'Ranked by the quota won in this round. Change any bid or amount and the order updates immediately; completed rounds stay in the scorecard.'
+            : '按本轮成功拿到的配额从高到低排。改动任何一格报价或金额，名次立刻重排；已记下的轮次进成绩单，三轮累计出总榜。');
+
+    var cols = [en ? 'Rank' : '名次', en ? 'Group' : '机构',
+                (en ? 'R1' : '第 1 轮'), (en ? 'R2' : '第 2 轮'), (en ? 'R3' : '第 3 轮'),
+                en ? 'Total' : '累计获配'];
+    head.innerHTML = cols.map(function (c, k) {
+      return '<th class="' + (k === 1 ? '' : 'r') + '">' + esc(c) + '</th>';
+    }).join('');
+
+    var lossN = 0;
+    bids.forEach(function (b, i) {
+      if (b.a > 0.001 && Math.round((b.r - SEED[i].c) * 100) < 0) lossN++;
+    });
+
+    body.innerHTML = order.map(function (x) {
+      var i = x.i, b = bids[i];
+      var cells = [];
+      for (var r = 0; r < 3; r++) {
+        var rd = rounds[r];
+        var v = (rd && Array.isArray(rd.alloc)) ? (rd.alloc[i] || 0) : null;
+        if (v === null && r + 1 === roundNo && !final) v = curAlloc[i];
+        cells.push(v === null ? '<span class="bd-rk-na">—</span>' : v.toFixed(1));
+      }
+      var bp = Math.round((b.r - SEED[i].c) * 100);
+      var loss = b.a > 0.001 && bp < 0;
+      var nm = esc(b.n) + (loss
+        ? '<em class="bd-rk-loss">' + (en ? 'under cost ' + Math.abs(bp) + 'bp' : '亏 ' + Math.abs(bp) + 'bp') + '</em>'
+        : '');
+      return '<tr class="' + (x.rank <= 3 ? 'top' : '') + (loss ? ' loss' : '') + '" data-g="' + i + '">'
+        + '<td class="rk">' + x.rank + '</td>'
+        + '<td class="nm">' + nm + '</td>'
+        + '<td class="r">' + cells[0] + '</td>'
+        + '<td class="r">' + cells[1] + '</td>'
+        + '<td class="r">' + cells[2] + '</td>'
+        + '<td class="r tot">' + acc[i].toFixed(1) + '</td>'
+        + '</tr>';
+    }).join('');
+
+    if (foot) {
+      var score = en ? 'Scoring: allocated quota only (CNY 100m). ' : '评分口径：只看成功拿到的配额（亿元）。';
+      var warn = lossN
+        ? (en ? ' ' + lossN + ' group(s) bid below their own funding cost — more quota is not more profit.'
+              : '红色标记是赔本抢量的组（' + lossN + ' 家）：拿得多不等于赚得多。')
+        : (en ? ' No group is bidding below its funding cost.' : '当前报价没有赔本抢量的组。');
+      var progress = final ? '' : (en ? ' Completed rounds: ' + done + ' / 3; the total includes the round being edited.'
+                                      : ' 已记下 ' + done + ' / 3 轮，累计含当前正在改的这一轮。');
+      foot.innerHTML = score + progress + warn
+        + (en ? ' Ties share a rank; the next rank is skipped.' : ' 获配相同并列同名次，下一名跳过。');
+    }
+  }
+
   /* ---------- 环节三收尾：三轮都记下才出现 ----------
      这一环节的重点概念（边际利率 / 票面利率 / 配售比例 / 1bp）在页面上都实时算过了，
      这里只把「你们三轮走到哪」和「四个概念各自是什么」并排放一次，作为环节讲解。 */
   function renderDebrief() {
     var box = document.getElementById('bdDebrief');
     if (!box) return;
-    if (rounds.length < 3) { box.hidden = true; return; }
+    /* 只认真正记下的轮次：稀疏数组（老存档 / 中途重来）不能当成三轮走完 */
+    var done = [];
+    for (var d = 0; d < 3; d++) if (rounds[d] && typeof rounds[d].rate === 'number') done.push(rounds[d]);
+    if (done.length < 3) { box.hidden = true; return; }
     box.hidden = false;
 
     var seq = [];
     for (var i = 0; i < 3; i++) {
-      var rd = rounds[i];
+      var rd = done[i];
       if (!rd) continue;
       seq.push('<span class="bd-db-p"><b>第 ' + (i + 1) + ' 轮</b>'
         + '<i>' + (rd.failed ? '流标' : rd.rate.toFixed(2) + '%') + '</i></span>');
@@ -649,12 +780,12 @@
 
     var note = document.getElementById('bdDbNote');
     if (!note) return;
-    var rt = rounds[rounds.length - 1];
+    var rt = done[2];
     if (rt.failed) {
       note.innerHTML = '<b>第三轮流标了。</b>累计申购没到 50 亿元，场上不存在「边际利率」——这时候只剩发行失败和余额包销两条路。把利率往上放一点再走一轮，就能看到边际利率是怎么被「刚好卖完」这一档顶出来的。';
       return;
     }
-    var first = rounds[0];
+    var first = done[0];
     var bpAll = Math.round((rt.rate - first.rate) * 100);
     note.innerHTML = '<b>三轮从 ' + first.rate.toFixed(2) + '% 走到 ' + rt.rate.toFixed(2) + '%（'
       + (bpAll === 0 ? '没动' : (bpAll > 0 ? '+' : '') + bpAll + 'bp') + '）。</b>'
@@ -744,7 +875,7 @@
         return;
       }
       b.textContent = '还原真实簿记';
-      bids = SEED.map(function (x) { return { n: x.n, r: x.r, a: x.a }; });
+      bids = SEED.map(function (x) { return { n: x.n, c: x.c, r: x.r, a: x.a }; });
       renderTable(); calc();
     } else if (act === 'fail') {
       // 演示余额包销：每户只报 1 亿，合计 11 亿，远不足 50 亿
@@ -767,7 +898,8 @@
         no: roundNo,
         rate: bad ? 0 : Sl.marginal,
         failed: bad,
-        book: cClone(bids)
+        book: cClone(bids),
+        alloc: curAlloc.slice()
       };
       if (roundNo < 3) roundNo++;
       refreshRounds();
