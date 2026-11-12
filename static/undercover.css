@@ -161,6 +161,37 @@
 }
 #p-game .uc-score b{font-size:16px;color:var(--text);font-variant-numeric:tabular-nums}
 
+/* ============ 本局答案：教师讲评用，默认收起 ============ */
+#p-game .uc-ans-btn{margin-top:20px;font-size:12px;opacity:.78}
+#p-game .uc-ans{margin-top:4px}
+#p-game .uc-ans-pair{
+  font-size:12.5px;line-height:1.75;color:var(--text);font-weight:600;
+  background:rgba(99,102,241,.07);border-radius:9px;padding:9px 12px;margin-bottom:10px;
+}
+#p-game .uc-ans-tbl{width:100%;border-collapse:collapse;font-size:12.5px}
+#p-game .uc-ans-tbl th,#p-game .uc-ans-tbl td{
+  padding:7px 10px;text-align:left;border-bottom:1px solid var(--panel-border);vertical-align:middle;
+}
+#p-game .uc-ans-tbl th{font-size:11px;color:var(--muted);font-weight:700;letter-spacing:.5px}
+#p-game .uc-ans-tbl td.g{font-weight:700;white-space:nowrap}
+#p-game .uc-ans-tbl td.w{font-weight:600}
+#p-game .uc-ans-tbl td.s{color:var(--muted);font-size:11.5px;white-space:nowrap}
+#p-game .uc-ans-tbl .tag{
+  display:inline-block;padding:2px 9px;border-radius:99px;font-size:11px;font-weight:700;
+  background:var(--panel-border);color:var(--muted);
+}
+#p-game .uc-ans-tbl tr.r-u .tag{background:rgba(226,75,74,.14);color:#e24b4a}
+#p-game .uc-ans-tbl tr.r-b .tag{background:rgba(139,92,246,.15);color:#8b5cf6}
+#p-game .uc-ans-tbl tr.r-u td.w{color:#e24b4a}
+#p-game .uc-ans-warn{
+  margin-top:10px;font-size:11.5px;color:var(--muted);line-height:1.65;
+  border-left:2px solid var(--accent);padding-left:9px;text-align:left;
+}
+@media (max-width:640px){
+  #p-game .uc-ans-tbl th,#p-game .uc-ans-tbl td{padding:6px 5px;font-size:11.5px}
+  #p-game .uc-ans-pair{font-size:11.5px;padding:8px 9px}
+}
+
 /* ============ 打印：只留号卡纸，其余全部压掉 ============ */
 #uc-print{display:none}
 @media print{

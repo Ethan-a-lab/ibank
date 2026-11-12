@@ -122,6 +122,23 @@
     r_sheet:   { zh: '再打一份号卡', en: 'Print another sheet' },
     r_reset:   { zh: '重置比分', en: 'Reset score' },
 
+    /* ---- 本局答案（教师讲评用：默认收起，投票结束/一局终了才摊开，防止投屏泄底） ---- */
+    a_h:       { zh: '本局答案 · 各组角色', en: 'Full answer · every group' },
+    a_pair:    { zh: '平民词 {1}（多数）· 卧底词 {2}（2 组）· 白板没有词', en: 'Civilian word {1} (most) · mole word {2} (two groups) · blank has no word' },
+    a_th_g:    { zh: '组', en: 'Group' },
+    a_th_role: { zh: '角色', en: 'Role' },
+    a_th_word: { zh: '卡上的词', en: 'Word on card' },
+    a_th_st:   { zh: '状态', en: 'Status' },
+    a_c:       { zh: '平民', en: 'Civilian' },
+    a_u:       { zh: '卧底', en: 'Mole' },
+    a_b:       { zh: '白板', en: 'Blank' },
+    a_none:    { zh: '（没有词）', en: '(no word)' },
+    a_out:     { zh: '已出局', en: 'Out' },
+    a_alive:   { zh: '仍在场', en: 'Still in' },
+    a_warn:    { zh: '教师讲评用：等本轮投票结束再点开投屏，别让学生提前看到。', en: 'Teacher debrief only: open this after voting ends, never in front of students earlier.' },
+    a_show:    { zh: '查看本局答案（教师用 · 别提前投屏）', en: 'Show the answer (teacher only, do not project yet)' },
+    a_hide:    { zh: '收起答案', en: 'Hide the answer' },
+
     /* ---- 打印纸 ---- */
     p_title:   { zh: '投行卧底 · 号卡', en: 'Investment Banking Mole · Cards' },
     p_meta:    { zh: '第 {1} 局 · {2} 组 · 沿虚线裁开，对折后发放', en: 'Round {1} · {2} groups · Cut along dashed lines and fold' },
@@ -212,6 +229,7 @@
     total: 0,
     picked: 0,
     tie: null,
+    showAnswer: false,  // 教师是否点开「本局答案」；默认关，避免描述/投票阶段投屏泄题
     score: { c: 0, u: 0 }
   };
 
@@ -267,9 +285,24 @@
   }
 
   /* ---------------- 一局的生命周期 ---------------- */
+  /* 课堂固定玩三局：前三局按「生活化 → 会撞车 → 引出本课定价」用指定词对。
+     开场若随机抽到债券术语（边际利率 / 合规申购 / 簿记建档之类），
+     学生一句话都描述不出来，卧底也藏不住。改顺序或换词只改 OPENING_PAIRS。
+     第 4 局起恢复随机，但避开上一局那对，免得连着两局同一个词。 */
+  var OPENING_PAIRS = [2, 10, 1];   // PAIRS 的 1-based 编号：代销/包销、破发/破净、询价/定价
+  function pickPairIdx() {
+    if (S.round <= OPENING_PAIRS.length) {
+      var fixed = OPENING_PAIRS[S.round - 1] - 1;
+      return (fixed >= 0 && fixed < PAIRS.length) ? fixed : rnd(PAIRS.length);
+    }
+    var i = rnd(PAIRS.length);
+    if (PAIRS.length > 1 && i === S.pairIdx) i = (i + 1 + rnd(PAIRS.length - 1)) % PAIRS.length;
+    return i;
+  }
+
   function newRound() {
     S.round++;
-    S.pairIdx = rnd(PAIRS.length);
+    S.pairIdx = pickPairIdx();
     S.pair = PAIRS[S.pairIdx];
     /* 3 张特殊身份：n=11 → 3:8，n=12 → 3:9。抽 3 个不重复座位，先定白板再定两个卧底。
        注意别用「排序后取第三个」—— 那等于永远挑三张里最大的号，1、2 号组一辈子当不上白板。
@@ -284,6 +317,7 @@
     S.order = shuffle(S.alive.slice());
     S.cur = 0;
     S.votes = {}; S.total = 0; S.picked = 0; S.tie = null;
+    S.showAnswer = false;
     S.room = ''; S.tokens = []; S.net = '';
     stopClock();
     if (S.mode === 'phone') {
@@ -365,6 +399,7 @@
 
   function startDescribe() {
     S.phase = 'describe';
+    S.showAnswer = false;   // 开始描述了，答案自动收起，防止投屏留在上一阶段
     S.cur = 0;
     render();
     startClock();
@@ -375,7 +410,7 @@
   }
 
   function goVote() {
-    S.phase = 'vote'; stopClock();
+    S.phase = 'vote'; S.showAnswer = false; stopClock();
     S.votes = {}; S.total = 0; S.picked = 0; S.tie = null;
     render();
   }
@@ -432,6 +467,7 @@
   /* 进入下一轮投票：只剩存活组重新描述，顺序重排 */
   function nextVoteRound() {
     S.vr++;
+    S.showAnswer = false;   // 还要再投一轮，答案必须重新收起
     S.order = shuffle(S.alive.slice());
     S.cur = 0;
     S.votes = {}; S.total = 0; S.picked = 0; S.tie = null;
@@ -446,6 +482,7 @@
     S.hit = 0; S.vr = 1; S.result = '';
     S.room = ''; S.tokens = []; S.net = '';
     S.votes = {}; S.total = 0; S.picked = 0; S.tie = null;
+    S.showAnswer = false;
     S.score = { c: 0, u: 0 };
     render();
   }
@@ -522,6 +559,50 @@
       + '<div class="uc-cpt-h">' + esc(t('r_byd')) + '</div>'
       + '<div class="uc-byd">' + esc(pair.byd[L()] || pair.byd.zh) + '</div>'
       + '</div>';
+  }
+
+  /* 本局答案：逐组列出「角色 + 手里的词 + 是否已出局」。
+     一直默认收起，只有教师点开、或一局真正结束时才渲染，
+     否则学生扫码领词/描述/投票时，教师控场这一屏会把底牌全亮出来。 */
+  function answerBlock() {
+    if (!S.pair) return '';
+    var civ = S.pair.a[L()] || S.pair.a.zh;
+    var mol = S.pair.b[L()] || S.pair.b.zh;
+    var rows = '', i;
+    for (i = 1; i <= S.n; i++) {
+      var role = isMole(i) ? 'u' : (isBlank(i) ? 'b' : 'c');
+      var w = wordOf(i);
+      var word = isBlank(i) ? t('a_none') : (w[L()] || w.zh);
+      var st = S.out.indexOf(i) >= 0 ? t('a_out') : t('a_alive');
+      rows += '<tr class="r-' + role + '">'
+        + '<td class="g">' + esc(gl(i)) + '</td>'
+        + '<td><span class="tag">' + esc(t('a_' + role)) + '</span></td>'
+        + '<td class="w">' + esc(word) + '</td>'
+        + '<td class="s">' + esc(st) + '</td></tr>';
+    }
+    return '<div class="uc-ans" id="ucAns">'
+      + '<div class="uc-h" style="margin-top:18px"><span class="bar"></span><h3>' + esc(t('a_h')) + '</h3>'
+      + '<span class="r">' + esc(t('r_round', S.vr, VR_MAX)) + '</span></div>'
+      + '<div class="uc-ans-pair">' + esc(t('a_pair', civ, mol)) + '</div>'
+      + '<table class="uc-ans-tbl"><thead><tr>'
+      + '<th>' + esc(t('a_th_g')) + '</th><th>' + esc(t('a_th_role')) + '</th>'
+      + '<th>' + esc(t('a_th_word')) + '</th><th>' + esc(t('a_th_st')) + '</th>'
+      + '</tr></thead><tbody>' + rows + '</tbody></table>'
+      + '<div class="uc-ans-warn">' + esc(t('a_warn')) + '</div>'
+      + '</div>';
+  }
+
+  /* 答案区入口：只在已开局、且处于发词/描述/投票/揭晓四个阶段才挂。
+     一局结束 → 直接摊开（讲评要用的就是这时候）；否则默认只给一个折叠按钮。 */
+  function answerBar() {
+    if (!S.pair) return '';
+    if (S.phase !== 'cards' && S.phase !== 'describe' && S.phase !== 'vote' && S.phase !== 'reveal') return '';
+    if (S.result) return answerBlock();
+    if (S.showAnswer) {
+      return answerBlock()
+        + '<button class="uc-btn ghost" onclick="UC.toggleAnswer()">' + esc(t('a_hide')) + '</button>';
+    }
+    return '<button class="uc-btn ghost uc-ans-btn" onclick="UC.toggleAnswer()">' + esc(t('a_show')) + '</button>';
   }
 
   function rSetup() {
@@ -756,7 +837,7 @@
     else if (S.phase === 'reveal') body = rReveal();
     else body = rSetup();
 
-    root.innerHTML = '<div class="uc-root">' + body + '</div>';
+    root.innerHTML = '<div class="uc-root">' + body + answerBar() + '</div>';
     setEntry();
     afterRender();
   }
@@ -798,7 +879,8 @@
     pick: pick,
     nextVote: nextVoteRound,
     print: printSheet,
-    nextRound: function () { S.phase = 'setup'; render(); },
+    nextRound: function () { S.phase = 'setup'; S.showAnswer = false; render(); },
+    toggleAnswer: function () { S.showAnswer = !S.showAnswer; render(); },
     reset: resetAll,
     back: function () { if (window.GM) window.GM.show('home'); },
     state: S
