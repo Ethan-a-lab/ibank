@@ -3178,8 +3178,9 @@ body.dark:not(.light) .pj-sv-empty { background: rgba(99, 102, 241, .13); }
 .pj-mbti-btn:hover { transform: translateY(-1px); filter: brightness(1.08); }
 .pj-mbti-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 .pj-mbti-note { font-size: 11.5px; line-height: 1.6; color: var(--dim); }
-/* 进入任务书详情后让位给正文，与 .section-sub 的处理保持一致 */
-#p-project.in-detail .pj-mbti { display: none; }
+/* v108：进入任务书详情后不再隐藏这张卡（原规则 #p-project.in-detail .pj-mbti{display:none}）。
+   详情页内容被清空、只留标题头时，若沿用旧规则，学生点进去第一屏就是整片空白，
+   看着像 MBTI 入口被一起删掉了。用户口径：MBTI 卡保留，列表页与详情页都显示。 */
 @media (max-width: 640px) {
   .pj-mbti { padding: 16px; }
   .pj-mbti-main,
