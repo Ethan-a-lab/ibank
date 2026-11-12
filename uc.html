@@ -103,10 +103,11 @@
     gotit:   { zh: '我记住了', en: 'Got it' },
     masked:  { zh: '已收起。把手机扣在桌上，听别人怎么描述。', en: 'Hidden. Put the phone face down and listen.' },
     rulesT:  { zh: '本局规则', en: 'How this round works' },
-    r1:      { zh: '11 组里 3 组拿到的是卧底词，其余 8 组拿到的是平民词。', en: 'Three of eleven groups hold the mole word; the other eight hold the civilian word.' },
-    r2:      { zh: '没有谁知道自己是哪一组 —— 也不知道场上到底有几个异类。', en: 'Nobody knows which side they are on.' },
+    blankTip:{ zh: '你拿的是白板：没有词。听别人怎么说，现编一句混进去。', en: 'You hold the blank card: no word. Listen, then improvise one line.' },
+    r1:      { zh: '11 组里 2 组拿到卧底词、1 组拿到白板，其余 8 组拿到的是平民词。', en: 'Of eleven groups, two hold the mole word, one holds the blank, and eight hold the civilian word.' },
+    r2:      { zh: '拿到卧底词的人知道自己的词跟大家不一样，但不知道另一个卧底是谁；白板只知道自己没词。', en: 'Moles can tell their word differs, but not who the other mole is. The blank only knows it has no word.' },
     r3:      { zh: '每组说一句话，然后全班投票，票最多的那一组淘汰、翻牌。', en: 'One sentence each, then the class votes; the top group is out and flipped.' },
-    r4:      { zh: '抓出 2 组卧底就是平民赢；三轮投完只抓到 1 组，卧底赢。', en: 'Catch two moles and the civilians win; if three votes catch only one, the moles win.' }
+    r4:      { zh: '抓出 2 个特殊身份（卧底或白板）就是平民赢；三轮投完不够，卧底赢。', en: 'Catch any two of the three special cards and the civilians win; otherwise the moles win.' }
   };
   var lang = (function () {
     try { var v = localStorage.getItem('ibank_lang'); if (v === 'en') return 'en'; } catch (e) {}
@@ -159,10 +160,13 @@
     } else if (state.step === 'word') {
       var d = state.data;
       var big = (lang === 'en') ? d.word_en : d.word_zh;
-      /* 英文态只显示英文，与纸质号卡保持一致；中文课才附一行英文术语 */
+      var blankCard = (d.word_zh === '白板' || d.word_en === 'Blank');
+      /* 英文态只显示英文，与纸质号卡保持一致；中文课才附一行英文术语。
+         白板卡不附术语，改附一句「你没有词，现编一句」。 */
       panel.innerHTML = '<span class="gno">' + esc(t('group', d.seat)) + '</span>'
         + '<div class="word" style="font-size:' + fitWord(big) + 'px">' + esc(big) + '</div>'
-        + (lang === 'en' ? '' : '<div class="word-en">' + esc(d.word_en) + '</div>')
+        + (blankCard ? '<div class="word-en">' + esc(t('blankTip')) + '</div>'
+                     : (lang === 'en' ? '' : '<div class="word-en">' + esc(d.word_en) + '</div>'))
         + '<p class="hint">' + esc(t('hint')) + '</p>'
         + '<button class="btn" id="got">' + esc(t('gotit')) + '</button>'
         + '<button class="btn ghost" id="back">' + esc(t('again')) + '</button>';

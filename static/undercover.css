@@ -14,6 +14,11 @@
   border-radius:12px;padding:12px 14px;margin:14px 0;
 }
 #p-game .uc-note b{color:var(--text);font-weight:600}
+/* 发言纪律 / 自辩提示：与普通说明条区分，一道窄边、字号略小 */
+#p-game .uc-note.uc-law{
+  border-left:3px solid var(--accent-solid);
+  font-size:12px;padding:10px 13px;margin-top:-2px;
+}
 
 /* 段落标题 */
 #p-game .uc-h{
@@ -185,6 +190,9 @@
   }
   .uc-card .bot .cw{font-size:16pt;font-weight:800;line-height:1.25}
   .uc-card .bot .ce{font-size:8.5pt;color:#333;margin-top:1mm}
+  /* 白板卡：纸面外观必须跟别的卡一模一样（同为虚线框），否则折好发下去一看边框就知道谁是白板 */
+  .uc-card.blank .bot .cw{letter-spacing:6px;font-size:15pt}
+  .uc-card.blank .bot .ce{font-size:7.5pt;color:#555;line-height:1.5}
   .uc-card .bot .ctok{
     font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
     font-size:23pt;font-weight:800;letter-spacing:4px;line-height:1.1;

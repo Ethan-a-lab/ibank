@@ -1,9 +1,14 @@
 /* ===================================================================
    投行卧底（教师控场版）
    —— 一台设备投屏，学生看纸质号卡，教师录票，大屏出结果。
-   —— 玩法：n 组各拿一个词，其中 3 组拿到的是「卧底词」；
+   —— 玩法照标准「谁是卧底」的多特殊身份局：n 组各拿一张卡，
+      其中 2 组拿「卧底词」，1 组拿「白板」（卡上什么都没有，必须听着装）；
       每轮存活组轮着用一句话描述，全场投票淘汰一组，翻牌看抓没抓到；
-      累计抓出 2 组卧底即平民胜，三轮投完只抓到 1 组（或 0 组）则卧底胜。
+      累计抓出 2 个特殊身份（卧底或白板）即平民胜，三轮投完不够则卧底胜。
+   —— 为什么是「2 卧底 + 1 白板」而不是「3 卧底同一个词」：
+      3 组同词一句描述就能互相认亲、抱成 3 票投平民，局面是死的；
+      白板没有词、也不知道谁是卧底，三张特殊牌互相都不敢确认，
+      抱团链条断掉，这是标准玩法在大人数局里的通用解法。
    —— 词对全部锚定比亚迪这条线（2011 IPO / 2016 定增 / 2021 配售 / 2026 科创债），
       翻牌即给出「这组词的区别」+「在本课里对应哪一段」，就是本环节的概念讲解。
    —— 全部文案走本文件内置双语表，跟随 <html lang> 切换，
@@ -18,7 +23,9 @@
   function L() { return document.documentElement.lang === 'en' ? 'en' : 'zh'; }
 
   var VR_MAX = 3;        // 最多投几轮票
-  var WIN_HIT = 2;       // 抓出几组卧底算平民胜
+  var WIN_HIT = 2;       // 抓出几个特殊身份算平民胜
+  var N_MOLE = 2;        // 拿卧底词的组数
+  var N_BLANK = 1;       // 白板组数（没有词，只有一句「装着说」）
 
   var T = {
     /* ---- 通用 ---- */
@@ -34,10 +41,10 @@
     s_pack:    { zh: '比亚迪四讲 · 对立词对 12 组', en: 'BYD four deals · 12 word pairs' },
     s_go:      { zh: '生成号卡，开局', en: 'Generate cards and start' },
     s_rule_h:  { zh: '一局怎么玩', en: 'How a round works' },
-    s_r1:      { zh: '每组领一张号卡，只自己看，别让邻组瞄到。{1} 组里有 3 组拿到的是卧底词。', en: 'Each group gets one card, read privately. Three of the {1} groups hold the mole word.' },
-    s_r2:      { zh: '按屏幕给的顺序，轮着用一句话描述自己的词，不许说破。', en: 'In the order shown, pitch your word in one sentence without giving it away.' },
-    s_r3:      { zh: '描述完全场投票，教师点组号记票；票最高的一组被淘汰，翻牌看是平民还是卧底。', en: 'When pitching ends, the class votes. The teacher taps group numbers; the top-voted group is out and its card is flipped.' },
-    s_r4:      { zh: '累计抓出 2 组卧底即平民胜；三轮投完只抓到 1 组或一组没抓到，卧底胜。', en: 'Catch two moles and the civilians win. If three votes catch one or none, the moles win.' },
+    s_r1:      { zh: '每组领一张号卡，只自己看，别让邻组瞄到。{1} 组里，2 组拿的是卧底词，另有 1 组拿的是白板——牌上什么都没有。拿卧底词的不知道另一个卧底是谁，白板也不知道别人手里是什么。', en: 'Each group gets one card, read privately. Of the {1} groups, two hold the mole word and one holds a blank card — nothing printed on it. Moles do not know each other; the blank does not know what anyone else holds.' },
+    s_r2:      { zh: '按屏幕给的顺序，轮着用一句话描述自己的词，不许说破。不许重复前面组说过的角度，也不许说「同上」「跟他一样」——白板就得靠听，现编一句混进去。', en: 'In the order shown, pitch your word in one sentence without giving it away. Do not reuse an angle already used, and no "same as them" — the blank card has to improvise from what it hears.' },
+    s_r3:      { zh: '描述完全场投票，教师点组号记票；票最高的一组先自辩一句，再翻牌看是平民、卧底还是白板。', en: 'When pitching ends, the class votes. The top-voted group defends itself in one sentence, then its card is flipped.' },
+    s_r4:      { zh: '累计抓出 2 个特殊身份（卧底或白板都算）即平民胜；三轮投完只抓到 1 个或一个没抓到，卧底胜。', en: 'Catch any two of the three special cards — moles or the blank — and the civilians win. If three votes catch one or none, the moles win.' },
     s_note:    { zh: '一局 5—8 分钟。想再来一局就换一套词，累计比分不清零。', en: 'A round runs five to eight minutes. Start another to switch word sets; the score carries over.' },
     s_mode:    { zh: '发词方式', en: 'How words are dealt' },
     s_m_paper: { zh: '纸质号卡', en: 'Paper cards' },
@@ -46,10 +53,12 @@
 
     /* ---- 号卡 ---- */
     c_h:       { zh: '号卡已生成', en: 'Cards are ready' },
-    c_desc:    { zh: '{1} 张卡，其中 3 张印的是卧底词。打印后沿虚线裁开、对折，发下去让学生自己拆开看。', en: '{1} cards, three of them carry the mole word. Print, cut along the dashed lines, fold, and hand them out.' },
+    c_desc:    { zh: '{1} 张卡：2 张印卧底词，1 张是白板（卡面只写「白板」，没有词）。打印后沿虚线裁开、对折，发下去让学生自己拆开看。', en: '{1} cards: two carry the mole word, one is blank (it says so, and nothing else). Print, cut along the dashed lines, fold, and hand them out.' },
     c_print:   { zh: '打印号卡', en: 'Print cards' },
     c_go:      { zh: '号卡发完，开始描述', en: 'Cards dealt, start pitching' },
     c_tip:     { zh: '屏幕上从头到尾不会出现任何词，学生只能看自己手里那张。', en: 'No word ever appears on screen. Students only see their own card.' },
+    b_word:    { zh: '白板', en: 'Blank' },
+    b_hint:    { zh: '你没有词。听别人怎么说，现编一句混进去。', en: 'You have no word. Listen, then improvise one line.' },
 
     /* ---- 手机领词 ---- */
     c_ph_desc: { zh: '打印后裁开发给各组。卡片上只有领词码，没有词 —— 学生扫屏幕上的二维码打开领词页，输入自己卡片上的 6 位码。', en: 'Print and cut, then hand one to each group. Cards carry an access code only. Students scan the QR on screen and type their six-character code.' },
@@ -74,6 +83,7 @@
     d_vote:    { zh: '描述结束，进入投票', en: 'Done pitching, go to vote' },
     d_last:    { zh: '已经是最后一组了', en: 'That was the last group' },
     d_supp:    { zh: '这一轮只补一句：说说和上一轮不一样的地方', en: 'This round: one sentence only — what changed since your last pitch' },
+    d_law:     { zh: '发言纪律：不许说破词、不许重复前面组用过的角度、不许说「同上」。违反一次，本组本轮不能投票。', en: 'Rules of speech: no giveaway, no reusing an earlier angle, no "same as them". One breach and your group loses its vote this round.' },
 
     /* ---- 投票 ---- */
     v_h:       { zh: '谁最像卧底？点组号记票', en: 'Who looks like the mole? Tap to count' },
@@ -83,23 +93,28 @@
     v_tie:     { zh: '平票了，点其中一组决出被淘汰的组。', en: 'Tie. Tap one of the tied groups to decide.' },
     v_need:    { zh: '先记至少一票', en: 'Record at least one vote' },
     v_back:    { zh: '返回描述', en: 'Back to pitching' },
+    v_def:     { zh: '记完票先别翻：票最高的一组有 20 秒自辩，说完再点结算。', en: 'Before flipping, give the top-voted group 20 seconds to defend itself, then settle.' },
 
     /* ---- 揭晓 ---- */
     r_out:     { zh: '淘汰', en: 'Eliminated' },
     r_votes:   { zh: '{1} 票', en: '{1} votes' },
     r_was_c:   { zh: '它是平民', en: 'a civilian' },
     r_was_u:   { zh: '它是卧底', en: 'a mole' },
+    r_was_b:   { zh: '它是白板', en: 'the blank card' },
     r_true:    { zh: '平民词', en: 'Civilian word' },
     r_odd:     { zh: '卧底词', en: "Mole's word" },
-    r_hit:     { zh: '已抓出 {1} / {2} 组卧底', en: 'Moles caught: {1} of {2}' },
+    r_bword:   { zh: '白板', en: 'Blank' },
+    r_bwordv:  { zh: '卡上什么都没印', en: 'nothing printed' },
+    r_bseat:   { zh: '白板是', en: 'The blank was' },
+    r_hit:     { zh: '已抓出 {1} / {2} 个特殊身份', en: 'Special cards caught: {1} of {2}' },
     r_round:   { zh: '第 {1} / {2} 轮投票', en: 'Vote {1} of {2}' },
     r_next:    { zh: '下一轮：存活组补一句，再投一票', en: 'Next round: survivors add a line, then vote again' },
     r_over_c:  { zh: '平民胜', en: 'Civilians win' },
     r_over_u:  { zh: '卧底胜', en: 'Moles win' },
-    r_over_cs: { zh: '三轮之内抓出两组卧底，词读对了。', en: 'Two moles caught inside three votes — the words were read correctly.' },
-    r_over_us0:{ zh: '三轮投完一组都没抓中，三组卧底全须全尾混到了最后。', en: 'Three votes, no mole caught — all three survived.' },
-    r_over_us1:{ zh: '三轮只抓到一组，另外两组卧底混到了最后。', en: 'Three votes caught one mole; the other two survived.' },
-    r_moles:   { zh: '三组卧底是', en: 'The moled groups were' },
+    r_over_cs: { zh: '三轮之内抓出两个特殊身份，词读对了。', en: 'Two special cards caught inside three votes — the words were read correctly.' },
+    r_over_us0:{ zh: '三轮投完一个都没抓中，两个卧底和白板全须全尾混到了最后。', en: 'Three votes, none caught — both moles and the blank survived.' },
+    r_over_us1:{ zh: '三轮只抓到一个，其余的特殊身份混到了最后。', en: 'Three votes caught one; the rest survived.' },
+    r_moles:   { zh: '两个卧底是', en: 'The two moles were' },
     r_concept: { zh: '这组词的区别', en: 'How the two words differ' },
     r_byd:     { zh: '在比亚迪这一课里', en: 'In the BYD case' },
     r_score:   { zh: '累计比分', en: 'Score' },
@@ -178,7 +193,8 @@
     round: 0,
     pair: null,
     pairIdx: -1,
-    moles: [],        // 卧底组（座位号数组，3 个）
+    moles: [],        // 拿卧底词的组（座位号数组，2 个）
+    blank: 0,         // 白板组座位号（1 个，0 表示没有）
     alive: [],        // 存活组
     out: [],          // 已淘汰组
     hit: 0,           // 已抓出的卧底数
@@ -208,6 +224,14 @@
   function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
   function gl(n) { return L() === 'en' ? t('group') + ' ' + n : n + ' ' + t('group'); }
   function isMole(seat) { return S.moles.indexOf(seat) >= 0; }
+  function isBlank(seat) { return !!S.blank && seat === S.blank; }
+  /* 特殊身份 = 卧底 + 白板：平民方抓够 WIN_HIT 个就赢，不区分抓的是哪一类 */
+  function isOdd(seat) { return isMole(seat) || isBlank(seat); }
+  /* 一组拿到的卡：平民词 / 卧底词 / 白板，三条路径统一走这里，避免发词和翻牌两处口径分叉 */
+  function wordOf(seat) {
+    if (isBlank(seat)) return { zh: '白板', en: 'Blank' };
+    return isMole(seat) ? S.pair.b : S.pair.a;
+  }
 
   /* ---------------- 倒计时 ---------------- */
   function startClock() {
@@ -247,10 +271,14 @@
     S.round++;
     S.pairIdx = rnd(PAIRS.length);
     S.pair = PAIRS[S.pairIdx];
-    /* 3 组卧底：n=11 → 3:8，n=12 → 3:9。从座位上随机抽 3 个不重复的号。 */
+    /* 3 张特殊身份：n=11 → 3:8，n=12 → 3:9。抽 3 个不重复座位，先定白板再定两个卧底。
+       注意别用「排序后取第三个」—— 那等于永远挑三张里最大的号，1、2 号组一辈子当不上白板。
+       两张卧底牌彼此不知道对方，白板也不知道自己以外还有谁 —— 抱团链条从这里断掉。 */
     var seats = [], i;
     for (i = 1; i <= S.n; i++) seats.push(i);
-    S.moles = shuffle(seats).slice(0, 3).sort(function (x, y) { return x - y; });
+    var odd = shuffle(seats).slice(0, N_MOLE + N_BLANK);
+    S.blank = N_BLANK ? odd[0] : 0;
+    S.moles = odd.slice(N_BLANK).sort(function (x, y) { return x - y; });
     S.alive = []; for (i = 1; i <= S.n; i++) S.alive.push(i);
     S.out = []; S.hit = 0; S.vr = 1; S.result = '';
     S.order = shuffle(S.alive.slice());
@@ -298,7 +326,7 @@
     var code = genCode(4);
     var tokens = [], rows = [], i, w, tk;
     for (i = 1; i <= S.n; i++) {
-      w = isMole(i) ? S.pair.b : S.pair.a;
+      w = wordOf(i);
       tk = genCode(6);
       tokens.push(tk);
       rows.push({
@@ -388,7 +416,7 @@
   function finish(id) {
     S.picked = id;
     S.tie = null;
-    if (isMole(id)) S.hit++;
+    if (isOdd(id)) S.hit++;
     if (S.out.indexOf(id) < 0) S.out.push(id);
     var k = S.alive.indexOf(id);
     if (k >= 0) S.alive.splice(k, 1);
@@ -414,7 +442,7 @@
 
   function resetAll() {
     stopClock();
-    S.phase = 'setup'; S.round = 0; S.pair = null; S.moles = []; S.alive = []; S.out = [];
+    S.phase = 'setup'; S.round = 0; S.pair = null; S.moles = []; S.blank = 0; S.alive = []; S.out = [];
     S.hit = 0; S.vr = 1; S.result = '';
     S.room = ''; S.tokens = []; S.net = '';
     S.votes = {}; S.total = 0; S.picked = 0; S.tie = null;
@@ -444,11 +472,12 @@
           + '</div></div>';
         continue;
       }
-      var w = isMole(i) ? S.pair.b : S.pair.a;
+      var w = wordOf(i);
       /* 卡面主词跟随当前语言；中文课顺手带上英文术语，英文课只印英文 */
       var main = (L() === 'en') ? w.en : w.zh;
-      var sub2 = (L() === 'en') ? '' : w.en;
-      cells += '<div class="uc-card">'
+      /* 白板卡不印对应术语，改印一句玩法提示——拿着这张卡的学生必须知道自己在装 */
+      var sub2 = isBlank(i) ? t('b_hint') : (L() === 'en' ? '' : w.en);
+      cells += '<div class="uc-card' + (isBlank(i) ? ' blank' : '') + '">'
         + '<div class="top"><span class="gno">' + gl(i) + '</span>'
         + '<span class="gtag">' + esc(t('p_tag')) + '</span>'
         + '<span class="fold">' + esc(t('p_fold')) + '</span></div>'
@@ -572,8 +601,9 @@
     var isLast = S.cur >= S.order.length - 1;
     return '<div class="uc-h" style="margin-top:2px"><span class="bar"></span><h3>'
       + esc(t('r_round', S.vr, VR_MAX)) + '</h3>'
-      + '<span class="r">' + esc(t('r_hit', S.hit, 3)) + '</span></div>'
+      + '<span class="r">' + esc(t('r_hit', S.hit, N_MOLE + N_BLANK)) + '</span></div>'
       + (S.vr > 1 ? '<div class="uc-note" style="display:block">' + esc(t('d_supp')) + '</div>' : '')
+      + '<div class="uc-note uc-law" style="display:block">' + esc(t('d_law')) + '</div>'
       + '<div class="uc-stage" style="margin-top:2px">'
       + '<div class="lab">' + esc(t('d_now')) + '</div>'
       + '<div class="uc-who">' + now + '<em>' + esc(t('group')) + '</em></div>'
@@ -613,6 +643,7 @@
       + (S.tie
         ? '<div class="uc-note" style="display:block;border-color:rgba(226,75,74,.5);color:#e24b4a">' + esc(t('v_tie')) + '</div>'
         : '<div class="uc-note" style="display:block">' + esc(t('v_hint')) + '</div>')
+      + '<div class="uc-note uc-law" style="display:block">' + esc(t('v_def')) + '</div>'
       + '<div class="uc-grid">' + cells + '</div>'
       + '<div class="uc-tally">' + esc(t('v_total')) + ' <b>' + S.total + '</b></div>'
       + '<button class="uc-btn" onclick="UC.settle()"' + (S.total ? '' : ' disabled') + '>'
@@ -622,19 +653,24 @@
 
   function rReveal() {
     var wasMole = isMole(S.picked);
+    var wasBlank = isBlank(S.picked);
+    var wasOdd = wasMole || wasBlank;
+    /* 翻牌三态：卧底 / 白板 / 平民。白板被抓对平民方同样算数，所以样式跟卧底一致 */
+    var wasTxt = wasBlank ? t('r_was_b') : (wasMole ? t('r_was_u') : t('r_was_c'));
     var votes = S.votes[S.picked] || 0;
     var oddb = S.pair ? S.pair.b : { zh: '', en: '' };
     var trua = S.pair ? S.pair.a : { zh: '', en: '' };
+    var bseat = S.blank ? gl(S.blank) : '—';
 
     /* ---- 一局已结束 ---- */
     if (S.result) {
       var win = S.result === 'c';
       var mols = S.moles.map(function (x) { return gl(x); }).join('　');
       return '<div class="uc-h" style="margin-top:2px"><span class="bar"></span><h3>' + esc(win ? t('r_over_c') : t('r_over_u')) + '</h3>'
-        + '<span class="r">' + esc(t('r_hit', S.hit, 3)) + '</span></div>'
+        + '<span class="r">' + esc(t('r_hit', S.hit, N_MOLE + N_BLANK)) + '</span></div>'
         + '<div class="uc-res ' + (win ? 'win-c' : 'win-u') + '">'
         + '<div class="em">' + (win ? '🎯' : '🕵️') + '</div>'
-        + '<h4>' + esc(gl(S.picked)) + ' · ' + esc(wasMole ? t('r_was_u') : t('r_was_c')) + '</h4>'
+        + '<h4>' + esc(gl(S.picked)) + ' · ' + esc(wasTxt) + '</h4>'
         + '<div class="sub">' + esc(win ? t('r_over_cs') : t(S.hit === 0 ? 'r_over_us0' : 'r_over_us1')) + '</div>'
         + '<div class="uc-vs">'
         + '<div><div class="k">' + esc(t('r_true')) + '</div><div class="w">' + esc(trua.zh) + '</div><div class="e">' + esc(trua.en) + '</div></div>'
@@ -642,6 +678,7 @@
         + '</div>'
         + conceptBlock(S.pair)
         + '<div class="uc-score"><span>' + esc(t('r_moles')) + ' <b>' + esc(mols) + '</b></span></div>'
+        + '<div class="uc-score"><span>' + esc(t('r_bseat')) + ' <b>' + esc(bseat) + '</b>　' + esc(t('r_bwordv')) + '</span></div>'
         + '<div class="uc-score"><span>' + esc(t('r_score')) + ' <b>' + S.score.c + ' : ' + S.score.u + '</b></span></div>'
         + '</div>'
         + '<div style="height:16px"></div>'
@@ -655,10 +692,10 @@
     /* ---- 一局未完：翻牌 + 概念讲解 + 进入下一轮 ---- */
     return '<div class="uc-h" style="margin-top:2px"><span class="bar"></span><h3>' + esc(t('r_out')) + '</h3>'
       + '<span class="r">' + esc(L() === 'en' && votes === 1 ? '1 vote' : t('r_votes', votes)) + '</span></div>'
-      + '<div class="uc-res ' + (wasMole ? 'win-c' : 'win-u') + '">'
-      + '<div class="em">' + (wasMole ? '🎯' : '🙈') + '</div>'
-      + '<h4>' + esc(gl(S.picked)) + ' · ' + esc(wasMole ? t('r_was_u') : t('r_was_c')) + '</h4>'
-      + '<div class="sub">' + esc(t('r_hit', S.hit, 3)) + '</div>'
+      + '<div class="uc-res ' + (wasOdd ? 'win-c' : 'win-u') + '">'
+      + '<div class="em">' + (wasBlank ? '🃏' : (wasMole ? '🎯' : '🙈')) + '</div>'
+      + '<h4>' + esc(gl(S.picked)) + ' · ' + esc(wasTxt) + '</h4>'
+      + '<div class="sub">' + esc(t('r_hit', S.hit, N_MOLE + N_BLANK)) + '</div>'
       + conceptBlock(S.pair)
       + '</div>'
       + '<div style="height:16px"></div>'
@@ -670,7 +707,7 @@
     tag: { zh: '教师控场', en: 'Teacher-led' },
     pill: { zh: '环节一', en: 'Step 1' },
     name: { zh: '投行卧底 · {1} 组对抗', en: 'Investment Banking Mole · {1} groups' },
-    sub: { zh: '3 组卧底藏在平民里，抓出两组即平民胜', en: 'Three moles hide among the civilians — catch two to win' }
+    sub: { zh: '2 组卧底 + 1 组白板，抓出两个特殊身份即平民胜', en: 'Two moles and one blank card — catch any two to win' }
   };
 
   function setEntry() {
