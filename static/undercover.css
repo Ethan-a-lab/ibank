@@ -192,6 +192,62 @@
   #p-game .uc-ans-pair{font-size:11.5px;padding:8px 9px}
 }
 
+/* ===== v125：手机领词码表（不打印，直接按组号发码） ===== */
+#p-game .uc-tok{
+  margin:14px 0;padding:14px;border-radius:14px;
+  background:var(--panel);border:1px solid var(--panel-border);
+}
+#p-game .uc-tok-h{font-size:13px;font-weight:700;color:var(--text);margin-bottom:10px}
+#p-game .uc-tok-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+#p-game .uc-tok-row{
+  display:flex;align-items:center;gap:8px;justify-content:space-between;
+  padding:9px 10px;border-radius:10px;
+  background:var(--panel-solid);border:1px solid var(--panel-border);
+}
+#p-game .uc-tok-row .g{font-size:12px;color:var(--muted);font-weight:600;white-space:nowrap}
+#p-game .uc-tok-row code{
+  font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
+  font-size:15px;font-weight:800;letter-spacing:.06em;color:var(--text);
+}
+#p-game .uc-tok-tip{font-size:11.5px;line-height:1.7;color:var(--muted);margin-top:10px}
+@media (max-width:900px){#p-game .uc-tok-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media (max-width:560px){
+  #p-game .uc-tok-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  #p-game .uc-tok-row code{font-size:14px}
+}
+
+/* ===== v126：最高票提示 + 20 秒自辩计时（只加显示，不改计票） ===== */
+#p-game .uc-lead{
+  margin:11px 0 2px;padding:9px 12px;border-radius:10px;
+  font-size:13px;font-weight:700;line-height:1.5;color:var(--text);
+  background:rgba(99,102,241,.10);border:1px solid rgba(99,102,241,.35);
+}
+#p-game .uc-lead.tie{background:rgba(226,75,74,.09);border-color:rgba(226,75,74,.40)}
+#p-game .uc-g.lead:not(.top){border-color:#e08b12;box-shadow:0 0 0 2px rgba(224,139,18,.20)}
+#p-game .uc-g.lead:not(.top) .v{background:#e08b12;color:#fff}
+#p-game .uc-def{
+  margin:10px 0 4px;padding:12px 14px;border-radius:12px;
+  background:var(--panel);border:1px solid var(--panel-border);
+}
+#p-game .uc-def-top{
+  display:flex;align-items:center;justify-content:flex-start;gap:14px;
+  font-size:13px;font-weight:700;color:var(--text);
+}
+#p-game .uc-def-h{font-size:13px;font-weight:700;color:var(--text);line-height:1.4}
+#p-game .uc-def-num{display:inline-flex;align-items:baseline;gap:3px;font-variant-numeric:tabular-nums}
+#p-game .uc-def-num b{font-size:28px;line-height:1;color:var(--accent-text)}
+#p-game .uc-def.run .uc-def-num b{color:#e24b4a}
+#p-game .uc-def-num small{font-size:12px;color:var(--muted);font-weight:600}
+#p-game .uc-def-bar{height:6px;border-radius:99px;background:var(--track);overflow:hidden;margin:9px 0 7px}
+#p-game .uc-def-bar i{display:block;height:100%;border-radius:99px;background:var(--accent-solid);transition:width .2s linear}
+#p-game .uc-def-tip{font-size:12px;color:var(--muted);line-height:1.6;margin-bottom:9px}
+#p-game .uc-def .uc-btn{width:100%}
+@media (max-width:560px){
+  #p-game .uc-def{padding:10px 12px}
+  #p-game .uc-def-num b{font-size:24px}
+  #p-game .uc-lead{font-size:12.5px}
+}
+
 /* ============ 打印：只留号卡纸，其余全部压掉 ============ */
 #uc-print{display:none}
 @media print{

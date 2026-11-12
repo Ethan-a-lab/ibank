@@ -49,21 +49,24 @@
     s_mode:    { zh: '发词方式', en: 'How words are dealt' },
     s_m_paper: { zh: '纸质号卡', en: 'Paper cards' },
     s_m_phone: { zh: '手机领词', en: 'Phones' },
-    s_mode_tip:{ zh: '手机领词：卡片上只印领词码、不印词，学生扫码输码看自己的词。需要教师账号已登录。', en: 'Phones: the card carries only an access code, not the word. Students scan, type the code, and read their own word. Requires a signed-in teacher account.' },
+    s_mode_tip:{ zh: '手机领词：屏幕上按组号给出 6 位领词码，不用打印；学生扫码输码看自己的词。需要教师账号已登录。', en: 'Phones: six-character codes are shown on screen by group — no printing. Students scan, type their code, and read their own word. Requires a signed-in teacher account.' },
 
     /* ---- 号卡 ---- */
     c_h:       { zh: '号卡已生成', en: 'Cards are ready' },
     c_desc:    { zh: '{1} 张卡：2 张印卧底词，1 张是白板（卡面只写「白板」，没有词）。打印后沿虚线裁开、对折，发下去让学生自己拆开看。', en: '{1} cards: two carry the mole word, one is blank (it says so, and nothing else). Print, cut along the dashed lines, fold, and hand them out.' },
     c_print:   { zh: '打印号卡', en: 'Print cards' },
     c_go:      { zh: '号卡发完，开始描述', en: 'Cards dealt, start pitching' },
-    c_tip:     { zh: '屏幕上从头到尾不会出现任何词，学生只能看自己手里那张。', en: 'No word ever appears on screen. Students only see their own card.' },
+    c_go_phone:{ zh: '号码记好，开始描述', en: 'Codes noted, start pitching' },
+    c_tok_h:   { zh: '各组领词码 · 不用打印', en: 'Access codes by group · no printing' },
+    c_tok_tip: { zh: '按组号念给对应小组，只让本组记自己那一格。打印不是必经步骤，记好码直接点下面开始。', en: 'Read each code to its own group only. Printing is optional — once everyone has their code, just start below.' },
+    c_tip:     { zh: '屏幕上从头到尾不会出现任何词，学生只能看自己手里那张。打印窗口关掉后本页还在，点上面「号卡发完，开始描述」继续。', en: 'No word ever appears on screen. Students only see their own card. Closing the print dialog returns to this page — tap "Cards dealt, start pitching" above to continue.' },
     b_word:    { zh: '白板', en: 'Blank' },
     b_hint:    { zh: '你没有词。听别人怎么说，现编一句混进去。', en: 'You have no word. Listen, then improvise one line.' },
 
     /* ---- 手机领词 ---- */
-    c_ph_desc: { zh: '打印后裁开发给各组。卡片上只有领词码，没有词 —— 学生扫屏幕上的二维码打开领词页，输入自己卡片上的 6 位码。', en: 'Print and cut, then hand one to each group. Cards carry an access code only. Students scan the QR on screen and type their six-character code.' },
+    c_ph_desc: { zh: '不用打印。下面按组号列出每组的 6 位领词码，念到哪组、哪组记下自己的码；学生扫二维码打开领词页，输入本组那 6 位码，只看到自己这组的词。', en: 'No printing needed. Each group has its own six-character code listed below by group number. Students scan the QR, type their own code, and see only their own word.' },
     c_qr_h:    { zh: '学生扫码入口', en: 'Student entry' },
-    c_qr_tip:  { zh: '二维码只指向领词页，不带任何码。学生仍需输入自己卡片上的 6 位码。', en: 'The QR only opens the page — no codes inside. Students still type their own six characters.' },
+    c_qr_tip:  { zh: '二维码只指向领词页，不带任何码。学生输入下面自己那组的 6 位码即可。', en: 'The QR only opens the page — no codes inside. Students type their own code from the list below.' },
     c_push:    { zh: '正在把号卡写入云端…', en: 'Publishing cards…' },
     c_pushed:  { zh: '号卡已写入云端', en: 'Cards published' },
     c_nocloud: { zh: '没连上云服务，已退回纸质模式。先确认教师账号已登录，再点「重新生成」。', en: 'No cloud connection — fell back to paper. Make sure you are signed in, then regenerate.' },
@@ -94,6 +97,14 @@
     v_need:    { zh: '先记至少一票', en: 'Record at least one vote' },
     v_back:    { zh: '返回描述', en: 'Back to pitching' },
     v_def:     { zh: '记完票先别翻：票最高的一组有 20 秒自辩，说完再点结算。', en: 'Before flipping, give the top-voted group 20 seconds to defend itself, then settle.' },
+    v_lead_1:  { zh: '当前票最高：{1} · {2} 票，让它先解释一句', en: 'Top vote: {1} with {2} votes — let it explain first' },
+    v_lead_n:  { zh: '并列票最高：{1} · 各 {2} 票，点结算后由你选一组', en: 'Tied at the top: {1} with {2} votes each — pick one after settling' },
+    v_def_h:   { zh: '给票最高的组 20 秒解释', en: '20 seconds for the top group to explain' },
+    v_def_btn: { zh: '开始 20 秒', en: 'Start 20 seconds' },
+    v_def_re:  { zh: '重新计时 20 秒', en: 'Restart 20 seconds' },
+    v_def_run: { zh: '正在解释，说完再点「结算本轮」', en: 'Still explaining — settle when they finish' },
+    v_def_done:{ zh: '时间到，可以点「结算本轮」翻牌了', en: 'Time is up — settle to flip the card' },
+    v_def_idle:{ zh: '点一下开始计时；不想计时也可以直接结算', en: 'Tap to start the timer, or settle right away' },
 
     /* ---- 揭晓 ---- */
     r_out:     { zh: '淘汰', en: 'Eliminated' },
@@ -229,6 +240,8 @@
     total: 0,
     picked: 0,
     tie: null,
+    defEnd: 0,         // 自辩倒计时截止时间戳（0 = 未启动）
+    defId: 0,          // 自辩计时器（与描述页 tickId 分开）
     showAnswer: false,  // 教师是否点开「本局答案」；默认关，避免描述/投票阶段投屏泄题
     score: { c: 0, u: 0 }
   };
@@ -284,6 +297,29 @@
     render();
   }
 
+  /* 自辩 20 秒：投票页专用。不能复用 startClock/tick——那两条只在 describe 生效。
+     状态存在 S 里，加减票触发 render() 重建 DOM 后倒计时也不会丢。 */
+  function stopDefense() { if (S.defId) { clearInterval(S.defId); S.defId = 0; } }
+  function startDefense() {
+    if (S.phase !== 'vote') return;
+    stopDefense();
+    S.defEnd = Date.now() + 20000;
+    S.defId = setInterval(defTick, 200);
+    render();
+    defTick();
+  }
+  function defTick() {
+    if (S.phase !== 'vote' || !S.defEnd) { stopDefense(); return; }
+    var ms = Math.max(0, S.defEnd - Date.now());
+    var secEl = document.getElementById('uc-def-sec');
+    var bar = document.getElementById('uc-def-bar');
+    var tip = document.getElementById('uc-def-tip');
+    if (secEl) secEl.textContent = Math.ceil(ms / 1000);
+    if (bar) bar.style.width = (ms / 20000 * 100) + '%';
+    if (tip) tip.textContent = ms > 0 ? t('v_def_run') : t('v_def_done');
+    if (ms <= 0) stopDefense();
+  }
+
   /* ---------------- 一局的生命周期 ---------------- */
   /* 课堂固定玩三局：前三局按「生活化 → 会撞车 → 引出本课定价」用指定词对。
      开场若随机抽到债券术语（边际利率 / 合规申购 / 簿记建档之类），
@@ -300,6 +336,20 @@
     return i;
   }
 
+  /* 白板卡上没有词，排第一个发言等于当场自曝。把它挪到至少第 3 位，
+     先听两组描述再开口；存活组不足 3 个时退到末位；白板已出局则原样。
+     注意：这条只能写在代码里，绝不能写进投屏说明，否则等于告诉全班「前两组一定不是白板」。 */
+  function makeOrder(alive) {
+    var o = shuffle(alive.slice());
+    if (!S.blank || o.length < 2) return o;
+    var k = o.indexOf(S.blank);
+    if (k < 0 || k >= 2) return o;
+    var target = Math.min(2, o.length - 1);
+    o.splice(k, 1);
+    o.splice(target, 0, S.blank);
+    return o;
+  }
+
   function newRound() {
     S.round++;
     S.pairIdx = pickPairIdx();
@@ -314,8 +364,9 @@
     S.moles = odd.slice(N_BLANK).sort(function (x, y) { return x - y; });
     S.alive = []; for (i = 1; i <= S.n; i++) S.alive.push(i);
     S.out = []; S.hit = 0; S.vr = 1; S.result = '';
-    S.order = shuffle(S.alive.slice());
+    S.order = makeOrder(S.alive);
     S.cur = 0;
+    stopDefense(); S.defEnd = 0;
     S.votes = {}; S.total = 0; S.picked = 0; S.tie = null;
     S.showAnswer = false;
     S.room = ''; S.tokens = []; S.net = '';
@@ -411,6 +462,7 @@
 
   function goVote() {
     S.phase = 'vote'; S.showAnswer = false; stopClock();
+    stopDefense(); S.defEnd = 0;
     S.votes = {}; S.total = 0; S.picked = 0; S.tie = null;
     render();
   }
@@ -449,6 +501,7 @@
   }
 
   function finish(id) {
+    stopDefense(); S.defEnd = 0;
     S.picked = id;
     S.tie = null;
     if (isOdd(id)) S.hit++;
@@ -468,8 +521,9 @@
   function nextVoteRound() {
     S.vr++;
     S.showAnswer = false;   // 还要再投一轮，答案必须重新收起
-    S.order = shuffle(S.alive.slice());
+    S.order = makeOrder(S.alive);
     S.cur = 0;
+    stopDefense(); S.defEnd = 0;
     S.votes = {}; S.total = 0; S.picked = 0; S.tie = null;
     S.phase = 'describe';
     render();
@@ -477,7 +531,7 @@
   }
 
   function resetAll() {
-    stopClock();
+    stopClock(); stopDefense(); S.defEnd = 0;
     S.phase = 'setup'; S.round = 0; S.pair = null; S.moles = []; S.blank = 0; S.alive = []; S.out = [];
     S.hit = 0; S.vr = 1; S.result = '';
     S.room = ''; S.tokens = []; S.net = '';
@@ -639,6 +693,19 @@
       + '<div class="uc-note" style="display:block">' + esc(t('s_note')) + '</div>';
   }
 
+  /* 手机领词：11 个领词码直接摊在号卡页，当堂不用打印、念组号即可发码。
+     码本身不含词，但仍提醒只让本组记自己那一格，别整屏传抄。 */
+  function tokenTable() {
+    if (S.mode !== 'phone' || S.net !== 'ok' || S.tokens.length !== S.n) return '';
+    var h = '<div class="uc-tok" id="ucTok"><div class="uc-tok-h">' + esc(t('c_tok_h')) + '</div>'
+      + '<div class="uc-tok-grid">';
+    for (var i = 1; i <= S.n; i++) {
+      h += '<div class="uc-tok-row"><span class="g">' + esc(gl(i)) + '</span>'
+        + '<code>' + esc(S.tokens[i - 1]) + '</code></div>';
+    }
+    return h + '</div><div class="uc-tok-tip">' + esc(t('c_tok_tip')) + '</div></div>';
+  }
+
   function rCards() {
     var h = '<div class="uc-h" style="margin-top:2px"><span class="bar"></span><h3>' + esc(t('c_h')) + '</h3>'
       + '<span class="r">' + esc(t('p_meta', S.round, S.n)) + '</span></div>';
@@ -659,8 +726,8 @@
         + '<div class="uc-qr-url" id="uc-qr-url">' + esc(ucUrl()) + '</div>'
         + '<div class="uc-note" style="display:block">' + esc(t('c_qr_tip')) + '</div>'
         + '<div class="uc-tally">' + esc(t('c_pushed')) + ' · <b>' + esc(t('c_cnt', S.tokens.length)) + '</b></div>'
-        + '<button class="uc-btn" onclick="UC.print()">' + esc(t('c_print')) + '</button>'
-        + '<button class="uc-btn ghost" onclick="UC.startDescribe()">' + esc(t('c_go')) + '</button>';
+        + tokenTable()
+        + '<button class="uc-btn" onclick="UC.startDescribe()">' + esc(t('c_go_phone')) + '</button>';
     }
 
     return h
@@ -701,6 +768,22 @@
   }
 
   function rVote() {
+    /* 实时算出票最高的组（含并列）。只用于显示，不碰 settle() 的判定。 */
+    var best = 0, leads = [], k, v;
+    for (k in S.votes) {
+      if (!S.votes.hasOwnProperty(k)) continue;
+      v = S.votes[k];
+      if (v > best) { best = v; leads = [+k]; }
+      else if (v === best && best > 0) leads.push(+k);
+    }
+    var defMs = S.defEnd ? Math.max(0, S.defEnd - Date.now()) : 0;
+    var defState = !S.defEnd ? 'idle' : (defMs > 0 ? 'run' : 'done');
+    var defSec = Math.ceil(defMs / 1000);
+    var leadTxt = '';
+    if (!S.tie && S.total) {
+      if (leads.length === 1) leadTxt = t('v_lead_1', gl(leads[0]), best);
+      else leadTxt = t('v_lead_n', leads.map(function (x) { return gl(x); }).join(L() === 'en' ? ', ' : '、'), best);
+    }
     var cells = '';
     for (var i = 1; i <= S.n; i++) {
       /* 已淘汰的组不能再拿票 */
@@ -709,8 +792,9 @@
           + '<div class="u">' + esc(t('r_out')) + '</div><div class="v">—</div></div>';
         continue;
       }
-      var v = S.votes[i] || 0;
+      v = S.votes[i] || 0;
       var cls = 'uc-g' + (v ? ' has' : '');
+      if (leads.indexOf(i) >= 0) cls += ' lead';
       if (S.tie && S.tie.indexOf(i) >= 0) cls += ' top';
       cells += '<div class="' + cls + '" onclick="UC.vote(' + i + ')" oncontextmenu="return UC.unvote(' + i + ')">'
         + '<button class="minus" onclick="event.stopPropagation();UC.unvote(' + i + ')">−</button>'
@@ -725,6 +809,14 @@
         ? '<div class="uc-note" style="display:block;border-color:rgba(226,75,74,.5);color:#e24b4a">' + esc(t('v_tie')) + '</div>'
         : '<div class="uc-note" style="display:block">' + esc(t('v_hint')) + '</div>')
       + '<div class="uc-note uc-law" style="display:block">' + esc(t('v_def')) + '</div>'
+      + (leadTxt ? '<div class="uc-lead' + (leads.length > 1 ? ' tie' : '') + '" id="uc-lead">' + esc(leadTxt) + '</div>' : '')
+      + '<div class="uc-def' + (defState === 'run' ? ' run' : '') + '" id="uc-def">'
+        + '<div class="uc-def-top"><span class="uc-def-num"><b id="uc-def-sec">' + (defState === 'idle' ? 20 : defSec) + '</b><small>' + esc(t('sec_s')) + '</small></span>'
+        + '<span class="uc-def-h">' + esc(t('v_def_h')) + '</span></div>'
+        + '<div class="uc-def-bar"><i id="uc-def-bar" style="width:' + (defState === 'idle' ? 100 : (defMs / 20000 * 100)) + '%"></i></div>'
+        + '<div class="uc-def-tip" id="uc-def-tip">' + esc(t(defState === 'idle' ? 'v_def_idle' : (defState === 'run' ? 'v_def_run' : 'v_def_done'))) + '</div>'
+        + '<button class="uc-btn ghost" onclick="UC.startDefense()">' + esc(t(defState === 'idle' ? 'v_def_btn' : 'v_def_re')) + '</button>'
+      + '</div>'
       + '<div class="uc-grid">' + cells + '</div>'
       + '<div class="uc-tally">' + esc(t('v_total')) + ' <b>' + S.total + '</b></div>'
       + '<button class="uc-btn" onclick="UC.settle()"' + (S.total ? '' : ' disabled') + '>'
@@ -876,6 +968,7 @@
     vote: vote,
     unvote: unvote,
     settle: settle,
+    startDefense: startDefense,
     pick: pick,
     nextVote: nextVoteRound,
     print: printSheet,
