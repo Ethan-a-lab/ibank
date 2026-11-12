@@ -276,3 +276,27 @@ body.dark:not(.light) #p-bond .bd-legend .sw-ghost { border-top-color: #7c8ba6; 
 body.bd-sealed #p-bond .bd-lock { display: inline; }
 body.bd-sealed #p-bond .bd-lockcard { display: block; }
 body.bd-sealed #p-bond [data-bd-seal] { display: none; }
+
+/* ===== v110：环节三收尾卡（三轮走完才出现） ===== */
+.bd-debrief{margin-top:18px}
+.bd-debrief[hidden]{display:none}
+.bd-db-rounds{
+  display:flex;align-items:center;flex-wrap:wrap;gap:6px;
+  margin:2px 0 14px;
+}
+.bd-db-p{
+  display:flex;align-items:baseline;gap:7px;
+  padding:7px 12px;border-radius:10px;
+  background:var(--bd-soft);border:1px solid var(--panel-border);
+}
+.bd-db-p b{font-size:11.5px;font-weight:700;color:var(--muted)}
+.bd-db-p i{
+  font-style:normal;font-size:16px;font-weight:800;
+  color:var(--text);font-variant-numeric:tabular-nums;
+}
+.bd-db-arrow{color:var(--muted);font-size:12px}
+.bd-db-kv td:first-child{width:30%;font-weight:600;color:var(--text)}
+.bd-db-kv td:last-child{text-align:left}
+@media (max-width:640px){
+  .bd-db-kv td:first-child{width:42%}
+}

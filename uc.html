@@ -103,10 +103,10 @@
     gotit:   { zh: '我记住了', en: 'Got it' },
     masked:  { zh: '已收起。把手机扣在桌上，听别人怎么描述。', en: 'Hidden. Put the phone face down and listen.' },
     rulesT:  { zh: '本局规则', en: 'How this round works' },
-    r1:      { zh: '大多数组拿到的是同一个词，只有一组拿到相近的另一个词。', en: 'Most groups share one word; only one group gets a near-synonym.' },
+    r1:      { zh: '11 组里 3 组拿到的是卧底词，其余 8 组拿到的是平民词。', en: 'Three of eleven groups hold the mole word; the other eight hold the civilian word.' },
     r2:      { zh: '没有谁知道自己是哪一组 —— 也不知道场上到底有几个异类。', en: 'Nobody knows which side they are on.' },
-    r3:      { zh: '每组说一句话，然后全班投票，票最多的那一组翻牌。', en: 'One sentence each, then the class votes and the top group is flipped.' },
-    r4:      { zh: '翻出来是卧底，平民赢；翻错了，卧底赢。', en: 'Hit the mole and the civilians win, miss and the mole wins.' }
+    r3:      { zh: '每组说一句话，然后全班投票，票最多的那一组淘汰、翻牌。', en: 'One sentence each, then the class votes; the top group is out and flipped.' },
+    r4:      { zh: '抓出 2 组卧底就是平民赢；三轮投完只抓到 1 组，卧底赢。', en: 'Catch two moles and the civilians win; if three votes catch only one, the moles win.' }
   };
   var lang = (function () {
     try { var v = localStorage.getItem('ibank_lang'); if (v === 'en') return 'en'; } catch (e) {}

@@ -208,3 +208,31 @@
   font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
   word-break:break-all;margin-bottom:10px;
 }
+
+/* ===== v110：卧底多轮制 + 环节概念讲解 ===== */
+
+/* 已淘汰的组：投票页留原位但不给票，避免号数跳位 */
+#p-game .uc-g.off{
+  opacity:.42;pointer-events:none;filter:grayscale(1);
+  background:var(--track);border-style:dashed;
+}
+#p-game .uc-g.off .n{color:var(--muted)}
+#p-game .uc-g.off .v{color:var(--muted);font-weight:600}
+
+/* 翻牌后的概念讲解：两句，一句讲词的区别，一句讲在本课里的落点 */
+#p-game .uc-cpt{
+  margin-top:14px;padding-top:12px;text-align:left;
+  border-top:1px dashed var(--panel-border);
+}
+#p-game .uc-cpt-h{
+  font-size:11px;font-weight:700;letter-spacing:.06em;
+  color:var(--muted);margin:0 0 5px;
+}
+#p-game .uc-cpt-h + .uc-byd{margin-top:0}
+#p-game .uc-cpt .uc-tip{margin:0 0 12px}
+#p-game .uc-byd{
+  font-size:12.5px;line-height:1.8;color:var(--text);
+  padding:10px 12px;border-radius:10px;
+  background:rgba(14,116,144,.07);border-left:2px solid var(--accent2);
+}
+body.dark #p-game .uc-byd{background:rgba(34,211,238,.09)}

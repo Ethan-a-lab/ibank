@@ -3197,3 +3197,150 @@ body.dark:not(.light) .pj-sv-empty { background: rgba(99, 102, 241, .13); }
 .pj-mbti-btn.is-ghost:hover { background: rgba(99, 102, 241, .10); filter: none; }
 /* 类上的 display:block 会压过 UA 的 [hidden]，这里显式兜一层 */
 .pj-mbti .pj-mbti-btn[hidden] { display: none !important; }
+
+/* ===== v109：项目详情页（课堂动线 + 背景四讲 + 角色 + 概念手册） =====
+   类名统一 pjv- 前缀，与旧版 pj-* 规则隔开，避免互相污染。
+   颜色全部走变量，深色模式自动跟随。 */
+.pjv-sec { margin-top: 26px; }
+.pjv-sh { display: flex; align-items: baseline; gap: 10px; margin-bottom: 12px; }
+.pjv-sh h3 { margin: 0; font-size: 16px; font-weight: 700; color: var(--text); }
+.pjv-sh > span { margin-left: auto; font-size: 12px; color: var(--dim); white-space: nowrap; }
+.pjv-lead { margin: 0 0 14px; font-size: 13.5px; line-height: 1.9; color: var(--muted); }
+
+/* ---- 四环节动线 ---- */
+.pjv-steps { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.pjv-step {
+  display: flex; flex-direction: column; gap: 8px;
+  padding: 14px 15px 13px; border-radius: 14px;
+  background: var(--panel); border: 1px solid var(--panel-border);
+  transition: transform .16s ease, border-color .16s ease;
+}
+.pjv-step:hover { transform: translateY(-2px); border-color: var(--accent); }
+.pjv-step-top { display: flex; align-items: center; gap: 8px; }
+.pjv-step-tag {
+  padding: 2px 8px; border-radius: 999px; font-size: 11px; font-weight: 700;
+  color: var(--accent-text); background: rgba(99, 102, 241, .12);
+}
+.pjv-step h4 { margin: 0; font-size: 14.5px; font-weight: 700; color: var(--text); line-height: 1.5; }
+.pjv-step p { margin: 0; flex: 1; font-size: 12.5px; line-height: 1.8; color: var(--muted); }
+.pjv-go {
+  align-self: flex-start; padding: 6px 12px; border-radius: 9px; border: none;
+  font-family: inherit; font-size: 12.5px; font-weight: 600; cursor: pointer;
+  color: #fff; background: var(--accent-solid);
+  transition: filter .15s ease, transform .15s ease;
+}
+.pjv-go:hover { filter: brightness(1.08); transform: translateY(-1px); }
+.pjv-go:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* ---- 背景四讲（折叠） ---- */
+.pjv-chapters { display: flex; flex-direction: column; gap: 10px; }
+.pjv-ch {
+  border-radius: 14px; overflow: hidden;
+  background: var(--panel); border: 1px solid var(--panel-border);
+}
+.pjv-ch > summary {
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+  padding: 13px 15px; cursor: pointer; list-style: none;
+}
+.pjv-ch > summary::-webkit-details-marker { display: none; }
+.pjv-ch > summary::after {
+  content: '▾'; margin-left: auto; font-size: 13px; color: var(--dim);
+  transition: transform .18s ease;
+}
+.pjv-ch[open] > summary::after { transform: rotate(180deg); }
+.pjv-ch-no {
+  padding: 2px 9px; border-radius: 7px; font-size: 11.5px; font-weight: 700;
+  color: var(--accent-text); background: rgba(99, 102, 241, .12);
+}
+.pjv-ch-y { font-size: 12px; font-weight: 700; color: var(--dim); font-variant-numeric: tabular-nums; }
+.pjv-ch-t { font-size: 14px; font-weight: 600; color: var(--text); line-height: 1.5; }
+.pjv-ch-tag { font-size: 11.5px; color: var(--dim); }
+.pjv-ch-body { padding: 2px 15px 15px; border-top: 1px dashed var(--panel-border); }
+.pjv-ch-body > p {
+  margin: 12px 0 0; font-size: 13.5px; line-height: 1.95; color: var(--text);
+  text-align: justify;
+}
+.pjv-facts {
+  display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1px;
+  margin: 14px 0 0; padding: 0; list-style: none;
+  border-radius: 10px; overflow: hidden; background: var(--panel-border);
+}
+.pjv-facts li {
+  display: flex; flex-direction: column; gap: 3px;
+  padding: 9px 12px; background: var(--panel-solid);
+}
+.pjv-facts li span { font-size: 11.5px; color: var(--dim); }
+.pjv-facts li b { font-size: 13px; font-weight: 600; color: var(--text); line-height: 1.6; }
+/* 条目为奇数时，最后一条跨满两列，否则右下会留一个灰底空格（网格背景透出来） */
+.pjv-facts li:last-child:nth-child(odd) { grid-column: 1 / -1; }
+.pjv-ask {
+  margin: 14px 0 0; padding: 11px 13px; border-radius: 10px;
+  font-size: 13px; line-height: 1.85; color: var(--text);
+  background: rgba(14, 116, 144, .07); border-left: 3px solid var(--accent2);
+}
+.pjv-ask b { display: block; margin-bottom: 4px; font-size: 11.5px; letter-spacing: .04em; color: var(--accent2); }
+
+/* ---- 四角色 ---- */
+.pjv-roles { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+.pjv-role {
+  padding: 14px 15px; border-radius: 14px;
+  background: var(--panel); border: 1px solid var(--panel-border);
+}
+.pjv-role-n { font-size: 14px; font-weight: 700; color: var(--text); }
+.pjv-role-who { margin: 2px 0 10px; font-size: 11.5px; color: var(--dim); }
+.pjv-role p { margin: 0 0 8px; font-size: 12.5px; line-height: 1.8; color: var(--muted); }
+.pjv-role p:last-child { margin-bottom: 0; }
+.pjv-role b {
+  display: inline-block; margin-right: 5px; font-size: 11px; font-weight: 700;
+  color: var(--accent-text);
+}
+
+/* ---- 概念手册 ---- */
+.pjv-book {
+  border-radius: 14px; overflow: hidden;
+  background: var(--panel); border: 1px solid var(--panel-border);
+}
+.pjv-book > summary {
+  display: flex; align-items: baseline; gap: 10px;
+  padding: 14px 15px; cursor: pointer; list-style: none;
+}
+.pjv-book > summary::-webkit-details-marker { display: none; }
+.pjv-book > summary::after { content: '▾'; margin-left: auto; color: var(--dim); transition: transform .18s ease; }
+.pjv-book[open] > summary::after { transform: rotate(180deg); }
+.pjv-sh-in { font-size: 15px; font-weight: 700; color: var(--text); }
+.pjv-sh-sub { font-size: 12px; color: var(--dim); }
+.pjv-tbl { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+.pjv-tbl th {
+  padding: 9px 15px; text-align: left; font-size: 11.5px; font-weight: 600;
+  color: var(--dim); background: rgba(99, 102, 241, .05);
+  border-top: 1px solid var(--panel-border);
+}
+.pjv-tbl td {
+  padding: 11px 15px; vertical-align: top; line-height: 1.8;
+  color: var(--muted); border-top: 1px solid var(--panel-border);
+}
+.pjv-tbl td:first-child { width: 21%; color: var(--text); font-weight: 600; }
+.pjv-tbl td.pjv-f {
+  width: 30%; font-weight: 600; color: var(--accent-text);
+  font-variant-numeric: tabular-nums;
+}
+.pjv-caveat {
+  margin: 26px 0 0; padding-top: 14px; font-size: 11.5px; line-height: 1.85;
+  color: var(--dim); border-top: 1px dashed var(--panel-border);
+}
+
+@media (max-width: 980px) {
+  .pjv-steps, .pjv-roles { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 640px) {
+  .pjv-steps, .pjv-roles { grid-template-columns: minmax(0, 1fr); }
+  .pjv-facts { grid-template-columns: minmax(0, 1fr); }
+  .pjv-sh { flex-wrap: wrap; }
+  .pjv-sh > span { margin-left: 0; }
+  .pjv-ch-tbl, .pjv-tbl { display: block; overflow-x: auto; }
+  .pjv-tbl td:first-child { width: auto; }
+  .pjv-tbl td.pjv-f { width: auto; }
+}
+body.dark .pjv-step-tag,
+body.dark .pjv-ch-no { background: rgba(129, 140, 248, .16); }
+body.dark .pjv-ask { background: rgba(34, 211, 238, .09); }

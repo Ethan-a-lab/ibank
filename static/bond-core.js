@@ -580,6 +580,41 @@
         : '；这一档之上没有人落标。');
   }
 
+  /* ---------- 环节三收尾：三轮都记下才出现 ----------
+     这一环节的重点概念（边际利率 / 票面利率 / 配售比例 / 1bp）在页面上都实时算过了，
+     这里只把「你们三轮走到哪」和「四个概念各自是什么」并排放一次，作为环节讲解。 */
+  function renderDebrief() {
+    var box = document.getElementById('bdDebrief');
+    if (!box) return;
+    if (rounds.length < 3) { box.hidden = true; return; }
+    box.hidden = false;
+
+    var seq = [];
+    for (var i = 0; i < 3; i++) {
+      var rd = rounds[i];
+      if (!rd) continue;
+      seq.push('<span class="bd-db-p"><b>第 ' + (i + 1) + ' 轮</b>'
+        + '<i>' + (rd.failed ? '流标' : rd.rate.toFixed(2) + '%') + '</i></span>');
+    }
+    var host = document.getElementById('bdDbRounds');
+    if (host) host.innerHTML = seq.join('<span class="bd-db-arrow">→</span>');
+
+    var note = document.getElementById('bdDbNote');
+    if (!note) return;
+    var rt = rounds[rounds.length - 1];
+    if (rt.failed) {
+      note.innerHTML = '<b>第三轮流标了。</b>累计申购没到 50 亿元，场上不存在「边际利率」——这时候只剩发行失败和余额包销两条路。把利率往上放一点再走一轮，就能看到边际利率是怎么被「刚好卖完」这一档顶出来的。';
+      return;
+    }
+    var first = rounds[0];
+    var bpAll = Math.round((rt.rate - first.rate) * 100);
+    note.innerHTML = '<b>三轮从 ' + first.rate.toFixed(2) + '% 走到 ' + rt.rate.toFixed(2) + '%（'
+      + (bpAll === 0 ? '没动' : (bpAll > 0 ? '+' : '') + bpAll + 'bp') + '）。</b>'
+      + '每下调 1bp，发行人三年省 150 万元；但边际档的配售比例会同步往上抬，'
+      + '抬到有效申购倍数撑不住的时候，就变成余额包销。真实发行落在 1.72%——'
+      + '那个数不是算出来的，是把订单簿排到 50 亿元那一条线上读出来的。';
+  }
+
   /* 三轮状态条：已记下的显示该轮边际利率，以及相邻两轮的 bp 变化 */
   function refreshRounds() {
     var last = null;
@@ -690,12 +725,14 @@
       refreshRounds();
       renderTable();
       calc();
+      renderDebrief();
     } else if (act === 'clear-rounds') {
       rounds = [];
       roundNo = 1;
       refreshRounds();
       renderTable();
       calc();
+      renderDebrief();
     }
   });
 

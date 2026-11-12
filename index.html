@@ -256,10 +256,10 @@
         </div>
 
         <!-- 列表视图：项目卡 -->
-        <div class="pj-list" id="pj-list"></div>
+        <div class="pj-list" id="pj-list" data-i18n-skip></div>
 
         <!-- 详情视图：与本页同容器切换，不新增路由 -->
-        <div class="pj-detail" id="pj-detail" hidden></div>
+        <div class="pj-detail" id="pj-detail" hidden data-i18n-skip></div>
       </div>
     </section>
 
@@ -641,6 +641,21 @@
           </div>
         </div>
 
+        <!-- 环节三收尾：三轮走完才出现，把这一环节的概念落到自己的数字上 -->
+        <div class="bd-card bd-debrief" id="bdDebrief" hidden>
+          <h4>本环节要点 <em>三轮走到哪里，概念怎么落地</em></h4>
+          <div class="bd-db-rounds" id="bdDbRounds"></div>
+          <table class="bd-kv bd-db-kv">
+            <tbody>
+              <tr><td>边际利率</td><td>累计申购首次达到 50 亿元的那一档，不是平均值</td></tr>
+              <tr><td>票面利率</td><td>等于边际利率，全场统一按它计息</td></tr>
+              <tr><td>边际档配售比例</td><td>（50 亿 − 边际以下累计）÷ 边际档申购量</td></tr>
+              <tr><td>1 个基点</td><td>50 亿 × 0.01% × 3 年 = 150 万元</td></tr>
+            </tbody>
+          </table>
+          <p class="bd-hint" id="bdDbNote" style="margin:10px 0 0"></p>
+        </div>
+
         <div class="bd-foot">
           <b>这一页为什么放在这里。</b>前两段（IPO、再融资）学生只能"算"和"判断"，到这一段才有一样东西是他们<b>亲手定出来</b>的：一个利率。定完再和课上揭晓的真实定价比，差多少、为什么差，就是最实在的一份证据——它直接进"风险预判与决策能力"这一维的观测点，不用另做问卷。
           <br><b>两个倍数为什么不一样——这一条课上一定要讲。</b>新闻里说"超募 2.2 倍"，那是合规申购对发行量；而簿记建档里真正决定配售的是有效申购：报价高于最终利率的那 7 家，一分钱也拿不到。所以 2.2 倍是"来了多少人看"，1.14 倍是"多少人真掏钱"。两个数都真实，含义完全不同——做承销的人只认后一个。
@@ -1011,15 +1026,15 @@ body.dark #p-game .mode-panel{
       </button>
       <button class="mode" type="button" id="btn-uc" onclick="UC.go()">
         <div class="m-ico">🕵️</div>
-        <h3 id="uc-e-name">投行卧底 · 12 组对抗</h3>
-        <p id="uc-e-sub">发词卡、轮着描述、投票翻牌，一局 5 分钟</p>
-        <span class="pill" id="uc-e-pill">开场</span>
+        <h3 id="uc-e-name">投行卧底 · 11 组对抗</h3>
+        <p id="uc-e-sub">3 组卧底藏在平民里，抓出两组即平民胜</p>
+        <span class="pill" id="uc-e-pill">环节一</span>
       </button>
       <button class="mode" type="button" id="btn-tl" onclick="TL.go()">
         <div class="m-ico">📈</div>
         <h3 id="tl-e-name">时点三连 · 拍档猜价</h3>
-        <p id="tl-e-sub">同一家公司三次要钱，每轮多给一条信息，改一次价</p>
-        <span class="pill" id="tl-e-pill">开场</span>
+        <p id="tl-e-sub">同一家公司四轮融资，每轮多给一条信息，改一次价</p>
+        <span class="pill" id="tl-e-pill">环节二</span>
       </button>
     </div>
 
@@ -3570,7 +3585,7 @@ body.dark #p-game .mode-panel{
       <!-- 三次出价：学生先定价、再对照现实，这里看的是偏差往哪边偏 -->
       <div class="admin-panel" style="margin-top:16px;">
         <h4>比亚迪项目 · 三次出价与偏差</h4>
-        <div class="sub">学生在 2002 / 2011 / 2016 三段各先自己定一个价，点「对照现实」之后才看得到真实值（type = project，detail 里 action = bench）。这里要看的不是谁算得准，是<b>偏差的方向</b>：全班系统性偏高，说明对当年的市场窗口没有感觉；系统性偏低，说明把「发行人急着要钱，所以只能贱卖」当成了常态。教师账号不入统计。</div>
+        <div class="sub">学生在 2002 / 2011 / 2016 三段各先自己定一个价，点「对照现实」之后才看得到真实值（type = project，detail 里 action = bench）。这里要看的不是谁算得准，是<b>偏差的方向</b>：全班系统性偏高，说明对当年的市场窗口没有感觉；系统性偏低，说明把「发行人急需资金、只能接受低价」当成了常态。教师账号不入统计。</div>
         <div id="pj-bench-body"><div class="um-empty">加载中…</div></div>
         <div class="setup-actions" style="margin-top:10px;">
           <button class="copy-sql-btn" id="pj-bench-export-btn" type="button">⬇️ 导出三次出价（CSV）</button>

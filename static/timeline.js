@@ -36,7 +36,7 @@
     tag:       { zh: '教师控场', en: 'Teacher-led' },
     pill:      { zh: '开场', en: 'Open' },
     ename:     { zh: '时点三连 · 拍档猜价', en: 'Three Eras · Call the Price' },
-    esub:      { zh: '同一家公司三次要钱，每轮多给一条信息，改一次价', en: 'One company, three fundraisings; one new clue each round' },
+    esub:      { zh: '同一家公司四轮融资，每轮多给一条信息，改一次价', en: 'One company, three fundraisings; one new clue each round' },
 
     rules_h:   { zh: '开组前 · 30 秒说清规则', en: 'Before you start · 30-second rules' },
     rules_1:   { zh: '大屏给一道题和 7 个档位，各组口播一个数，教师点一下对应档位即可。不用算，也不用写。', en: 'The screen shows one question and seven bands. Each group calls out a number; the teacher taps its band. No maths, no writing.' },
@@ -76,7 +76,12 @@
     nextq:     { zh: '下一题', en: 'Next question' },
     summary:   { zh: '本组收官 · 三时点对照', en: 'Set complete · three eras compared' },
 
-    cmp_h:     { zh: '同一家公司，三次要钱', en: 'One company, three asks' },
+    cmp_h:     { zh: '同一家公司，不同的定价权', en: 'One company, different pricing power' },
+    kp_h:      { zh: '本组要点 · 三个公式', en: 'Debrief · three formulas' },
+    kp_c1:     { zh: '概念', en: 'Concept' },
+    kp_c2:     { zh: '怎么算', en: 'Formula' },
+    kp_c3:     { zh: '本题数字代入', en: 'This set, worked' },
+    kp_note:   { zh: '这三个数都是刚才你们自己报过的题，换成一算就出来了。', en: 'All three come from the numbers you just called.' },
     c1:        { zh: '年份', en: 'Year' },
     c2:        { zh: '方式', en: 'Instrument' },
     c3:        { zh: '对面是谁（谁出钱）', en: 'Who pays' },
@@ -182,7 +187,7 @@
         target: 3,
         truth: { zh: '7.8%（第二次 6.9%）', en: '7.8% (6.9% for the second)' },
         info: [
-          { zh: '2020—2021 年新能源车销量起量，扩产要钱而且要快。比亚迪在港股连做两次配售，按市价折让给机构。',
+          { zh: '2020—2021 年新能源车销量起量，扩产急需资金而且要快。比亚迪在港股连做两次配售，按市价折让给机构。',
             en: 'EV sales take off in 2020–21 and capacity expansion needs cash fast. BYD does two H-share placements at a discount to market.' },
           { zh: '港股配售不走境内审核程序，从定价到资金到账只要几天；第一次 1.33 亿股，占发行后 4.65%。',
             en: 'An H-share placement skips domestic approval and settles in days. The first: 133m shares, 4.65% of enlarged capital.' },
@@ -293,6 +298,18 @@
     ]
   ];
 
+  /* ---------------- 本组要点：每题一个公式 ----------------
+     只用在「本组收官」页，讲的是刚才那道题本身怎么算，
+     不改题面、不进题面，所以不会提前泄答案。 */
+  var KP = {
+    '2011':  { n: '募资缺口率', f: '1 − 实募 ÷ 计划募资', v: '1 − 14.22 ÷ 21.92 = 35%' },
+    '2016':  { n: '锁价偏离', f: '(锁价 − 落地市价) ÷ 落地市价', v: '锁价 57.40 元，落地时市价低约 18%' },
+    '2021':  { n: '稀释比例', f: '新发股数 ÷ 发行后总股本', v: '1.33 ÷ 28.6 ≈ 4.65%' },
+    '2026':  { n: '有效认购倍数', f: '有效申购 ÷ 发行规模', v: '56.9 ÷ 50 = 1.14 倍（合规口径 2.18 倍）' },
+    '2011b': { n: '募满价', f: '计划募资 ÷ 发行股数', v: '21.92 ÷ 0.79 = 27.7 元（实际 18.00）' },
+    '2016b': { n: '单家平均认购', f: '募资总额 ÷ 认购家数', v: '144.73 ÷ 6 ≈ 24.1 亿元' }
+  };
+
   /* ---------------- 状态 ---------------- */
   var S = {
     phase: 'rules',      // rules | play | reveal | summary
@@ -350,9 +367,9 @@
   var ENTRY = {
     sec: { zh: '课堂活动', en: 'Class activity' },
     tag: { zh: '教师控场', en: 'Teacher-led' },
-    pill: { zh: '开场', en: 'Open' },
+    pill: { zh: '环节二', en: 'Step 2' },
     name: { zh: '时点三连 · 拍档猜价', en: 'Three Eras · Call the Price' },
-    sub: { zh: '同一家公司三次要钱，每轮多给一条信息，改一次价', en: 'One company, three fundraisings; one new clue each round' }
+    sub: { zh: '同一家公司四轮融资，每轮多给一条信息，改一次价', en: 'One company, three fundraisings; one new clue each round' }
   };
   function setEntry() {
     var map = { 'tl-e-sec': 'sec', 'tl-e-tag': 'tag', 'tl-e-pill': 'pill', 'tl-e-name': 'name', 'tl-e-sub': 'sub' };
@@ -538,6 +555,16 @@
         + esc(tx(q.who)) + '</span><span>' + esc(tx(q.audit)) + '</span><span class="tl-blank">' + esc(t('blank')) + '</span></div>';
     }
     s += '</div>';
+    s += head(t('kp_h'), t('group', S.gi + 1));
+    s += '<div class="tl-kp"><div class="tl-kp-r tl-kp-hd"><b>' + esc(t('kp_c1')) + '</b><span>'
+      + esc(t('kp_c2')) + '</span><em>' + esc(t('kp_c3')) + '</em></div>';
+    for (i = 0; i < qset.length; i++) {
+      var kk = KP[qset[i].id];
+      if (!kk) continue;
+      s += '<div class="tl-kp-r"><b>' + esc(kk.n) + '</b><span>' + esc(kk.f) + '</span><em>' + esc(kk.v) + '</em></div>';
+    }
+    s += '</div>';
+    s += '<div class="tl-note">' + esc(t('kp_note')) + '</div>';
     var min = Math.min.apply(null, S.scores), wins = [];
     for (i = 0; i < NG; i++) if (S.scores[i] === min) wins.push(gname(i));
     s += '<div class="tl-champ">' + esc(t('champ')) + '：<b>' + esc(wins.join('、')) + '</b>　' + esc(t('pts', min)) + '</div>';

@@ -167,3 +167,27 @@ body.dark #p-game #v-tl .tl-legend .sw-b{background:#85B7EB}
   #p-game #v-tl .tl-tr b{font-size:11.5px}
   #p-game #v-tl .tl-tv{font-size:22px}
 }
+
+/* ===== v110：本组收官的公式表（环节二结束后的概念讲解） ===== */
+#p-game #v-tl .tl-kp{
+  border:1px solid var(--panel-border);border-radius:12px;overflow:hidden;
+  background:var(--panel);
+}
+#p-game #v-tl .tl-kp-r{
+  display:grid;grid-template-columns:.9fr 1.5fr 1.6fr;gap:10px;
+  padding:10px 12px;font-size:12.5px;line-height:1.6;
+  border-bottom:1px solid var(--panel-border);
+}
+#p-game #v-tl .tl-kp-r:last-child{border-bottom:0}
+#p-game #v-tl .tl-kp-hd{background:var(--panel-solid);font-size:11px;font-weight:700;color:var(--muted)}
+#p-game #v-tl .tl-kp-hd b,#p-game #v-tl .tl-kp-hd span,#p-game #v-tl .tl-kp-hd em{color:var(--muted);font-weight:700}
+#p-game #v-tl .tl-kp-r b{font-weight:700;color:var(--text)}
+#p-game #v-tl .tl-kp-r span{color:var(--accent-text);font-weight:600;font-variant-numeric:tabular-nums}
+#p-game #v-tl .tl-kp-r em{
+  font-style:normal;color:var(--muted);
+  font-variant-numeric:tabular-nums;
+}
+@media (max-width:640px){
+  #p-game #v-tl .tl-kp-r{grid-template-columns:1fr;gap:2px}
+  #p-game #v-tl .tl-kp-hd{display:none}
+}
