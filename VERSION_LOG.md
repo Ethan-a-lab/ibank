@@ -9,10 +9,10 @@
 
 | 项目 | 值 |
 | --- | --- |
-| **当前版本号** | **v117** — 2026-11-12「unslop 首页去 AI 味（第一阶段：hero + CTA 横幅）」**本地已 commit、未 push** |
-| 对应提交 | v111–v114 随 `fcbf75c`、v115 随 `6505839`、v116 随 `5962300` 推送完毕；**v117 为本地新提交，待用户统一 push** |
+| **当前版本号** | **v118** — 2026-11-12「unslop 全站去 AI 味（色彩/图标/栅格三 pass）」**本地已 commit、未 push（与 v117 同批）** |
+| 对应提交 | v111–v116 已推送（`5962300`）；**v117（`36ae069`）与 v118 为本地提交，待用户统一 push** |
 | 线上校验 | **线上仍为 v116**，三项实测通过（2026-11-12 19:43）：`static/bond-core.js` 含 `bd-cmp`/「低于成本」、`static/timeline.js` 含「244 港元」、**`sw.js` 报 `CACHE_VERSION = 'ibank-v17'` 且含 bond-core 预缓存与网络优先登记** |
-| 上一版 | **v116**（2026-11-12 19:45，SW 补漏 bond/eval 网络优先） |
+| 上一版 | **v117**（2026-11-12 20:10，unslop 第一阶段 hero+CTA） |
 | SW 版本 | **`ibank-v17`**（v116 升的：bond-core / bond.css / eval-core / eval.css 补进网络优先与预缓存。v107–v115 期间没升是因为只改文案与页内结构，而 bond 页当时还没走这段逻辑） |
 | **未完成的前置条件** | `db/undercover.sql`：README 记为**已执行**（2026-11-12 核实），本表旧口径作废。若课堂上「手机领词」仍退回纸质模式，先查这条与匿名登录开关 |
 | 台账登记 | 文末详细条目已到 **v116**；「三、版本记录」索引表停在 **v79**（历史遗留，仅作旧版检索，不再续写） |
@@ -410,3 +410,13 @@ python _private/site_files.py baseline
   ⑨ SW 无需升版本：`app.css`/`app-core.js` 本就走网络优先，未动 `sw.js` 与预缓存清单。
   ⑩ 本阶段未动：14 张功能卡（emoji 图标 + 同构栅格 + 紫渐变 tile）、内页、`08` 之外文案。待用户看过效果后决定是否铺开（第二阶段候选：卡片栅格做主次节奏 + emoji 换统一线条图标）。
   ⑪ 已本地 commit，**未 push（由用户统一推送）**。
+
+- **v118（2026-11-12 20:35，unslop 全站去 AI 味：色彩 pass + 图标 pass + 栅格 pass）**：用户看过 v117 hero 效果后拍板「应用全站」。方向沿用「纸面讲义 × 靛蓝钢笔水」，游戏区语义色（SR 紫 / SSR 金 / 通关青）保留为实色。
+  ① **色彩 pass（app.css 49→13 处渐变）**：全部按钮/激活态/图标 tile 的 `#4f46e5→#7c3aed` 渐变 → `var(--accent-solid)` 实色（tab-btn、chapter-link、ex-chip、case-filter、login、ktree、pj-open/pj-ms 等约 24 处）；青/蓝/绿→靛的进度条渐变 → 实色（cn-bar、ex-prog、profile-bar、ipo-score、pj-rub-bar）；渐变文字三处（.hero .grad、.kpi-card .num、.login-logo）→ 实色 `var(--accent-text)`；**qa-hero 深紫四段渐变 → 与 CTA 同语言深墨板书块**；kpi-card 渐变描边 → 靛蓝半透明实色；全站彩色 box-shadow（rgba(99,102,241,…)、rgba(79,70,229,…) 系）→ 中性 `rgba(15,23,42,…)`。保留：同色系深浅渐变（ipo-hist、vbar-fill、wd-heat 红、amber 三处）、图片压暗遮罩、no-data 斜纹、pj-tl alpha 渐隐线、kpi mask 描边（技术性）。
+  ② **index.html / ibank-game.html 内联样式（21+18 处）**：游戏区品牌点/进度条/段位徽章/下一题按钮 → 实色；SR/SSR/通关徽章保留语义色去渐变；combo 渐变文字 → 实色琥珀；双色 alpha 洗 → 单色系；undercover.css 小竖条同步。
+  ③ **图标 pass（非游戏区 emoji 清零）**：首页 14 张功能卡 emoji → 手写 lucide 风格线条 SVG（16 种 24 viewBox、1.5 stroke、currentColor）；admin 六张能力卡同步；导航主题切换 🌙/☀️ → SVG（`app-core.js applyTheme` 改 innerHTML 切换月/日）；qa-hero 标签去 emoji（📚📖🧠⚡）、朗读/音色/清空按钮去 emoji（含 JS `voiceBtn.innerHTML` 的 🔊/🔈）、MBTI 按钮 ✎ 去除。图标 tile 改浅靛蓝底 + 靛蓝图标（深色 `rgba(129,140,248,.16)`）。
+  ④ **栅格 pass**：14 张等宽同构卡打破——旗舰卡「课程项目」跨 2 列（`.home-card.is-primary`，640px 以下回退单列）；hover 从「上浮 3px + 大阴影」收敛为描边加深 + 小中性影。
+  ⑤ **动效复查**：残留循环动画均为活性语义（qa-status 呼吸、typing 点、pv 光标、ev-live ping），无装饰性 loop；无 transition-all。
+  ⑥ **验收**：`_private/accept_v118_unslop.mjs` **30/30 全绿**（13 页逐页冒烟含 p-admin 教师守卫、卡片 SVG 化、is-primary 跨列、qa-hero 板书块、主题 SVG、v117 回归）；`accept_v117_unslop.mjs` 23/23 复跑通过；390px 窄屏 `scrollWidth=390` 无溢出、0 JS 错误。截图 14 张归档 `D://Docs//项目资料包//01-iBank投资银行学课程智能体//验收截图-2026-11-12-unslop-v117-v118//`。
+  ⑦ SW 不升版本（app.css/app-core.js 网络优先，未动 sw.js）。游戏区内容性 emoji（奖励/图鉴/成就/等级名）为游戏语义保留，未在本次范围。
+  ⑧ 已本地 commit，**未 push（与 v117 同批，由用户统一推送）**。

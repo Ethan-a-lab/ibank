@@ -24,7 +24,7 @@
 #p-game .uc-h{
   display:flex;align-items:center;gap:9px;margin:22px 0 10px;
 }
-#p-game .uc-h .bar{width:3px;height:15px;border-radius:2px;background:linear-gradient(180deg,#4f46e5,#8b5cf6)}
+#p-game .uc-h .bar{width:3px;height:15px;border-radius:2px;background:var(--accent-solid)}
 #p-game .uc-h h3{font-size:15px;font-weight:700}
 #p-game .uc-h .r{margin-left:auto;font-size:12px;color:var(--muted);font-weight:600}
 
@@ -39,7 +39,7 @@
 #p-game .uc-chip:hover{border-color:var(--accent)}
 #p-game .uc-chip.on{
   background:var(--accent-solid);color:#fff;border-color:transparent;
-  box-shadow:0 4px 12px rgba(99,102,241,.28);
+  box-shadow:0 2px 8px rgba(15,23,42,.14);
 }
 
 /* 主按钮 */
@@ -47,7 +47,7 @@
   display:block;width:100%;padding:15px;border-radius:12px;
   font-size:15px;font-weight:700;letter-spacing:.3px;
   background:var(--accent-solid);color:#fff;
-  box-shadow:0 6px 18px rgba(99,102,241,.28);
+  box-shadow:0 2px 10px rgba(15,23,42,.16);
   transition:.16s;
 }
 #p-game .uc-btn:hover{transform:translateY(-1px)}
@@ -93,7 +93,7 @@
 #p-game .uc-order span.done{opacity:.4;text-decoration:line-through}
 #p-game .uc-order span.now{
   background:var(--accent-solid);color:#fff;border-color:transparent;
-  box-shadow:0 3px 10px rgba(99,102,241,.3);
+  box-shadow:0 2px 8px rgba(15,23,42,.14));
 }
 
 /* 投票格 */
