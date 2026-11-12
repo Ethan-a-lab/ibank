@@ -1,0 +1,22 @@
+/* iBank 中英双语：语言按钮 + 伪元素文案覆盖。由 tools/ship_to_source.py 生成，勿手改。 */
+/* 与 #login-top-btn 保持同一视觉层级：透明底、细灰边、继承文字色。
+   不加紫色高亮/角标 —— 那个语言按钮比登录按钮还抢眼，看起来就会"丑"。
+   当前语言靠按钮文案本身表达（英文态显示「中文」，中文态显示「EN」）。 */
+#ibk-lang-btn{display:inline-flex;align-items:center;justify-content:center;
+  height:34px;min-width:44px;padding:0 10px;box-sizing:border-box;
+  border-radius:999px;border:1px solid var(--panel-border,rgba(148,163,184,.5));
+  background:transparent;color:inherit;font:500 13px/1 inherit;
+  cursor:pointer;white-space:nowrap;flex:0 0 auto;letter-spacing:.2px;
+  transition:border-color .16s ease,color .16s ease}
+#ibk-lang-btn:hover{border-color:var(--accent,#6366f1);color:var(--accent-text,#4f46e5)}
+/* 独立页面兜底：没有导航栏时放左上角，避免沉到长文档底部 */
+body > #ibk-lang-btn.ibk-floating{position:fixed;top:12px;left:12px;z-index:2147483000;
+  border-radius:999px;background:var(--panel,#fff);box-shadow:0 2px 10px rgba(15,23,42,.18)}
+@media (max-width:640px){
+  #ibk-lang-btn{height:30px;min-width:38px;padding:0 8px;font-size:12px}
+}
+/* 伪元素里的文案（content:'模拟数据' 这类）改不了 DOM 文本，只能靠更高优先级的规则覆盖。
+   挂在 html[lang="en"] 下，切回中文时自动失效。 */
+html[lang="en"] #sim-chart-title::after{content:'Simulated data'}
+html[lang="en"] .fold-panel > summary::after{content:'▾ Expand'}
+html[lang="en"] .fold-panel[open] > summary::after{content:'▴ Collapse'}

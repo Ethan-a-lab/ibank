@@ -21,6 +21,7 @@
   <link rel="stylesheet" href="static/app.css">
   <link rel="stylesheet" href="static/eval.css">
   <link rel="stylesheet" href="static/bond.css">
+  <link rel="stylesheet" href="static/i18n.css">
 </head>
 <body>
   <!-- ===== 登录/注册遮罩 ===== -->
@@ -132,7 +133,7 @@
             <button class="tab-btn" data-page="p-ipo"><span class="dd-name">IPO 定价配售仿真</span><span class="dd-desc">科创板询价、定价与配售全流程</span></button>
             <button class="tab-btn" data-page="p-valuation"><span class="dd-name">企业估值实验</span><span class="dd-desc">市盈率法与现金流折现联动</span></button>
             <button class="tab-btn" data-page="p-bond"><span class="dd-name">债券簿记建档仿真</span><span class="dd-desc">亲手定出一个票面利率</span></button>
-            <a class="tab-btn" href="./ibank-game.html" style="text-decoration:none"><span class="dd-name">投行梗学闯关</span><span class="dd-desc">8 关全解锁 · 每关 4 题 · 离线可玩</span></a>
+            <button class="tab-btn" data-page="p-game"><span class="dd-name">投行梗学闯关</span><span class="dd-desc">8 关全解锁 · 每关 4 题 · 离线可玩</span></button>
           </div>
         </div>
 
@@ -157,6 +158,7 @@
       </div>
 
       <div class="nav-actions">
+      <button id="ibk-lang-btn" type="button" data-i18n-skip title="Switch language / 切换语言"><span id="ibk-lang-txt">EN</span></button>
         <button id="login-top-btn">登录 / 注册</button>
         <span id="nav-account" class="hidden">
           <span id="nav-user"><b id="nav-user-name"></b><i id="nav-user-role"></i></span>
@@ -214,7 +216,7 @@
           <div class="home-card" data-page="p-macro"><div class="ico">🌐</div><h4>宏观市场</h4><p>美元 · 黄金 · 股票 · 美债联动解读</p><span class="go">进入 →</span></div>
           <div class="home-card" data-page="p-sim"><div class="ico">📈</div><h4>股市模拟</h4><p>虚拟盘实战交易，体验市场博弈</p><span class="go">进入 →</span></div>
           <div class="home-card" data-page="p-sizheng"><div class="ico">🎓</div><h4>课程思政</h4><p>立德树人 · 金融强国价值引领</p><span class="go">进入 →</span></div>
-          <a class="home-card" href="./ibank-game.html" style="display:block;text-decoration:none;color:inherit"><div class="ico">🎮</div><h4>投行梗学闯关</h4><p>8 关全部开放，想做哪关做哪关；每关 4 题，顺序随机</p><span class="go">开玩 →</span></a>
+          <div class="home-card" data-page="p-game"><div class="ico">🎮</div><h4>投行梗学闯关</h4><p>8 关全部开放，想做哪关做哪关；每关 4 题，顺序随机</p><span class="go">开玩 →</span></div>
           <div class="home-card is-locked" data-page="p-admin" data-lock="teacher"><div class="ico">🗂️</div><h4>教师后台<i class="hc-tag">教师端</i></h4><p>班级学情看板、模块使用占比与五维达成率汇总</p><span class="go">需教师账号</span></div>
         </div>
       </div>
@@ -646,7 +648,1233 @@
     </section>
 
     <!-- ⑧ 企业估值实操实验 -->
-    <section class="page" id="p-valuation">
+    
+<!-- ==== 投行梗学闯关：由 ibank-game.html 内嵌，样式已作用域化到 #p-game ==== -->
+<style id="ibkg-style">
+#p-game{
+    --bg:#f6f7fb; --panel:rgba(255,255,255,.9); --panel-solid:#fff;
+    --panel-border:rgba(15,23,42,.10);
+    --text:#1a2233; --muted:#5b6478; --dim:#646b80;
+    --accent:#6366f1; --accent-text:#4f46e5; --accent-solid:#4f46e5;
+    --accent2:#0e7490; --accent3:#8b5cf6;
+    --good:#0f766e; --bad:#b91c1c; --warn:#b45309;
+    --gold:#b45309; --gold-bg:rgba(245,158,11,.14);
+    --radius:14px;
+    --shadow-sm:0 2px 10px rgba(15,23,42,.05);
+    --shadow-md:0 14px 40px rgba(15,23,42,.09);
+    --track:rgba(15,23,42,.07);
+    --ok-bg:rgba(15,118,110,.10); --err-bg:rgba(185,28,28,.08);
+  }
+body.dark #p-game{
+    --bg:#0d1020; --panel:rgba(24,28,50,.88); --panel-solid:#181c32;
+    --panel-border:rgba(148,163,184,.16);
+    --text:#e7eaf3; --muted:#9aa4bb; --dim:#8b93ab;
+    --accent:#818cf8; --accent-text:#a5b4fc; --accent-solid:#4f46e5;
+    --accent2:#22d3ee; --accent3:#c084fc;
+    --good:#34d399; --bad:#fb7185; --warn:#fbbf24;
+    --gold:#fbbf24; --gold-bg:rgba(251,191,36,.14);
+    --shadow-sm:0 2px 10px rgba(0,0,0,.3);
+    --shadow-md:0 14px 40px rgba(0,0,0,.45);
+    --track:rgba(148,163,184,.14);
+    --ok-bg:rgba(52,211,153,.12); --err-bg:rgba(251,113,133,.12);
+  }
+#p-game *{box-sizing:border-box;margin:0;padding:0}
+#p-game{
+    font-family:"PingFang SC","Microsoft YaHei","Segoe UI",system-ui,sans-serif;
+    background:var(--bg); color:var(--text); min-height:100vh; line-height:1.7;
+    -webkit-font-smoothing:antialiased;
+  }
+#p-game button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit}
+#p-game a{color:var(--accent2);text-decoration:none}
+#p-game .blob{position:fixed;border-radius:50%;filter:blur(90px);opacity:.42;z-index:0;pointer-events:none}
+#p-game .blob-1{width:440px;height:440px;background:#c7d2fe;top:-150px;left:-120px}
+#p-game .blob-2{width:400px;height:400px;background:#a5f3fc;bottom:-150px;right:-100px}
+body.dark #p-game .blob{opacity:.16}
+#p-game .wrap{position:relative;z-index:1;max-width:900px;margin:0 auto;padding:0 18px 60px}
+#p-game .topbar{
+    position:sticky;top:0;z-index:40;display:flex;align-items:center;gap:10px;
+    padding:10px 0;margin-bottom:20px;
+    background:color-mix(in srgb,var(--bg) 86%,transparent);
+    border-bottom:1px solid var(--panel-border);
+    backdrop-filter:blur(14px);
+  }
+#p-game .back{
+    display:inline-flex;align-items:center;gap:6px;font-size:13.5px;font-weight:600;
+    color:var(--muted);padding:7px 12px;border-radius:999px;border:1px solid var(--panel-border);
+    background:var(--panel);transition:.2s;white-space:nowrap;
+  }
+#p-game .back:hover{color:var(--accent-text);border-color:var(--accent);transform:translateX(-2px)}
+#p-game .brand{display:flex;align-items:center;gap:8px;font-size:15px;font-weight:700;letter-spacing:.2px;margin-right:auto;white-space:nowrap}
+#p-game .brand .dot{width:8px;height:8px;border-radius:50%;background:linear-gradient(135deg,#4f46e5,#7c3aed);box-shadow:0 0 0 4px rgba(99,102,241,.15)}
+#p-game .stat-chip{
+    display:inline-flex;align-items:center;gap:5px;font-size:12.5px;font-weight:700;
+    padding:5px 11px;border-radius:999px;background:var(--gold-bg);color:var(--gold);
+    white-space:nowrap;
+  }
+#p-game .stat-chip.rank{background:rgba(99,102,241,.12);color:var(--accent-text)}
+#p-game .icon-btn{
+    width:34px;height:34px;border-radius:10px;border:1px solid var(--panel-border);
+    background:var(--panel);display:flex;align-items:center;justify-content:center;
+    font-size:15px;transition:.2s;flex:none;
+  }
+#p-game .icon-btn:hover{border-color:var(--accent);transform:translateY(-1px)}
+#p-game .view{display:none;animation:ibkg-fade .32s ease}
+#p-game .view.on{display:block}
+@keyframes ibkg-fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+#p-game .card{
+    background:var(--panel);border:1px solid var(--panel-border);border-radius:var(--radius);
+    padding:20px;box-shadow:var(--shadow-sm);backdrop-filter:blur(14px);
+  }
+#p-game .hero{
+    position:relative;overflow:hidden;border-radius:18px;padding:22px 24px;margin-bottom:18px;
+    background:linear-gradient(135deg,rgba(79,70,229,.10),rgba(124,58,237,.06));
+    border:1px solid var(--panel-border);
+  }
+#p-game .hero-top{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+#p-game .rank-badge{
+    width:56px;height:56px;border-radius:16px;flex:none;
+    background:linear-gradient(135deg,#4f46e5,#7c3aed);color:#fff;
+    display:flex;align-items:center;justify-content:center;font-size:24px;
+    box-shadow:0 8px 22px rgba(99,102,241,.32);
+  }
+#p-game .hero-tt{flex:1;min-width:150px}
+#p-game .hero-tt h1{font-size:19px;font-weight:800;letter-spacing:.2px}
+#p-game .hero-tt p{font-size:12.5px;color:var(--muted);margin-top:2px}
+#p-game .progress{height:8px;border-radius:99px;background:var(--track);overflow:hidden;margin-top:12px}
+#p-game .progress i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,#4f46e5,#8b5cf6);transition:width .5s cubic-bezier(.3,1,.4,1)}
+#p-game .hero-foot{display:flex;justify-content:space-between;font-size:11.5px;color:var(--muted);margin-top:6px}
+#p-game .sec{display:flex;align-items:center;gap:9px;margin:24px 0 12px}
+#p-game .sec .bar{width:3px;height:16px;border-radius:2px;background:linear-gradient(180deg,#4f46e5,#8b5cf6)}
+#p-game .sec h2{font-size:15.5px;font-weight:700}
+#p-game .sec .more{margin-left:auto;font-size:12.5px;color:var(--muted);font-weight:600}
+#p-game .sec .more:hover{color:var(--accent-text)}
+#p-game .levels{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+#p-game .lv{
+    position:relative;text-align:left;padding:15px 16px;border-radius:14px;
+    background:var(--panel);border:1px solid var(--panel-border);
+    transition:.2s;display:flex;gap:13px;align-items:flex-start;overflow:hidden;
+  }
+#p-game .lv:hover{transform:translateY(-2px);border-color:var(--accent);box-shadow:var(--shadow-md)}
+#p-game .lv.locked{opacity:.5;cursor:not-allowed;filter:saturate(.3)}
+#p-game .lv.locked:hover{transform:none;border-color:var(--panel-border);box-shadow:none}
+#p-game .lv-no{
+    width:38px;height:38px;border-radius:11px;flex:none;display:flex;flex-direction:column;align-items:center;justify-content:center;
+    font-size:15px;font-weight:800;color:#fff;background:linear-gradient(135deg,#4f46e5,#7c3aed);
+    box-shadow:0 4px 12px rgba(99,102,241,.26);line-height:1;
+  }
+#p-game .lv-no i{font-style:normal;font-size:9px;font-weight:700;opacity:.85;margin-top:2px}
+#p-game .lv.done .lv-no{background:linear-gradient(135deg,#0f766e,#059669)}
+#p-game .lv.locked .lv-no{background:var(--dim);box-shadow:none}
+#p-game .lv-body{flex:1;min-width:0}
+#p-game .lv-body h3{font-size:14px;font-weight:700;line-height:1.4}
+#p-game .lv-body p{font-size:11.5px;color:var(--muted);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#p-game .lv-stars{display:flex;gap:2px;margin-top:6px;font-size:11px;letter-spacing:1px}
+#p-game .lv-stars .s{color:var(--dim);opacity:.35}
+#p-game .lv-stars .s.on{color:#f59e0b;opacity:1}
+#p-game .lv-lock{position:absolute;right:12px;top:12px;font-size:12px;color:var(--dim)}
+#p-game .daily{
+    display:flex;align-items:center;gap:14px;padding:16px 18px;border-radius:14px;
+    background:linear-gradient(120deg,rgba(14,116,144,.10),rgba(99,102,241,.07));
+    border:1px solid var(--panel-border);transition:.2s;width:100%;text-align:left;
+  }
+#p-game .daily:hover{border-color:var(--accent2);transform:translateY(-2px)}
+#p-game .daily .d-ico{width:42px;height:42px;border-radius:12px;flex:none;display:flex;align-items:center;justify-content:center;font-size:19px;background:var(--panel-solid);border:1px solid var(--panel-border)}
+#p-game .daily .d-body{flex:1;min-width:0}
+#p-game .daily h3{font-size:14px;font-weight:700}
+#p-game .daily p{font-size:11.5px;color:var(--muted);margin-top:2px}
+#p-game .pill{font-size:11px;font-weight:700;padding:3px 9px;border-radius:99px;background:var(--accent-solid);color:#fff;flex:none}
+#p-game .pill.ok{background:var(--good)}
+#p-game .pill.retry{background:#f59e0b}
+#p-game .qhead{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+#p-game .qhead .lvname{font-size:12.5px;font-weight:700;color:var(--accent-text)}
+#p-game .qhead .qn{margin-left:auto;font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}
+#p-game .qhead .quit{font-size:11.5px;font-weight:700;color:var(--muted);padding:3px 10px;border-radius:99px;border:1px solid var(--panel-border);transition:.2s}
+#p-game .qhead .quit:hover{color:var(--bad);border-color:var(--bad)}
+#p-game .qbar{height:5px;border-radius:99px;background:var(--track);overflow:hidden;margin-bottom:20px}
+#p-game .qbar i{display:block;height:100%;background:linear-gradient(90deg,#4f46e5,#8b5cf6);transition:width .35s}
+#p-game .meme{
+    font-size:13px;color:var(--muted);line-height:1.75;padding:11px 14px;margin-bottom:14px;
+    border-left:3px solid var(--accent3);border-radius:0 10px 10px 0;
+    background:rgba(139,92,246,.06);
+  }
+#p-game .meme b{color:var(--accent3);font-weight:700}
+#p-game .stem{font-size:16px;font-weight:600;line-height:1.75;margin-bottom:18px;letter-spacing:.1px}
+#p-game .opts{display:flex;flex-direction:column;gap:9px}
+#p-game .opt{
+    display:flex;align-items:flex-start;gap:11px;padding:13px 15px;border-radius:12px;text-align:left;
+    background:var(--panel-solid);border:1.5px solid var(--panel-border);transition:.16s;font-size:14px;line-height:1.65;
+  }
+#p-game .opt:hover:not(.dis){border-color:var(--accent);background:rgba(99,102,241,.05)}
+#p-game .opt .k{
+    width:23px;height:23px;border-radius:7px;flex:none;display:flex;align-items:center;justify-content:center;
+    font-size:11.5px;font-weight:800;background:var(--track);color:var(--muted);margin-top:1px;transition:.16s;
+  }
+#p-game .opt.sel{border-color:var(--accent);background:rgba(99,102,241,.08)}
+#p-game .opt.right{border-color:var(--good);background:var(--ok-bg)}
+#p-game .opt.right .k{background:var(--good);color:#fff}
+#p-game .opt.wrong{border-color:var(--bad);background:var(--err-bg)}
+#p-game .opt.wrong .k{background:var(--bad);color:#fff}
+#p-game .opt.dis{cursor:default}
+#p-game .opt .tag{margin-left:auto;font-size:11px;font-weight:700;flex:none;align-self:center}
+#p-game .fb{margin-top:16px;border-radius:12px;padding:0 16px;max-height:0;overflow:hidden;transition:.3s ease;opacity:0}
+#p-game .fb.on{max-height:420px;padding:15px 16px;opacity:1}
+#p-game .fb.ok{background:var(--ok-bg);border:1px solid rgba(15,118,110,.28)}
+#p-game .fb.no{background:var(--err-bg);border:1px solid rgba(185,28,28,.25)}
+#p-game .fb .fb-h{font-size:13.5px;font-weight:800;margin-bottom:5px;display:flex;align-items:center;gap:7px}
+#p-game .fb.ok .fb-h{color:var(--good)}
+#p-game .fb.no .fb-h{color:var(--bad)}
+#p-game .fb .fb-t{font-size:13px;line-height:1.8;color:var(--text)}
+#p-game .fb .kp{display:inline-block;margin-top:9px;font-size:11px;font-weight:700;padding:2px 9px;border-radius:6px;background:rgba(99,102,241,.12);color:var(--accent-text)}
+#p-game .combo{
+    position:fixed;left:50%;top:22%;transform:translate(-50%,-50%) scale(.6);z-index:60;
+    font-size:34px;font-weight:900;letter-spacing:-1px;
+    background:linear-gradient(135deg,#f59e0b,#f43f5e);-webkit-background-clip:text;background-clip:text;color:transparent;
+    opacity:0;pointer-events:none;
+  }
+#p-game .combo.pop{animation:ibkg-comboPop .9s cubic-bezier(.2,1.2,.4,1)}
+@keyframes ibkg-comboPop{
+    0%{opacity:0;transform:translate(-50%,-50%) scale(.5)}
+    30%{opacity:1;transform:translate(-50%,-50%) scale(1.15)}
+    70%{opacity:1;transform:translate(-50%,-70%) scale(1)}
+    100%{opacity:0;transform:translate(-50%,-100%) scale(.9)}
+  }
+#p-game .nextbtn{
+    margin-top:16px;width:100%;padding:13px;border-radius:12px;font-size:14.5px;font-weight:700;color:#fff;
+    background:linear-gradient(135deg,#4f46e5,#7c3aed);box-shadow:0 6px 20px rgba(99,102,241,.3);
+    transition:.2s;
+  }
+#p-game .nextbtn:hover{transform:translateY(-1px);box-shadow:0 9px 26px rgba(99,102,241,.38)}
+#p-game .nextbtn:disabled{opacity:.4;cursor:not-allowed;transform:none;box-shadow:none}
+#p-game .nextbtn.ghost{background:var(--panel-solid);color:var(--text);border:1px solid var(--panel-border);box-shadow:none}
+#p-game .nextbtn.ghost:hover{transform:none;box-shadow:none;border-color:var(--muted)}
+#p-game .res-head{text-align:center;padding:8px 0 4px}
+#p-game .res-head .em{font-size:44px;line-height:1.2}
+#p-game .res-head h2{font-size:21px;font-weight:800;margin-top:6px}
+#p-game .res-head p{font-size:13px;color:var(--muted);margin-top:3px}
+#p-game .res-nums{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:20px 0}
+#p-game .rn{text-align:center;padding:14px 8px;border-radius:12px;background:var(--panel);border:1px solid var(--panel-border)}
+#p-game .rn .v{font-size:20px;font-weight:800;font-variant-numeric:tabular-nums}
+#p-game .rn .l{font-size:11px;color:var(--muted);margin-top:1px}
+#p-game .rn.hi .v{color:var(--gold)}
+#p-game .res-star{display:flex;justify-content:center;gap:5px;font-size:24px;margin:6px 0 4px}
+#p-game .res-star .s{color:var(--dim);opacity:.3;transition:.3s}
+#p-game .res-star .s.on{color:#f59e0b;opacity:1;transform:scale(1.1)}
+#p-game .chest{text-align:center;margin:18px 0 4px}
+#p-game .chest-box{
+    width:88px;height:88px;margin:0 auto;border-radius:22px;display:flex;align-items:center;justify-content:center;
+    font-size:40px;background:linear-gradient(135deg,rgba(245,158,11,.18),rgba(244,63,94,.12));
+    border:1px solid rgba(245,158,11,.3);cursor:pointer;transition:.2s;
+  }
+#p-game .chest-box:hover{transform:scale(1.05)}
+#p-game .chest-box.shake{animation:ibkg-shake .5s ease infinite}
+@keyframes ibkg-shake{0%,100%{transform:rotate(0)}25%{transform:rotate(-7deg) scale(1.04)}75%{transform:rotate(7deg) scale(1.04)}}
+#p-game .chest p{font-size:12px;color:var(--muted);margin-top:9px}
+#p-game .draw{
+    margin-top:14px;border-radius:14px;padding:18px;text-align:center;
+    border:2px dashed rgba(245,158,11,.4);background:rgba(245,158,11,.05);
+    opacity:0;transform:scale(.94);transition:.35s;display:none;
+  }
+#p-game .draw.on{opacity:1;transform:none;display:block}
+#p-game .draw .rar{font-size:11px;font-weight:800;letter-spacing:1.5px;padding:2px 10px;border-radius:99px;display:inline-block}
+#p-game .rar.r{background:#94a3b8;color:#fff}
+#p-game .rar.sr{background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff}
+#p-game .rar.ssr{background:linear-gradient(135deg,#f59e0b,#f43f5e);color:#fff}
+#p-game .draw h3{font-size:16px;font-weight:800;margin:8px 0 3px}
+#p-game .draw p{font-size:12.5px;color:var(--muted);line-height:1.7}
+#p-game .ach-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+#p-game .ach{
+    display:flex;gap:11px;align-items:flex-start;padding:13px 14px;border-radius:12px;
+    background:var(--panel);border:1px solid var(--panel-border);transition:.2s;
+  }
+#p-game .ach.off{opacity:.45}
+#p-game .ach .a-ico{
+    width:36px;height:36px;border-radius:10px;flex:none;display:flex;align-items:center;justify-content:center;
+    font-size:17px;background:var(--track);
+  }
+#p-game .ach.on .a-ico{background:linear-gradient(135deg,#f59e0b,#f43f5e)}
+#p-game .ach .a-b h4{font-size:13px;font-weight:700}
+#p-game .ach .a-b p{font-size:11px;color:var(--muted);line-height:1.6;margin-top:1px}
+#p-game .ach .a-b .a-t{font-size:10px;font-weight:700;color:var(--accent-text);margin-top:3px;display:block}
+#p-game .dex-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+#p-game .dex{
+    padding:14px 10px;border-radius:12px;text-align:center;background:var(--panel);
+    border:1px solid var(--panel-border);transition:.2s;
+  }
+#p-game .dex.off{opacity:.35;filter:grayscale(1)}
+#p-game .dex .d-r{font-size:9.5px;font-weight:800;letter-spacing:1px;padding:1px 7px;border-radius:99px;display:inline-block}
+#p-game .dex .d-r.r{background:#94a3b8;color:#fff}
+#p-game .dex .d-r.sr{background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff}
+#p-game .dex .d-r.ssr{background:linear-gradient(135deg,#f59e0b,#f43f5e);color:#fff}
+#p-game .dex .d-e{font-size:26px;margin:6px 0 2px}
+#p-game .dex h4{font-size:11.5px;font-weight:700;line-height:1.4}
+#p-game .dex p{font-size:10px;color:var(--muted);margin-top:1px;line-height:1.5}
+#p-game .toasts{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);z-index:80;display:flex;flex-direction:column;gap:8px;align-items:center;width:calc(100% - 32px);max-width:400px;pointer-events:none}
+#p-game .toast{
+    display:flex;align-items:center;gap:10px;padding:11px 16px;border-radius:12px;
+    background:var(--panel-solid);border:1px solid var(--panel-border);box-shadow:var(--shadow-md);
+    font-size:13px;animation:ibkg-tin .3s ease;width:100%;
+  }
+#p-game .toast .ti{font-size:18px;flex:none}
+#p-game .toast b{font-weight:800}
+#p-game .toast.gold{border-color:rgba(245,158,11,.5);background:linear-gradient(120deg,rgba(245,158,11,.12),var(--panel-solid))}
+@keyframes ibkg-tin{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+#p-game .empty{text-align:center;padding:40px 20px;color:var(--muted);font-size:13px}
+@media(max-width:640px){#p-game .wrap{padding:0 14px 50px}
+#p-game .levels{grid-template-columns:1fr}
+#p-game .ach-grid{grid-template-columns:1fr}
+#p-game .brand{font-size:13.5px}
+#p-game .stem{font-size:15px}
+#p-game .res-nums{grid-template-columns:repeat(3,1fr)}
+#p-game .dex-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:372px){#p-game .back{padding:7px 10px}
+#p-game .back .bt{display:none}
+#p-game .brand{font-size:12.5px;gap:6px}
+#p-game .stat-chip{font-size:12px;padding:5px 9px}}
+</style>
+<section class="page" id="p-game">
+
+<div class="wrap">
+  <div class="topbar">
+    <button class="back" type="button" data-goto="p-home" aria-label="返回课程"><span class="ar">←</span><span class="bt">返回课程</span></button>
+    <div class="brand"><span class="dot"></span><span>投行梗学闯关</span></div>
+    <div class="stat-chip" id="c-gold">💰 0</div>
+    <button class="icon-btn" id="c-theme" title="切换深浅色">🌙</button>
+  </div>
+
+  <!-- 首页 -->
+  <section class="view on" id="v-home">
+    <div class="hero">
+      <div class="hero-top">
+        <div class="rank-badge" id="h-rank-ico">🎓</div>
+        <div class="hero-tt">
+          <h1 id="h-rank">实习生</h1>
+          <p id="h-sub">一关一个梗，把投行概念嚼碎</p>
+        </div>
+        <div class="stat-chip rank" id="h-total">已答 0 题</div>
+      </div>
+      <div class="progress"><i id="h-bar" style="width:0%"></i></div>
+      <div class="hero-foot"><span id="h-foot-l">距下一段位还需 500 金币</span><span id="h-foot-r">0%</span></div>
+    </div>
+
+    <div class="sec"><span class="bar"></span><h2>关卡地图</h2><span class="more" id="h-cleared">0 / 8 关</span></div>
+    <div class="levels" id="levels"></div>
+
+    <div class="sec"><span class="bar"></span><h2>每日挑战</h2><span class="more" id="daily-date"></span></div>
+    <button class="daily" id="btn-daily">
+      <div class="d-ico">🎲</div>
+      <div class="d-body">
+        <h3>今日 5 题 · 数字每天都不一样</h3>
+        <p id="d-sub">题目由题模实时生成，同一考点换一组数字</p>
+      </div>
+      <span class="pill" id="d-pill">开始</span>
+    </button>
+
+    <div class="sec"><span class="bar"></span><h2>我的收藏</h2></div>
+    <div class="daily" style="cursor:default">
+      <div class="d-ico">🏆</div>
+      <div class="d-body">
+        <h3 id="ach-mini">成就 0 / 32</h3>
+        <p id="ach-mini-sub">全部存在本机，不联网也能攒</p>
+      </div>
+      <button class="pill" style="background:var(--accent-solid)" onclick="GM.show('ach')">查看</button>
+    </div>
+    <div style="height:10px"></div>
+    <div class="daily" style="cursor:default">
+      <div class="d-ico">🃏</div>
+      <div class="d-body">
+        <h3 id="dex-mini">项目卡 0 / 12</h3>
+        <p id="dex-mini-sub">每关通关开一次箱，R / SR / SSR</p>
+      </div>
+      <button class="pill" style="background:var(--accent-solid)" onclick="GM.show('dex')">查看</button>
+    </div>
+  </section>
+
+  <!-- 答题 -->
+  <section class="view" id="v-play">
+    <div class="card">
+      <div class="qhead">
+        <span class="lvname" id="p-lv"></span>
+        <span class="qn" id="p-n"></span>
+        <button class="quit" id="p-quit">退出</button>
+      </div>
+      <div class="qbar"><i id="p-bar" style="width:0%"></i></div>
+      <div class="meme" id="p-meme"></div>
+      <div class="stem" id="p-stem"></div>
+      <div class="opts" id="p-opts"></div>
+      <div class="fb" id="p-fb">
+        <div class="fb-h" id="p-fbh"></div>
+        <div class="fb-t" id="p-fbt"></div>
+        <span class="kp" id="p-kp"></span>
+      </div>
+      <button class="nextbtn" id="p-next" disabled>下一题</button>
+    </div>
+  </section>
+
+  <!-- 结算 -->
+  <section class="view" id="v-res">
+    <div class="card">
+      <div class="res-head">
+        <div class="em" id="r-em">🎉</div>
+        <h2 id="r-title">通关</h2>
+        <p id="r-sub"></p>
+        <div class="res-star" id="r-stars"></div>
+      </div>
+      <div class="res-nums">
+        <div class="rn"><div class="v" id="r-acc">0%</div><div class="l">正确率</div></div>
+        <div class="rn"><div class="v" id="r-right">0/8</div><div class="l">答对题数</div></div>
+        <div class="rn hi"><div class="v" id="r-gold">+0</div><div class="l">承销费</div></div>
+      </div>
+      <div class="chest">
+        <div class="chest-box shake" id="r-chest">📦</div>
+        <p id="r-chest-t">点一下开箱</p>
+      </div>
+      <div class="draw" id="r-draw">
+        <span class="rar r" id="r-rar">R</span>
+        <h3 id="r-card">—</h3>
+        <p id="r-card-d"></p>
+      </div>
+      <button class="nextbtn" id="r-again" style="margin-top:20px">再来一关</button>
+      <button class="nextbtn" id="r-next" style="margin-top:9px;display:none">下一关</button>
+      <button class="nextbtn" id="r-home" style="margin-top:9px;background:var(--panel-solid);color:var(--text);border:1px solid var(--panel-border);box-shadow:none">回到地图</button>
+    </div>
+  </section>
+
+  <!-- 成就墙 -->
+  <section class="view" id="v-ach">
+    <div class="sec" style="margin-top:0"><span class="bar"></span><h2>成就墙</h2><span class="more" id="ach-cnt">0 / 32</span></div>
+    <div class="ach-grid" id="ach-list"></div>
+    <button class="nextbtn" style="background:var(--panel-solid);color:var(--text);border:1px solid var(--panel-border);box-shadow:none" onclick="GM.show('home')">回到地图</button>
+  </section>
+
+  <!-- 图鉴 -->
+  <section class="view" id="v-dex">
+    <div class="sec" style="margin-top:0"><span class="bar"></span><h2>项目卡图鉴</h2><span class="more" id="dex-cnt">0 / 12</span></div>
+    <div class="dex-grid" id="dex-list"></div>
+    <button class="nextbtn" style="background:var(--panel-solid);color:var(--text);border:1px solid var(--panel-border);box-shadow:none" onclick="GM.show('home')">回到地图</button>
+  </section>
+</div>
+
+<div class="combo" id="combo"></div>
+<div class="toasts" id="toasts"></div>
+
+
+
+</section>
+<script id="ibkg-script">
+
+(function () {
+  'use strict';
+
+  /* ============ 存储 ============ */
+  var KEY = 'ibank_game_v1';
+  var S = null;
+
+  function blank() {
+    return {
+      gold: 0, best: {}, cleared: {}, stars: {}, qTotal: 0, qRight: 0,
+      comboMax: 0, perClear: 0, ach: {}, cards: {}, days: {}, dayStreak: 0,
+      lastDay: '', dailyDone: '', fastRight: 0,
+      attemptedFailed: {}, allWrong: 0, retried: 0, fastPure: 0, comeback: 0, dailyCount: 0
+    };
+  }
+  function load() {
+    try {
+      var raw = localStorage.getItem(KEY);
+      if (raw) {
+        var o = JSON.parse(raw);
+        var b = blank();
+        /* 先把存档里的全部字段搬进来，再用默认值补缺，避免动态新增字段被丢 */
+        for (var k in o) if (o[k] !== undefined && o[k] !== null) b[k] = o[k];
+        for (var d in blank()) if (b[d] === undefined) b[d] = blank()[d];
+        return b;
+      }
+    } catch (e) {}
+    return blank();
+  }
+  function save() {
+    try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {}
+  }
+
+  /* ============ 工具 ============ */
+  function $(id) { return document.getElementById(id); }
+  function el(tag, cls, html) {
+    var d = document.createElement(tag);
+    if (cls) d.className = cls;
+    if (html != null) d.innerHTML = html;
+    return d;
+  }
+  function esc(s) {
+    return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  }
+  function today() {
+    var d = new Date();
+    return d.getFullYear() + '-' + (d.getMonth() + 1 < 10 ? '0' : '') + (d.getMonth() + 1) + '-' + (d.getDate() < 10 ? '0' : '') + d.getDate();
+  }
+  function dayKey(off) {
+    var d = new Date();
+    d.setDate(d.getDate() - off);
+    return d.getFullYear() + '-' + (d.getMonth() + 1 < 10 ? '0' : '') + (d.getMonth() + 1) + '-' + (d.getDate() < 10 ? '0' : '') + d.getDate();
+  }
+
+  /* 打乱选项：每 4 题恰好覆盖 A/B/C/D 各一次，块内顺序再哈希打乱。
+     既保证整体答案分布严格均衡（不会「答案全是 B」），又不会呈现简单循环。 */
+  function h32(n) {
+    n = Math.imul(n ^ (n >>> 16), 0x45d9f3b);
+    n = Math.imul(n ^ (n >>> 16), 0x45d9f3b);
+    n = n ^ (n >>> 16);
+    return n >>> 0;
+  }
+  function shuffleOpts(q, idx) {
+    var block = Math.floor(idx / 4), base = idx % 4;
+    var perm = [0, 1, 2, 3], s = h32(block * 2654435761 + 11);
+    for (var i = 3; i > 0; i--) {
+      s = h32(s + i * 0x9e3779b9);
+      var j = s % (i + 1);
+      var t = perm[i]; perm[i] = perm[j]; perm[j] = t;
+    }
+    var target = perm[base];
+    var others = [0, 1, 2, 3].filter(function (x) { return x !== q.a; });
+    var s2 = h32(block * 97 + base * 13 + 5);
+    for (var m = others.length - 1; m > 0; m--) {
+      s2 = h32(s2 + m * 7);
+      var j2 = s2 % (m + 1);
+      var t2 = others[m]; others[m] = others[j2]; others[j2] = t2;
+    }
+    var order = []; order[target] = q.a;
+    var k = 0;
+    for (var z = 0; z < 4; z++) if (z !== target) order[z] = others[k++];
+    var opts = [];
+    for (var y = 0; y < 4; y++) opts.push(q.o[order[y]]);
+    return { o: opts, a: target };
+  }
+
+  /* ============ 段位 ============ */
+  var RANKS = [
+    { n: '实习生', ico: '🎓', need: 0 },
+    { n: '分析师', ico: '📐', need: 500 },
+    { n: '经理', ico: '📋', need: 1500 },
+    { n: '副总裁', ico: '💼', need: 3500 },
+    { n: '董事', ico: '🧭', need: 7000 },
+    { n: '合伙人', ico: '👑', need: 12000 }
+  ];
+  function rankOf(g) {
+    var r = RANKS[0], i;
+    for (i = 0; i < RANKS.length; i++) if (g >= RANKS[i].need) r = RANKS[i];
+    return r;
+  }
+  function rankNext(g) {
+    for (var i = 0; i < RANKS.length; i++) if (g < RANKS[i].need) return RANKS[i];
+    return null;
+  }
+
+  /* ============ 关卡 ============ */
+  var LEVELS = [
+    { no: 0, ch: '第0章', name: '导论 · 投行是干什么的', desc: '中介、直接融资、看门人' },
+    { no: 1, ch: '第1章', name: '投资银行概述', desc: '业务版图、分业混业、防火墙' },
+    { no: 2, ch: '第2章', name: '企业融资方案设计', desc: '啄食顺序、摊薄、融资时机' },
+    { no: 3, ch: '第3章', name: '首次公开发行 IPO', desc: '询价定价、绿鞋、战略配售' },
+    { no: 4, ch: '第4章', name: '上市公司再融资', desc: '定增、配股、可转债、可交换债' },
+    { no: 5, ch: '第5章', name: '债券发行与承销', desc: '信用债、评级、包销' },
+    { no: 6, ch: '第6章', name: '资产证券化', desc: 'SPV、破产隔离、分层增级' },
+    { no: 7, ch: '第7章', name: '公司并购', desc: '要约、换股、控制权溢价' }
+  ];
+
+  /* ============ 题库：8 关 × 8 题，全部新写 ============ */
+  var LEVEL_QUESTIONS = 4;   /* 每次进关抽几题（题池为每关 4 题，全抽，顺序随机） */
+
+  var BANK = [
+    /* --- 第 0 关 导论 --- */
+    { c: 0, kp: '一级市场与二级市场', m: '开发商把新房卖给业主，和业主之间再转手，是两笔完全不同的生意。', q: '证券市场中的「一级市场」指的是？', o: ['投资者之间相互买卖已发行证券的市场', '发行人向投资者出售新发行证券的市场', '银行之间调剂资金头寸的市场', '企业之间进行产权交易的市场'], a: 1, w: '一级市场即发行市场，发行人通过承销把新证券卖给投资者，募集资金流入发行人；二级市场是流通市场，交易在投资者之间完成，钱不进发行人口袋。' },
+    { c: 0, kp: '投行起源', m: '欧洲一些做贸易的老商号，后来不怎么贩货了，改替政府和企业张罗借钱。', q: '现代投资银行的雏形主要起源于？', o: ['欧洲的商人银行', '美国的储蓄银行', '日本的信托银行', '中国的钱庄'], a: 0, w: '19 世纪欧洲的商人银行（Merchant Bank）由贸易融资转向为政府和铁路等企业发行证券，是投资银行的直接前身；美国投行多由证券承销商演变而来。' },
+    { c: 0, kp: '金融中介功能', m: '你不懂看财报，也不敢把钱交给陌生人，宁可找个懂行的中间人替你把关。', q: '金融中介存在的重要经济功能之一是？', o: ['消除全部投资风险', '保证投资者获得固定收益', '降低资金供求双方的信息不对称', '替代监管机构执法'], a: 2, w: '中介凭专业能力与规模优势降低信息搜集核实成本，缓解逆向选择与道德风险；但它不消除风险、不保证收益，也不能替代监管。' },
+    { c: 0, kp: '发行方式', m: '同样是募集，有的在广场上对着所有人吆喝，有的只给名单上的人打电话。', q: '证券公开发行与非公开发行的核心区别在于？', o: ['发行规模的大小', '是否向不特定对象发行', '发行价格如何确定', '是否在交易所挂牌'], a: 1, w: '公开发行面向不特定对象（或超过规定人数的特定对象），须严格履行披露义务；非公开发行只面向符合条件的特定投资者，披露要求相对简化。' },
+
+    /* --- 第 1 关 投资银行概述 --- */
+    { c: 1, kp: '组织形式', m: '早年几个人合伙，亏了要拿自家房子赔；后来发现，不上市根本凑不出那么多本钱。', q: '国际大型投资银行的组织形式演变趋势是？', o: ['由上市公司退回合伙制', '由合伙制转为上市的股份有限公司', '始终维持合伙制不变', '由国家独资经营'], a: 1, w: '合伙制下合伙人承担无限责任，约束强但资本有限；20 世纪后期高盛、摩根士丹利等相继改制上市，以补充资本并分散合伙人风险。' },
+    { c: 1, kp: '经纪与自营', m: '同在交易所下单，一个赚的是手续费，一个赚的是差价，账本完全不同。', q: '证券经纪业务与证券自营业务的根本区别是？', o: ['是否收取费用', '是否以自有资金买卖并承担交易损益', '是否需要经营牌照', '是否通过交易所集中撮合成交'], a: 1, w: '经纪是代理客户交易、赚取佣金，不承担价格风险；自营是公司以自有资金买卖、自负盈亏。两者都需牌照，也都在交易所进行。' },
+    { c: 1, kp: '净资本监管', m: '监管查券商，不只看赚了多少，还要看扣掉各种风险之后，家底还剩多厚。', q: '我国对证券公司实施净资本监管的主要目的是？', o: ['限制从业人员数量', '确保公司有足够资本抵御风险并约束业务规模', '统一各项业务的收费标准与佣金水平', '规定营业部的最低面积'], a: 1, w: '净资本是经风险调整后的净资产。监管以净资本为核心约束业务规模与风险敞口，防止过度扩张导致偿付能力不足。' },
+    { c: 1, kp: '监管机构', m: '球场上有裁判，规则由他解释，犯规由他吹哨，球员不能自己定规矩。', q: '我国证券市场的核心监管机构是？', o: ['中国人民银行', '中国证券监督管理委员会', '国家金融监督管理总局', '财政部'], a: 1, w: '证监会依法对证券期货市场实施监管，负责发行注册、市场监管与稽查执法；人民银行管货币政策，金融监管总局管银行业保险业。' },
+
+    /* --- 第 2 关 企业融资方案设计 --- */
+    { c: 2, kp: '优先股', m: '公司清算时先还债，再分给股东；股东队伍里，还分前后排。', q: '优先股相比普通股的主要特征是？', o: ['享有优先表决权', '优先分配利润和剩余财产，通常表决权受限', '收益随公司利润无限上浮', '持有人可随时要求公司按原价回购'], a: 1, w: '优先股在分红和剩余财产分配上顺序先于普通股，代价是通常不参与表决（特定事项除外），兼具债与股的部分特征。' },
+    { c: 2, kp: '税盾效应', m: '同样赚 100 块，借钱经营和用自有资金经营，最后交的税不一样。', q: '债务融资具有「税盾效应」，原因是？', o: ['利息支出可在税前扣除，降低实际税负', '偿还本金可抵减所得税', '债权人免征利息所得税', '债务融资不产生任何成本与费用'], a: 0, w: '利息作为财务费用在税前扣除，减少应纳税所得额，故税后债务成本 = 利率 ×(1−所得税率)，这是债务融资相对便宜的重要原因。' },
+    { c: 2, kp: 'MM 定理', m: '一张饼，切成八块还是四块，饼本身一点没变大。', q: '在无税、无摩擦的完美市场假设下，MM 定理认为？', o: ['负债越多企业价值越高', '企业价值与资本结构无关', '股权成本恒定不变', '资本结构由行业惯例决定'], a: 1, w: 'MM 第一定理指出，完美市场下企业价值取决于资产盈利能力，与融资方式无关；引入税与破产成本后，才存在最优资本结构问题。' },
+    { c: 2, kp: '财务杠杆', m: '借来的钱赚得比利息多，多出来的全归股东；要是赚得比利息少，缺口也得股东自己补。', q: '当企业资产回报率高于债务利率时，提高负债比例对每股收益的影响是？', o: ['降低每股收益', '提高每股收益', '没有影响', '无法判断'], a: 1, w: '这就是财务杠杆的正效应：资产收益率高于债务成本时，举债创造的超额收益归股东所有，EPS 上升；反之则放大亏损。' },
+
+    /* --- 第 3 关 IPO --- */
+    { c: 3, kp: 'IPO 动机', m: '上市不只是为了拿一笔钱，还为了让更多人知道你是谁、让员工手里的期权能变成真钱。', q: '企业选择 IPO 的动机不包括？', o: ['筹集长期权益资本', '提升公司知名度与信用水平', '为员工股权激励提供退出渠道', '免于履行信息披露义务'], a: 3, w: '上市带来融资、品牌、激励、并购支付手段等好处；代价恰恰是要持续、公开、合规地披露信息，不可能免除披露义务。' },
+    { c: 3, kp: '板块定位', m: '不是所有企业都往同一个板走：有的要求技术过硬，有的看成长速度，有的门槛更低、介入更早。', q: '我国北交所主要服务的企业类型是？', o: ['超大型国有企业', '创新型中小企业', '外商投资企业', '金融租赁公司'], a: 1, w: '北交所定位服务创新型中小企业，与沪深主板、科创板、创业板错位发展；科创板强调硬科技，创业板强调成长型创新创业企业。' },
+    { c: 3, kp: '招股说明书', m: '大件商品买之前先看说明书，写错了、瞒了事，是要担责任的。', q: '招股说明书的核心作用是？', o: ['作为承销商的内部工作底稿', '向投资者全面披露发行人的经营、财务与风险信息', '完全替代会计师事务所出具的审计报告', '确定股票上市后的交易价格'], a: 1, w: '招股书是发行的法定信息披露文件，须真实、准确、完整地披露公司情况与风险，既是投资者判断的依据，也是虚假陈述责任的载体。' },
+    { c: 3, kp: '路演', m: '上市之前，管理层要带着团队跑几个城市，一间屋子一间屋子地见人、回答问题。', q: 'IPO 路演的主要目的是？', o: ['决定发行审核能否通过', '向投资者推介发行人以促成认购和合理定价', '确定股票上市交易的具体日期与时间安排', '取代网下询价程序'], a: 1, w: '路演是管理层与投资者面对面沟通的推介活动，帮助投资者理解公司价值，是询价定价的重要环节；能否发行由审核注册决定，不靠路演。' },
+
+    /* --- 第 4 关 再融资 --- */
+    { c: 4, kp: '公开增发', m: '同样是发新股，有的向所有人敞开，有的只跟事先谈好的人做。', q: '上市公司公开增发与定向增发的区别是？', o: ['公开增发只面向原有股东定向配售', '公开增发面向不特定对象，定增面向特定对象', '公开增发不需要承销', '公开增发不受价格约束'], a: 1, w: '公开增发向社会公众投资者发行，须承销且价格贴近市价；定增只面向符合条件的特定投资者，有底价约束和锁定期。' },
+    { c: 4, kp: '赎回条款', m: '公司有时并不希望这笔债一直挂着，会想办法让持有人早点把手里的票换成股票。', q: '可转债的「提前赎回条款」通常在什么情况下被触发？', o: ['股价持续大幅高于转股价时', '股价跌破转股价时', '公司当年出现亏损时', '债券到期前一个月内'], a: 0, w: '赎回条款是发行人的促转股工具：股价远高于转股价时，发行人按约定价格赎回，迫使投资者转股，从而减少还本付息压力。' },
+    { c: 4, kp: '回售条款', m: '同样是可转债里的条款，有的向着发行人，有的向着掏钱的那一方。', q: '可转债的「回售条款」保护的是？', o: ['发行人利益', '债券持有人利益', '承销商利益', '评级机构利益'], a: 1, w: '回售是投资者的卖出选择权：股价长期低迷或发生约定事项时，持有人可要求发行人按约定价格回购，是投资者一侧的保护条款。' },
+    { c: 4, kp: '转股溢价率', m: '一张可转债，既有一个「换成股票值多少」的数，也有一个「现在市场卖多少」的数，两个数常常对不上。', q: '可转债的转股溢价率越高，通常意味着？', o: ['转股越划算', '债券价格相对其转股价值越贵', '发行人违约风险越低', '票面利率越高'], a: 1, w: '转股溢价率 =（转债价格 ÷ 转股价值 − 1）×100%。溢价高说明市场为期权部分支付了更多对价，即时转股的套利空间小。' },
+
+    /* --- 第 5 关 债券承销 --- */
+    { c: 5, kp: '到期收益率', m: '票面上印的那个利率，和你实际到手能赚到的，往往不是一回事。', q: '债券的到期收益率（YTM）反映的是？', o: ['债券票面约定的固定利率', '按现价买入并持有到期的年化收益', '发行人主体信用评级的高低', '债券距离到期的剩余年限'], a: 1, w: 'YTM 把买入价差、票息与到期本金统一折算成年化收益，是衡量真实回报的核心指标；折价买入时 YTM 高于票面利率。' },
+    { c: 5, kp: '久期', m: '利率只动了一点点，有的债券价格纹丝不动，有的却跌得不轻。', q: '债券久期越长，意味着？', o: ['对利率变化越不敏感，波动越小', '对利率变化越敏感，价格波动越大', '信用风险越低', '票面利率必然越高'], a: 1, w: '久期衡量价格对利率变动的敏感度：久期越长，利率上升时跌幅越大，这也是长期债券利率风险更高的原因。' },
+    { c: 5, kp: '债券要素', m: '一张借条上必须写清楚借多少、给多少利息、什么时候还，缺一样就说不清。', q: '债券的基本要素不包括？', o: ['票面金额', '票面利率', '偿还期限', '发行人的股票价格'], a: 3, w: '债券的基本要素包括面值、票面利率、期限、发行人、付息方式等；发行人的股价与债券本身的条款无关。' },
+    { c: 5, kp: '地方政府专项债', m: '地方政府借钱分两种：一种靠一般财力兜着，一种盯着某个项目自己还。', q: '地方政府专项债券的偿还来源主要是？', o: ['一般公共预算收入', '对应的政府性基金或专项收入', '中央财政转移支付', '国有企业上缴利润'], a: 1, w: '专项债对应具体项目，以项目产生的政府性基金或专项收入偿还，要求收益能够自平衡；一般债券则由一般公共预算偿还。' },
+
+    /* --- 第 6 关 资产证券化 --- */
+    { c: 6, kp: '交易主体', m: '一场证券化里，出资产的、搭架子的、买证券的，是三种完全不同的角色。', q: '资产证券化中的「原始权益人」指的是？', o: ['购买资产支持证券的机构与个人投资者', '合法拥有基础资产并将其转让给 SPV 的一方', '担任计划管理人的证券公司', '为证券提供担保的银行'], a: 1, w: '原始权益人是基础资产的原始所有者，通过真实出售把资产转让给 SPV 换取资金，实现资产出表与融资。' },
+    { c: 6, kp: '现金流瀑布', m: '水从上面一层层往下流，每一层接满了才溢出给下一层，顺序不能乱。', q: '资产证券化中的「现金流瀑布」指的是？', o: ['基础资产的折旧与摊销计算方法', '按约定优先顺序分配回收款的结构安排', '投资者的申购与赎回流程', '资产池的分散化规则'], a: 1, w: '现金流瀑布规定回收款先付税费与服务费，再付优先级利息和本金，最后才轮到次级，是分层增级在分配环节的具体实现。' },
+    { c: 6, kp: '超额抵押', m: '发行证券的时候，让资产池的规模比要发行的证券大出一圈。', q: '超额抵押作为内部信用增级手段，其作用是？', o: ['提高证券的发行利率以吸引投资者', '资产池价值高于发行额，为损失提供缓冲', '降低资产池的分散度以集中管理', '缩短证券的存续期限以降低风险'], a: 1, w: '资产池价值超过所发行证券本息的部分形成超额担保，一旦出现损失先由这部分吸收，从而保护证券持有人。' },
+    { c: 6, kp: '出表动机', m: '同样一笔应收账款，留在账上，和卖给别人，报表长得完全不一样。', q: '企业开展资产证券化的重要财务动机是？', o: ['提高资产负债率', '实现资产出表、优化财务结构', '增加应收账款余额', '延长资产周转天数'], a: 1, w: '真实出售后基础资产终止确认、募集资金计入现金，可降低资产负债率、加快资产周转，这是银行与企业做证券化的核心诉求之一。' },
+
+    /* --- 第 7 关 公司并购 --- */
+    { c: 7, kp: '混合并购', m: '两家公司既不同行，也不在一条产业链上，纯粹是「看上了」。', q: '企业并购与其主营业务无关的行业企业，属于？', o: ['横向并购', '纵向并购', '混合并购', '杠杆收购'], a: 2, w: '混合并购是跨行业、无产业链关系的合并，目的多为多元化经营、分散风险，但也可能因缺乏协同而增加整合难度。' },
+    { c: 7, kp: '协议收购', m: '想拿到控制权，可以一家一家谈，也可以站到广场上对所有股东喊。', q: '协议收购与要约收购的主要区别是？', o: ['协议收购面向全体股东，要约收购面向特定股东', '协议收购与特定股东协商，要约收购面向全体', '协议收购无须披露，要约收购须披露', '协议收购只能针对非上市公司'], a: 1, w: '协议收购是收购人与特定股东协商达成股份转让；要约收购须向全体股东发出、同等条件，以保障中小股东的退出机会。' },
+    { c: 7, kp: '杠杆收购', m: '有人买公司，自己兜里掏的钱连一成都不到。', q: '杠杆收购（LBO）的典型特征是？', o: ['完全使用自有资金，不借一分钱', '少量自有资金加大量债务，以标的现金流偿债', '只能收购上市公司，不能收购非上市企业', '不需要偿还所借债务，由原股东承担'], a: 1, w: 'LBO 用高比例债务撬动收购，以标的资产与现金流作为担保和还款来源，收益放大但风险同样放大，对现金流稳定性要求极高。' },
+    { c: 7, kp: '管理层收购', m: '坐在总经理办公室里的人，某天成了公司的股东。', q: '管理层收购（MBO）指的是？', o: ['外部投资者收购公司', '公司管理层收购本公司股权以取得控制权', '公司收购其主要供应商与渠道商', '两家公司换股合并'], a: 1, w: 'MBO 由目标公司管理层主导收购，常见于国企改制、集团剥离非核心业务或私有化交易，可缓解所有者与经营者之间的代理问题。' },
+  ];
+  /* ============ 项目卡 ============ */
+  var CARDS = [
+    { id: 'ipo', r: 'R', e: '🏭', n: 'IPO 保荐', d: '主板首发保荐承销' },
+    { id: 'zc', r: 'R', e: '📄', n: '定向增发', d: '非公开发行募资' },
+    { id: 'bond', r: 'R', e: '📜', n: '公司债承销', d: '信用债发行' },
+    { id: 'ma', r: 'R', e: '🤝', n: '并购顾问', d: '交易撮合与估值' },
+    { id: 'abs', r: 'R', e: '🧾', n: '资产证券化', d: '现金流打包出表' },
+    { id: 'cb', r: 'R', e: '🔄', n: '可转债', d: '债+看涨期权' },
+    { id: 'green', r: 'SR', e: '👟', n: '绿鞋全额行使', d: '超额配售稳市' },
+    { id: 'cross', r: 'SR', e: '🌍', n: '跨境要约收购', d: '跨国控制权交易' },
+    { id: 'back', r: 'SR', e: '⚡', n: '借壳上市', d: '重组置换曲线上市' },
+    { id: 'block', r: 'SR', e: '💰', n: '大宗交易撮合', d: '协议转让过桥' },
+    { id: 'ant', r: 'SSR', e: '🐜', n: '蚂蚁 A+H 暂缓', d: '史上最大 IPO 暂停' },
+    { id: 'catl', r: 'SSR', e: '🔋', n: '宁德 450 亿定增', d: '再融资规模纪录' }
+  ];
+
+  /* ============ 成就 ============ */
+  var ACH = [
+    { id: 'lv1', n: '初入投行', d: '通关第 1 关', e: '🎯', c: '进度', t: function () { return !!S.cleared[0]; } },
+    { id: 'lv4', n: '半程路演', d: '通关任意 4 关', e: '🚀', c: '进度', t: function () { return count(S.cleared) >= 4; } },
+    { id: 'lv8', n: '全线通关', d: '通关全部 8 关', e: '🏁', c: '进度', t: function () { return count(S.cleared) >= 8; } },
+    { id: 'star24', n: '三星大师', d: '8 关全部三星', e: '⭐', c: '进度', t: function () { var n = 0; for (var i = 0; i < 8; i++) if (S.stars[i] === 3) n++; return n >= 8; } },
+    { id: 'pure1', n: '一题不落', d: '单关全部答对', e: '💯', c: '进度', t: function () { return S.perClear >= 1; } },
+    { id: 'pure5', n: '五连满分', d: '累计 5 次单关全对', e: '🎖️', c: '进度', t: function () { return S.perClear >= 5; } },
+    { id: 'cb3', n: '三连击', d: '连续答对 3 题', e: '🔥', c: '技巧', t: function () { return S.comboMax >= 3; } },
+    { id: 'cb5', n: '五连击', d: '连续答对 5 题', e: '⚡', c: '技巧', t: function () { return S.comboMax >= 5; } },
+    { id: 'cb8', n: '八连击', d: '连续答对 8 题', e: '🌪️', c: '技巧', t: function () { return S.comboMax >= 8; } },
+    { id: 'fast1', n: '秒答', d: '3 秒内答对一题', e: '⏱️', c: '技巧', t: function () { return S.fastRight >= 1; } },
+    { id: 'fast10', n: '手比脑子快', d: '累计 10 次 3 秒内答对', e: '🏎️', c: '技巧', t: function () { return S.fastRight >= 10; } },
+    { id: 'come', n: '绝地反击', d: '答错后立刻连对 4 题', e: '🛡️', c: '技巧', t: function () { return S.comeback >= 1; } },
+    { id: 'steady', n: '稳如老狗', d: '单关正确率 100% 且用时少于 2 分钟', e: '🧘', c: '技巧', t: function () { return S.fastPure >= 1; } },
+    { id: 'star2', n: '双星闪耀', d: '任意 2 关拿到三星', e: '💫', c: '技巧', t: function () { var n = 0; for (var i = 0; i < 8; i++) if (S.stars[i] === 3) n++; return n >= 2; } },
+    { id: 'q100', n: '百题斩', d: '累计答题 100 道', e: '📚', c: '积累', t: function () { return S.qTotal >= 100; } },
+    { id: 'q300', n: '三百题', d: '累计答题 300 道', e: '🧱', c: '积累', t: function () { return S.qTotal >= 300; } },
+    { id: 'q500', n: '五百题', d: '累计答题 500 道', e: '🗿', c: '积累', t: function () { return S.qTotal >= 500; } },
+    { id: 'g1k', n: '千金', d: '累计赚到 1000 承销费', e: '💰', c: '积累', t: function () { return S.gold >= 1000; } },
+    { id: 'g5k', n: '五千金', d: '累计赚到 5000 承销费', e: '💎', c: '积累', t: function () { return S.gold >= 5000; } },
+    { id: 'g12k', n: '合伙人', d: '累计赚到 12000 承销费', e: '👑', c: '积累', t: function () { return S.gold >= 12000; } },
+    { id: 'c1', n: '第一张卡', d: '开箱获得第一张项目卡', e: '🃏', c: '图鉴', t: function () { return count(S.cards) >= 1; } },
+    { id: 'c6', n: '收集癖', d: '集齐 6 种项目卡', e: '🗂️', c: '图鉴', t: function () { return count(S.cards) >= 6; } },
+    { id: 'c12', n: '全图鉴', d: '集齐全部 12 种项目卡', e: '🏆', c: '图鉴', t: function () { return count(S.cards) >= 12; } },
+    { id: 'ssr1', n: '欧皇', d: '抽到一张 SSR', e: '✨', c: '图鉴', t: function () { return ssrCount() >= 1; } },
+    { id: 'ssr2', n: '双黄蛋', d: '集齐两张 SSR', e: '🌟', c: '图鉴', t: function () { return ssrCount() >= 2; } },
+    { id: 'd3', n: '三日不散', d: '连续 3 天来闯关', e: '📅', c: '坚持', t: function () { return S.dayStreak >= 3; } },
+    { id: 'd7', n: '七日之约', d: '连续 7 天来闯关', e: '🗓️', c: '坚持', t: function () { return S.dayStreak >= 7; } },
+    { id: 'night', n: '投行夜猫', d: '在 0–5 点答对一题', e: '🌙', c: '坚持', t: function () { var h = new Date().getHours(); return h >= 0 && h < 5 && S.qRight > 0; } },
+    { id: 'early', n: '早鸟', d: '在 6–8 点答对一题', e: '🌅', c: '坚持', t: function () { var h = new Date().getHours(); return h >= 6 && h < 9 && S.qRight > 0; } },
+    { id: 'daily5', n: '每日打卡', d: '完成一次每日挑战', e: '🎲', c: '坚持', t: function () { return !!S.dailyDone; } },
+    { id: 'allwrong', n: '全错也是缘', d: '单关一道没对', e: '🙃', c: '隐藏', t: function () { return !!S.allWrong; } },
+    { id: 'retry', n: '再来一次', d: '同一关先失败、后通关', e: '🔁', c: '隐藏', t: function () { return !!S.retried; } }
+  ];
+
+  function count(o) { var n = 0; for (var k in o) if (o[k]) n++; return n; }
+  function ssrCount() {
+    var n = 0;
+    for (var k in S.cards) if (S.cards[k]) { for (var i = 0; i < CARDS.length; i++) if (CARDS[i].id === k && CARDS[i].r === 'SSR') n++; }
+    return n;
+  }
+
+  /* ============ 题模生成器（每日挑战用） ============ */
+  function rnd(seed) { var x = Math.sin(seed) * 10000; return x - Math.floor(x); }
+  function pick(arr, seed) { return arr[Math.floor(rnd(seed) * arr.length) % arr.length]; }
+  function money(v) { return v.toFixed(2).replace(/\.00$/, ''); }
+
+  var GEN = [
+    function (s) {
+      var eps = +(0.3 + rnd(s * 1.7) * 2.2).toFixed(2);
+      var pe = 15 + Math.floor(rnd(s * 2.3) * 26);
+      var price = +(eps * pe).toFixed(2);
+      var wrongs = [+(eps * (pe - 6)).toFixed(2), +(eps * (pe + 8)).toFixed(2), +(price * 0.8).toFixed(2)];
+      return {
+        m: '小店的估值常按「一年赚多少乘几倍」来谈，股市里也一样。',
+        q: '某公司发行后总股本对应每股收益 ' + eps + ' 元，若按 ' + pe + ' 倍市盈率定价，发行价约为？',
+        o: ['约 ' + money(wrongs[0]) + ' 元', '约 ' + money(wrongs[1]) + ' 元', '约 ' + money(price) + ' 元', '约 ' + money(wrongs[2]) + ' 元'],
+        a: 2, kp: '市盈率定价',
+        w: '发行价 = 每股收益 × 市盈率 = ' + eps + ' × ' + pe + ' = ' + money(price) + ' 元。'
+      };
+    },
+    function (s) {
+      var n = (500 + Math.floor(rnd(s * 3.1) * 9500));
+      var extra = Math.round(n * 0.15);
+      return {
+        m: '开自助餐怕来的人多，先按 15% 多备餐。',
+        q: '某公司 IPO 发行 ' + n + ' 万股，超额配售选择权按上限 15% 全额行使，可额外发行约多少股？',
+        o: ['约 ' + Math.round(n * 0.10) + ' 万股', '约 ' + extra + ' 万股', '约 ' + Math.round(n * 0.25) + ' 万股', '约 ' + Math.round(n * 0.5) + ' 万股'],
+        a: 1, kp: '绿鞋机制',
+        w: n + ' × 15% ≈ ' + extra + ' 万股。绿鞋上限 15%，用于平抑上市后股价波动。'
+      };
+    },
+    function (s) {
+      var x = +(3 + rnd(s * 4.4) * 27).toFixed(1);
+      var f = pick([1.5, 2, 2.5, 3, 4], s * 5.1);
+      var fee = +(x * f / 100).toFixed(3);
+      return {
+        m: '中介按成交额抽成，成交越大，抽得越多。',
+        q: '某企业债券募资 ' + x + ' 亿元，承销费率 ' + f + '%，承销费约为？',
+        o: ['约 ' + (x * f / 100 * 2).toFixed(2) + ' 亿元', '约 ' + (x * f / 100 / 2).toFixed(2) + ' 亿元', '约 ' + fee.toFixed(2) + ' 亿元', '约 ' + (x * f / 1000).toFixed(2) + ' 亿元'],
+        a: 2, kp: '承销费率',
+        w: '承销费 = 募资规模 × 费率 = ' + x + ' × ' + f + '% ≈ ' + fee.toFixed(2) + ' 亿元。'
+      };
+    },
+    function (s) {
+      var a = (2 + Math.floor(rnd(s * 6.2) * 10));
+      var b = (1 + Math.floor(rnd(s * 7.3) * 4));
+      var dil = +(b / (a + b) * 100).toFixed(1);
+      return {
+        m: '原来十个人分一个蛋糕，又挤进来两个。',
+        q: '某公司发行前总股本 ' + a + ' 亿股，拟非公开发行 ' + b + ' 亿股，发行后原股东持股比例被摊薄约？',
+        o: ['约 ' + (b / a * 100).toFixed(1) + '%', '约 ' + dil.toFixed(1) + '%', '约 ' + (dil / 2).toFixed(1) + '%', '约 ' + (100 - dil).toFixed(1) + '%'],
+        a: 1, kp: '摊薄效应',
+        w: '发行后总股本 ' + (a + b) + ' 亿股，新股东占 ' + b + '/' + (a + b) + ' ≈ ' + dil.toFixed(1) + '%，即原股东被摊薄这么多。'
+      };
+    },
+    function (s) {
+      var c = (2 + Math.floor(rnd(s * 8.5) * 5));
+      var y = (2 + Math.floor(rnd(s * 9.7) * 6));
+      var ai, w;
+      if (y > c) { ai = 2; w = '市场要求 ' + y + '% 高于票面 ' + c + '%，票息不够，只能靠价格打折补足，即折价发行。'; }
+      else if (y < c) { ai = 1; w = '市场要求 ' + y + '% 低于票面 ' + c + '%，票息更优，投资者愿多付钱，即溢价发行。'; }
+      else { ai = 0; w = '市场要求收益率与票面利率同为 ' + c + '%，价格等于面值，即平价发行。'; }
+      return {
+        m: '隔壁存款都涨息了，你手里这张老债券就显得不划算。',
+        q: '某债券票面利率 ' + c + '%，同期市场要求收益率为 ' + y + '%，该债券应如何发行？',
+        o: ['平价发行', '溢价发行', '折价发行', '无法确定'],
+        a: ai, kp: '债券定价', w: w
+      };
+    },
+    function (s) {
+      var pre = (10 + Math.floor(rnd(s * 10.3) * 40));
+      var price = +(pre * 0.8).toFixed(2);
+      return {
+        m: '打折卖东西，但打折的底线是有规矩的。',
+        q: '某公司定增定价基准日前 20 个交易日均价为 ' + pre + ' 元，按现行规则发行底价约为？',
+        o: ['约 ' + money(price) + ' 元', '约 ' + money(pre * 0.9) + ' 元', '约 ' + money(pre * 0.7) + ' 元', '即 ' + pre + ' 元'],
+        a: 0, kp: '定增定价',
+        w: '定增发行价不得低于定价基准日前 20 个交易日均价的 80%，即 ' + pre + ' × 80% = ' + money(price) + ' 元。'
+      };
+    },
+    function (s) {
+      var d = (5 + Math.floor(rnd(s * 11.9) * 20));
+      var e = (3 + Math.floor(rnd(s * 12.7) * 12));
+      var wacc = +((d / (d + e)) * 5 + (e / (d + e)) * 12).toFixed(1);
+      return {
+        m: '一半借的、一半自己的，整体成本要加权。',
+        q: '某公司债务资本 ' + d + ' 亿元、成本 5%，股权资本 ' + e + ' 亿元、成本 12%，其 WACC 约为？',
+        o: ['约 ' + (wacc * 0.8).toFixed(1) + '%', '约 ' + wacc + '%', '约 ' + (wacc * 1.2).toFixed(1) + '%', '12%'],
+        a: 1, kp: '加权平均资本成本',
+        w: 'WACC = ' + d + '/(' + d + '+' + e + ') × 5% + ' + e + '/(' + d + '+' + e + ') × 12% ≈ ' + wacc + '%。'
+      };
+    },
+    function (s) {
+      var p = (8 + Math.floor(rnd(s * 13.3) * 30));
+      var prem = (10 + Math.floor(rnd(s * 14.1) * 30));
+      var offer = +(p * (1 + prem / 100)).toFixed(2);
+      return {
+        m: '想要人家手里的股份，通常得比市价多给点。',
+        q: '某上市公司股价 ' + p + ' 元，收购方以 ' + prem + '% 溢价发出全面要约，要约价约为？',
+        o: ['约 ' + money(offer) + ' 元', '约 ' + money(p * (1 - prem / 100)) + ' 元', '即 ' + p + ' 元', '约 ' + money(p * 2) + ' 元'],
+        a: 0, kp: '要约收购溢价',
+        w: '要约价 = ' + p + ' × (1 + ' + prem + '%) ≈ ' + money(offer) + ' 元，溢价部分即控制权溢价的体现。'
+      };
+    }
+  ];
+
+  function optUniq(o) {
+    var m = {}, n = 0;
+    for (var i = 0; i < o.length; i++) { if (!m[o[i]]) { m[o[i]] = 1; n++; } }
+    return n;
+  }
+
+  function genQuestions(seedStr, n) {
+    var out = [];
+    var base = 0;
+    for (var i = 0; i < seedStr.length; i++) base = (base * 31 + seedStr.charCodeAt(i)) % 100000;
+    var used = {};
+    for (var j = 0; j < n; j++) {
+      var idx = (base + j * 3) % GEN.length;
+      var guard = 0;
+      while (used[idx] && guard++ < 20) idx = (idx + 1) % GEN.length;
+      used[idx] = 1;
+      /* 选项若撞车（两个干扰项算出同一个数），换个种子重生成，避免出现两个一样的选项 */
+      var seedQ = base + j * 137 + 7, q = GEN[idx](seedQ), g2 = 0;
+      while (optUniq(q.o) < 4 && g2++ < 8) { seedQ += 1301; q = GEN[idx](seedQ); }
+      out.push({ c: 99, kp: q.kp, m: q.m, q: q.q, o: q.o, a: q.a, w: q.w, _seed: base + j * 37 });
+    }
+    return out;
+  }
+
+  /* ============ 状态与视图 ============ */
+  var P = null;
+
+  function show(v) {
+    var ids = ['home', 'play', 'res', 'ach', 'dex'];
+    for (var i = 0; i < ids.length; i++) {
+      var node = $('v-' + ids[i]);
+      if (node) node.classList.toggle('on', ids[i] === v);
+    }
+    if (v === 'home') renderHome();
+    if (v === 'ach') renderAch();
+    if (v === 'dex') renderDex();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  /* 弹窗排队：同屏最多 2 条，多出来的排队等空位，不再一条压一条糊住按钮 */
+  var toastQ = [];
+  function toast(ico, txt, gold, ms) {
+    toastQ.push({ ico: ico, txt: txt, gold: gold, ms: ms || 2600 });
+    pumpToast();
+  }
+  function pumpToast() {
+    var box = $('toasts');
+    if (!box) return;
+    if (box.children.length >= 2) return;
+    var job = toastQ.shift();
+    if (!job) return;
+    var t = el('div', 'toast' + (job.gold ? ' gold' : ''));
+    t.innerHTML = '<span class="ti">' + job.ico + '</span><div>' + job.txt + '</div>';
+    box.appendChild(t);
+    setTimeout(function () {
+      t.style.transition = '.3s'; t.style.opacity = '0'; t.style.transform = 'translateY(8px)';
+      setTimeout(function () { t.remove(); pumpToast(); }, 320);
+    }, job.ms);
+  }
+
+  /* ============ 首页 ============ */
+  function renderHome() {
+    var r = rankOf(S.gold), nx = rankNext(S.gold);
+    $('h-rank').textContent = r.n;
+    $('h-rank-ico').textContent = r.ico;
+    $('h-sub').textContent = '一关一个梗，把投行概念嚼碎';
+    $('h-total').textContent = '已答 ' + S.qTotal + ' 题';
+    $('c-gold').textContent = '💰 ' + S.gold;
+
+    var pct;
+    if (nx) {
+      pct = Math.round((S.gold - r.need) / (nx.need - r.need) * 100);
+      $('h-foot-l').textContent = '距「' + nx.n + '」还需 ' + (nx.need - S.gold) + ' 金币';
+    } else {
+      pct = 100;
+      $('h-foot-l').textContent = '已达最高段位';
+    }
+    $('h-bar').style.width = Math.max(2, Math.min(100, pct)) + '%';
+    $('h-foot-r').textContent = pct + '%';
+
+    var cleared = 0;
+    var box = $('levels'); box.innerHTML = '';
+    for (var i = 0; i < LEVELS.length; i++) {
+      var L = LEVELS[i];
+      var done = !!S.cleared[i];
+      if (done) cleared++;
+      /* 2026-11-10：全部解锁，想做哪关做哪关（星级仍按各关独立记录） */
+      var unlocked = true;
+      var st = S.stars[i] || 0;
+      var d = el('button', 'lv' + (done ? ' done' : '') + (unlocked ? '' : ' locked'));
+      var stars = '';
+      for (var k = 0; k < 3; k++) stars += '<span class="s' + (k < st ? ' on' : '') + '">★</span>';
+      /* 徽标直接显示章号（0–7），与下面「第0章…」对齐，不再出现「1」配「第0章」的错位 */
+      var cn = String(L.ch || '').replace(/[^0-9]/g, '');
+      d.innerHTML = '<div class="lv-no">' + (unlocked ? (cn + '<i>章</i>') : '🔒') + '</div>' +
+        '<div class="lv-body"><h3>' + esc(L.name) + '</h3><p>' + esc(L.ch + ' · ' + L.desc) + '</p>' +
+        '<div class="lv-stars">' + stars + '</div></div>';
+      (function (no) { d.onclick = function () { startLevel(no); }; })(i);
+      box.appendChild(d);
+    }
+    $('h-cleared').textContent = cleared + ' / 8 关';
+
+    var dd = new Date();
+    $('daily-date').textContent = (dd.getMonth() + 1) + ' 月 ' + dd.getDate() + ' 日';
+    var doneToday = S.dailyDone === today();
+    var failedToday = !doneToday && S.dailyFail === today();
+    $('d-pill').textContent = doneToday ? '已完成' : failedToday ? '再试一次' : '开始';
+    $('d-pill').className = 'pill' + (doneToday ? ' ok' : failedToday ? ' retry' : '');
+    $('d-sub').textContent = doneToday ? '今天已完成，明天换一批新数字'
+      : failedToday ? '今天还没过（答对 3 题算完成），可直接再试一次'
+      : '题目由题模实时生成，同一考点换一组数字';
+
+    var an = 0;
+    for (var a = 0; a < ACH.length; a++) if (S.ach[ACH[a].id]) an++;
+    $('ach-mini').textContent = '成就 ' + an + ' / ' + ACH.length;
+    $('ach-mini-sub').textContent = an === ACH.length ? '全部达成，你就是传说本人' : '全部存在本机，不联网也能攒';
+    $('dex-mini').textContent = '项目卡 ' + count(S.cards) + ' / ' + CARDS.length;
+    $('dex-mini-sub').textContent = count(S.cards) === CARDS.length ? '图鉴集齐，可以毕业了' : '每关通关开一次箱，R / SR / SSR';
+  }
+
+  /* ============ 开始关卡 ============ */
+  /* 从题池里随机抽 n 题：每次进关顺序不同，重玩不会是同一套题 */
+  function drawN(pool, n) {
+    var a = pool.slice();
+    for (var i = a.length - 1; i > 0; i--) {
+      var j = Math.floor(Math.random() * (i + 1));
+      var t = a[i]; a[i] = a[j]; a[j] = t;
+    }
+    return a.slice(0, Math.min(n, a.length));
+  }
+
+  function startLevel(no) {
+    var pool = [];
+    for (var i = 0; i < BANK.length; i++) if (BANK[i].c === no) pool.push(BANK[i]);
+    var qs = drawN(pool, LEVEL_QUESTIONS);
+    /* 已通关的关卡算「复练」：每题承销费减半、通关奖励不再发放，堵住重复刷金币 */
+    var repeat = !!S.cleared[no];
+    P = { mode: 'level', lv: no, qs: qs, i: 0, right: 0, combo: 0, t0: Date.now(), wrong: 0, gold: 0, answered: false, comeback: 0, repeat: repeat, rate: repeat ? 0.5 : 1 };
+    $('p-lv').textContent = LEVELS[no].ch + '　·　第 ' + (no + 1) + ' 关' + (repeat ? '　·　复练' : '');
+    show('play');
+    renderQ();
+  }
+
+  function startDaily() {
+    if (S.dailyDone === today()) { toast('✅', '今天的每日挑战已经完成，明天再来'); return; }
+    /* 第一次用当天做种子；当天失败重试时带一个次数，换一组数字 */
+    var qs = genQuestions(today() + (S.dailyFail === today() ? '·' + (S.dailyTries || 1) : ''), 5);
+    P = { mode: 'daily', lv: -1, qs: qs, i: 0, right: 0, combo: 0, t0: Date.now(), wrong: 0, gold: 0, answered: false, comeback: 0 };
+    $('p-lv').textContent = '每日挑战 · ' + today();
+    show('play');
+    renderQ();
+  }
+
+  /* ============ 答题 ============ */
+  function renderQ() {
+    var q = P.qs[P.i];
+    var sh = shuffleOpts(q, q._i != null ? q._i : (q._seed || 0));
+    P.cur = { q: q, opts: sh.o, a: sh.a, t: Date.now() };
+    P.answered = false;
+
+    $('p-n').textContent = (P.i + 1) + ' / ' + P.qs.length;
+    $('p-bar').style.width = (P.i / P.qs.length * 100) + '%';
+    $('p-meme').innerHTML = '<b>梗</b>　' + esc(q.m);
+    $('p-stem').textContent = q.q;
+
+    var box = $('p-opts'); box.innerHTML = '';
+    var keys = ['A', 'B', 'C', 'D'];
+    for (var i = 0; i < sh.o.length; i++) {
+      var b = el('button', 'opt');
+      b.innerHTML = '<span class="k">' + keys[i] + '</span><span>' + esc(sh.o[i]) + '</span>';
+      (function (idx, node) { node.onclick = function () { answer(idx, node); }; })(i, b);
+      box.appendChild(b);
+    }
+    var fb = $('p-fb'); fb.className = 'fb'; $('p-next').disabled = true;
+    $('p-next').textContent = (P.i === P.qs.length - 1) ? '看结算' : '下一题';
+  }
+
+  function answer(idx, node) {
+    if (P.answered) return;
+    P.answered = true;
+    var c = P.cur, ok = idx === c.a;
+    var nodes = $('p-opts').children;
+    for (var i = 0; i < nodes.length; i++) {
+      nodes[i].classList.add('dis');
+      nodes[i].onclick = null;
+      if (i === c.a) { nodes[i].classList.add('right'); }
+      else if (i === idx) { nodes[i].classList.add('wrong'); }
+    }
+
+    var secs = (Date.now() - c.t) / 1000;
+    S.qTotal++;
+
+    var fb = $('p-fb');
+    if (ok) {
+      P.right++; S.qRight++;
+      P.combo++; P.comeback++;
+      if (P.combo > S.comboMax) S.comboMax = P.combo;
+      if (secs <= 3) { S.fastRight++; }
+      if (P.comeback >= 4) S.comeback = (S.comeback || 0) + 1;
+      var gain = Math.round((10 + Math.min(P.combo - 1, 5) * 2) * (P.rate || 1));
+      P.gold += gain; S.gold += gain;
+      fb.className = 'fb ok on';
+      $('p-fbh').innerHTML = '✓ 答对了　<span style="color:var(--gold);font-size:12.5px">+' + gain + ' 承销费</span>';
+      if (P.combo >= 3) showCombo(P.combo);
+    } else {
+      P.combo = 0; P.comeback = 0; P.wrong++;
+      fb.className = 'fb no on';
+      $('p-fbh').textContent = '✗ 答错了';
+    }
+    $('p-fbt').textContent = c.q.w;
+    $('p-kp').textContent = c.q.kp || '知识点';
+    $('p-next').disabled = false;
+    $('c-gold').textContent = '💰 ' + S.gold;
+    save();
+  }
+
+  function showCombo(n) {
+    var c = $('combo');
+    c.textContent = 'COMBO ×' + n;
+    c.classList.remove('pop');
+    void c.offsetWidth;
+    c.classList.add('pop');
+  }
+
+  function nextQ() {
+    if (P.i < P.qs.length - 1) {
+      P.i++;
+      renderQ();
+    } else {
+      finish();
+    }
+  }
+
+  /* ============ 结算 ============ */
+  function finish() {
+    var n = P.qs.length, acc = Math.round(P.right / n * 100);
+    var isLevel = P.mode === 'level';
+    var pass = acc >= 50;
+    var stars = acc >= 100 ? 3 : acc >= 75 ? 2 : acc >= 50 ? 1 : 0;
+    var wasCleared = isLevel && !!S.cleared[P.lv];
+    var oldStars = isLevel ? (S.stars[P.lv] || 0) : 0;
+    /* 首通给通关奖励；复练只有「星级提升」才补差额，重复刷关不再产出金币 */
+    var bonus = 0;
+    if (isLevel && pass) {
+      if (!wasCleared) bonus = stars * 20;
+      else if (stars > oldStars) bonus = (stars - oldStars) * 20;
+      S.gold += bonus;
+    }
+
+    if (isLevel) {
+      if (pass) {
+        if (!wasCleared) S.cleared[P.lv] = 1;
+        if ((S.stars[P.lv] || 0) < stars) S.stars[P.lv] = stars;
+        if (acc === 100) S.perClear = (S.perClear || 0) + 1;
+        var secs = (Date.now() - P.t0) / 1000;
+        if (acc === 100 && secs < 120) S.fastPure = (S.fastPure || 0) + 1;
+        if (!wasCleared && S.attemptedFailed && S.attemptedFailed[P.lv]) S.retried = 1;
+      } else {
+        S.attemptedFailed = S.attemptedFailed || {};
+        S.attemptedFailed[P.lv] = 1;
+        if (P.right === 0) S.allWrong = 1;
+      }
+    } else if (pass) {
+      S.dailyDone = today();
+      S.dailyCount = (S.dailyCount || 0) + 1;
+    } else {
+      /* 没通过不算完成：不写 dailyDone，当天可以再试 */
+      S.dailyFail = today();
+      S.dailyTries = (S.dailyTries || 0) + 1;
+    }
+
+    /* 连续天数 */
+    var td = today();
+    if (S.lastDay !== td) {
+      if (S.lastDay === dayKey(1)) S.dayStreak = (S.dayStreak || 0) + 1;
+      else S.dayStreak = 1;
+      S.lastDay = td;
+    }
+    S.days[td] = 1;
+
+    $('r-em').textContent = acc === 100 ? '🏆' : pass ? '🎉' : '💪';
+    $('r-title').textContent = isLevel
+      ? (pass ? (wasCleared ? '复练完成' : '第 ' + (P.lv + 1) + ' 关通关') : '没过，再来一次')
+      : (pass ? '今日挑战完成' : '今日挑战未通过');
+    $('r-sub').textContent = isLevel
+      ? LEVELS[P.lv].name + (wasCleared ? '　·　复练金币减半，通关奖励只在星级提升时补发' : '')
+      : (pass ? '明天换一组新数字，记得回来' : '答对 3 题以上才算完成，今天还能再试一次');
+    $('r-acc').textContent = acc + '%';
+    $('r-right').textContent = P.right + '/' + n;
+    $('r-gold').textContent = '+' + (P.gold + bonus);
+
+    var sb = $('r-stars'); sb.innerHTML = '';
+    for (var i = 0; i < 3; i++) {
+      var s = el('span', 's' + (i < stars ? ' on' : ''), '★');
+      s.style.transitionDelay = (i * 0.12) + 's';
+      sb.appendChild(s);
+    }
+
+    /* 开箱：只有通关的关卡和每日挑战才给 */
+    P.canChest = pass;
+    $('r-chest').style.display = pass ? '' : 'none';
+    $('r-chest-t').style.display = pass ? '' : 'none';
+    $('r-chest-t').textContent = '点一下开箱';
+    $('r-chest').textContent = '📦';
+    $('r-chest').classList.add('shake');
+    $('r-draw').className = 'draw';
+
+    /* 按钮：通关后直接给「下一关」，不用退回地图再点 */
+    var curLv = isLevel ? P.lv : -1;
+    var hasNext = isLevel && pass && curLv < LEVELS.length - 1;
+    var nb = $('r-next');
+    if (hasNext) {
+      nb.style.display = '';
+      nb.textContent = '下一关 · ' + LEVELS[curLv + 1].name;
+      nb.onclick = (function (nx) { return function () { startLevel(nx); }; })(curLv + 1);
+      $('r-again').className = 'nextbtn ghost';
+      $('r-again').textContent = '重打这一关';
+    } else {
+      nb.style.display = 'none';
+      nb.onclick = null;
+      $('r-again').className = 'nextbtn';
+      $('r-again').textContent = isLevel ? '再打这一关' : (pass ? '回到地图' : '再试一次');
+    }
+    $('r-again').onclick = function () {
+      if (isLevel) startLevel(curLv);
+      else if (pass) show('home');
+      else startDaily();
+    };
+
+    save();
+    checkAch();
+    show('res');
+  }
+
+  function openChest() {
+    if (!P || !P.canChest || P.chestOpened) return;
+    P.chestOpened = true;
+    var box = $('r-chest');
+    box.classList.remove('shake');
+    box.textContent = '🎁';
+
+    var roll = Math.random();
+    var tier = roll < 0.07 ? 'SSR' : roll < 0.35 ? 'SR' : 'R';
+    var pool = [];
+    for (var i = 0; i < CARDS.length; i++) if (CARDS[i].r === tier) pool.push(CARDS[i]);
+    var card = pool[Math.floor(Math.random() * pool.length)];
+    var isNew = !S.cards[card.id];
+    S.cards[card.id] = (S.cards[card.id] || 0) + 1;
+    save();
+
+    var d = $('r-draw');
+    $('r-rar').textContent = card.r;
+    $('r-rar').className = 'rar ' + card.r.toLowerCase();
+    $('r-card').textContent = card.e + '　' + card.n;
+    $('r-card-d').innerHTML = esc(card.d) + (isNew
+      ? '　·　<span style="color:var(--gold);font-weight:700">新卡入册</span>'
+      : '　·　重复获得，已累加');
+    d.className = 'draw on';
+
+    if (tier === 'SSR') toast('✨', '<b>' + card.n + '</b>　SSR 出货！', true);
+    checkAch();
+  }
+
+  /* ============ 成就检查 ============ */
+  function checkAch() {
+    var got = [];
+    for (var i = 0; i < ACH.length; i++) {
+      var a = ACH[i];
+      if (S.ach[a.id]) continue;
+      var pass = false;
+      try { pass = !!a.t(); } catch (e) { pass = false; }
+      if (pass) { S.ach[a.id] = Date.now(); got.push(a); }
+    }
+    save();
+    if (!got.length) return;
+    /* 一次解锁多个只弹一条汇总，避免连弹十几条糊住界面 */
+    if (got.length === 1) {
+      toast(got[0].e, '成就解锁　<b>' + got[0].n + '</b>', true, 2400);
+    } else {
+      var names = [];
+      for (var g = 0; g < got.length && g < 3; g++) names.push(got[g].n);
+      toast('🏅', '一次解锁 <b>' + got.length + '</b> 个成就　' + names.join('、') +
+        (got.length > 3 ? ' 等' : ''), true, 3200);
+    }
+  }
+
+  /* ============ 成就墙 ============ */
+  function renderAch() {
+    var box = $('ach-list'); box.innerHTML = '';
+    var n = 0;
+    var cats = ['进度', '技巧', '积累', '图鉴', '坚持', '隐藏'];
+    var sorted = ACH.slice().sort(function (a, b) {
+      var ia = cats.indexOf(a.c), ib = cats.indexOf(b.c);
+      return ia - ib;
+    });
+    for (var i = 0; i < sorted.length; i++) {
+      var a = sorted[i], on = !!S.ach[a.id];
+      if (on) n++;
+      var d = el('div', 'ach ' + (on ? 'on' : 'off'));
+      d.innerHTML = '<div class="a-ico">' + (on ? a.e : '🔒') + '</div>' +
+        '<div class="a-b"><h4>' + esc(a.n) + '</h4><p>' + esc(a.d) + '</p>' +
+        '<span class="a-t">' + a.c + (on ? ' · 已解锁' : '') + '</span></div>';
+      box.appendChild(d);
+    }
+    $('ach-cnt').textContent = n + ' / ' + ACH.length;
+  }
+
+  /* ============ 图鉴 ============ */
+  function renderDex() {
+    var box = $('dex-list'); box.innerHTML = '';
+    var n = 0;
+    for (var i = 0; i < CARDS.length; i++) {
+      var c = CARDS[i], has = !!S.cards[c.id];
+      if (has) n++;
+      var d = el('div', 'dex ' + (has ? '' : 'off'));
+      d.innerHTML = '<span class="d-r ' + c.r.toLowerCase() + '">' + c.r + '</span>' +
+        '<div class="d-e">' + (has ? c.e : '❔') + '</div>' +
+        '<h4>' + (has ? esc(c.n) : '未解锁') + '</h4>' +
+        '<p>' + (has ? esc(c.d) : '继续闯关开箱') + '</p>';
+      box.appendChild(d);
+    }
+    $('dex-cnt').textContent = n + ' / ' + CARDS.length;
+  }
+
+  /* ============ 主题 ============ */
+  function initTheme() {
+    var t = 'light';
+    try { t = localStorage.getItem('ibank-theme') || 'light'; } catch (e) {}
+    document.body.classList.toggle('dark', t === 'dark');
+    $('c-theme').textContent = t === 'dark' ? '☀️' : '🌙';
+    $('c-theme').onclick = function () {
+      var dark = document.body.classList.toggle('dark');
+      $('c-theme').textContent = dark ? '☀️' : '🌙';
+      try { localStorage.setItem('ibank-theme', dark ? 'dark' : 'light'); } catch (e) {}
+    };
+  }
+
+  /* ============ 初始化 ============ */
+  function boot() {
+    S = load();
+    /* 给每题一个稳定序号，用于「分块均衡」打乱选项位置 */
+    for (var bi = 0; bi < BANK.length; bi++) BANK[bi]._i = bi;
+    S.attemptedFailed = S.attemptedFailed || {};
+    S.comeback = S.comeback || 0;
+    S.fastPure = S.fastPure || 0;
+    S.dailyCount = S.dailyCount || 0;
+    S.dailyTries = S.dailyTries || 0;
+
+    initTheme();
+    renderHome();
+
+    $('p-next').onclick = nextQ;
+    $('p-quit').onclick = function () { show('home'); };
+    $('r-chest').onclick = openChest;
+    $('r-home').onclick = function () { show('home'); };
+    $('btn-daily').onclick = startDaily;
+
+    document.addEventListener('keydown', function (e) {
+      if (!$('v-play').classList.contains('on')) return;
+      var k = e.key;
+      if (k >= '1' && k <= '4' && !P.answered) {
+        var idx = +k - 1;
+        var node = $('p-opts').children[idx];
+        if (node) answer(idx, node);
+      } else if ((k === 'Enter' || k === ' ') && P.answered) {
+        e.preventDefault();
+        nextQ();
+      }
+    });
+
+    checkAch();
+
+    window.GM = { show: show, S: S };
+  }
+
+  boot();
+})();
+
+</script>
+<section class="page" id="p-valuation">
       <div class="panel">
         <div class="section-title"><span class="bar"></span>企业估值实操实验</div>
         <div class="section-sub">拖动滑块调整假设、切换情景，用市盈率法、可比公司法与现金流折现（DCF）三种方法交叉验证估值区间，并用敏感性热力图检验假设的稳健性。</div>
@@ -2374,6 +3602,10 @@
   <script src="static/eval-core.js"></script>
   <script src="static/bond-core.js"></script>
 
+  <!-- 中英双语语言层：字典与运行时分离，补译文只需改 i18n-dict.js -->
+  <script src="static/i18n-dict.js"></script>
+  <script src="static/i18n.js"></script>
+
   <!-- PWA:begin Service Worker 注册。只在 https / localhost 下生效：
        file:// 双击场景没有 navigator.serviceWorker，也不会走到这里；
        即使注册失败也不抛出到控制台红字，只在 warn 里留一行说明。 -->
@@ -2390,5 +3622,18 @@
   })();
   </script>
   <!-- PWA:end -->
+
+<script id="ibkg-hook">
+(function(){
+  try{
+    var q = new URLSearchParams(location.search).get("goto");
+    if(q){ var b = document.querySelector('.tab-btn[data-page="' + q + '"]'); if(b) b.click(); }
+    var g = document.querySelectorAll('.tab-btn[data-page="p-game"]');
+    for(var i=0;i<g.length;i++){ g[i].addEventListener("click", function(){
+      setTimeout(function(){ if(window.GM) window.GM.show("home"); }, 0);
+    }); }
+  }catch(e){}
+})();
+</script>
 </body>
 </html>

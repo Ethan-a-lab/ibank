@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>投行梗学闯关 · iBank</title>
 <meta name="description" content="iBank 投资银行学课程配套闯关游戏：8 关全解锁，每关 4 题，顺序随机，本地成就系统，离线可玩。">
+<link rel="stylesheet" href="static/i18n.css">
 <style>
   :root{
     --bg:#f6f7fb; --panel:rgba(255,255,255,.9); --panel-solid:#fff;
@@ -329,6 +330,7 @@
 </style>
 </head>
 <body>
+<button id="ibk-lang-btn" class="ibk-floating" type="button" data-i18n-skip title="Switch language / 切换语言"><span id="ibk-lang-txt">EN</span></button>
 <div class="blob blob-1"></div>
 <div class="blob blob-2"></div>
 
@@ -1268,5 +1270,7 @@
   boot();
 })();
 </script>
+  <script src="static/i18n-dict.js"></script>
+  <script src="static/i18n.js"></script>
 </body>
 </html>
