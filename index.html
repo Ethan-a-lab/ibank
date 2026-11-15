@@ -114,7 +114,17 @@
       </div>
       <div class="nav-menu" id="nav-menu">
         <button class="tab-btn active" data-page="p-home">首页</button>
-        <button class="tab-btn" data-page="p-project">课程项目</button>
+
+        <!-- 玩转投行：原「技能训练」下拉末项升为一级板块；原一级按钮「课程项目」整体下放为本板块首项。
+             两个 data-page 按钮都保留，app-core.js 的 .tab-btn[data-page=...] 跳转与 ?goto= 深链不受影响 -->
+        <div class="nav-group">
+          <button class="nav-trigger" type="button" aria-expanded="false" aria-haspopup="true">玩转投行<svg class="nav-caret" viewBox="0 0 10 10" aria-hidden="true"><path d="M2 3.5L5 6.5L8 3.5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+          <div class="nav-dropdown">
+            <div class="dd-title">玩转投行</div>
+            <button class="tab-btn" data-page="p-project"><span class="dd-name">课程项目</span><span class="dd-desc">分组测评 · 三段融资表现性评价</span></button>
+            <button class="tab-btn" data-page="p-game"><span class="dd-name">课堂闯关</span><span class="dd-desc">梗学闯关 · 投行卧底 · 时点三连</span></button>
+          </div>
+        </div>
 
         <div class="nav-group">
           <button class="nav-trigger" type="button" aria-expanded="false" aria-haspopup="true">理论学习<svg class="nav-caret" viewBox="0 0 10 10" aria-hidden="true"><path d="M2 3.5L5 6.5L8 3.5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
@@ -135,7 +145,7 @@
             <button class="tab-btn" data-page="p-ipo"><span class="dd-name">IPO 定价配售仿真</span><span class="dd-desc">科创板询价、定价与配售全流程</span></button>
             <button class="tab-btn" data-page="p-valuation"><span class="dd-name">企业估值实验</span><span class="dd-desc">市盈率法与现金流折现联动</span></button>
             <button class="tab-btn" data-page="p-bond"><span class="dd-name">债券簿记建档仿真</span><span class="dd-desc">亲手定出一个票面利率</span></button>
-            <button class="tab-btn" data-page="p-game"><span class="dd-name">玩转投行</span><span class="dd-desc">梗学闯关 · 投行卧底 · 时点三连</span></button>
+            <!-- 「玩转投行」已升为顶部一级板块（首页之后），不再挂在本组 -->
           </div>
         </div>
 

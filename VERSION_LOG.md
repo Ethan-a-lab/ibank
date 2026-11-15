@@ -420,3 +420,11 @@ python _private/site_files.py baseline
   ⑥ **验收**：`_private/accept_v118_unslop.mjs` **30/30 全绿**（13 页逐页冒烟含 p-admin 教师守卫、卡片 SVG 化、is-primary 跨列、qa-hero 板书块、主题 SVG、v117 回归）；`accept_v117_unslop.mjs` 23/23 复跑通过；390px 窄屏 `scrollWidth=390` 无溢出、0 JS 错误。截图 14 张归档 `D://Docs//项目资料包//01-iBank投资银行学课程智能体//验收截图-2026-11-12-unslop-v117-v118//`。
   ⑦ SW 不升版本（app.css/app-core.js 网络优先，未动 sw.js）。游戏区内容性 emoji（奖励/图鉴/成就/等级名）为游戏语义保留，未在本次范围。
   ⑧ 已本地 commit，**未 push（与 v117 同批，由用户统一推送）**。
+
+- **导航结构重组（2026-11-15 12:45，待上传）**：用户要求把「玩转投行」从「技能训练」下拉末项升为顶部一级板块，并把原一级按钮「课程项目」的内容整体下放为该板块首项（方案由用户选定：课程项目＋游戏两项）。
+  ① `index.html`：删去 `nav-menu > .tab-btn[data-page="p-project"]`；在「首页」之后新增 `nav-group`「玩转投行」，下拉两项 —— `p-project`（课程项目／分组测评 · 三段融资表现性评价）与 `p-game`（课堂闯关／梗学闯关 · 投行卧底 · 时点三连）；「技能训练」下拉删去 `p-game`。两个 `data-page` 按钮保持全站唯一，`app-core.js` 的 `.tab-btn[data-page=…]` 跳转、`?goto=` 深链、首页旗舰卡、课程项目页本体均无需改动。
+  ② `static/i18n-dict.js`：只新增 2 条词条（课堂闯关 / 分组测评 · 三段融资表现性评价），其余复用已有译文。
+  ③ **验收 44/44 全绿**：`node _private/run_v111.mjs accept_v128_nav.mjs`（结构、下拉开合、两页切换、首页卡直达、两条深链、16 页逐页冒烟、全程 0 JS 错误、EN/中文无损还原、1440 与 375 两档下拉不溢出视口）；截图 `qa-out/nav-v128-{light,dark}-1440.png`、`nav-v128-light-375.png`。
+  ④ `python _private/site_files.py verify / single / baseline / verify`：往返完整性 PASS，刷新后与基线逐字节相同；单文件快照 `_versions/v128_2026-11-15_nav-regroup.html`。
+  ⑤ **`sw.js` 不升版本**：未动预缓存清单，且 `i18n-dict.js` 本就在 `NETWORK_FIRST_ASSET` 白名单内，老用户不会拿到旧词典。
+  ⑥ **未 commit、未 push**（工作区另有用户自己的 `static/undercover.css` / `undercover.js` 改动，本次全程未触碰）。资料包 `ibank-nav/` 旧副本未同步，按惯例待用户验收后决定。

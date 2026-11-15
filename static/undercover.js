@@ -36,14 +36,14 @@
     /* ---- 开局 ---- */
     s_h:       { zh: '开一局', en: 'Set up a round' },
     s_groups:  { zh: '场上分几组', en: 'Groups on stage' },
-    s_sec:     { zh: '每组描述限时', en: 'Seconds per pitch' },
+    s_sec:     { zh: '每组描述用时（可暂停，只是参考）', en: 'Seconds per pitch (pausable, optional)' },
     s_words:   { zh: '词包', en: 'Word pack' },
     s_pack:    { zh: '比亚迪四讲 · 对立词对 12 组', en: 'BYD four deals · 12 word pairs' },
     s_go:      { zh: '生成号卡，开局', en: 'Generate cards and start' },
     s_rule_h:  { zh: '一局怎么玩', en: 'How a round works' },
     s_r1:      { zh: '每组领一张号卡，只自己看，别让邻组瞄到。{1} 组里，2 组拿的是卧底词，另有 1 组拿的是白板——牌上什么都没有。拿卧底词的不知道另一个卧底是谁，白板也不知道别人手里是什么。', en: 'Each group gets one card, read privately. Of the {1} groups, two hold the mole word and one holds a blank card — nothing printed on it. Moles do not know each other; the blank does not know what anyone else holds.' },
     s_r2:      { zh: '按屏幕给的顺序，轮着用一句话描述自己的词，不许说破。不许重复前面组说过的角度，也不许说「同上」「跟他一样」——白板就得靠听，现编一句混进去。', en: 'In the order shown, pitch your word in one sentence without giving it away. Do not reuse an angle already used, and no "same as them" — the blank card has to improvise from what it hears.' },
-    s_r3:      { zh: '描述完全场投票，教师点组号记票；票最高的一组先自辩一句，再翻牌看是平民、卧底还是白板。', en: 'When pitching ends, the class votes. The top-voted group defends itself in one sentence, then its card is flipped.' },
+    s_r3:      { zh: '描述完全场投票，教师点组号记票；可以让票最高的一组先解释一句，什么时候翻牌由教师自己点「结算本轮」，全程不计时。', en: 'When pitching ends, the class votes. The teacher may let the top-voted group explain itself; the card is flipped only when the teacher taps "Settle this round" — no timer at all.' },
     s_r4:      { zh: '累计抓出 2 个特殊身份（卧底或白板都算）即平民胜；三轮投完只抓到 1 个或一个没抓到，卧底胜。', en: 'Catch any two of the three special cards — moles or the blank — and the civilians win. If three votes catch one or none, the moles win.' },
     s_note:    { zh: '一局 5—8 分钟。想再来一局就换一套词，累计比分不清零。', en: 'A round runs five to eight minutes. Start another to switch word sets; the score carries over.' },
     s_mode:    { zh: '发词方式', en: 'How words are dealt' },
@@ -82,7 +82,7 @@
     d_order:   { zh: '描述顺序', en: 'Pitching order' },
     d_next:    { zh: '下一位', en: 'Next group' },
     d_pause:   { zh: '暂停', en: 'Pause' },
-    d_resume:  { zh: '继续', en: 'Resume' },
+    d_resume:  { zh: '开始计时（可不用）', en: 'Start timer (optional)' },
     d_vote:    { zh: '描述结束，进入投票', en: 'Done pitching, go to vote' },
     d_last:    { zh: '已经是最后一组了', en: 'That was the last group' },
     d_supp:    { zh: '这一轮只补一句：说说和上一轮不一样的地方', en: 'This round: one sentence only — what changed since your last pitch' },
@@ -96,15 +96,9 @@
     v_tie:     { zh: '平票了，点其中一组决出被淘汰的组。', en: 'Tie. Tap one of the tied groups to decide.' },
     v_need:    { zh: '先记至少一票', en: 'Record at least one vote' },
     v_back:    { zh: '返回描述', en: 'Back to pitching' },
-    v_def:     { zh: '记完票先别翻：票最高的一组有 20 秒自辩，说完再点结算。', en: 'Before flipping, give the top-voted group 20 seconds to defend itself, then settle.' },
-    v_lead_1:  { zh: '当前票最高：{1} · {2} 票，让它先解释一句', en: 'Top vote: {1} with {2} votes — let it explain first' },
+    v_def:     { zh: '节奏自己把握：可以让票最高的一组先解释一句，想什么时候翻牌就点「结算本轮」。不计时、不锁按钮、不自动跳页。', en: 'Set your own pace: you may let the top-voted group explain first, then tap "Settle this round" whenever you are ready. No timer, no locked buttons, no auto-advance.' },
+    v_lead_1:  { zh: '当前票最高：{1} · {2} 票，可让它先解释一句', en: 'Top vote: {1} with {2} votes — you may let it explain first' },
     v_lead_n:  { zh: '并列票最高：{1} · 各 {2} 票，点结算后由你选一组', en: 'Tied at the top: {1} with {2} votes each — pick one after settling' },
-    v_def_h:   { zh: '给票最高的组 20 秒解释', en: '20 seconds for the top group to explain' },
-    v_def_btn: { zh: '开始 20 秒', en: 'Start 20 seconds' },
-    v_def_re:  { zh: '重新计时 20 秒', en: 'Restart 20 seconds' },
-    v_def_run: { zh: '正在解释，说完再点「结算本轮」', en: 'Still explaining — settle when they finish' },
-    v_def_done:{ zh: '时间到，可以点「结算本轮」翻牌了', en: 'Time is up — settle to flip the card' },
-    v_def_idle:{ zh: '点一下开始计时；不想计时也可以直接结算', en: 'Tap to start the timer, or settle right away' },
 
     /* ---- 揭晓 ---- */
     r_out:     { zh: '淘汰', en: 'Eliminated' },
@@ -240,8 +234,6 @@
     total: 0,
     picked: 0,
     tie: null,
-    defEnd: 0,         // 自辩倒计时截止时间戳（0 = 未启动）
-    defId: 0,          // 自辩计时器（与描述页 tickId 分开）
     showAnswer: false,  // 教师是否点开「本局答案」；默认关，避免描述/投票阶段投屏泄题
     score: { c: 0, u: 0 }
   };
@@ -264,7 +256,14 @@
     return isMole(seat) ? S.pair.b : S.pair.a;
   }
 
-  /* ---------------- 倒计时 ---------------- */
+  /* ---------------- 描述页秒表（可选参考，不是限时） ----------------
+     默认不走：进描述页 / 换组只把表盘摆好，教师点「开始计时」才启动，点「暂停」即停。
+     到点只停表，绝不禁用按钮、不自动换组、不自动跳页；翻牌更没有计时器。 */
+  function armClock() {
+    stopClock();
+    S.end = Date.now() + S.sec * 1000;
+    S.paused = true;
+  }
   function startClock() {
     stopClock();
     S.end = Date.now() + S.sec * 1000;
@@ -297,28 +296,8 @@
     render();
   }
 
-  /* 自辩 20 秒：投票页专用。不能复用 startClock/tick——那两条只在 describe 生效。
-     状态存在 S 里，加减票触发 render() 重建 DOM 后倒计时也不会丢。 */
-  function stopDefense() { if (S.defId) { clearInterval(S.defId); S.defId = 0; } }
-  function startDefense() {
-    if (S.phase !== 'vote') return;
-    stopDefense();
-    S.defEnd = Date.now() + 20000;
-    S.defId = setInterval(defTick, 200);
-    render();
-    defTick();
-  }
-  function defTick() {
-    if (S.phase !== 'vote' || !S.defEnd) { stopDefense(); return; }
-    var ms = Math.max(0, S.defEnd - Date.now());
-    var secEl = document.getElementById('uc-def-sec');
-    var bar = document.getElementById('uc-def-bar');
-    var tip = document.getElementById('uc-def-tip');
-    if (secEl) secEl.textContent = Math.ceil(ms / 1000);
-    if (bar) bar.style.width = (ms / 20000 * 100) + '%';
-    if (tip) tip.textContent = ms > 0 ? t('v_def_run') : t('v_def_done');
-    if (ms <= 0) stopDefense();
-  }
+  /* 投票/翻牌不设任何计时器：什么时候结算、什么时候翻牌，全由教师点按钮决定。
+     描述页那个秒表只是参考用时，到点仅停表——不禁用任何按钮、不自动换组、不自动跳页。 */
 
   /* ---------------- 一局的生命周期 ---------------- */
   /* 课堂固定玩三局：前三局按「生活化 → 会撞车 → 引出本课定价」用指定词对。
@@ -366,7 +345,6 @@
     S.out = []; S.hit = 0; S.vr = 1; S.result = '';
     S.order = makeOrder(S.alive);
     S.cur = 0;
-    stopDefense(); S.defEnd = 0;
     S.votes = {}; S.total = 0; S.picked = 0; S.tie = null;
     S.showAnswer = false;
     S.room = ''; S.tokens = []; S.net = '';
@@ -452,17 +430,16 @@
     S.phase = 'describe';
     S.showAnswer = false;   // 开始描述了，答案自动收起，防止投屏留在上一阶段
     S.cur = 0;
+    armClock();
     render();
-    startClock();
   }
 
   function nextGroup() {
-    if (S.cur < S.order.length - 1) { S.cur++; render(); startClock(); }
+    if (S.cur < S.order.length - 1) { S.cur++; armClock(); render(); }
   }
 
   function goVote() {
     S.phase = 'vote'; S.showAnswer = false; stopClock();
-    stopDefense(); S.defEnd = 0;
     S.votes = {}; S.total = 0; S.picked = 0; S.tie = null;
     render();
   }
@@ -501,7 +478,6 @@
   }
 
   function finish(id) {
-    stopDefense(); S.defEnd = 0;
     S.picked = id;
     S.tie = null;
     if (isOdd(id)) S.hit++;
@@ -523,15 +499,14 @@
     S.showAnswer = false;   // 还要再投一轮，答案必须重新收起
     S.order = makeOrder(S.alive);
     S.cur = 0;
-    stopDefense(); S.defEnd = 0;
     S.votes = {}; S.total = 0; S.picked = 0; S.tie = null;
     S.phase = 'describe';
+    armClock();
     render();
-    startClock();
   }
 
   function resetAll() {
-    stopClock(); stopDefense(); S.defEnd = 0;
+    stopClock();
     S.phase = 'setup'; S.round = 0; S.pair = null; S.moles = []; S.blank = 0; S.alive = []; S.out = [];
     S.hit = 0; S.vr = 1; S.result = '';
     S.room = ''; S.tokens = []; S.net = '';
@@ -739,7 +714,7 @@
 
   function rDescribe() {
     var now = S.order[S.cur] || 1;
-    var left = Math.max(0, Math.ceil((S.end - Date.now()) / 1000));
+    var left = S.paused ? S.sec : Math.max(0, Math.ceil((S.end - Date.now()) / 1000));
     var pct = S.paused ? 0 : Math.max(0, Math.min(100, (S.end - Date.now()) / (S.sec * 1000) * 100));
     var chips = '';
     for (var i = 0; i < S.order.length; i++) {
@@ -776,9 +751,6 @@
       if (v > best) { best = v; leads = [+k]; }
       else if (v === best && best > 0) leads.push(+k);
     }
-    var defMs = S.defEnd ? Math.max(0, S.defEnd - Date.now()) : 0;
-    var defState = !S.defEnd ? 'idle' : (defMs > 0 ? 'run' : 'done');
-    var defSec = Math.ceil(defMs / 1000);
     var leadTxt = '';
     if (!S.tie && S.total) {
       if (leads.length === 1) leadTxt = t('v_lead_1', gl(leads[0]), best);
@@ -810,13 +782,6 @@
         : '<div class="uc-note" style="display:block">' + esc(t('v_hint')) + '</div>')
       + '<div class="uc-note uc-law" style="display:block">' + esc(t('v_def')) + '</div>'
       + (leadTxt ? '<div class="uc-lead' + (leads.length > 1 ? ' tie' : '') + '" id="uc-lead">' + esc(leadTxt) + '</div>' : '')
-      + '<div class="uc-def' + (defState === 'run' ? ' run' : '') + '" id="uc-def">'
-        + '<div class="uc-def-top"><span class="uc-def-num"><b id="uc-def-sec">' + (defState === 'idle' ? 20 : defSec) + '</b><small>' + esc(t('sec_s')) + '</small></span>'
-        + '<span class="uc-def-h">' + esc(t('v_def_h')) + '</span></div>'
-        + '<div class="uc-def-bar"><i id="uc-def-bar" style="width:' + (defState === 'idle' ? 100 : (defMs / 20000 * 100)) + '%"></i></div>'
-        + '<div class="uc-def-tip" id="uc-def-tip">' + esc(t(defState === 'idle' ? 'v_def_idle' : (defState === 'run' ? 'v_def_run' : 'v_def_done'))) + '</div>'
-        + '<button class="uc-btn ghost" onclick="UC.startDefense()">' + esc(t(defState === 'idle' ? 'v_def_btn' : 'v_def_re')) + '</button>'
-      + '</div>'
       + '<div class="uc-grid">' + cells + '</div>'
       + '<div class="uc-tally">' + esc(t('v_total')) + ' <b>' + S.total + '</b></div>'
       + '<button class="uc-btn" onclick="UC.settle()"' + (S.total ? '' : ' disabled') + '>'
@@ -964,11 +929,10 @@
     next: nextGroup,
     pause: togglePause,
     goVote: goVote,
-    backDescribe: function () { S.phase = 'describe'; render(); },
+    backDescribe: function () { S.phase = 'describe'; armClock(); render(); },
     vote: vote,
     unvote: unvote,
     settle: settle,
-    startDefense: startDefense,
     pick: pick,
     nextVote: nextVoteRound,
     print: printSheet,
