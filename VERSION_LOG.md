@@ -440,3 +440,14 @@ python _private/site_files.py baseline
   ⑧ 未 commit、未 push（由用户统一推送）；线上 `https://ethan-a-lab.github.io/ibank/` 当前仍显示旧名称，推送后才生效。
   ⑨ **18:30 用户复核修订**：删去新增的「面向金融学大类…当前以《投资银行学》课程为示例」说明句（5 处：hero2-desc、页脚 f-desc、manifest description、README 首段、游戏页 meta description），同步 `i18n-dict.js` 的 2 条 block 键与英文值。理由：除知识图谱是课程专属目录外，其余板块本就通用，后续在知识图谱分别补上其他专业课目录即可真正覆盖金融学大类，无需在文案里自我限定。其余「金融学类」名称改动全部保留。
   ⑩ 修订后复验：`accept_v128_nav.mjs` 44/44；浏览器实测中英两态 title / hero desc / f-desc 全部已译、0 中文残留、0 JS 错误；`site_files.py verify / single / baseline / verify` 往返完整性 PASS、刷新基线后逐字节一致 PASS。
+
+- **v130（2026-11-15 19:50，簿记建档仿真归入「仿真实战」＋ 首页模块卡补全）**：用户以两张截图指出「技能训练」下拉里的「债券簿记建档仿真」应移入「仿真实战」，且首页下方的小方块没把站内板块列全。核查发现导航下拉共 **15 项**、首页卡片仅 **14 张**，唯一缺的正是 `p-bond`。
+  ① `index.html` 导航：`p-bond` 从「技能训练」下拉删除，追加到「仿真实战」下拉末项（宏观市场专题／股市模拟交易之后）。技能训练 4→3 项、仿真实战 2→3 项，一级分组顺序不变，`data-page` 仍全站唯一；`app-core.js` 的 `.tab-btn[data-page=…]` 事件委托、`gotoModule('bond')`、`?goto=` 深链均不依赖下拉位置，无需改动。
+  ② `index.html` 首页：在「估值实验」卡之后新增第 15 张 `p-bond` 卡（标题「债券簿记建档仿真」／描述「真实簿记表还原，亲手定出一个票面利率」／文档图标）。`home-grid` 为 `auto-fill minmax(240px,1fr)` 且旗舰卡跨 2 列：14 张时末行留 1 空位，补第 15 张后 4 行正好填满。
+  ③ 计数同步：`hero2-stats` 的 14→15（`syncHeroStats()` 本就运行时按 `#p-home .home-card` 数量自动回填，改静态值仅为保持一致）；`section-sub`「14 个功能模块／13 个面向学生」→「15 个／14 个」。
+  ④ `static/i18n-dict.js`：block 说明段整键改为 15 口径，英文值 `Fourteen → Fifteen`、`13 for students → 14 for students`；node 新增 1 条卡片描述译文。卡片标题复用已有词条 `债券簿记建档仿真`（导航下拉同名，用户不会困惑）。
+  ⑤ `static/app-core.js`：仅 2 处注释里的 14→15（`8/14/20 → 8/15/20`、`首页要能数到 14 个模块 → 15 个`），**业务逻辑零改动**。
+  ⑥ **验收证据**：改前 `accept_v128_nav.mjs` 44/44 全绿；改后复跑 44/44 全绿；新增本地验收脚本 `_private/accept_v130_home_modules.mjs` **28/28 全绿**（核心断言：导航 15 项 ↔ 首页 15 卡一一对应、零缺失／零多余／零重复，今后新增模块漏补卡片会立即报错；另覆盖 p-bond 归属、新卡点击直达、hero 回填 15、中英两态 0 中文残留、1440/375 无横向溢出、0 JS 错误）；`site_files.py verify / single / baseline / verify` 往返完整性 PASS、刷新基线后逐字节一致 PASS。
+  ⑦ 证据截图 `qa-out/home-v130-modules-1440.png`（15 张卡全景）、`qa-out/nav-v130-simulations-1440.png`（仿真实战下拉三项）；单文件快照 `_versions/v130_2026-11-15_bond-sim-home-card.html`（1,310,306 B）。
+  ⑧ `sw.js` 不升版本：未动缓存策略或预缓存清单，`i18n-dict.js` 本就在网络优先白名单内，老用户不会拿到旧词典。
+  ⑨ **未 commit、未 push**，线上仍为 v129 状态；`_private/`、`_versions/`、`qa-out/` 按 `.gitignore` 约定不入库，验收脚本与截图仅本地留存。

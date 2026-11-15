@@ -1449,7 +1449,7 @@ document.addEventListener('keydown', function (e) {
     // ===== 首页模块卡片：点击跳转 =====
     document.querySelectorAll('.home-card').forEach(function (c) {
       c.addEventListener('click', function (e) {
-        // 教师端卡片对学生保持可见（首页要能数到 14 个模块），但点击不跳转，先说明原因
+        // 教师端卡片对学生保持可见（首页要能数到 15 个模块），但点击不跳转，先说明原因
         if (c.classList.contains('is-locked') && c.getAttribute('data-lock') === 'teacher') {
           e.preventDefault();
           ibankToast('教师后台需用教师账号登录，学生账号只能查看本班公开数据');
@@ -5648,7 +5648,7 @@ document.addEventListener('keydown', function (e) {
       // 与用户「其他相关的可能也要改」的要求同源——数字与数据脱节就会失真。
       // 这里三项分别取自 CHAPTERS / .home-card / .case-item，均为页面真实渲染结果，
       // 以后增删章节、模块、案例时首页自动跟随，不会再出现「宣称 N 实际 M」。
-      // unslop v117：去掉 padStart 前导零，统计数字与正文格式统一（8/14/20）
+      // unslop v117：去掉 padStart 前导零，统计数字与正文格式统一（8/15/20）
       function syncHeroStats() {
         var box = document.querySelector('#p-home .hero2-stats');
         if (!box) return;
