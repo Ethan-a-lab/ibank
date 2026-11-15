@@ -1,7 +1,7 @@
 {
-  "name": "iBank平台 · 投资银行学智慧课堂",
+  "name": "iBank平台 · 金融学类智慧课堂",
   "short_name": "iBank",
-  "description": "《投资银行学》智慧教学平台：课程导航、互动题库、案例数据与玩转投行（三种玩法）。",
+  "description": "金融学类智慧教学平台：课程导航、互动题库、案例数据与玩转投行（三种玩法）。",
   "lang": "zh-CN",
   "dir": "ltr",
   "start_url": "./?source=pwa",

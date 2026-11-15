@@ -421,10 +421,22 @@ python _private/site_files.py baseline
   ⑦ SW 不升版本（app.css/app-core.js 网络优先，未动 sw.js）。游戏区内容性 emoji（奖励/图鉴/成就/等级名）为游戏语义保留，未在本次范围。
   ⑧ 已本地 commit，**未 push（与 v117 同批，由用户统一推送）**。
 
-- **导航结构重组（2026-11-15 12:45，待上传）**：用户要求把「玩转投行」从「技能训练」下拉末项升为顶部一级板块，并把原一级按钮「课程项目」的内容整体下放为该板块首项（方案由用户选定：课程项目＋游戏两项）。
+- **导航结构重组（2026-11-15 12:45，已上线 3545af9）**：用户要求把「玩转投行」从「技能训练」下拉末项升为顶部一级板块，并把原一级按钮「课程项目」的内容整体下放为该板块首项（方案由用户选定：课程项目＋游戏两项）。
   ① `index.html`：删去 `nav-menu > .tab-btn[data-page="p-project"]`；在「首页」之后新增 `nav-group`「玩转投行」，下拉两项 —— `p-project`（课程项目／分组测评 · 三段融资表现性评价）与 `p-game`（课堂闯关／梗学闯关 · 投行卧底 · 时点三连）；「技能训练」下拉删去 `p-game`。两个 `data-page` 按钮保持全站唯一，`app-core.js` 的 `.tab-btn[data-page=…]` 跳转、`?goto=` 深链、首页旗舰卡、课程项目页本体均无需改动。
   ② `static/i18n-dict.js`：只新增 2 条词条（课堂闯关 / 分组测评 · 三段融资表现性评价），其余复用已有译文。
   ③ **验收 44/44 全绿**：`node _private/run_v111.mjs accept_v128_nav.mjs`（结构、下拉开合、两页切换、首页卡直达、两条深链、16 页逐页冒烟、全程 0 JS 错误、EN/中文无损还原、1440 与 375 两档下拉不溢出视口）；截图 `qa-out/nav-v128-{light,dark}-1440.png`、`nav-v128-light-375.png`。
   ④ `python _private/site_files.py verify / single / baseline / verify`：往返完整性 PASS，刷新后与基线逐字节相同；单文件快照 `_versions/v128_2026-11-15_nav-regroup.html`。
   ⑤ **`sw.js` 不升版本**：未动预缓存清单，且 `i18n-dict.js` 本就在 `NETWORK_FIRST_ASSET` 白名单内，老用户不会拿到旧词典。
-  ⑥ **未 commit、未 push**（工作区另有用户自己的 `static/undercover.css` / `undercover.js` 改动，本次全程未触碰）。资料包 `ibank-nav/` 旧副本未同步，按惯例待用户验收后决定。
+  ⑥ **已随 `3545af9`（结构调整）推送上线**（2026-11-15 16:00 前后）：线上 `index.html` 与本地 MD5 均为 `92e2403afb26675c69d4cbff70ad54f7`（353,046 B），新导航已生效、Pages 无缓存滞后。同批提交还包含用户自己的 `static/undercover.css` / `undercover.js` 改动。资料包 `ibank-nav/` 本次已同步台账与 3 张验收截图，并新增 v128 单文件快照；站点 `index.html` 离线副本仍为 v101，按惯例不覆盖。
+
+- **v129（2026-11-15 17:45，站点显示名扩展至金融学类；18:30 修订：删去说明句）**：依据资料包 README 第 11 行课题定名「《金融学类背景下数智技术赋能教育评价改革研究——以〈投资银行学〉课程为例》」，把站点级名称与定位文案中的「投资银行学」学科限定统一改为「金融学类」。**按用户要求，站内教学内容（章节、案例、题库、教材与大纲出处、模块名「玩转投行」等）一律未动**；不在文案里解释「当前以某课程为示例」。
+  ① `index.html` 12 处：title、登录页副标题、导航 t2、hero eyebrow/h1/desc、AI 导师演示对话、首页区块标题、CTA 理念句、页脚 f-desc / f-tech / 版权行。
+  ② `manifest.webmanifest`：PWA 安装名 `name` 与 `description` 同步。
+  ③ `static/i18n-dict.js`：node 7 条 + block 6 条，键与英文值同步改（避免英文态残留中文）；含《投资银行学》教材／大纲／视频／融资事件出处的事实性词条保持原样。
+  ④ `README.md`（站点）、`ai-chat.html`、`ibank-game.html`：标题、页脚、meta description 同步。
+  ⑤ **保持不变的硬约束**：URL `/ibank/`、仓库名、`iBank` 产品代号（PWA id、图标、CSV 导出文件名、日志前缀、`IBANK_CLASSES` 变量名均与之绑定，且网址已送审课程智能体项目申报）——只改显示名与表述，绝不动网址。
+  ⑥ **验收证据**：改前 `accept_v128_nav.mjs` 44/44 全绿；改后复跑 44/44 全绿、16 页冒烟 0 JS 错误；浏览器实测中文态品牌区全部为新口径、英文态全部有译文且 0 中文残留、0 JS 错误；`python _private/site_files.py verify / single / baseline / verify` 往返完整性 PASS、刷新基线后逐字节一致 PASS。单文件快照 `_versions/v129_2026-11-15_finance-discipline-naming.html`（修订后 1,309,863 B，同名覆盖）。
+  ⑦ `sw.js` 不升版本：按本文件第 13 行规则，只有改动缓存策略或预缓存清单才加一，本次两者均未动；`i18n-dict.js` 本就在 `NETWORK_FIRST_ASSET` 白名单内，老用户不会拿到旧词典。已安装的 PWA 桌面图标名称需浏览器更新 manifest 后才变化，不影响网页显示。
+  ⑧ 未 commit、未 push（由用户统一推送）；线上 `https://ethan-a-lab.github.io/ibank/` 当前仍显示旧名称，推送后才生效。
+  ⑨ **18:30 用户复核修订**：删去新增的「面向金融学大类…当前以《投资银行学》课程为示例」说明句（5 处：hero2-desc、页脚 f-desc、manifest description、README 首段、游戏页 meta description），同步 `i18n-dict.js` 的 2 条 block 键与英文值。理由：除知识图谱是课程专属目录外，其余板块本就通用，后续在知识图谱分别补上其他专业课目录即可真正覆盖金融学大类，无需在文案里自我限定。其余「金融学类」名称改动全部保留。
+  ⑩ 修订后复验：`accept_v128_nav.mjs` 44/44；浏览器实测中英两态 title / hero desc / f-desc 全部已译、0 中文残留、0 JS 错误；`site_files.py verify / single / baseline / verify` 往返完整性 PASS、刷新基线后逐字节一致 PASS。
