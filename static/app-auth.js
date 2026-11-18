@@ -1681,7 +1681,7 @@ function semesterAnchor() {
       var ts = academicTimestamps(allEvents);
         var cls = (typeof CLASS_LIST !== 'undefined' && CLASS_LIST.length)
           ? CLASS_LIST.join(' / ') : '金融 2401–2404';
-        if (!ts.length) { el.textContent = 'iBank 平台运行数据 · 暂无学业行为记录 · 班级 ' + cls; return; }
+        if (!ts.length) { el.textContent = 'iBank 运行数据 · 暂无学业行为记录 · 班级 ' + cls; return; }
         var anc = semesterAnchor();
         var mn = new Date(anc.start), mx = new Date(anc.end);
       // 学年写法：跨年取「起始年-结束年」，同年直接写年份
@@ -1694,7 +1694,7 @@ function semesterAnchor() {
       // 学期外的新增行为（学生今天答题等）单独标注，不混进学期区间口径
         var beyond = ts.filter(function (v) { return v < anc.start || v > anc.end; }).length;
         var extra = beyond ? ' · 含课后新增 ' + beyond + ' 次' : '';
-        el.textContent = 'iBank 平台运行数据 · ' + year + ' · ' + fmt(mn) + ' — ' + fmt(mx)
+        el.textContent = 'iBank 运行数据 · ' + year + ' · ' + fmt(mn) + ' — ' + fmt(mx)
           + '（约 ' + weeks + ' 教学周）· 班级 ' + cls + extra;
       }
 
