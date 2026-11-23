@@ -297,10 +297,14 @@
             <button class="hbtn primary" data-goto="p-admin">打开班级学情看板 →</button>
             <button class="hbtn ghost" id="th-preview-student" type="button">切到学生视角</button>
           </div>
+          <!-- v133 修正：原来这三格写的是「4 入口 / 2 端 / 0 教师操作入库」，后两个是硬编码的
+               装饰数字——"2 端"只是陈述事实，"0 教师操作入库"等于在首页承认什么都没记录，
+               看着像故障。改成三个都能当场核对的真数：入口数=下方卡片数、教学班=CLASS_LIST 长度、
+               学生端模块=首页 16 卡里的学生部分（15 个，后台那张不含）。 -->
           <div class="hero2-stats">
             <div><strong>4</strong><span>教学管理入口</span></div>
-            <div><strong>2</strong><span>端 · 学生 / 教师</span></div>
-            <div><strong>0</strong><span>教师操作入库</span></div>
+            <div><strong>4</strong><span>个教学班</span></div>
+            <div><strong>15</strong><span>学生端模块已隐藏</span></div>
           </div>
         </div>
         <div class="hero2-right">
@@ -337,7 +341,11 @@
         <!-- v133（2026-11-23）：原「第三方测评 · 分组入口」卡已整体下线。
              下线原因两条，与功能好坏无关：一是第三方注册商标 + 站外测评链接，
              软著交存与说明书截图里出现会被追问权属；二是它采集的是学生性格标签，
-             属敏感个人信息，而分组本可以用自研量表做。历史实现见 git 3ade02d 之前。 -->
+             属敏感个人信息，而分组本可以用自研量表做。历史实现见 git 3ade02d 之前。
+             ⚠ 这张卡是 v91 用来顶替页头的，删了必须补回页头，否则本页第一屏直接是项目卡、
+             页面像没加载完（v133 首版就是这样，被用户当场指出）。 -->
+        <div class="section-title"><span class="bar"></span>课程项目 · 贯穿式主项目</div>
+        <div class="section-sub">全学期只做这一个主项目：比亚迪四讲。四次融资、四个环节，从询价定价到簿记建档，学生的每次押注、报价与理由都记在这里，期末按过程性证据评分，不看期末一张卷。</div>
 
         <!-- 列表视图：项目卡 -->
         <div class="pj-list" id="pj-list" data-i18n-skip></div>
