@@ -157,8 +157,9 @@
       : '<div class="forum-locked-tip">'
         + (state.uid
             ? '本帖已锁定，不再接受回复。'
-            /* v134：未登录不再只给一行灰字（用户看完不知道该干什么），
-               给一个能直接打开登录框的按钮，并说明登录的理由。 */
+            /* v135：这个分支只剩「会话在这期间失效」的场景 —— 打开帖子时还是登录态，
+               读回复的过程中 session 掉了。给一个能重新登录的按钮，而不是一行没人看得懂的灰字。
+               （普通未登录访客在 openPost() 就被拦下，到不了这里。） */
             : '登录后才能回复。<button type="button" class="forum-ask-login">去登录</button>')
         + '</div>';
 
@@ -200,11 +201,21 @@
   }
 
   async function openPost(id) {
+    /* v135：显式守卫，且放在取数据库之前 —— 判断「有没有权限」不应该依赖「云服务通不通」。
+       讨论区是班级内部讨论，游客不应看到任何帖子的正文与回复。
+       原来只靠「未登录时列表是空的、点不进来」间接挡住，属于 UI 层巧合而非代码约束：
+       只要有人从控制台调 openPost、或将来加了深链，就能把内容拉出来。
+       数据库那侧 anon 没有 select 授权（见 db/forum.sql），这里补的是第二道闸，
+       顺便给出人能看懂的说明，而不是静默失败。 */
+    if (!state.uid) {
+      if (window.__ibankAskLogin) {
+        window.__ibankAskLogin('查看讨论需要登录：讨论区只对已选课的学生开放，帖子与回复不对未登录访客展示。');
+      }
+      return;
+    }
     var d = db();
     if (!d) return;
     state.detailId = id;
-    var gateNow = $('forum-gate');
-    if (gateNow) gateNow.classList.add('hidden');
     $('forum-list-wrap').classList.add('hidden');
     $('forum-compose').classList.add('hidden');   // 看帖时收起发帖框，避免误以为是回帖
     $('forum-detail').classList.remove('hidden');
@@ -318,11 +329,16 @@
   function renderLoginGate() {
     var gate = $('forum-gate');
     var compose = $('forum-compose');
-    /* v134：详情页不再顶一块「未登录」提示 —— 帖子就在下面，能看就看，
-       顶上再压一段说明反而显得自相矛盾（原来写的是「登录后才能浏览」）。
-       列表页保留这条提示，因为那里是「要不要参与」的决策点。 */
-    if (gate) gate.classList.toggle('hidden', !!state.uid || !!state.detailId);
+    /* v135：门禁只看登录态，不看当前是不是详情页。
+       上一版写成「详情页收起提示」，前提是"游客能看帖"，而那个前提本身就是错的：
+       课内讨论区不对游客开放。现在未登录进不了详情，gate 的显隐也就只由 uid 决定。 */
+    if (gate) gate.classList.toggle('hidden', !!state.uid);
     if (compose) compose.classList.toggle('hidden', !state.uid);
+    /* v135：未登录时整块列表也不显示。原来上面写「登录后才能查看」、下面又跟一句
+       「登录后即可查看并参与讨论」，同一件事说两遍，看着像两处不同的提示。
+       门禁块已经承担说明职责，列表区就不用露面了。 */
+    var listWrap = $('forum-list-wrap');
+    if (listWrap) listWrap.classList.toggle('hidden', !state.uid);
     var who = $('forum-who');
     if (who) {
       if (state.uid) {
@@ -409,10 +425,11 @@
 
     var gateBtn = $('forum-gate-btn');
     if (gateBtn) gateBtn.addEventListener('click', function () {
-      /* v134：统一走 __ibankAskLogin，登录框会带上"为什么让你登录"。
-         原来是点 top 登录按钮（说明条为空），用户只看到一个没有上下文的弹窗。 */
+      /* v135：这块按钮的作用是「进讨论区」，理由要跟门禁文案一致。
+         原来沿用发帖/回复那句（"登录后你的发言才记在你名下"），可此时用户还没打算发言，
+         读起来是答非所问。 */
       if (window.__ibankAskLogin) {
-        window.__ibankAskLogin('发帖和回复需要登录：登录后你的发言才会记在你名下，也才能收到别人回复的通知。');
+        window.__ibankAskLogin('查看讨论需要登录：讨论区只对已选课的学生开放，帖子与回复不对未登录访客展示。');
         return;
       }
       var top = $('login-top-btn');
