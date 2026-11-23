@@ -52,6 +52,27 @@
         }, 1000);
       }
 
+      /* ===== 双端界面（v132）=====
+         评审意见「加界面登录（学生端、教师端）」的落地方式：不是再加一个登录框，
+         而是让两种身份登录后看到两套完整界面 —— 学生端 5 组 15 模块，教师端只管教学。
+         实现上只切「作用域容器」的 hidden，不碰任何一个 data-page：
+         页面内容全留在 DOM 里，教师切学生视角无需重载，也不改变既有 16 项口径与深链。 */
+      let previewStudent = false;
+
+      function applyScope(isAdmin) {
+        const asTeacher = isAdmin && !previewStudent;
+        document.querySelectorAll('[data-scope]').forEach(function (el) {
+          const scope = el.getAttribute('data-scope');
+          el.hidden = asTeacher ? (scope !== 'teacher') : (scope !== 'student');
+        });
+        const bar = document.getElementById('th-preview-bar');
+        if (bar) bar.hidden = !(isAdmin && previewStudent);
+        window.__ibankScope = asTeacher ? 'teacher' : 'student';
+      }
+      // 暴露给验收脚本：不必真的登录，就能断言两套界面的显隐是否互斥
+      window.__ibankApplyScope = applyScope;
+      window.__ibankSetPreview = function (on) { previewStudent = !!on; applyScope(window.__ibankIsAdmin === true); };
+
       function applyRole(role) {
         const isAdmin = role === 'teacher' || role === 'admin';
         window.__ibankIsAdmin = isAdmin;
@@ -69,7 +90,48 @@
         if (!isAdmin && document.getElementById('p-admin').classList.contains('active')) {
           document.querySelector('.tab-btn[data-page="p-home"]').click();
         }
+        // v132：整套导航按身份切换
+        applyScope(isAdmin);
+        // 登录落地页：教师直接进工作台（带 ?goto=/?view= 深链时让位给深链），
+        // 学生若停在教师工作台则退回首页 —— 避免退出账号后看到上一位教师的界面。
+        const cur = document.querySelector('.page.active');
+        const curId = cur ? cur.id : '';
+        const deep = /[?&](goto|view)=/.test(location.search);
+        if (isAdmin && !deep && (curId === 'p-home' || curId === '')) {
+          const tb = document.querySelector('#nav-teacher-menu .tab-btn[data-page="p-teacher-home"]');
+          if (tb) tb.click();
+        } else if (!isAdmin && curId === 'p-teacher-home') {
+          const hb = document.querySelector('.tab-btn[data-page="p-home"]');
+          if (hb) hb.click();
+        }
       }
+
+      /* 视角切换：教师导航的下拉项、教师工作台的两个按钮，走同一套逻辑。
+         为什么教师能"看"学生端却不算越权：这里只切界面作用域，不降身份；
+         学生端里受权限控制的东西（教师后台卡、班级统计 tab）仍按 __ibankIsAdmin 判定。 */
+      function bindScopeSwitches() {
+        function toStudent() {
+          if (window.__ibankIsAdmin !== true) return;
+          previewStudent = true;
+          applyScope(true);
+          const hb = document.querySelector('.tab-btn[data-page="p-home"]');
+          if (hb) hb.click();
+        }
+        document.querySelectorAll('[data-view="student"]').forEach(function (b) {
+          b.addEventListener('click', toStudent);
+        });
+        const pv = document.getElementById('th-preview-student');
+        if (pv) pv.addEventListener('click', toStudent);
+        const back = document.getElementById('th-back-teacher');
+        if (back) back.addEventListener('click', function () {
+          if (window.__ibankIsAdmin !== true) return;
+          previewStudent = false;
+          applyScope(true);
+          const tb = document.querySelector('#nav-teacher-menu .tab-btn[data-page="p-teacher-home"]');
+          if (tb) tb.click();
+        });
+      }
+      bindScopeSwitches();
 
       async function getUserId() {
         if (OFFLINE) return 'offline-demo';
@@ -153,6 +215,12 @@
         roleEl.textContent = isT ? '教师' : '学生';
         roleEl.className = isT ? 'teacher' : '';
         navClass.style.display = (role === 'student') ? '' : 'none';
+        // v132：教师工作台身份卡。教师端没有班级下拉（四个班统一管理），
+        //   所以这里不再查一次库，直接用已知信息 + 兜底文案，避免多一次网络往返。
+        const thRole = document.getElementById('th-role-line');
+        if (thRole) thRole.textContent = '教师' + (prof.name ? ' · ' + prof.name : '');
+        const thCls = document.getElementById('th-class-line');
+        if (thCls) thCls.textContent = (navClass && navClass.value) ? navClass.value : '四个教学班（总版统一管理）';
         showMsg('', '');
         if (isT) { loadRealStats(); loadEventStats(); checkEventsTable(true); }
         track('login', {});

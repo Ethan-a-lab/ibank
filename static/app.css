@@ -1464,7 +1464,9 @@
       padding-bottom: 10px; }
     body.dark:not(.light) .hero2 h1 .grad {
       background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 9' preserveAspectRatio='none'%3E%3Cpath d='M2 6 C 30 2, 62 8, 100 5 S 168 3, 198 6' fill='none' stroke='%23818cf8' stroke-width='3.5' stroke-linecap='round'/%3E%3C/svg%3E"); }
-    .hero2-desc { color: var(--muted); font-size: 15px; margin-top: 14px; max-width: 520px; line-height: 1.85; }
+    /* v132：教师工作台复用同款描述样式，但保留独立类名 ——
+       历史验收脚本用 .hero2-desc 无 .first() 取值，类名共用会撞成 strict mode violation。 */
+    .hero2-desc, .th-hero-desc { color: var(--muted); font-size: 15px; margin-top: 14px; max-width: 520px; line-height: 1.85; }
     .hero2-actions { display: flex; gap: 12px; margin-top: 26px; flex-wrap: wrap; }
     .hbtn { height: 44px; padding: 0 22px; border-radius: 11px; font-size: 14.5px; font-weight: 600; cursor: pointer; transition: 0.2s; border: 1px solid transparent; }
     /* unslop v117：主按钮去渐变与彩色投影，改实色墨蓝 + 中性阴影 */
@@ -3486,3 +3488,72 @@ body.dark .pjv-ask { background: rgba(34, 211, 238, .09); }
 }
 body.dark .forum-cls { background: rgba(34, 211, 238, .12); }
 body.dark .forum-role { background: rgba(129, 140, 248, .18); }
+
+/* ===================================================================
+   v132 · 双端界面（学生端 / 教师端）
+   评审意见「加界面登录（学生端、教师端）」的样式层。
+   规则只有一条：两套导航按 [data-scope] 互斥显示，其余样式全部复用既有组件。
+   =================================================================== */
+
+/* [hidden] 的 UA display:none 会被 .nav-menu 的 display:flex 压过，
+   所以作用域容器必须显式兜一层 —— 否则教师端上屏时，学生端导航还挂在上面。 */
+[data-scope][hidden] { display: none !important; }
+
+/* 教师菜单：与 #nav-menu 同款，靠 .nav-menu 的 margin-left:auto 自动贴右 */
+#nav-teacher-menu { margin-left: auto; }
+
+/* 视角切换项：结构与下拉项一致，但**不带 .tab-btn**。
+   原因：.tab-btn 会被 app-core.js 的页签循环接管，点了会先清掉所有 active 再落页，
+   而它不是页面切换 —— 混进去就是"点了导航全灭、页面没动"。 */
+.nav-dropdown .dd-view-btn {
+  display: flex; flex-direction: column; align-items: flex-start; gap: 2px;
+  width: 100%; text-align: left; border: 0; border-radius: 10px; background: none;
+  padding: 9px 12px; font-size: 13.5px; line-height: 1.35; white-space: normal;
+  font-family: inherit; color: var(--text); cursor: pointer;
+}
+.nav-dropdown .dd-view-btn:hover { background: rgba(99, 102, 241, 0.08); }
+
+/* 学生视角预览条：吸底悬浮，不压导航、不挡右下角助手 */
+#th-preview-bar[hidden] { display: none !important; }
+#th-preview-bar {
+  position: fixed; left: 50%; bottom: 22px; transform: translateX(-50%);
+  z-index: 90; display: flex; align-items: center; gap: 14px;
+  max-width: min(92vw, 720px);
+  padding: 11px 14px 11px 18px; border-radius: 999px;
+  background: #1c2340; color: #eef1f8; font-size: 13px; line-height: 1.5;
+  box-shadow: 0 12px 34px rgba(15, 23, 42, 0.28);
+}
+#th-preview-bar b { color: #fff; }
+#th-back-teacher {
+  flex: 0 0 auto; border: 0; border-radius: 999px; cursor: pointer;
+  padding: 7px 14px; font-size: 12.5px; font-weight: 600; font-family: inherit;
+  background: #fff; color: #1c2340;
+}
+body.dark:not(.light) #th-preview-bar { background: #eef1f8; color: #1c2340; }
+body.dark:not(.light) #th-preview-bar b { color: #10162b; }
+
+/* 教师工作台身份卡：三行键值 + 一条口径说明 */
+.th-identity { display: flex; flex-direction: column; gap: 9px; }
+.th-id-row { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; font-size: 12.5px; }
+.th-id-row span { color: var(--muted); }
+.th-id-row b { color: var(--text); font-size: 13px; }
+.th-id-tip {
+  margin-top: 4px; padding-top: 9px; border-top: 1px dashed var(--panel-border);
+  font-size: 11.5px; line-height: 1.65; color: var(--muted);
+}
+
+/* 教师菜单的一级分组：与 .nav-group 同构，但**不复用类名**。
+   原因：accept_v131 用全局 `.nav-group` 计数断言「学生端仍是 5 个一级分组」，
+   教师菜单若也叫 .nav-group，数字会变成 7 —— 那不是学生端变了，是分母混了。
+   这里把 open / dd-right / 箭头旋转 / 深色态补齐，其余（.nav-dropdown 本体）由通用规则提供。 */
+.nav-group-x { position: relative; flex: 0 0 auto; }
+.nav-group-x.open .nav-trigger { color: var(--text); background: rgba(15, 23, 42, 0.06); }
+.nav-group-x.open .nav-caret { transform: rotate(180deg); }
+.nav-group-x.open .nav-dropdown { display: flex; transform: translateX(-50%) translateY(0); }
+.nav-group-x.dd-right .nav-dropdown { left: auto; right: 0; transform: translateY(-6px); }
+.nav-group-x.dd-right.open .nav-dropdown { transform: translateY(0); }
+body.dark:not(.light) .nav-group-x.open .nav-trigger { color: #e7eaf3; background: rgba(255, 255, 255, 0.07); }
+
+@media (max-width: 900px) {
+  #nav-teacher-menu { flex-wrap: wrap; }
+}

@@ -15,7 +15,7 @@
  * 注意：Service Worker 只在 https 或 localhost 下生效；双击 file:// 打开时注册会被跳过。
  */
 
-const CACHE_VERSION = 'ibank-v17';   // v116：bond-core/bond.css/eval-core/eval.css 补进网络优先与预缓存（原先 cache-first，改版后老用户会卡在旧 JS）
+const CACHE_VERSION = 'ibank-v18';   // v132：双端界面改了 index/app.css/app-core/app-auth，老用户必须拿到新导航，否则教师看不到教师端
 const CACHE_NAME = `ibank-shell-${CACHE_VERSION}`;
 
 /* ★总开关：想把 PWA 停掉，只把这个 true 改成 false，然后推送一次。

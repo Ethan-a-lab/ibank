@@ -53,6 +53,19 @@
         const t = b.getAttribute('data-goto');
         const btn = document.querySelector('.tab-btn[data-page="' + t + '"]');
         if (btn) btn.click();
+        // v132：教师工作台的卡片可带 data-anchor。切页后展开目标折叠区并滚过去，
+        //   否则「用户与权限」这类藏在 <details> 里的区块，教师点进来看到的还是一屏折叠条。
+        //   setTimeout 让出一次渲染：页签切换是同步加 .active，但目标页高度要等布局完成才准。
+        const anc = b.getAttribute('data-anchor');
+        if (!anc) return;
+        setTimeout(function () {
+          const el = document.getElementById(anc);
+          if (!el) return;
+          const det = el.closest ? el.closest('details') : null;
+          if (det) det.open = true;
+          const box = det || el;
+          if (box.scrollIntoView) box.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }, 180);
       });
     });
 
@@ -63,9 +76,11 @@
     tabs.forEach(function (btn) {
       btn.addEventListener('click', function () {
         const target = btn.getAttribute('data-page');
-        // 守卫：仅教师/管理员可进后台统计。原来直接 return，点了毫无反应；现在要说明原因，
+        // v132：防御。若将来有非页面切换的按钮误挂 .tab-btn，不能让 getElementById(null) 崩掉整个循环。
+        if (!target) return;
+        // 守卫：仅教师/管理员可进后台统计与教师工作台。原来直接 return，点了毫无反应；现在要说明原因，
         // 否则学生点了首页那张卡会以为页面坏了。
-        if (target === 'p-admin' && !window.__ibankIsAdmin) {
+        if ((target === 'p-admin' || target === 'p-teacher-home') && !window.__ibankIsAdmin) {
           ibankToast('教师后台需用教师账号登录，学生账号只能查看本班公开数据');
           return;
         }
@@ -86,7 +101,7 @@
 
     // ===== 分组下拉导航（点击开合，键盘/触屏可用） =====
     (function () {
-      var groups = Array.prototype.slice.call(document.querySelectorAll('.nav-group'));
+      var groups = Array.prototype.slice.call(document.querySelectorAll('.nav-group, .nav-group-x'));
       function closeAll(except) {
         groups.forEach(function (g) {
           if (g === except) return;
@@ -107,7 +122,7 @@
         });
         // 已有面板打开时，鼠标移到其他分组即刻切换
         g.addEventListener('mouseenter', function () {
-          if (!document.querySelector('.nav-group.open')) return;
+          if (!document.querySelector('.nav-group.open, .nav-group-x.open')) return;
           closeAll(g);
           g.classList.add('open');
           trigger.setAttribute('aria-expanded', 'true');
@@ -124,7 +139,7 @@ document.addEventListener('keydown', function (e) {
     return;
         }
     if (e.key !== 'Escape') return;
-        var open = document.querySelector('.nav-group.open');
+        var open = document.querySelector('.nav-group.open, .nav-group-x.open');
      if (!open) return;
         closeAll(null);
       var t = open.querySelector('.nav-trigger');

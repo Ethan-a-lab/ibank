@@ -112,7 +112,10 @@
           <div class="t2">金融学 · 智慧课堂</div>
         </div>
       </div>
-      <div class="nav-menu" id="nav-menu">
+      <!-- v132 双端界面：学生端导航整体挂 data-scope="student"，
+           教师登录后由 app-auth.js 的 applyRole() 整块隐藏，换 #nav-teacher-menu 上屏。
+           挂在容器上而不是逐个按钮上，是为了不改动任何 data-page 口径。 -->
+      <div class="nav-menu" id="nav-menu" data-scope="student">
         <button class="tab-btn active" data-page="p-home">首页</button>
 
         <!-- 玩转投行：原「技能训练」下拉末项升为一级板块；原一级按钮「课程项目」整体下放为本板块首项。
@@ -170,6 +173,33 @@
         </div>
       </div>
 
+      <!-- ===== 教师端导航（v132）：与学生端 #nav-menu 互斥显示 =====
+           为什么不塞进 #nav-menu：学生端「5 组 / 16 项 / 首页 16 卡」是既有对外口径，
+           _private/accept_v130 会逐个比对集合，塞进去会把 16 变成 17。这里独立成容器，
+           两套导航各自完整、互不干扰。 -->
+      <div class="nav-menu nav-menu-teacher" id="nav-teacher-menu" data-scope="teacher" data-i18n-skip hidden>
+        <button class="tab-btn active" data-page="p-teacher-home">教师工作台</button>
+
+        <div class="nav-group-x">
+          <button class="nav-trigger" type="button" aria-expanded="false" aria-haspopup="true">教学过程<svg class="nav-caret" viewBox="0 0 10 10" aria-hidden="true"><path d="M2 3.5L5 6.5L8 3.5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+          <div class="nav-dropdown">
+            <div class="dd-title">教学过程管理</div>
+            <button class="tab-btn" data-page="p-admin"><span class="dd-name">班级学情看板</span><span class="dd-desc">实时注册 · 行为聚合 · 达成率</span></button>
+            <button class="tab-btn" data-page="p-forum"><span class="dd-name">讨论区管理</span><span class="dd-desc">置顶 · 删除 · 按班级查看</span></button>
+          </div>
+        </div>
+
+        <div class="nav-group-x dd-right">
+          <button class="nav-trigger" type="button" aria-expanded="false" aria-haspopup="true">身份<svg class="nav-caret" viewBox="0 0 10 10" aria-hidden="true"><path d="M2 3.5L5 6.5L8 3.5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+          <div class="nav-dropdown">
+            <div class="dd-title">身份与视角</div>
+            <!-- 不带 .tab-btn：它不是页面切换，而是切换整套界面作用域，
+                 混进去会被 app-core.js 的 tab 循环当成 data-page 处理 -->
+            <button class="dd-view-btn" type="button" data-view="student"><span class="dd-name">切到学生视角</span><span class="dd-desc">只读预览学生端界面，随时切回</span></button>
+          </div>
+        </div>
+      </div>
+
       <div class="nav-actions">
       <button id="ibk-lang-btn" type="button" data-i18n-skip title="Switch language / 切换语言"><span id="ibk-lang-txt">EN</span></button>
         <button id="login-top-btn">登录 / 注册</button>
@@ -181,6 +211,13 @@
         <button id="theme-toggle" title="切换深色模式" aria-label="切换深色模式"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A8.5 8.5 0 1 1 11.2 3a6.6 6.6 0 0 0 9.8 9.8z"/></svg></button>
       </div>
     </nav>
+
+    <!-- 学生视角预览提示条（v132）：教师点「切到学生视角」后出现，一键切回。
+         权限不降级 —— 只是换界面，教师仍可随时回到后台，避免"预览完找不回来"。 -->
+    <div id="th-preview-bar" hidden data-i18n-skip>
+      <span>正在以<b>学生视角</b>预览界面；教师权限仍然有效，点右侧按钮即可切回。</span>
+      <button type="button" id="th-back-teacher">返回教师端</button>
+    </div>
 
     <!-- ① 首页 -->
     <section class="page active" id="p-home">
@@ -243,6 +280,52 @@
           <p>每一次答疑、每一道习题、每一场仿真，都在训练面向真实金融问题的专业判断力。</p>
         </div>
         <button class="hbtn cta" data-goto="p-qa">立即体验 AI 答疑</button>
+      </div>
+    </section>
+
+    <!-- ===== 教师工作台（v132 双端界面）=====
+         定位是教师端的「首页」：只放教学管理入口，不放学生学习模块。
+         四张卡全部指向已经跑通的真实功能，不放「即将上线」的空壳 ——
+         评审点进来必须看到数据，而不是占位页。 -->
+    <section class="page" id="p-teacher-home" data-i18n-skip>
+      <div class="hero2 panel">
+        <div class="hero2-left">
+          <div class="eyebrow">教师端 · 教学工作台</div>
+          <h1>教学管理<br><span class="grad">从一个页面开始</span></h1>
+          <p class="th-hero-desc">班级学情、讨论区管理、项目过程与数据导出都收在这里。学生端的 15 个学习模块已从教师界面隐藏 —— 需要核对学生到底看到什么时，点「切到学生视角」随时往返，不必退出登录。</p>
+          <div class="hero2-actions">
+            <button class="hbtn primary" data-goto="p-admin">打开班级学情看板 →</button>
+            <button class="hbtn ghost" id="th-preview-student" type="button">切到学生视角</button>
+          </div>
+          <div class="hero2-stats">
+            <div><strong>4</strong><span>教学管理入口</span></div>
+            <div><strong>2</strong><span>端 · 学生 / 教师</span></div>
+            <div><strong>0</strong><span>教师操作入库</span></div>
+          </div>
+        </div>
+        <div class="hero2-right">
+          <div class="preview-card">
+            <div class="pv-head"><span class="pv-dot"></span><b>身份与数据范围</b><span class="pv-badge">教师端</span></div>
+            <div class="pv-body th-identity">
+              <div class="th-id-row"><span>当前身份</span><b id="th-role-line">教师</b></div>
+              <div class="th-id-row"><span>所教班级</span><b id="th-class-line">四个教学班（总版统一管理）</b></div>
+              <div class="th-id-row"><span>数据口径</span><b>只统计学生行为</b></div>
+              <div class="th-id-tip">教师与管理员在本站的点击、试答、试问不写入统计，所以你在教师端演示时看板数字不会变化 —— 这是设计预期，不是故障。</div>
+            </div>
+            <div class="pv-foot"><span>退出登录后回到未登录的学生视图</span><button type="button" data-goto="p-admin">去后台 →</button></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel" style="margin-top:20px;">
+        <div class="section-title"><span class="bar"></span>教学管理入口</div>
+        <div class="section-sub">四件事：看学情、授权限、盯项目过程、管讨论。每一项都已接通真实数据，点进去直接可用。</div>
+        <div class="home-grid">
+          <div class="home-card" data-goto="p-admin"><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 20V11M11 20V5M17 20v-7"/><path d="M3 20h18"/></svg></div><h4>班级学情看板</h4><p>实时注册、章节掌握度、题型正确率、模块使用占比与五维达成率；每周活跃可按日历圈选区间，全部按真实埋点聚合</p><span class="go">进入 →</span></div>
+          <div class="home-card" data-goto="p-admin" data-anchor="um-fold"><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3"/><path d="M3 20a6 6 0 0 1 12 0"/><path d="M17 11h4M19 9v4"/></svg></div><h4>用户与权限</h4><p>查看已注册师生、按班级与角色筛选；新老师本人注册后，由管理员在此授予教师身份</p><span class="go">进入并展开 →</span></div>
+          <div class="home-card" data-goto="p-admin" data-anchor="pj-bet-body"><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 17l6-6 4 4 8-8"/><path d="M15 7h6v6"/></svg></div><h4>项目过程看板</h4><p>比亚迪三段的押注、三路四栏、三次出价与偏差逐组留痕，可导出 CSV 直接用于课堂讲评与过程性评分</p><span class="go">进入并定位 →</span></div>
+          <div class="home-card" data-goto="p-forum"><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 8h2a2 2 0 0 1 2 2v7l-3-2h-5"/><path d="M3 6a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2H7l-4 3z"/></svg></div><h4>讨论区管理</h4><p>一个总版四个班共用，帖子标明作者班级；教师可置顶与删除，学生端只读自己的可见范围</p><span class="go">进入 →</span></div>
+        </div>
       </div>
     </section>
 
