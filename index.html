@@ -334,22 +334,10 @@
          它要回答的是「学生凭什么能力被判为达标」，不是「这门课怎么组织教学」 -->
     <section class="page" id="p-project">
       <div class="panel">
-        <!-- MBTI 分组入口（v91，2026-11-10 换 OSJJ）：本页顶部的第一屏，先认自己再分组。
-             本站只做入口，题目、计分与结果都在 OSJJ 页，不复制题库、不在本地存结果 -->
-        <div class="pj-mbti">
-          <div class="pj-mbti-main">
-            <span class="pj-mbti-tag">分组前置 · 开课第一周</span>
-            <h3>MBTI 人格测评：先认一下自己，再决定和谁一组</h3>
-            <p>分组前先认一下自己：48 题约 5–10 分钟拿到四个字母，填进下面的问卷，分组按维度自动排。</p>
-            <div class="pj-mbti-meta"><span>48 题精简版</span><span>免登录</span><span>无广告</span><span>结果四字母</span></div>
-          </div>
-          <div class="pj-mbti-side">
-            <a class="pj-mbti-btn" id="pj-mbti-test" href="https://osjj.cn/test/" target="_blank" rel="noopener noreferrer" title="OSJJ 免费人格测试，48 题约 5–10 分钟（新窗口打开）">↗ 开始测试 · OSJJ（48 题）</a>
-            <!-- 信息回收入口（v92）：url 没配就整条隐藏，页面上不放「待配置」半成品 -->
-            <a class="pj-mbti-btn is-ghost" id="pj-mbti-report" href="#" target="_blank" rel="noopener noreferrer" hidden>填四个字母 · 问卷星</a>
-            <span class="pj-mbti-note">测试完全免费、无需注册，测完把四个字母填进下面的问卷即可。</span>
-          </div>
-        </div>
+        <!-- v133（2026-11-23）：原「第三方测评 · 分组入口」卡已整体下线。
+             下线原因两条，与功能好坏无关：一是第三方注册商标 + 站外测评链接，
+             软著交存与说明书截图里出现会被追问权属；二是它采集的是学生性格标签，
+             属敏感个人信息，而分组本可以用自研量表做。历史实现见 git 3ade02d 之前。 -->
 
         <!-- 列表视图：项目卡 -->
         <div class="pj-list" id="pj-list" data-i18n-skip></div>

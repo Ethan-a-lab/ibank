@@ -5867,16 +5867,8 @@ document.addEventListener('keydown', function (e) {
           { key: 'q3a', roles: 'investor',    name: 'C-1 簿记第 1 轮报价',  when: '第二节课 18–33 分钟', who: '仅本组投资者',        desc: '第 6 题选机构身份与资金成本，第 7 题选这轮的报价意图（高于/等于/低于成本），第 8 题在 9 档利率里报价；第 8 题实时统计投屏即簿记行情屏。', url: 'https://v.wjx.cn/vm/Q4IhKQQ.aspx' },
           { key: 'q3b', roles: 'investor',    name: 'C-2 簿记第 2 轮报价',  when: '第二节课 18–33 分钟', who: '仅本组投资者',        desc: '第二轮：报价相对你们的资金成本是高还是低？改价的依据写在第 10 题，理由写在第 12 题。', url: 'https://v.wjx.cn/vm/tTdGGox.aspx' },
           { key: 'q3c', roles: 'investor',    name: 'C-3 簿记第 3 轮报价',  when: '第二节课 18–33 分钟', who: '仅本组投资者',        desc: '最后一轮，报出你能成交的价；三轮的「报价 − 资金成本」会被画成一条折线，零线以下就是报到了自己成本之下。', url: 'https://v.wjx.cn/vm/QL0hvDV.aspx' }
-        ],
-        // MBTI 分组入口（v92，2026-11-10 换 OSJJ）：课程项目页顶部那张卡的两个地址。
-        //   test = 免费测评（OSJJ，48 题免登录无广告，卡片里也有 href 兜底，这里改这里生效）；
-        //   url  = 信息回收问卷（问卷星），**留空则「填四个字母」按钮不出现**——
-        //          与 survey / surveys 同一口径：页面上不放「待配置」半成品。
-        //          问卷发布后把 https://www.wjx.cn/vm/xxxxxxx.aspx 粘到下面 url 即可，不用动 HTML。
-        mbti: {
-          test: 'https://osjj.cn/test/',
-          url: 'https://v.wjx.cn/vm/rwQp7Ei.aspx'   // 问卷星：MBTI 信息回收（2026-11-09 发布，末尾的 # 是问卷星自带的锚点，去掉不影响作答）
-        }
+        ]
+        // v133：原分组入口的 test / url 两个地址一并删除（卡片已下线，留着就是死配置）
       };
       // ---------- v93：问卷按角色分区 ----------
       // 角色在上课 00—03 分钟抽签定完，网页此时已经知道学生是谁，所以能按角色
@@ -5918,11 +5910,6 @@ document.addEventListener('keydown', function (e) {
       // 课堂问卷列表：走函数同前——验收脚本可临时覆盖注入测试数据，不改渲染代码。
       window.__ibankSurveys = function () {
         return Array.isArray(CLASSROOM_LINKS.surveys) ? CLASSROOM_LINKS.surveys : [];
-      };
-      // MBTI 两个地址：验收脚本可临时覆盖注入，不改渲染代码（同上面几个函数的口径）
-      window.__ibankMbti = function () {
-        var m = CLASSROOM_LINKS.mbti || {};
-        return { test: String(m.test || '').trim(), url: String(m.url || '').trim() };
       };
 
       // ---------- 标准答案开关（只作用于「项目实践」板块）----------
@@ -6713,32 +6700,10 @@ document.addEventListener('keydown', function (e) {
         });
       }
 
-      // ---------- MBTI 分组入口的两个按钮（v92） ----------
-      // 卡片本身是静态 HTML，两个地址都从数据层取：改地址只动 CLASSROOM_LINKS.mbti，不用碰 HTML。
-      //   #pj-mbti-test   官方免费测评：配置为空时保留 HTML 里的兜底 href
-      //   #pj-mbti-report 问卷星信息回收：url 为空则整条按钮隐藏，不留「待配置」半成品
-      function bindMbtiCard() {
-        var cfg = (typeof window.__ibankMbti === 'function') ? window.__ibankMbti() : { test: '', url: '' };
-        var elTest = document.getElementById('pj-mbti-test');
-        if (elTest && cfg.test) elTest.setAttribute('href', cfg.test);
-        var elReport = document.getElementById('pj-mbti-report');
-        if (elReport) {
-          if (cfg.url) {
-            elReport.setAttribute('href', cfg.url);
-            elReport.hidden = false;
-          } else {
-            elReport.setAttribute('href', '#');
-            elReport.hidden = true;
-          }
-        }
-      }
-      window.__ibankMbtiBind = bindMbtiCard;   // 验收脚本注入地址后重绑，不改渲染代码
-
       // ---------- 首次进入时渲染 ----------
       var tab = document.querySelector('.tab-btn[data-page="p-project"]');
       if (tab) tab.addEventListener('click', function () { showList(); });
 
-      bindMbtiCard();
       renderChain();
       renderList();
       window.__ibankProjects = PROJECTS;   // 便于后台统计或其他模块引用

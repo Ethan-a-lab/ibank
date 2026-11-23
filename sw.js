@@ -15,7 +15,7 @@
  * 注意：Service Worker 只在 https 或 localhost 下生效；双击 file:// 打开时注册会被跳过。
  */
 
-const CACHE_VERSION = 'ibank-v18';   // v132：双端界面改了 index/app.css/app-core/app-auth，老用户必须拿到新导航，否则教师看不到教师端
+const CACHE_VERSION = 'ibank-v19';   // v133：项目页删除人格测评分组卡（index/app.css/app-core/i18n 四处同步），老用户必须拿到删掉卡片的版本
 const CACHE_NAME = `ibank-shell-${CACHE_VERSION}`;
 
 /* ★总开关：想把 PWA 停掉，只把这个 true 改成 false，然后推送一次。
