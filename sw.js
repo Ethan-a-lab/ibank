@@ -15,7 +15,7 @@
  * 注意：Service Worker 只在 https 或 localhost 下生效；双击 file:// 打开时注册会被跳过。
  */
 
-const CACHE_VERSION = 'ibank-v21';   // v135：讨论区门禁收紧（游客看不到任何帖子，openPost 加守卫），app-forum/index/词典三处同步
+const CACHE_VERSION = 'ibank-v22';   // v135 修正：讨论区门禁的解释只留在页面上，登录框不再复述（app-forum/词典两处）
 const CACHE_NAME = `ibank-shell-${CACHE_VERSION}`;
 
 /* ★总开关：想把 PWA 停掉，只把这个 true 改成 false，然后推送一次。

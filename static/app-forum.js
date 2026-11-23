@@ -208,9 +208,9 @@
        数据库那侧 anon 没有 select 授权（见 db/forum.sql），这里补的是第二道闸，
        顺便给出人能看懂的说明，而不是静默失败。 */
     if (!state.uid) {
-      if (window.__ibankAskLogin) {
-        window.__ibankAskLogin('查看讨论需要登录：讨论区只对已选课的学生开放，帖子与回复不对未登录访客展示。');
-      }
+      /* 不传理由：用户就在讨论区页面上，门禁块已经把「为什么」讲清楚，
+         弹窗再说一遍是重复。这里只需要把登录框打开，别让人点了没反应。 */
+      if (window.__ibankAskLogin) window.__ibankAskLogin();
       return;
     }
     var d = db();
@@ -425,11 +425,12 @@
 
     var gateBtn = $('forum-gate-btn');
     if (gateBtn) gateBtn.addEventListener('click', function () {
-      /* v135：这块按钮的作用是「进讨论区」，理由要跟门禁文案一致。
-         原来沿用发帖/回复那句（"登录后你的发言才记在你名下"），可此时用户还没打算发言，
-         读起来是答非所问。 */
+      /* v135 修正：这里不传登录理由。理由是给「不知道该干什么」的人看的，
+         而用户此刻就站在讨论区页面上，门禁块已经把「为什么」讲清楚了；
+         再在弹窗里复述一遍，等于同一句话出现两次，纯属废话。
+         说明条只留给"页面本身没有解释"的场景（教师入口、会话中途失效）。 */
       if (window.__ibankAskLogin) {
-        window.__ibankAskLogin('查看讨论需要登录：讨论区只对已选课的学生开放，帖子与回复不对未登录访客展示。');
+        window.__ibankAskLogin();
         return;
       }
       var top = $('login-top-btn');
