@@ -32,6 +32,12 @@
       <button id="login-close" class="login-close">×</button>
       <div class="login-logo">iBank</div>
       <div class="login-sub">金融学智慧教学平台</div>
+      <!-- 入口说明条（v134）：从「教师入口」或受控动作（发帖/回复）进来时，
+           这里说明"为什么让你登录"，而不是让人面对一个莫名其妙的登录框。
+           默认 hidden，由 openLogin(reason) 写入文案。
+           位置在登录/注册页签之上：先解释来意，再让人选登录还是注册。 -->
+      <div class="login-ask" id="login-ask" hidden></div>
+
       <div class="login-tabs">
         <button class="active" data-mode="login">登录</button>
         <button data-mode="register">注册</button>
@@ -205,6 +211,7 @@
 
       <div class="nav-actions">
       <button id="ibk-lang-btn" type="button" data-i18n-skip title="Switch language / 切换语言"><span id="ibk-lang-txt">EN</span></button>
+        <button id="teacher-entry-btn" type="button" title="教师账号登录后进入教师端">教师入口</button>
         <button id="login-top-btn">登录 / 注册</button>
         <span id="nav-account" class="hidden">
           <span id="nav-user"><b id="nav-user-name"></b><i id="nav-user-role"></i></span>
@@ -3576,8 +3583,8 @@ body.dark #p-game .mode-panel{
         <div class="section-sub">四个班共用一个讨论区。发帖会标明你所属的班级，跨班也能认出是谁；教师可置顶、锁定与删除。发言请遵守课程规范，就事论事。</div>
 
         <div id="forum-gate" class="forum-gate hidden">
-          <p>登录后才能浏览和参与讨论。</p>
-          <button type="button" id="forum-gate-btn" class="forum-primary">登录 / 注册</button>
+          <p>未登录也能浏览公开讨论；登录后才能发帖、回复，学习记录也会计入班级统计。</p>
+          <button type="button" id="forum-gate-btn" class="forum-primary">登录后参与讨论</button>
         </div>
 
         <div id="forum-compose" class="forum-compose hidden">

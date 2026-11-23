@@ -1163,6 +1163,11 @@
     .login-box { width: 100%; max-width: 400px; background: #fff; border-radius: 18px; padding: 28px 26px; box-shadow: 0 20px 60px rgba(0,0,0,0.25); }
     .login-logo { font-size: 28px; font-weight: 800; text-align: center; color: var(--accent-text); } /* unslop v118: 渐变文字改实色 */
     .login-sub { text-align: center; color: var(--muted); font-size: 13px; margin: 4px 0 18px; }
+    /* v134 入口说明条：从「教师入口」或受控动作进来时解释"为什么让你登录"。
+       [hidden] 显式兜底 —— 本项目踩过 display:flex 压掉 [hidden] 的坑。 */
+    .login-ask { margin: 0 0 14px; padding: 10px 12px; border-radius: 10px; border: 1px solid rgba(99,102,241,.35); background: rgba(99,102,241,.08); color: var(--accent-text); font-size: 12.5px; line-height: 1.7; text-align: left; }
+    .login-ask[hidden] { display: none !important; }
+    body.dark .login-ask { background: rgba(129,140,248,.14); border-color: rgba(129,140,248,.4); }
     .login-tabs, .login-methods { display: flex; gap: 8px; margin-bottom: 14px; }
     .login-tabs button, .login-methods button { flex: 1; height: 38px; border-radius: 10px; border: 1px solid var(--panel-border); background: #f6f7fb; color: var(--muted); font-size: 14px; cursor: pointer; }
     .login-tabs button.active, .login-methods button.active { background: var(--accent-solid); color: #fff; border-color: transparent; }
@@ -1200,6 +1205,11 @@
     #nav-user-role.teacher { background: rgba(99,102,241,.18); color: var(--accent-text); }
     #nav-teacher { height: 34px; padding: 0 12px; border-radius: 999px; border: 1px solid var(--panel-border); background: transparent; color: var(--muted); font-size: 13px; cursor: pointer; white-space: nowrap; }
     #nav-teacher:hover { color: var(--text); border-color: var(--accent); }
+    /* v134 教师入口：比「登录 / 注册」弱一档的次要入口。
+       为什么单独放一颗按钮而不是做第二套登录框：认证只有一套（手机号 + 密码/验证码），
+       两颗按钮打开的是同一个登录框，只是让访客一眼看出"这里有两个端"。 */
+    #teacher-entry-btn { height: 34px; padding: 0 12px; border-radius: 999px; border: 1px solid var(--panel-border); background: transparent; color: var(--muted); font-size: 13px; cursor: pointer; white-space: nowrap; transition: color .18s, border-color .18s; }
+    #teacher-entry-btn:hover { color: var(--text); border-color: var(--accent); }
     #login-top-btn { height: 34px; padding: 0 12px; border-radius: 999px; border: 1px solid var(--accent); background: transparent; color: var(--accent-text); font-size: 13px; cursor: pointer; white-space: nowrap; }
     #login-top-btn:hover { background: var(--accent-solid); color: #fff; border-color: var(--accent-solid); }
 
@@ -1638,7 +1648,7 @@
       .nav-brand .t1 { font-size: 15px; }
       .nav-trigger { padding: 7px 10px; font-size: 13.5px; }
       .nav-menu > .tab-btn { padding: 7px 11px; font-size: 13.5px; }
-      #login-top-btn, #logout-btn { padding: 0 10px; font-size: 12.5px; }
+      #login-top-btn, #logout-btn, #teacher-entry-btn { padding: 0 9px; font-size: 12px; }
       #nav-user-name { max-width: 72px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     }
     @media (max-width: 440px) {
@@ -3395,6 +3405,14 @@ body.dark .pjv-ask { background: rgba(34, 211, 238, .09); }
   padding: 12px 14px; font-size: 12.5px; color: var(--dim);
   background: rgba(120, 120, 140, .07); border: 1px dashed var(--panel-border); border-radius: 12px;
 }
+/* v134：未登录时提示条里的「去登录」按钮 —— 让"登录后才能回复"这句话可被操作，
+   而不是一句读完就只能关掉的灰字。 */
+.forum-ask-login {
+  margin-left: 8px; padding: 3px 10px; border-radius: 999px; font-size: 12px; cursor: pointer;
+  border: 1px solid var(--accent); background: transparent; color: var(--accent-text);
+  font-family: inherit; transition: background .18s, color .18s;
+}
+.forum-ask-login:hover { background: var(--accent-solid); color: #fff; border-color: var(--accent-solid); }
 @media (max-width: 640px) {
   .forum-time { margin-left: 0; }
 }

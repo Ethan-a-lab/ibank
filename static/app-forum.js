@@ -154,7 +154,13 @@
         + '<textarea id="forum-reply-body" rows="3" maxlength="8000" placeholder="写下你的回复…"></textarea>'
         + '<div class="forum-rp-foot"><button type="button" id="forum-reply-btn">回复</button></div>'
         + '</div>'
-      : '<div class="forum-locked-tip">' + (state.uid ? '本帖已锁定，不再接受回复。' : '登录后才能回复。') + '</div>';
+      : '<div class="forum-locked-tip">'
+        + (state.uid
+            ? '本帖已锁定，不再接受回复。'
+            /* v134：未登录不再只给一行灰字（用户看完不知道该干什么），
+               给一个能直接打开登录框的按钮，并说明登录的理由。 */
+            : '登录后才能回复。<button type="button" class="forum-ask-login">去登录</button>')
+        + '</div>';
 
     box.innerHTML = head + body
       + '<div class="forum-rp-head">' + replies.length + ' 条回复</div>'
@@ -197,6 +203,8 @@
     var d = db();
     if (!d) return;
     state.detailId = id;
+    var gateNow = $('forum-gate');
+    if (gateNow) gateNow.classList.add('hidden');
     $('forum-list-wrap').classList.add('hidden');
     $('forum-compose').classList.add('hidden');   // 看帖时收起发帖框，避免误以为是回帖
     $('forum-detail').classList.remove('hidden');
@@ -219,6 +227,8 @@
 
   function backToList() {
     state.detailId = null;
+    var gateBack = $('forum-gate');
+    if (gateBack) gateBack.classList.toggle('hidden', !!state.uid);
     $('forum-detail').classList.add('hidden');
     $('forum-list-wrap').classList.remove('hidden');
     $('forum-compose').classList.toggle('hidden', !state.uid);  // 回列表时按登录态恢复发帖框
@@ -227,7 +237,7 @@
 
   async function submitPost() {
     if (state.busy) return;
-    if (!state.uid) { alert('请先登录后再发帖'); return; }
+    if (!state.uid) { if (window.__ibankAskLogin) window.__ibankAskLogin('发帖需要登录：登录后帖子才会记在你名下。'); else alert('请先登录后再发帖'); return; }
     var ti = $('forum-title'), bo = $('forum-body'), btn = $('forum-submit');
     var title = (ti.value || '').trim();
     var body = (bo.value || '').trim();
@@ -258,7 +268,7 @@
 
   async function submitReply() {
     if (state.busy) return;
-    if (!state.uid) { alert('请先登录后再回复'); return; }
+    if (!state.uid) { if (window.__ibankAskLogin) window.__ibankAskLogin('回复需要登录：登录后你的回复才会记在你名下，也才能收到别人回复的通知。'); else alert('请先登录后再回复'); return; }
     var ta = $('forum-reply-body'), btn = $('forum-reply-btn');
     var body = ta ? (ta.value || '').trim() : '';
     if (!body) { if (ta) ta.focus(); alert('请填写回复内容'); return; }
@@ -308,7 +318,10 @@
   function renderLoginGate() {
     var gate = $('forum-gate');
     var compose = $('forum-compose');
-    if (gate) gate.classList.toggle('hidden', !!state.uid);
+    /* v134：详情页不再顶一块「未登录」提示 —— 帖子就在下面，能看就看，
+       顶上再压一段说明反而显得自相矛盾（原来写的是「登录后才能浏览」）。
+       列表页保留这条提示，因为那里是「要不要参与」的决策点。 */
+    if (gate) gate.classList.toggle('hidden', !!state.uid || !!state.detailId);
     if (compose) compose.classList.toggle('hidden', !state.uid);
     var who = $('forum-who');
     if (who) {
@@ -376,6 +389,12 @@
           }
           return;
         }
+        if (t.closest && t.closest('.forum-ask-login')) {
+          if (window.__ibankAskLogin) {
+            window.__ibankAskLogin('回复需要登录：登录后你的回复才会记在你名下，也才能收到别人回复的通知。');
+          }
+          return;
+        }
         if (t.id === 'forum-reply-btn') { submitReply(); }
       });
       detail.addEventListener('keydown', function (ev) {
@@ -390,6 +409,12 @@
 
     var gateBtn = $('forum-gate-btn');
     if (gateBtn) gateBtn.addEventListener('click', function () {
+      /* v134：统一走 __ibankAskLogin，登录框会带上"为什么让你登录"。
+         原来是点 top 登录按钮（说明条为空），用户只看到一个没有上下文的弹窗。 */
+      if (window.__ibankAskLogin) {
+        window.__ibankAskLogin('发帖和回复需要登录：登录后你的发言才会记在你名下，也才能收到别人回复的通知。');
+        return;
+      }
       var top = $('login-top-btn');
       if (top && !top.classList.contains('hidden')) { top.click(); return; }
       // 已登录态但被拦截（例如匿名身份）：提示重新登录

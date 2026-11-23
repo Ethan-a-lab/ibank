@@ -33,6 +33,8 @@
       const logoutBtn = document.getElementById('logout-btn');
       const loginTopBtn = document.getElementById('login-top-btn');
       const loginClose = document.getElementById('login-close');
+      const teacherEntryBtn = document.getElementById('teacher-entry-btn');
+      const loginAsk = document.getElementById('login-ask');
       const navAccount = document.getElementById('nav-account');
       const navClass = document.getElementById('nav-class');
       const msgEl = document.getElementById('login-msg');
@@ -58,6 +60,30 @@
          实现上只切「作用域容器」的 hidden，不碰任何一个 data-page：
          页面内容全留在 DOM 里，教师切学生视角无需重载，也不改变既有 16 项口径与深链。 */
       let previewStudent = false;
+      /* v134：这次登录是不是从「教师入口」或受控动作进来的。
+         只影响三件事：登录后落到哪一页、登录后若身份不符给什么说明、以及按钮显隐。
+         绝不放宽权限 —— 角色仍然只认 profiles.role。 */
+      let teacherIntent = false;
+
+      /* 打开登录框，并在顶部说明"为什么让你登录"。
+         为什么要有这个函数：原来未登录点发帖只 alert 一句「请先登录后再发帖」，
+         用户点掉提示后什么也不会发生（登录框不会自己冒出来），看起来像坏了。
+         reason 传空串则清掉说明条（普通「登录 / 注册」入口用）。 */
+      function openLogin(reason, isTeacherEntry) {
+        teacherIntent = !!isTeacherEntry;
+        if (loginAsk) {
+          if (reason) {
+            loginAsk.textContent = reason;
+            loginAsk.hidden = false;
+          } else {
+            loginAsk.textContent = '';
+            loginAsk.hidden = true;
+          }
+        }
+        overlay.classList.remove('hidden');
+      }
+      // 给 app-forum.js 等模块用：受控动作被拦时把登录框弹出来，而不是只弹一句 alert
+      window.__ibankAskLogin = function (reason) { openLogin(reason || '', false); };
 
       function applyScope(isAdmin) {
         const asTeacher = isAdmin && !previewStudent;
@@ -104,7 +130,10 @@
         const cur = document.querySelector('.page.active');
         const curId = cur ? cur.id : '';
         const search = location.search;
-        const wantTeacherHome = /[?&]view=teacher/.test(search) && isAdmin;
+        // v134：从「教师入口」进来的教师，登录后直接落工作台 —— 他点那颗按钮就是为了管教学，
+        // 再让他自己找一次工作台没有意义。其余情况（普通登录 / 深链）仍落首页，
+        // 保持 v133 的用户口径：首页不能被顶掉。
+        const wantTeacherHome = (/[?&]view=teacher/.test(search) || teacherIntent) && isAdmin;
         const homeBtn = document.querySelector('#nav-teacher-menu .tab-btn[data-page="p-home"]')
           || document.querySelector('.tab-btn[data-page="p-home"]');
         if (wantTeacherHome) {
@@ -211,6 +240,7 @@
       async function onLoggedIn() {
         overlay.classList.add('hidden');
         loginTopBtn.classList.add('hidden');
+        teacherEntryBtn.classList.add('hidden');
         logoutBtn.classList.remove('hidden');
         const uid = await getUserId();
         currentUid = uid;
@@ -218,6 +248,17 @@
         const role = prof.role;
         const isT = role === 'teacher' || role === 'admin';
         applyRole(role);
+        // v134：从「教师入口」进来但账号还是学生 —— 必须当场说清楚，
+        // 否则用户会以为"教师入口坏了"，其实是权限没授予。
+        // 注意放在 applyRole 之后：applyRole 内部要靠 teacherIntent 决定落到哪一页。
+        if (teacherIntent && !isT && typeof ibankToast === 'function') {
+          ibankToast('当前账号是学生身份，已进入学生端；教师权限需课程管理员在后台授予');
+        }
+        teacherIntent = false;
+        // 登录前在讨论区被拦下的用户，登录后应当直接看到发帖框，不必手动刷新
+        if (window.IBK_FORUM && typeof window.IBK_FORUM.refresh === 'function') {
+          try { window.IBK_FORUM.refresh(); } catch (e) {}
+        }
         navAccount.classList.remove('hidden');
         // 导航栏身份标识：姓名 + 身份徽章（教师登录后一眼确认自己在教师端）
         document.getElementById('nav-user-name').textContent = prof.name || (isT ? '老师' : '同学');
@@ -2788,6 +2829,7 @@ const actSrc = login.length ? login : study.concat(quiz, mod, qa);
           applyRole('student');
           overlay.classList.add('hidden');
           loginTopBtn.classList.remove('hidden');
+          teacherEntryBtn.classList.remove('hidden');
           logoutBtn.classList.add('hidden');
           navAccount.classList.add('hidden');
           return;
@@ -2801,6 +2843,7 @@ const actSrc = login.length ? login : study.concat(quiz, mod, qa);
           applyRole('student');
           overlay.classList.add('hidden');
           loginTopBtn.classList.remove('hidden');
+          teacherEntryBtn.classList.remove('hidden');
           logoutBtn.classList.add('hidden');
           navAccount.classList.add('hidden');
           return;
@@ -2811,6 +2854,7 @@ const actSrc = login.length ? login : study.concat(quiz, mod, qa);
           applyRole('student');
           overlay.classList.add('hidden');
           loginTopBtn.classList.remove('hidden');
+          teacherEntryBtn.classList.remove('hidden');
           logoutBtn.classList.add('hidden');
           navAccount.classList.add('hidden');
         }
@@ -3052,8 +3096,20 @@ const actSrc = login.length ? login : study.concat(quiz, mod, qa);
         } catch (e) { showMsg('注册失败：' + errText(e), 'err'); }
       });
 
-      loginTopBtn.addEventListener('click', function () { overlay.classList.remove('hidden'); });
-      loginClose.addEventListener('click', function () { overlay.classList.add('hidden'); });
+      loginTopBtn.addEventListener('click', function () {
+        // 普通入口：清掉上一次「教师入口」或受控动作留下的说明条与意图
+        openLogin('', false);
+      });
+      /* v134 教师入口：与「登录 / 注册」打开的是同一个登录框（认证只有一套），
+         差别只在说明文案与登录后的落地页。这样既让访客看见"有两个端"，
+         又不引入第二套认证逻辑 —— 两套登录最容易出现一套漏校验。 */
+      teacherEntryBtn.addEventListener('click', function () {
+        openLogin('教师账号登录后直接进入教师端。如果登录后仍停在学生端，说明该账号还没有教师权限，请联系课程管理员在后台授予。', true);
+      });
+      loginClose.addEventListener('click', function () {
+        overlay.classList.add('hidden');
+        teacherIntent = false;   // 关掉就作废，避免下次普通登录被当成教师意图
+      });
 
       navClass.addEventListener('change', async function () {
         const uid = await getUserId();
