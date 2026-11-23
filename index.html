@@ -178,7 +178,10 @@
            _private/accept_v130 会逐个比对集合，塞进去会把 16 变成 17。这里独立成容器，
            两套导航各自完整、互不干扰。 -->
       <div class="nav-menu nav-menu-teacher" id="nav-teacher-menu" data-scope="teacher" data-i18n-skip hidden>
-        <button class="tab-btn active" data-page="p-teacher-home">教师工作台</button>
+        <!-- v133 修正：首页放回教师端导航第一项（教师进站也要先看到首页），工作台降为第二项。
+             登录落地页同步改回首页，见 app-auth.js 的 applyRole()。 -->
+        <button class="tab-btn active" data-page="p-home">首页</button>
+        <button class="tab-btn" data-page="p-teacher-home">教师工作台</button>
 
         <div class="nav-group-x">
           <button class="nav-trigger" type="button" aria-expanded="false" aria-haspopup="true">教学过程<svg class="nav-caret" viewBox="0 0 10 10" aria-hidden="true"><path d="M2 3.5L5 6.5L8 3.5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button>

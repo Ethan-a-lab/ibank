@@ -92,17 +92,27 @@
         }
         // v132：整套导航按身份切换
         applyScope(isAdmin);
-        // 登录落地页：教师直接进工作台（带 ?goto=/?view= 深链时让位给深链），
-        // 学生若停在教师工作台则退回首页 —— 避免退出账号后看到上一位教师的界面。
+        // 登录落地页（v133 修正）：默认停在首页，教师与学生一视同仁。
+        // 为什么改回来：v132 让教师登录直接跳工作台，结果教师端导航里又没有「首页」，
+        // 老师进站就再也回不到首页，只能靠「切到学生视角」绕一圈 —— 用户口径是「首页不能被顶掉」。
+        // 工作台现在就在教师导航第二项，一步可达；需要直接落到工作台的场景用 ?view=teacher。
+        //
+        // ⚠ 只在"确实停在教师工作台"时才点一次首页，不要无条件 click：
+        //   tab 点击会写一条 module 埋点，埋点一变，五维评价面板就从"示例态"切成"真实态"，
+        //   英文态的中文残留会多出 37 个节点（v131 的 70 基线直接涨到 106）。
+        //   访客本来就停在首页，什么都不用做。
         const cur = document.querySelector('.page.active');
         const curId = cur ? cur.id : '';
-        const deep = /[?&](goto|view)=/.test(location.search);
-        if (isAdmin && !deep && (curId === 'p-home' || curId === '')) {
+        const search = location.search;
+        const wantTeacherHome = /[?&]view=teacher/.test(search) && isAdmin;
+        const homeBtn = document.querySelector('#nav-teacher-menu .tab-btn[data-page="p-home"]')
+          || document.querySelector('.tab-btn[data-page="p-home"]');
+        if (wantTeacherHome) {
           const tb = document.querySelector('#nav-teacher-menu .tab-btn[data-page="p-teacher-home"]');
           if (tb) tb.click();
-        } else if (!isAdmin && curId === 'p-teacher-home') {
-          const hb = document.querySelector('.tab-btn[data-page="p-home"]');
-          if (hb) hb.click();
+        } else if (curId === 'p-teacher-home') {
+          // 教师退出/切换账号、或学生误入教师工作台：一律退回首页
+          if (homeBtn) homeBtn.click();
         }
       }
 

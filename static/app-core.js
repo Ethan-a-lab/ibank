@@ -86,7 +86,12 @@
         }
         tabs.forEach(function (b) { b.classList.remove('active'); });
         pages.forEach(function (p) { p.classList.remove('active'); });
-        btn.classList.add('active');
+        // v133：同一个 data-page 可能有两颗按钮（学生端与教师端各一颗「首页」，
+        // 后台 / 讨论区也是两套各一颗）。只给被点的那颗加 active，另一套导航就会
+        // 看起来"一项都没选中"。改成按 data-page 同步高亮。
+        tabs.forEach(function (b) {
+          if (b.getAttribute('data-page') === target) b.classList.add('active');
+        });
         document.getElementById(target).classList.add('active');
         if (target === 'p-wrong' && window.renderWrong) window.renderWrong(); // 进入错题页即渲染/刷新账本（避免首次空白）
         if (target === 'p-profile' && window.__ibankProfileRefresh) window.__ibankProfileRefresh(); // 学情画像按真实数据实时重算
