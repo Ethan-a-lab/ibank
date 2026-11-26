@@ -1848,7 +1848,10 @@ document.addEventListener('keydown', function (e) {
       window.__qa46Voice = function () { return tts.voice ? tts.voice.name : ''; };
 
       // ---------- 渲染消息 ----------
-      var BOT_AV = '<svg viewBox="0 0 48 48" fill="none"><line x1="24" y1="13" x2="24" y2="8" stroke="#fff" stroke-width="2.2" stroke-linecap="round"/><circle cx="24" cy="6.5" r="2.6" fill="#fbbf24"/><rect x="10" y="13" width="28" height="23" rx="10" fill="#fff"/><circle cx="19" cy="23" r="3" fill="#4f46e5"/><circle cx="29" cy="23" r="3" fill="#4f46e5"/><path d="M19 29 Q24 33 29 29" stroke="#4f46e5" stroke-width="2.2" fill="none" stroke-linecap="round"/><rect x="14" y="36" width="20" height="9" rx="4.5" fill="#a5b4fc"/><circle cx="16" cy="27" r="1.8" fill="#fb7185" opacity="0.55"/><circle cx="32" cy="27" r="1.8" fill="#fb7185" opacity="0.55"/></svg>';
+      // v139：消息头像统一为熊猫，与悬浮球（.float-btn）和答疑页 hero（.qa-hero-av）同一张图。
+      // 原来这里是一段机器人 SVG（白色方脸 + 紫色眼睛），是熊猫版上线时漏改的一处，
+      // 导致欢迎卡与每条 AI 回答仍是机器人。改这一处常量即可全局生效。
+      var BOT_AV = '<img class="panda-img" src="static/mascot/panda.png" srcset="static/mascot/panda.png 1x, static/mascot/panda@2x.png 2x" width="30" height="30" alt="" aria-hidden="true" decoding="async">';
       var USER_AV = '<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 5-5.5 8-5.5s6.5 1.5 8 5.5"/></svg>';
       function addRow(who) {
         var row = document.createElement('div');

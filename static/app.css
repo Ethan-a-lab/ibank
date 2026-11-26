@@ -2032,6 +2032,8 @@
       align-items: center; justify-content: center; margin-top: 1px; }
     .qa-row.b .qa-av { background: var(--accent-solid); }
     .qa-row.b .qa-av svg { width: 20px; height: 20px; }
+    /* v139：AI 头像改为熊猫位图，尺寸略小于 30px 容器，与旧机器人 20px 视觉相当 */
+    .qa-row.b .qa-av .panda-img { width: 26px; height: 26px; }
     .qa-row.u .qa-av { background: #64748b; }
     .qa-row.u .qa-av svg { width: 17px; height: 17px; }
     /* v49 修复：气泡与附属区块改为纵向堆叠（原先并排导致被压成竖窄条） */
