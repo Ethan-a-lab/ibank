@@ -30,6 +30,9 @@
   <div id="login-overlay" class="hidden">
     <div class="login-box">
       <button id="login-close" class="login-close">×</button>
+      <!-- v136：内容区单独滚动，关闭按钮留在框上不随内容滚走。
+           原来弹窗自己滚，注册面板一长，右上角那颗 × 会滚出视野，用户只能按 Esc。 -->
+      <div class="login-scroll">
       <div class="login-logo">iBank</div>
       <div class="login-sub">金融学智慧教学平台</div>
       <!-- 入口说明条（v134）：从「教师入口」或受控动作（发帖/回复）进来时，
@@ -68,23 +71,31 @@
       <!-- 注册面板 -->
       <form id="form-register" autocomplete="on" novalidate>
  <div id="panel-register" class="hidden">
-        <div class="reg-guide">
-          <b>注册三步走（重要，请照做）</b>
+        <!-- v136：三步说明改为默认收起。原来它是常驻的三大段（第 3 条尤其长），
+             注册模式下光说明就占了首屏一半，真正要填的输入框被挤到屏幕外。
+             成熟做法是把「遇到问题才需要读」的内容折叠，表单本身占主位。 -->
+        <details class="reg-guide">
+          <summary><span>注册说明 · 为什么要发两次验证码</span><span class="chev" aria-hidden="true">›</span></summary>
           <ol>
             <li><b>手机验证</b>：填手机号 → 点「获取验证码」→ 把收到的码填进验证码框。验证码可能延迟，也记得看手机的<strong>骚扰拦截箱</strong>。</li>
-            <li><b>设密码</b>：8–32 位，必须<strong>同时包含字母和数字</strong>（如 <code>byd2026ok</code>），不需要特殊字符；填入密码框和确认框。</li>
-            <li><b>二次验证</b>：点「注册并登录」后，系统<strong>自动发第二条「改密验证码」</strong>——把这条新码填回验证码框（<strong>替换原来那条</strong>），<strong>再点一次「注册并登录」</strong>才算注册完成。第一次点了没动静不是网站坏了，是在等第二条短信（有时要等约 1 分钟）。</li>
+            <li><b>设密码</b>：8–32 位，必须<strong>同时包含字母和数字</strong>（如 <code>byd2026ok</code>），不需要特殊字符。</li>
+            <li><b>二次验证</b>：点「注册并登录」后系统会自动发第二条「改密验证码」，把新码填回验证码框（<strong>替换原来那条</strong>）再点一次才算完成。第一次点了没动静是在等第二条短信，不是网站坏了（有时需约 1 分钟）。</li>
           </ol>
-          验证码是个人凭证，请勿截图转发。
-        </div>
+          <p class="reg-guide-foot">验证码是个人凭证，请勿截图转发。</p>
+        </details>
         <div class="lfield"><input id="reg-name" type="text" placeholder="姓名（必填）" /></div>
-        <div class="lfield"><input id="reg-student-id" type="text" placeholder="学号（选填）" /></div>
-        <div class="lfield">
-          <select id="reg-class">
-            <option value="">选择班级（选填）</option>
-          </select>
+        <!-- v136：学号与班级都是选填短字段，原本各占一整行（多出 54px 高度），并排只占一行。
+             窄屏（<360px）会退化成上下两行，见 .lrow-2 的媒体查询。 -->
+        <div class="lrow-2">
+          <div class="lfield"><input id="reg-student-id" type="text" placeholder="学号（选填）" /></div>
+          <div class="lfield">
+            <select id="reg-class">
+              <option value="">班级（选填）</option>
+            </select>
+          </div>
         </div>
-        <p class="login-note reg-tip" style="margin-top:2px;margin-bottom:12px;font-size:12px;">学号与班级均为选填，注册后也可在页面顶部修改；二者仅用于学情统计。</p>
+        <!-- v136：原来这里还有一行「学号与班级均为选填…」，与两个输入框的 placeholder 完全重复，
+             占掉两行高度却没说新东西，删掉。选填信息只在 placeholder 里说一次。 -->
         <div class="lfield"><input id="reg-phone" type="tel" placeholder="手机号" /></div>
         <div class="lfield">
           <input id="reg-sms-code" type="text" placeholder="短信验证码" />
@@ -93,12 +104,19 @@
 <div class="lfield"><input id="reg-password" type="password" placeholder="设置密码（8-32位，含字母和数字）" autocomplete="new-password" /></div>
   <div class="lfield"><input id="reg-password2" type="password" placeholder="确认密码" autocomplete="new-password" /></div>
  <button class="lprimary" id="register-btn" type="button">注册并登录</button>
-        <p class="login-note">注册即学生账号；教师身份由课程管理员在后台授予。忘记密码？重走一遍本流程即可用手机验证码重置密码。</p>
-        <p class="privacy-note"><strong>数据与隐私说明：</strong>本平台仅收集<strong>姓名、班级与学习行为数据</strong>（章节学习时长、习题作答正误、模块使用情况），用于课程教学分析与学情反馈，不对外公开、不用于商业用途。<strong>课程结束后</strong>，将对个人身份信息做<strong>匿名化处理</strong>（清除姓名等可识别信息），仅保留汇总统计数据用于教学研究。</p>
+        <p class="login-note">注册即学生账号；教师身份由课程管理员在后台授予。</p>
+        <!-- v136：隐私说明改为折叠。原来常驻近五行小字，是注册面板最占地方的一块。
+             折叠后摘要行仍把「收什么 / 干什么用 / 结课怎么处理」说清，合规明示不依赖点开；
+             要看法条级细节（具体采集项、匿名化范围）再展开。 -->
+        <details class="privacy-note">
+          <summary><span>数据与隐私说明：仅收集姓名、班级与学习行为，用于学情分析，结课后匿名化</span><span class="chev" aria-hidden="true">›</span></summary>
+          <p>本平台仅收集<strong>姓名、班级与学习行为数据</strong>（章节学习时长、习题作答正误、模块使用情况），用于课程教学分析与学情反馈，不对外公开、不用于商业用途。<strong>课程结束后</strong>，将对个人身份信息做<strong>匿名化处理</strong>（清除姓名等可识别信息），仅保留汇总统计数据用于教学研究。</p>
+        </details>
       </div>
     </form>
 
       <div class="login-msg" id="login-msg"></div>
+      </div><!-- /login-scroll -->
     </div>
   </div>
 

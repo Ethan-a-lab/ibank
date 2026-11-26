@@ -15,7 +15,7 @@
  * 注意：Service Worker 只在 https 或 localhost 下生效；双击 file:// 打开时注册会被跳过。
  */
 
-const CACHE_VERSION = 'ibank-v22';   // v135 修正：讨论区门禁的解释只留在页面上，登录框不再复述（app-forum/词典两处）
+const CACHE_VERSION = 'ibank-v23';   // v136 注册面板瘦身：三步说明与隐私说明折叠、去掉重复选填提示、框体限高内容区可滚（index/app.css/词典）
 const CACHE_NAME = `ibank-shell-${CACHE_VERSION}`;
 
 /* ★总开关：想把 PWA 停掉，只把这个 true 改成 false，然后推送一次。

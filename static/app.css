@@ -626,6 +626,10 @@
     .todo-note { font-size: 12.5px; color: var(--dim); line-height: 1.7; background: rgba(99, 102, 241, 0.06); border: 1px dashed rgba(99, 102, 241, 0.3); border-radius: 10px; padding: 10px 12px; }
     #ibank-toast { position: fixed; left: 50%; bottom: 28px; transform: translateX(-50%) translateY(20px); background: var(--panel-solid); color: var(--text); border: 1px solid var(--panel-border); box-shadow: var(--shadow-md); border-radius: 12px; padding: 11px 18px; font-size: 13.5px; z-index: 999; opacity: 0; pointer-events: none; transition: .25s; max-width: 86vw; }
     #ibank-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+    /* v136：登录遮罩开着时不让 toast 压在弹窗上。
+       toast 的 z-index 是 999、遮罩是 200，注册面板一高，底部那条提示会直接盖住「注册并登录」下面的内容。
+       用同级选择器在不改 JS 的前提下让位；登录成功等关键提示都在遮罩关闭之后才发，不受影响。 */
+    #login-overlay:not(.hidden) ~ #ibank-toast { opacity: 0; }
 
     /* ===== 接入说明：SQL 代码块 / 复制按钮 / 表状态自检 ===== */
     .setup-sql pre { margin: 0; background: rgba(15, 23, 42, 0.05); border: 1px solid var(--panel-border); border-radius: 10px; padding: 12px 14px; font-size: 12px; line-height: 1.68; overflow-x: auto; font-family: Consolas, Monaco, 'Courier New', monospace; color: var(--text); white-space: pre; }
@@ -1160,18 +1164,35 @@
     /* ===== 登录/注册 ===== */
     #login-overlay { position: fixed; inset: 0; z-index: 200; background: rgba(15,23,42,0.55); backdrop-filter: blur(6px); display: flex; align-items: center; justify-content: center; padding: 20px; }
     #login-overlay.hidden { display: none; }
-    .login-box { width: 100%; max-width: 400px; background: #fff; border-radius: 18px; padding: 28px 26px; box-shadow: 0 20px 60px rgba(0,0,0,0.25); }
+    /* v136：弹窗永不超出视口，且内容区独立滚动。
+       原来是 flex 居中 + 无最大高度：注册面板一长，上下两端同时被裁掉且顶部滚不到（flex 居中经典溢出 bug）。
+       现在框体限高不滚、内部 .login-scroll 滚，好处是右上角 × 固定不动，不会随内容滚出视野。
+       dvh 是给移动端地址栏收放用的兜底，不支持的浏览器用上一行 vh。 */
+    .login-box { width: 100%; max-width: 400px; max-height: calc(100vh - 40px); max-height: calc(100dvh - 40px); display: flex; flex-direction: column; overflow: hidden; background: #fff; border-radius: 18px; padding: 28px 26px; box-shadow: 0 20px 60px rgba(0,0,0,0.25); }
+    .login-scroll { flex: 1 1 auto; min-height: 0; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; scrollbar-color: rgba(120,130,160,.45) transparent; }
+    .login-scroll::-webkit-scrollbar { width: 8px; }
+    .login-scroll::-webkit-scrollbar-thumb { background: rgba(120,130,160,.4); border-radius: 8px; }
+    .login-scroll::-webkit-scrollbar-track { background: transparent; }
     .login-logo { font-size: 28px; font-weight: 800; text-align: center; color: var(--accent-text); } /* unslop v118: 渐变文字改实色 */
-    .login-sub { text-align: center; color: var(--muted); font-size: 13px; margin: 4px 0 18px; }
+    .login-sub { text-align: center; color: var(--muted); font-size: 13px; margin: 4px 0 14px; }
     /* v134 入口说明条：从「教师入口」或受控动作进来时解释"为什么让你登录"。
        [hidden] 显式兜底 —— 本项目踩过 display:flex 压掉 [hidden] 的坑。 */
     .login-ask { margin: 0 0 14px; padding: 10px 12px; border-radius: 10px; border: 1px solid rgba(99,102,241,.35); background: rgba(99,102,241,.08); color: var(--accent-text); font-size: 12.5px; line-height: 1.7; text-align: left; }
     .login-ask[hidden] { display: none !important; }
     body.dark .login-ask { background: rgba(129,140,248,.14); border-color: rgba(129,140,248,.4); }
-    .login-tabs, .login-methods { display: flex; gap: 8px; margin-bottom: 14px; }
+    .login-tabs, .login-methods { display: flex; gap: 8px; margin-bottom: 12px; }
+    /* v136：登录/注册页签吸顶。内容变长后往下滚，页签仍留在框顶，不用滚回去才能切页；
+       背景必须显式给，否则滚动时表单会从页签下面透出来。 */
+    .login-tabs { position: sticky; top: 0; z-index: 3; background: #fff; }
     .login-tabs button, .login-methods button { flex: 1; height: 38px; border-radius: 10px; border: 1px solid var(--panel-border); background: #f6f7fb; color: var(--muted); font-size: 14px; cursor: pointer; }
     .login-tabs button.active, .login-methods button.active { background: var(--accent-solid); color: #fff; border-color: transparent; }
-    .lfield { margin-bottom: 12px; display: flex; gap: 8px; }
+    .lfield { margin-bottom: 10px; display: flex; gap: 8px; }
+    /* v136：两个短字段并排（学号 / 班级），窄屏退化为上下两行 */
+    .lrow-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .lrow-2 > .lfield { min-width: 0; }
+    /* 原生 <select> 有固有最小宽度（取最长选项），并排时会把格子撑破，必须显式压掉 */
+    .lrow-2 > .lfield select, .lrow-2 > .lfield input { min-width: 0; width: 100%; }
+    @media (max-width: 360px) { .lrow-2 { grid-template-columns: 1fr; gap: 0; } }
     .lfield input, .lfield select { flex: 1; height: 42px; padding: 0 14px; border-radius: 10px; border: 1px solid var(--panel-border); background: #fbfcfe; font-size: 14px; color: #1a2233; outline: none; }
     .lfield input:focus, .lfield select:focus { border-color: var(--accent); }
     .lfield button { height: 42px; padding: 0 14px; border-radius: 10px; border: none; background: #e8f0fe; color: #2563eb; font-size: 13px; cursor: pointer; white-space: nowrap; }
@@ -1186,14 +1207,24 @@
     .login-close { position: absolute; top: 10px; right: 14px; width: 30px; height: 30px; border: none; background: transparent; font-size: 22px; color: var(--muted); cursor: pointer; line-height: 1; }
     .login-close:hover { color: var(--text); }
     .login-box { position: relative; }
-    .login-note { font-size: 12px; color: var(--dim); margin-top: 10px; line-height: 1.5; }
-    .reg-guide { background: #eff6ff; border: 1px solid #cfe1ff; border-radius: 10px; padding: 10px 12px 8px; margin: 0 0 12px; font-size: 12px; line-height: 1.6; color: #1e3a5f; }
-    .reg-guide > b { display: block; margin-bottom: 3px; color: #1d4ed8; }
-    .reg-guide ol { margin: 0; padding-left: 18px; }
-    .reg-guide li { margin: 3px 0; }
+    .login-note { font-size: 11.5px; color: var(--dim); margin-top: 9px; line-height: 1.55; }
+    /* v136：注册说明改为折叠（<details>）。原来常驻三大段，光说明就占掉首屏一半，
+       真正要填的输入框被挤到屏幕外。折叠后 summary 一行点出最反直觉的点（为何发两次码），
+       想看细节再展开；运行时那一步另有 showMsg 明确提示，不依赖这段常驻文字。 */
+    .reg-guide { background: #eff6ff; border: 1px solid #cfe1ff; border-radius: 10px; margin: 0 0 12px; font-size: 11.5px; line-height: 1.65; color: #1e3a5f; }
+    .reg-guide > summary { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 8px 12px; cursor: pointer; list-style: none; font-size: 12px; font-weight: 600; color: #1d4ed8; }
+    .reg-guide > summary::-webkit-details-marker { display: none; }
+    .reg-guide > summary .chev { flex: none; font-size: 15px; line-height: 1; transition: transform .18s ease; }
+    .reg-guide[open] > summary { border-bottom: 1px dashed #cfe1ff; }
+    .reg-guide[open] > summary .chev { transform: rotate(90deg); }
+    .reg-guide ol { margin: 6px 0 0; padding: 0 12px 0 28px; }
+    .reg-guide li { margin: 4px 0; }
     .reg-guide code { background: rgba(29,78,216,0.08); border-radius: 4px; padding: 0 4px; font-family: inherit; }
+    .reg-guide-foot { margin: 6px 12px 9px; color: #64748b; }
     body.dark:not(.light) .reg-guide { background: rgba(37,99,235,0.14); border-color: rgba(96,165,250,0.35); color: #c7d7f0; }
-    body.dark:not(.light) .reg-guide > b { color: #7ab3ff; }
+    body.dark:not(.light) .reg-guide > summary { color: #7ab3ff; }
+    body.dark:not(.light) .reg-guide[open] > summary { border-bottom-color: rgba(96,165,250,0.3); }
+    body.dark:not(.light) .reg-guide-foot { color: #93a8c8; }
     body.dark:not(.light) .reg-guide code { background: rgba(96,165,250,0.15); }
     .class-note { font-size: 11.5px; line-height: 1.65; color: var(--dim); margin: 7px 0 0; padding-left: 9px; border-left: 2px solid var(--panel-border); }
     #nav-account { display: inline-flex; align-items: center; gap: 6px; }
@@ -1460,7 +1491,18 @@
     .stu-tline .tb { flex: 1; max-width: 210px; height: 8px; border-radius: 5px; background: rgba(120,130,160,.16); overflow: hidden; }
     .stu-tline .tb > i { display: block; height: 100%; background: var(--accent-solid); }
     /* ===== 注册页数据与隐私说明 ===== */
-    .privacy-note { font-size: 11.5px; color: var(--muted); line-height: 1.8; margin-top: 10px; padding: 10px 12px; background: #f8fafc; border: 1px solid #eef2f7; border-radius: 10px; text-align: left; }
+    /* v136：由常驻段落改为 <details> 折叠块。摘要行本身承担明示义务（收什么/干什么用/结课怎么处理），
+       正文放法条级细节。默认收起，注册面板因此少占约 4 行。 */
+    .privacy-note { font-size: 11.5px; color: var(--muted); line-height: 1.7; margin-top: 10px; background: #f8fafc; border: 1px solid #eef2f7; border-radius: 10px; text-align: left; overflow: hidden; }
+    .privacy-note > summary { display: flex; align-items: flex-start; gap: 8px; padding: 8px 12px; cursor: pointer; list-style: none; color: var(--dim); }
+    .privacy-note > summary > span:first-child { flex: 1 1 auto; min-width: 0; }
+    .privacy-note > summary::-webkit-details-marker { display: none; }
+    .privacy-note > summary .chev { flex: none; margin-top: 2px; font-size: 14px; line-height: 1; color: var(--muted); transition: transform .18s ease; }
+    .privacy-note[open] > summary { border-bottom: 1px solid #eef2f7; }
+    .privacy-note[open] > summary .chev { transform: rotate(90deg); }
+    .privacy-note > p { margin: 0; padding: 8px 12px 10px; }
+    body.dark:not(.light) .privacy-note { background: rgba(255,255,255,0.03); border-color: rgba(255,255,255,0.08); }
+    body.dark:not(.light) .privacy-note[open] > summary { border-bottom-color: rgba(255,255,255,0.08); }
 
     /* ===== 首页 Hero（左对齐 + 右侧 AI 答疑预览卡） ===== */
     .hero2 { display: grid; grid-template-columns: 1.05fr 0.95fr; gap: 34px; align-items: center; padding: 46px 40px; }
@@ -1597,6 +1639,7 @@
     body.dark:not(.light) .chat-input input, body.dark:not(.light) .trade-qty, body.dark:not(.light) .val-field input { background: rgba(255,255,255,0.06); }
     body.dark:not(.light) .preview-card { box-shadow: 0 18px 50px rgba(0,0,0,0.45); }
     body.dark:not(.light) .login-box { background: #181c32; box-shadow: 0 20px 60px rgba(0,0,0,0.55); }
+    body.dark:not(.light) .login-tabs { background: #181c32; }
     body.dark:not(.light) .login-tabs button, body.dark:not(.light) .login-methods button { background: rgba(255,255,255,0.05); }
     body.dark:not(.light) .lfield input, body.dark:not(.light) .lfield select { background: rgba(255,255,255,0.05); color: #e7eaf3; }
     body.dark:not(.light) .lfield button { background: rgba(99,102,241,0.18); color: #a5b4fc; }
