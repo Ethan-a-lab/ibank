@@ -351,11 +351,11 @@
 
       <div class="panel" style="margin-top:20px;">
         <div class="section-title"><span class="bar"></span>教学管理入口</div>
-        <div class="section-sub">四件事：看学情、授权限、盯项目过程、管讨论。每一项都已接通真实数据，点进去直接可用。</div>
+        <div class="section-sub">四件事：看学情、授权限、盯项目过程、管讨论。数字全部来自学生端埋点，没有演示数据。</div>
         <div class="home-grid">
           <div class="home-card" data-goto="p-admin"><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 20V11M11 20V5M17 20v-7"/><path d="M3 20h18"/></svg></div><h4>班级学情看板</h4><p>实时注册、章节掌握度、题型正确率、模块使用占比与五维达成率；每周活跃可按日历圈选区间，全部按真实埋点聚合</p><span class="go">进入 →</span></div>
           <div class="home-card" data-goto="p-admin" data-anchor="um-fold"><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3"/><path d="M3 20a6 6 0 0 1 12 0"/><path d="M17 11h4M19 9v4"/></svg></div><h4>用户与权限</h4><p>查看已注册师生、按班级与角色筛选；新老师本人注册后，由管理员在此授予教师身份</p><span class="go">进入并展开 →</span></div>
-          <div class="home-card" data-goto="p-admin" data-anchor="pj-bet-body"><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 17l6-6 4 4 8-8"/><path d="M15 7h6v6"/></svg></div><h4>项目过程看板</h4><p>比亚迪三段的押注、三路四栏、三次出价与偏差逐组留痕，可导出 CSV 直接用于课堂讲评与过程性评分</p><span class="go">进入并定位 →</span></div>
+          <div class="home-card" data-goto="p-admin" data-anchor="pj-bench-body"><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 17l6-6 4 4 8-8"/><path d="M15 7h6v6"/></svg></div><h4>项目过程看板</h4><p>比亚迪三次出价与偏差逐人留痕，看的是偏差往哪边偏，可导出 CSV 直接用于课堂讲评与过程性评分</p><span class="go">进入并定位 →</span></div>
           <div class="home-card" data-goto="p-forum"><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 8h2a2 2 0 0 1 2 2v7l-3-2h-5"/><path d="M3 6a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2H7l-4 3z"/></svg></div><h4>讨论区管理</h4><p>一个总版四个班共用，帖子标明作者班级；教师可置顶与删除，学生端只读自己的可见范围</p><span class="go">进入 →</span></div>
         </div>
       </div>
@@ -373,7 +373,7 @@
              ⚠ 这张卡是 v91 用来顶替页头的，删了必须补回页头，否则本页第一屏直接是项目卡、
              页面像没加载完（v133 首版就是这样，被用户当场指出）。 -->
         <div class="section-title"><span class="bar"></span>课程项目 · 贯穿式主项目</div>
-        <div class="section-sub">全学期只做这一个主项目：比亚迪四讲。四次融资、四个环节，从询价定价到簿记建档，学生的每次押注、报价与理由都记在这里，期末按过程性证据评分，不看期末一张卷。</div>
+        <div class="section-sub">全学期只做这一个主项目：比亚迪四讲。四次融资、四个环节，从询价定价到簿记建档，学生的每次报价与理由都记在这里，期末按过程性证据评分，不看期末一张卷。</div>
 
         <!-- 列表视图：项目卡 -->
         <div class="pj-list" id="pj-list" data-i18n-skip></div>
@@ -3723,38 +3723,27 @@ body.dark #p-game .mode-panel{
         </div>
       </div>
 
-      <!-- v63 · 比亚迪项目「小组押注」实时看板：教师不逐组巡查，看这一块就够 -->
-      <div class="admin-panel" style="margin-top:16px;">
-        <h4>比亚迪项目 · 小组押注看板</h4>
-        <div class="sub">学生选路（定增 / H 股配售 / 中票）与组号的真实埋点（type = project）。按组聚合，<b>组内分歧</b>会被单独标出——那正是课堂上需要先点名、让他们谈拢的一组。教师账号不入统计。</div>
-        <div id="pj-bet-body"><div class="um-empty">加载中…</div></div>
-        <div class="setup-actions" style="margin-top:10px;">
-          <button class="copy-sql-btn" id="pj-bet-export-btn" type="button">⬇️ 导出小组押注明细（CSV）</button>
-          <span class="ev-status" id="pj-bet-status"></span>
+      <!-- v137 · 比亚迪项目 · 三次出价与偏差（折叠卡，复用后台既有 .fold-panel 规范）。
+           原来这里是三块独立面板：小组押注 / 三路四栏 / 三次出价，每块都顶着一段口径长文，
+           没数据时整页只剩三句「还没有…」，教师看不出能干什么。
+           查证结果：押注与三路四栏的**学生端入口在 692291d「删除项目」里被删掉了**（本文件与
+           app-core 只剩事件处理器，没有任何生成 data-pj-pick / data-cmp-* 元素的代码），
+           两块面板的数据只会停在旧记录、永远不会新增 —— 已从页面上撤掉（渲染函数与导出逻辑保留，
+           恢复入口后只需把这两块壳贴回来）。现在只留真正有数据的这块。 -->
+      <details class="fold-panel" id="pj-fold-bench">
+        <summary>
+          <span class="fp-t">比亚迪项目 · 三次出价与偏差</span>
+          <span class="fp-sub" id="pj-fold-bench-n">—</span>
+        </summary>
+        <div class="fp-body">
+          <div class="sub">学生在 2002 / 2011 / 2016 三段各先自己定一个价，点「对照现实」之后才看得到真实值（type = project，detail 里 action = bench）。这里要看的不是谁算得准，是<b>偏差的方向</b>：系统性偏高，说明对当年的市场窗口没有感觉；系统性偏低，说明把「发行人急需资金、只能接受低价」当成了常态。教师账号不入统计。</div>
+          <div id="pj-bench-body"><div class="um-empty">加载中…</div></div>
+          <div class="setup-actions" style="margin-top:10px;">
+            <button class="copy-sql-btn" id="pj-bench-export-btn" type="button">⬇️ 导出三次出价（CSV）</button>
+            <span class="ev-status" id="pj-bench-status"></span>
+          </div>
         </div>
-      </div>
-
-      <!-- 第二段「三路四栏」：决策与伦理两维原本只在纸上，这一段填完才采得到 -->
-      <div class="admin-panel" style="margin-top:16px;">
-        <h4>比亚迪项目 · 第二段三路四栏</h4>
-        <div class="sub">学生交上来的《再融资方案对比表》（type = pj_cmp，章节限第 4 章）：到账时间 / 摊薄幅度 / 折价或利率 / 谁审审多久披露什么，再加「谁的利益被牺牲」与一句给对面的致命一问。按组聚合，同一组多次提交以最后一次为准。教师账号不入统计。</div>
-        <div id="pj-cmp-body"><div class="um-empty">加载中…</div></div>
-        <div class="setup-actions" style="margin-top:10px;">
-          <button class="copy-sql-btn" id="pj-cmp-export-btn" type="button">⬇️ 导出三路四栏（CSV）</button>
-          <span class="ev-status" id="pj-cmp-status"></span>
-        </div>
-      </div>
-
-      <!-- 三次出价：学生先定价、再对照现实，这里看的是偏差往哪边偏 -->
-      <div class="admin-panel" style="margin-top:16px;">
-        <h4>比亚迪项目 · 三次出价与偏差</h4>
-        <div class="sub">学生在 2002 / 2011 / 2016 三段各先自己定一个价，点「对照现实」之后才看得到真实值（type = project，detail 里 action = bench）。这里要看的不是谁算得准，是<b>偏差的方向</b>：全班系统性偏高，说明对当年的市场窗口没有感觉；系统性偏低，说明把「发行人急需资金、只能接受低价」当成了常态。教师账号不入统计。</div>
-        <div id="pj-bench-body"><div class="um-empty">加载中…</div></div>
-        <div class="setup-actions" style="margin-top:10px;">
-          <button class="copy-sql-btn" id="pj-bench-export-btn" type="button">⬇️ 导出三次出价（CSV）</button>
-          <span class="ev-status" id="pj-bench-status"></span>
-        </div>
-      </div>
+      </details>
 
       <!-- 教室共用机器换下一组：只清学生留在这台机器上的状态，云端一条不动 -->
       <div class="admin-panel" id="pj-reset-panel" style="margin-top:16px;">

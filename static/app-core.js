@@ -6567,6 +6567,13 @@ document.addEventListener('keydown', function (e) {
             }
             cmpSave(curPid, rs);
             cmpMsg(rs.n ? '已交过 ' + rs.n + ' 次 · 以最后一次为准' : '', '');
+            /* v137：选路就是「押注」。原来这里只写本机（cmpSave），一条 project 记录都不上报，
+               后台「小组押注看板」等的就是 pick 字段。
+               ⚠ 现状：第二段表单的 DOM 在 692291d「删除项目」里被删掉了（本文件只剩事件处理器），
+               所以这条现在不会触发；先把它补齐，将来恢复表单时不用再回头查一遍埋点。 */
+            if (!already && rcode && window.__ibankTrack) {
+              window.__ibankTrack('project', { project: curPid, pick: rcode, group: groupOf(), seat: seatOf() });
+            }
             return;
           }
 
@@ -6694,12 +6701,26 @@ document.addEventListener('keydown', function (e) {
           if (!gi) return;
           var g = setGroup(gi.value);
           if (g !== gi.value) gi.value = g;          // 过滤非数字与超长，光标不跳位
-          var on = root.querySelector('.pj-opt.on[data-pj-pick]');
-          if (g && on && window.__ibankTrack) {
+          /* v137：补报一条，保证「先选路、后填组号」的顺序也能把这一组归到正确编号下。
+             原来只认 .pj-opt.on（旧版选路按钮），而那个元素在 692291d 之后就不存在了，
+             所以这段补报从来没生效过。现在同时认第二段表单的 [data-cmp-route].on ——
+             同样，要等表单恢复后才真有用。 */
+          var pickBtn = root.querySelector('.pj-opt.on[data-pj-pick]');
+          var routeBtn = root.querySelector('[data-cmp-route].on');
+          var onPid = '', onPick = '';
+          if (pickBtn) {                                   // 旧版选路按钮：项目 id 与路径码分两个属性
+            onPid = pickBtn.getAttribute('data-pj-pick');
+            onPick = pickBtn.getAttribute('data-pj-code');
+          } else if (routeBtn) {                           // 第二段表单的选路按钮
+            onPid = elDetail ? elDetail.getAttribute('data-pid') : '';
+            onPick = routeBtn.getAttribute('data-cmp-route');
+          }
+          if (g && onPid && onPick && window.__ibankTrack) {
             window.__ibankTrack('project', {
-              project: on.getAttribute('data-pj-pick'),
-              pick: on.getAttribute('data-pj-code'),
-              group: g
+              project: onPid,
+              pick: onPick,
+              group: g,
+              seat: seatOf()
             });
           }
         });

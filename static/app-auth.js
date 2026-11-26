@@ -1191,6 +1191,16 @@ console.log('%c[iBank 数据自检]', 'font-weight:bold', out);
         return html + '</tbody></table>';
       }
 
+      /* v137：折叠卡标题行的实时条数。
+         没数据时也写「0 人」，教师一眼能分清是"还没人交"还是"这块坏了"。
+         条数是动态数字，进不了词典，所以中英两版在这里就地给——
+         英文态靠 documentElement.lang 判断（i18n.js 切语言时会同步改它）。 */
+      function pjFoldSet(id, zh, en) {
+        var el = document.getElementById(id);
+        if (!el) return;
+        el.textContent = (document.documentElement.lang === 'en') ? en : zh;
+      }
+
       function renderPjBet(list, note) {
         var box = document.getElementById('pj-bet-body');
         if (!box) return;
@@ -1198,8 +1208,11 @@ console.log('%c[iBank 数据自检]', 'font-weight:bold', out);
         pjBetRows = rows;
         var st = document.getElementById('pj-bet-status');
         if (!rows.length) {
-          box.innerHTML = '<div class="um-empty">还没有小组押注记录。需学生账号在「项目式教学 → 比亚迪」页先填组号、选角色，再押一条路；教师账号的操作不入统计。</div>';
-          if (st) st.textContent = note || '';
+          pjFoldSet('pj-fold-bet-n', '0 人押注 · 0 个组', '0 students · 0 groups');
+          box.innerHTML = '<div class="um-empty">还没有押注。等学生在「课程项目 → 比亚迪」填组号、选角色、押完第一条路，这里就会按组汇总。</div>';
+          /* v137：状态行先说「识别到几条押注」，再说云端原始记录数 ——
+             原来只报云端 project 总条数（含出价、阶段推进），教师看到「云端 367 条」却一行数据都没有，会以为这块坏了。 */
+          if (st) st.textContent = '押注 0 条' + (note ? ' · ' + note : '');
           return;
         }
         var cnt = { A: 0, B: 0, C: 0, '?': 0 };
@@ -1212,6 +1225,11 @@ console.log('%c[iBank 数据自检]', 'font-weight:bold', out);
           return groups[k].some(function (r) { return r.pick !== first; });
         });
         var noGroup = (groups[''] || []).length;
+        pjFoldSet('pj-fold-bet-n',
+          rows.length + ' 人押注 · ' + named.length + ' 个组'
+            + (splitG.length ? ' · ' + splitG.length + ' 组有分歧' : ''),
+          rows.length + ' students · ' + named.length + ' groups'
+            + (splitG.length ? ' · ' + splitG.length + ' split' : ''));
         var bar = function (name, n, cls) {
           var pct = Math.round(n / rows.length * 100);
           return '<div class="cb43-bar"><span class="t">' + name + '</span>'
@@ -1254,7 +1272,7 @@ console.log('%c[iBank 数据自检]', 'font-weight:bold', out);
           + '<div class="cb43-note">口径：同一学生改主意以最新一条为准；<b>组内分歧</b>指同一组里出现了两种以上选择 —— 课堂正需要先点这一组，让他们先谈拢再往下走。'
           + '角色按人头算，每组四人各扮一角；抽签抽重了的角色，当堂组内调换后请重新在项目页选一次。'
           + (note ? ' ' + note : '') + '</div>';
-        if (st) st.textContent = note || '';
+        if (st) st.textContent = '押注 ' + rows.length + ' 条' + (note ? ' · ' + note : '');
       }
 
       async function loadPjBet(force) {
@@ -1280,7 +1298,7 @@ console.log('%c[iBank 数据自检]', 'font-weight:bold', out);
         pjBetStamp = Date.now();
         if (!cloud) { renderPjBet(local, '云端读取超时，暂按本机 ' + locN + ' 条统计'); return; }
         var cn = cloud.filter(function (e) { return e && e.type === 'project'; }).length;
-        renderPjBet(cloud.concat(local), '云端 ' + cn + ' 条 · 本机 ' + locN + ' 条 · ' + fmtDate(Date.now()));
+        renderPjBet(cloud.concat(local), '云端 project 记录 ' + cn + ' 条（含出价与阶段推进）· 本机 ' + locN + ' 条 · ' + fmtDate(Date.now()));
       }
 
       function causeExportPjBet() {
@@ -1334,10 +1352,10 @@ console.log('%c[iBank 数据自检]', 'font-weight:bold', out);
         var rows = parseCmpEvents(list);
         pjCmpRows = rows;
         var st = document.getElementById('pj-cmp-status');
-        if (st) st.textContent = note || '';
         if (!rows.length) {
-          box.innerHTML = '<div class="um-empty">还没有交上来的表。需学生账号在「课程项目 → 比亚迪 → 第二段」填完四栏并点提交；'
-            + '教师账号的操作不入统计，离线填写的记录会在联网上报后出现在这里。</div>';
+          pjFoldSet('pj-fold-cmp-n', '0 份', '0 forms');
+          box.innerHTML = '<div class="um-empty">还没有交表。学生在第二段填完四栏并点提交后，这里按组出现。</div>';
+          if (st) st.textContent = '交表 0 条' + (note ? ' · ' + note : '');
           return;
         }
         var byG = {};
@@ -1347,6 +1365,9 @@ console.log('%c[iBank 数据自检]', 'font-weight:bold', out);
         if (byG['']) keys.push('');
         var nEth = rows.filter(function (r) { return r.e; }).length;
         var nAsk = rows.filter(function (r) { return r.q; }).length;
+        pjFoldSet('pj-fold-cmp-n',
+          rows.length + ' 人交表 · ' + keys.filter(function (k) { return k; }).length + ' 个组',
+          rows.length + ' forms · ' + keys.filter(function (k) { return k; }).length + ' groups');
         var kpi = function (k, v, n) {
           return '<div class="cb43-kpi"><span class="k">' + k + '</span><span class="v">' + v + '</span><span class="n">' + n + '</span></div>';
         };
@@ -1371,6 +1392,7 @@ console.log('%c[iBank 数据自检]', 'font-weight:bold', out);
             + (r.q ? '<p class="r-ask"><b>致命一问</b>' + esc(r.q) + '</p>' : '')
             + '</article>';
         });
+        if (st) st.textContent = '交表 ' + rows.length + ' 条' + (note ? ' · ' + note : '');
         html += '</div><div class="cb43-note">口径：同一学生多次提交以最后一次为准；同一组多人交表取最近一次展示，人数另标。'
           + '「伦理维在这一组没有证据」不是差错，是这一组该被点名追问的一句。' + (note ? ' ' + note : '') + '</div>';
         box.innerHTML = html;
@@ -1399,7 +1421,7 @@ console.log('%c[iBank 数据自检]', 'font-weight:bold', out);
         pjCmpStamp = Date.now();
         if (!cloud) { renderPjCmp(local, '云端读取超时，暂按本机 ' + locN + ' 条统计'); return; }
         var cn = cloud.filter(function (e) { return e && e.type === 'pj_cmp'; }).length;
-        renderPjCmp(cloud.concat(local), '云端 ' + cn + ' 条 · 本机 ' + locN + ' 条 · ' + fmtDate(Date.now()));
+        renderPjCmp(cloud.concat(local), '云端 pj_cmp 记录 ' + cn + ' 条 · 本机 ' + locN + ' 条 · ' + fmtDate(Date.now()));
       }
 
       function causeExportPjCmp() {
@@ -1470,11 +1492,10 @@ console.log('%c[iBank 数据自检]', 'font-weight:bold', out);
         var rows = parseBenchEvents(list);
         pjBenchRows = rows;
         var st = document.getElementById('pj-bench-status');
-        if (st) st.textContent = note || '';
         if (!rows.length) {
-          box.innerHTML = '<div class="um-empty">还没有出价记录。需学生账号在「课程项目 → 比亚迪 → 案例背景」里，'
-            + '在 2002 / 2011 / 2016 三段各填一个数并点「对照现实」；教师账号的操作不入统计，'
-            + '离线填写的记录会在联网上报后出现在这里。</div>';
+          pjFoldSet('pj-fold-bench-n', '0 人', '0 students');
+          box.innerHTML = '<div class="um-empty">还没有出价。学生在 2002 / 2011 / 2016 三段各填一个数、点「对照现实」后出现在这里。</div>';
+          if (st) st.textContent = '出价 0 条' + (note ? ' · ' + note : '');
           return;
         }
         var byY = {}, seen = {};
@@ -1484,6 +1505,9 @@ console.log('%c[iBank 数据自检]', 'font-weight:bold', out);
         });
         var nUid = Object.keys(seen).length;
         var nAll = Object.keys(seen).filter(function (k) { return seen[k] >= 3; }).length;
+        pjFoldSet('pj-fold-bench-n',
+          nUid + ' 人 · ' + rows.length + ' 次对照',
+          nUid + ' students · ' + rows.length + ' entries');
         var absAll = rows.map(function (r) { return Math.abs(r.gap); });
         var mAbs = absAll.length ? absAll.reduce(function (a, b) { return a + b; }, 0) / absAll.length : 0;
         var kpi = function (k, v, n) {
@@ -1542,6 +1566,7 @@ console.log('%c[iBank 数据自检]', 'font-weight:bold', out);
         html += '<div class="cb43-note">口径：同一学生在同一段改过多次，以最后一次为准；三段的偏差按各自真实值折算成百分比，所以能直接相加比较。'
           + '<b>怎么用</b>：中位数离现实远、而 ±15% 内的比例又高，说明班里分成两拨——那一拨偏得离谱的，通常是把「发行人缺钱」直接等同于「只能贱卖」。'
           + (note ? ' ' + note : '') + '</div>';
+        if (st) st.textContent = '出价 ' + rows.length + ' 条' + (note ? ' · ' + note : '');
         box.innerHTML = html;
       }
 
@@ -1568,7 +1593,7 @@ console.log('%c[iBank 数据自检]', 'font-weight:bold', out);
         pjBenchStamp = Date.now();
         if (!cloud) { renderPjBench(local, '云端读取超时，暂按本机 ' + locN + ' 条统计'); return; }
         var cn = cloud.filter(function (e) { return e && e.type === 'project'; }).length;
-        renderPjBench(cloud.concat(local), '云端 ' + cn + ' 条 · 本机 ' + locN + ' 条 · ' + fmtDate(Date.now()));
+        renderPjBench(cloud.concat(local), '云端 project 记录 ' + cn + ' 条（含选路与阶段推进）· 本机 ' + locN + ' 条 · ' + fmtDate(Date.now()));
       }
 
       function causeExportPjBench() {
