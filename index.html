@@ -3745,16 +3745,13 @@ body.dark #p-game .mode-panel{
         </div>
       </details>
 
-      <!-- 教室共用机器换下一组：只清学生留在这台机器上的状态，云端一条不动 -->
-      <div class="admin-panel" id="pj-reset-panel" style="margin-top:16px;">
-        <h4>教室机器 · 换下一组</h4>
-        <div class="sub">一台机器轮着用的时候，上一组填的<b>角色、组号、三段出价、第二段四栏</b>都还留在浏览器里，下一组点开就全看见了。这里把它们清干净，让下一个组从空白开始。<b>只清本机</b>——云端已经收上去的记录一条不删，上面几张表不受影响；也<b>不动</b>「清空本机数据」（那个按钮连云端本账号记录一起删，是给教师自己点测后收拾用的，两个别混）。学生用自己手机的，不用管这一栏。</div>
-        <div class="setup-actions" style="margin-top:10px;">
-          <button class="copy-sql-btn" id="pj-reset-btn" type="button">🧹 清空本机：角色 / 组号 / 出价 / 四栏</button>
-          <span class="ev-status" id="pj-reset-status"></span>
-        </div>
-        <p class="tip" id="pj-reset-detail" style="margin:8px 0 0;font-size:12px;color:var(--muted);">首次点击只做统计，不会清；再点一次才生效。</p>
-      </div>
+      <!-- v138 · 教室机器「换下一组」面板已撤下。
+           它清的四个本机键（ibank_project_seat / ibank_project_group /
+           ibank_pj_bench_v1 / ibank_pj_cmp_v1）对应的学生端 UI 在 692291d
+           「删除项目」里一并删掉，不会再产生新数据，面板成了空转。
+           处理与 v137 两块死面板一致：只撤页面容器，PJ_STATE_KEYS 与
+           bindPjReset 全部保留（函数开头 if (!btn) return，容器不在就静默跳过）。
+           将来若恢复学生端入口，把这块 div 贴回来即可接上，不用重写逻辑。 -->
 
       <!-- 问卷星：纸质工作包的线上版。本站只做入口，分析在问卷星后台做 -->
       <div class="admin-panel" id="pj-survey-panel" style="margin-top:16px;" hidden>

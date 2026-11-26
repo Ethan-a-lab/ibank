@@ -15,7 +15,7 @@
  * 注意：Service Worker 只在 https 或 localhost 下生效；双击 file:// 打开时注册会被跳过。
  */
 
-const CACHE_VERSION = 'ibank-v24';   // v137 教师后台：比亚迪三块过程看板改为折叠卡，标题行显示实时条数（index/app.css/app-auth/词典）
+const CACHE_VERSION = 'ibank-v25';   // v138 教师后台：撤下已空转的「教室机器·换下一组」面板（index）
 const CACHE_NAME = `ibank-shell-${CACHE_VERSION}`;
 
 /* ★总开关：想把 PWA 停掉，只把这个 true 改成 false，然后推送一次。
