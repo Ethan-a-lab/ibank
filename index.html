@@ -3668,11 +3668,6 @@ body.dark #p-game .mode-panel{
           <span class="ev-live off" id="ev-live" title="后台看板每 20 秒自动检测数据变化并刷新">○ 实时已暂停</span>
         </div>
       </div>
-      <div style="margin:14px 0 4px;padding:10px 14px;border:1px solid rgba(120,130,160,.25);border-radius:10px;font-size:12px;color:var(--muted);background:rgba(120,130,160,.06);line-height:1.7;">
-        数据说明：学情统计由真实行为埋点实时累计；历史批次数据已做<b>匿名化处理</b>（课程已结束，为保护学生隐私，学生姓名不予留存，仅以「匿名学生」编号还原整体学习画像）。新登录学生将在此基础之上继续累计真实行为。<br />
-        <b>统计范围：仅学生。</b>教师与管理员在本站的操作（含试答、试问）不写入统计，故教师端自行演示时数字不会变化 —— 这是设计预期。
-      </div>
-
       <div class="admin-panel">
         <h4>实时注册数据</h4>
         <div class="sub">平台真实注册情况，实时读取数据库。</div>
@@ -3702,20 +3697,15 @@ body.dark #p-game .mode-panel{
         </div>
       </details>
 
-      <div class="ev-toolbar">
-        <!-- ★v58.7：原「仅统计学生」复选框已移除。教师/管理员的行为不再写入任何存储，
-             该开关失去意义（开着关着都一样），留着反而让人误以为"关掉就会把教师算进来"。
-             改为常显的口径说明条，把「谁被统计、谁不被统计、为什么」讲在明面上。 -->
-        <div class="ev-scope-note" id="ev-scope-note">
-          <span class="esn-i">i</span>
-          <div class="esn-t">
-            <b>统计口径：只统计学生行为。</b>
-            教师与管理员在本站的点击、试答、试问一律<b>不会写入统计</b>（云端与本机都不记录），不会推高下方任何数字；
-            <b>用教师账号演示「作答会被记录」看不到变化，请改用学生账号。</b><br />
-            数字构成 = <b>学期申报基线</b>（本课程 2025-08-28 — 2025-12-11 的既定口径）
-            + <b>学期后的真实新增</b>（学生课下继续使用时实时累加）。
-          </div>
-        </div>
+      <!-- v144 年级筛选：23级 / 24级分开看，四张图与 KPI 一起重算。布局自解释，不再挂说明条。 -->
+      <div class="stat-scope" id="stat-scope" data-i18n-skip>
+        <span class="ss-lb">年级</span>
+        <button type="button" class="ss-btn on" data-ss-grade="all">全部</button>
+        <button type="button" class="ss-btn" data-ss-grade="23">23级</button>
+        <button type="button" class="ss-btn" data-ss-grade="24">24级</button>
+        <span class="ss-sep"></span>
+        <span class="ss-lb">班级</span>
+        <select id="ss-class" class="ss-select" aria-label="Filter by class"><option value="">全部班级</option></select>
       </div>
 
       <div class="admin-kpi-row" id="ev-kpi-row">
@@ -3725,24 +3715,18 @@ body.dark #p-game .mode-panel{
         <div class="admin-kpi"><div class="k">章节学习</div><div class="v">0</div><div class="sub">章节完成次数</div></div>
         <div class="admin-kpi"><div class="k">结课周活跃</div><div class="v">0</div><div class="sub">课程最后一周活跃人数</div></div>
       </div>
-      <!-- v143 两套数据并存的分层看板：申报基线（以前的班）与真实数据（现在的班）
-           并列显示，按班级/年级汇总。整体 data-i18n-skip：展示的是数据看板，
-           新增中文不进词典、不抬英文态残留；不改动上方申报看板任何数字。 -->
-      <details class="cb-box" id="cb-board" data-i18n-skip>
-        <summary>两套数据并存 · 按班级 / 年级汇总</summary>
-      </details>
-      <!-- 统计区间：与上方 KPI 同源同批事件算出，避免"光给数字看不出是哪段时间" -->
+      <!-- 统计区间：与上方 KPI 同源同批事件算出 -->
       <div class="ev-scope" id="ev-scope-range">统计区间：等待数据加载…</div>
       <!-- 一键清本机埋点：本机答题记录会累加进 KPI，答辩前需要回到学期累计口径 -->
       <div class="ev-scope-tools"><button type="button" id="ev-reset-local"
         title="清空本机与云端本账号的学习行为记录，看板回到学期申报口径（不影响网址、账号与其他学生数据）">清空本机数据</button></div>
 
       <div class="ev-grid">
-        <div class="admin-panel"><h4>各章节平均掌握度</h4><div class="sub">按章统计完成学习的学生占比</div><div id="ev-chapter"></div></div>
-        <div class="admin-panel"><h4>各题型平均正确率</h4><div class="sub">按题型统计答题正确率</div><div id="ev-qtype"></div></div>
-        <div class="admin-panel"><h4>学习模块使用占比</h4><div class="sub">各功能模块被打开的频次占比</div><div id="ev-module"></div></div>
-        <div class="admin-panel"><h4>考核构成（教学大纲）</h4><div class="sub">过程性考核 50% · 期末考核 50%（各过程项各 10%）</div><div id="ev-assess"></div></div>
-        <div class="admin-panel ev-right"><h4>每周活跃人数</h4><div class="sub">按周统计活跃学生数（默认展示整个学期）；在下方月历中单击某天定锚点、再单击另一天即可选定区间（支持翻月跨月），按住拖动可在本月内圈选，折线图会按天勾出该区间的活跃走势。</div><div id="ev-week"></div><div class="wk-pick"><div class="wk-hd"><span class="wk-range" id="ev-range">默认按周</span><span class="wk-quick"><button type="button" class="wk-reset" data-quick="all">整学期</button><button type="button" class="wk-reset" data-quick="m0">首月</button><button type="button" class="wk-reset" data-quick="m-1">末月</button><button type="button" class="wk-reset" id="ev-cal-reset">重置</button></span></div><div class="wk-tip">单击某天 → 再单击另一天（可翻月，跨月区间同样生效）即选定自定义区间；按住拖动可在本月内圈选。也可直接用上方快捷按钮。</div><div id="ev-calendar"></div></div></div>
+        <div class="admin-panel"><h4>各章节平均掌握度</h4><div id="ev-chapter"></div></div>
+        <div class="admin-panel"><h4>各题型平均正确率</h4><div id="ev-qtype"></div></div>
+        <div class="admin-panel"><h4>学习模块使用占比</h4><div id="ev-module"></div></div>
+        <div class="admin-panel"><h4>考核构成（教学大纲）</h4><div id="ev-assess"></div></div>
+        <div class="admin-panel ev-right" data-i18n-skip><h4>每周活跃人数</h4><div class="sub">单击某天定锚点，再选另一天定区间</div><div id="ev-week"></div><div class="wk-pick"><div class="wk-hd"><span class="wk-range" id="ev-range">默认按周</span><span class="wk-quick"><button type="button" class="wk-reset" data-quick="all">整学期</button><button type="button" class="wk-reset" data-quick="m0">首月</button><button type="button" class="wk-reset" data-quick="m-1">末月</button><button type="button" class="wk-reset" id="ev-cal-reset">重置</button></span></div><div class="wk-tip">单击某天 → 再单击另一天（可翻月）即选定区间，也可拖动圈选。</div><div id="ev-calendar"></div></div></div>
       </div>
 
       <div class="admin-panel" style="margin-top:16px;">
@@ -3909,8 +3893,6 @@ body.dark #p-game .mode-panel{
   <script src="static/qa-chain.js"></script>
   <!-- 主题讨论伦理量规（专家建议③ · E 维 · v142）：依赖 app-forum 的 state -->
   <script src="static/forum-rubric.js"></script>
-  <!-- v143 两套数据并存的分层看板：依赖 app-auth 暴露的 __ibankCohort 只读接口 -->
-  <script src="static/cohort-board.js"></script>
 
   <!-- 中英双语语言层：字典与运行时分离，补译文只需改 i18n-dict.js -->
   <script src="static/i18n-dict.js"></script>

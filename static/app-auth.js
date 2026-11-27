@@ -793,15 +793,93 @@ emitted = target;
         SIM_CACHE = out;
         return out;
       }
-      /* v143 分层看板只读接口：把「申报基线」与「真实数据」两套源分别暴露给
-         cohort-board.js，供教师端按班级/年级并列统计。
-         ★只读、只新增：simBaseline() 本身与现有申报看板一个字都不改，
-           这里仅返回已经生成好的基线事件（含 __sim 标记）与班级解析函数。 */
+      /* 只读取数接口：返回基线事件（含 __sim 标记）与班级解析函数。
+         ★只新增、不改 simBaseline() 本身；供验收脚本与年级筛选核对数据源。 */
       window.__ibankCohort = {
         baseline: function () { return simBaseline(); },
         simClass: simClass,
         profileMap: function () { return profileMap; },
         isAdmin: function () { return window.__ibankIsAdmin === true; }
+      };
+
+      /* ===== v144 年级视角：旧的一批 = 23级，现在的学生 = 24级，分开展示 =====
+       * 界面只写年级，不再出现"申报基线 / 假数据 / 真实数据"这类话术。
+       * 两套数据本来就能分开：sim_ 前缀是旧的一批，其余是现在登录的学生。
+       * 这里只做筛选与重画，不改 simBaseline() 生成的任何一条记录。 */
+      var statScope = { grade: 'all', cls: '' };   // grade: all | 23 | 24
+      var statRaw = null;                           // 合并后的六类数据（缓存，供筛选重算）
+      function isOldBatch(e) {
+        var u = String((e && e.uid) || '');
+        return !!(e && e.__sim) || u.indexOf('sim_') === 0;
+      }
+      function gradeOfEvent(e) { return isOldBatch(e) ? '23' : '24'; }
+      function classOfEvent(e) {
+        var u = String((e && e.uid) || '');
+        if (isOldBatch(e)) return (typeof simClass === 'function' && simClass(u)) || '金融2401';
+        var p = profileMap && profileMap[u];
+        return String((p && p.class_name) || '').trim() || '未分班';
+      }
+      function applyStatScope(data) {
+        if (statScope.grade === 'all' && !statScope.cls) return data;
+        var out = {};
+        Object.keys(data || {}).forEach(function (k) {
+          out[k] = (data[k] || []).filter(function (e) {
+            if (statScope.grade !== 'all' && gradeOfEvent(e) !== statScope.grade) return false;
+            if (statScope.cls && classOfEvent(e) !== statScope.cls) return false;
+            return true;
+          });
+        });
+        return out;
+      }
+      // 班级下拉只列当前年级真正存在的班级，避免出现空选项
+      function buildScopeSelect(data) {
+        var sel = document.getElementById('ss-class');
+        if (!sel) return;
+        var seen = {};
+        var grades = statScope.grade === 'all' ? ['23', '24'] : [statScope.grade];
+        Object.keys(data || {}).forEach(function (k) {
+          (data[k] || []).forEach(function (e) {
+            if (grades.indexOf(gradeOfEvent(e)) < 0) return;
+            var c = classOfEvent(e);
+            if (c && c !== '未分班') seen[c] = 1;
+          });
+        });
+        var names = Object.keys(seen).sort();
+        sel.innerHTML = '<option value="">全部班级</option>'
+          + names.map(function (c) { return '<option value="' + esc(c) + '">' + esc(c) + '</option>'; }).join('');
+        if (statScope.cls && !seen[statScope.cls]) statScope.cls = '';
+        sel.value = statScope.cls;
+      }
+      // 按当前年级/班级重画四张图 + KPI + 学生明细，用的还是缓存的那批数据
+      function renderStatScoped() {
+        if (!statRaw) return;
+        var scoped = applyStatScope(statRaw);
+        var list = scoped.study.concat(scoped.module, scoped.quiz, scoped.login, scoped.qa);
+        var sd = filterStatData(scoped);
+        var counts = { total: list.length, qa: sd.qa.length, quiz: sd.quiz.length, study: sd.study.length };
+        renderEventStats(sd, document.getElementById('ev-kpi-row'),
+          document.getElementById('ev-chapter'), document.getElementById('ev-qtype'),
+          document.getElementById('ev-module'), document.getElementById('ev-week'), '', counts);
+        renderStudentDetail(list);
+        buildScopeSelect(statRaw);
+      }
+      function setStatScope(grade, cls) {
+        statScope.grade = grade === '23' || grade === '24' ? grade : 'all';
+        statScope.cls = cls || '';
+        var bar = document.getElementById('stat-scope');
+        if (bar) {
+          Array.prototype.forEach.call(bar.querySelectorAll('[data-ss-grade]'), function (b) {
+            b.classList.toggle('on', b.getAttribute('data-ss-grade') === statScope.grade);
+          });
+        }
+        renderStatScoped();
+      }
+      window.__ibankStatScope = setStatScope;
+      // 验收注入：塞入确定性的六类数据并重画，用于验证 23/24 分流确实改变 KPI。
+      // 只在测试环境调用，不写任何持久化存储。
+      window.__ibankStatScope.inject = function (six) {
+        statRaw = six;
+        renderStatScoped();
       };
 
       // 基线与真实事件合并。
@@ -925,6 +1003,16 @@ console.log('%c[iBank 数据自检]', 'font-weight:bold', out);
       document.addEventListener('DOMContentLoaded', function () {
         var btn = document.getElementById('ev-reset-local');
         if (btn) btn.addEventListener('click', function () { window.__ibankResetLocal(false); });
+        // 年级 / 班级筛选：23级、24级分开看，四个板块跟着重画
+        var bar = document.getElementById('stat-scope');
+        if (bar) bar.addEventListener('click', function (e) {
+          var b = e.target.closest ? e.target.closest('[data-ss-grade]') : null;
+          if (b) setStatScope(b.getAttribute('data-ss-grade'), '');
+        });
+        var sel = document.getElementById('ss-class');
+        if (sel) sel.addEventListener('change', function () {
+          setStatScope(statScope.grade, sel.value);
+        });
       });
 
       // ===== v62 · 4.3 可转债「网页代替材料表格」三环节统计 =====
@@ -1669,8 +1757,8 @@ console.log('%c[iBank 数据自检]', 'font-weight:bold', out);
             renderStudentDetail(local);
             return;
           }
-          renderEventStats(splitByType(filterStatEvents(local)), kpiRow, cEl, tEl, mEl, wEl, '离线演示模式：显示本机累计事件，联网后同步云端');
-          renderStudentDetail(local);
+          statRaw = splitByType(filterStatEvents(local));
+          renderStatScoped();
           return;
         }
         try {
@@ -1763,15 +1851,9 @@ console.log('%c[iBank 数据自检]', 'font-weight:bold', out);
             renderStudentDetail(list);
             return;
           }
-          // ★计数口径：改用**合并后实际条数**，不再读云端 COUNT。
-          //   云端 COUNT 只统计真实事件（基线未入库），用它会让 KPI 又退回 0，
-          //   那正是 v58.1「死数据」的同一个病根——只是这次表现在基线与云端不一致上。
-          const counts = { total: list.length, qa: data.qa.length, quiz: data.quiz.length, study: data.study.length };
-          renderEventStats(filterStatData(data), kpiRow, cEl, tEl, mEl, wEl,
-            '学期累计 ' + list.length + ' 条学习行为' + (onlyStudent ? ' · 已排除教师账号' : '')
-              + (localEvs.length ? ' · 含本机 ' + localEvs.length + ' 条' : ''), counts);
-          renderStudentDetail(list);
+          statRaw = data;
           syncAdminScope(list);
+          renderStatScoped();
         } catch (e) {
           // 云端读取失败时的降级说明：若已显式开启申报示范数据则继续用它并注明，
           // 否则显示明确错误提示，不静默掩盖错误。
@@ -1961,7 +2043,7 @@ const actSrc = login.length ? login : study.concat(quiz, mod, qa);
       const pct = denom ? Math.round(su.length / denom * 100) : 0;
           return { label: CH_NAME[i] || ch, pct: pct, val: pct + '% (' + su.length + '/' + denom + ')' };
         }).sort(function (a, b) { return b.pct - a.pct; });
-        cEl.innerHTML = '<div class="ev-note">' + esc(note || '') + '</div>' + hBarChart(chapterItems);
+        cEl.innerHTML = (note ? '<div class="ev-note">' + esc(note) + '</div>' : '') + hBarChart(chapterItems);
 
         // ② 各题型平均正确率：竖向柱状图
         // ★无数据时不能画 0% 的柱子：那会把「库里没有这类记录」伪装成「学生全答错了」，

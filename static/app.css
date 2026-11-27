@@ -1402,7 +1402,18 @@
     .ev-scope-tools button { font: inherit; font-size: 12px; padding: 5px 12px; cursor: pointer;
       color: var(--muted); background: transparent; border: 1px solid rgba(120,130,160,.35); border-radius: 8px; }
     .ev-scope-tools button:hover { color: var(--text); border-color: var(--primary, #2563eb); }
-    /* v143 两套数据并存的分层看板 */
+    /* v144 年级筛选条：选择即重算四张图，无需说明文字 */
+    .stat-scope { display: flex; flex-wrap: wrap; align-items: center; gap: 7px; margin: 4px 0 14px;
+      padding: 10px 14px; background: #fff; border: 1px solid #e5e9f0; border-radius: 12px; }
+    .ss-lb { font-size: 12px; color: var(--muted); margin-right: 2px; }
+    .ss-sep { width: 1px; height: 16px; background: rgba(120,130,160,.3); margin: 0 6px; }
+    .ss-btn { font: inherit; font-size: 12px; padding: 5px 12px; cursor: pointer;
+      color: var(--muted); background: transparent; border: 1px solid rgba(120,130,160,.35); border-radius: 8px; }
+    .ss-btn:hover { color: var(--text); border-color: var(--primary, #2563eb); }
+    .ss-btn.on { color: #fff; background: var(--primary, #2563eb); border-color: var(--primary, #2563eb); }
+    .ss-select { font: inherit; font-size: 12px; padding: 5px 10px; cursor: pointer; min-width: 0;
+      color: var(--text); background: #fff; border: 1px solid rgba(120,130,160,.35); border-radius: 8px; }
+    /* v143 两套数据并存的分层看板（容器已撤，样式留档） */
     .cb-box { margin: 14px 0 4px; border: 1px solid rgba(120,130,160,.25); border-radius: 12px;
       background: rgba(120,130,160,.04); padding: 0 14px; }
     .cb-box > summary { cursor: pointer; padding: 12px 0; font-size: 13.5px; font-weight: 600;
