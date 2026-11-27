@@ -207,6 +207,7 @@
     if (BTN) {
       /* 用 classList 而不是直接赋 className：赋值会把悬浮态的 ibk-floating 冲掉 */
       if (lang === 'en') BTN.classList.add('ibk-en'); else BTN.classList.remove('ibk-en');
+      BTN.setAttribute('aria-checked', (lang === 'en') ? 'true' : 'false');
       BTN.title = (lang === 'en')
         ? 'Switch back to Chinese / 切回中文'
         : 'Switch to English / 切换到英文';
@@ -224,7 +225,50 @@
   }
 
   if (BTN) {
-    BTN.addEventListener('click', function () { setLang(lang === 'en' ? 'zh' : 'en'); });
+    var KNOB = BTN.querySelector('.ls-knob');
+    var dragX = null, dragged = false, suppressClick = false;
+    BTN.setAttribute('aria-checked', (lang === 'en') ? 'true' : 'false');
+
+    BTN.addEventListener('pointerdown', function (e) {
+      if (e.pointerType === 'mouse' && e.button !== 0) return;
+      dragX = e.clientX; dragged = false;
+      try { BTN.setPointerCapture(e.pointerId); } catch (err) {}
+    });
+    BTN.addEventListener('pointermove', function (e) {
+      if (dragX === null) return;
+      var dx = e.clientX - dragX;
+      if (Math.abs(dx) > 5) dragged = true;
+      if (!dragged || !KNOB) return;
+      var r = BTN.getBoundingClientRect();
+      var kw = KNOB.offsetWidth || (r.width - 8) / 2;
+      var base = (lang === 'en') ? kw : 0;
+      var px = Math.max(0, Math.min(kw, base + dx));
+      KNOB.style.transition = 'none';
+      KNOB.style.transform = 'translateX(' + px + 'px)';
+    });
+    function endDrag(e) {
+      if (dragX === null) return;
+      dragX = null;
+      if (!dragged) return;             /* 纯点击交给 click 处理 */
+      suppressClick = true;
+      var r = BTN.getBoundingClientRect();
+      var toEn = (e.clientX > r.left + r.width / 2);
+      if (KNOB) { KNOB.style.transition = ''; KNOB.style.transform = ''; }
+      if ((toEn ? 'en' : 'zh') !== lang) setLang(toEn ? 'en' : 'zh');
+      else refresh();                    /* 落点未变也把旋钮归位 */
+      /* 极端情况下 click 未派发，兜底清除抑制标志，避免吞掉下一次点击 */
+      setTimeout(function () { suppressClick = false; }, 80);
+    }
+    BTN.addEventListener('pointerup', endDrag);
+    BTN.addEventListener('pointercancel', function () {
+      dragX = null;
+      if (KNOB) { KNOB.style.transition = ''; KNOB.style.transform = ''; }
+      refresh();
+    });
+    BTN.addEventListener('click', function () {
+      if (suppressClick) { suppressClick = false; return; }
+      setLang(lang === 'en' ? 'zh' : 'en');
+    });
   }
 
   var mo = new MutationObserver(function (muts) {
@@ -234,7 +278,31 @@
       for (var i = 0; i < ns.length; i++) {
         var n = ns[i];
         if (n.nodeType === 3) trNode(n);
-        else if (n.nodeType === 1 && n !== BTN) walkEl(n);
+        else if (n.nodeType === 1 && n !== BTN) {
+          walkEl(n);
+          /* v147：动态渲染的 input/i 上的 aria-label/title/placeholder 也要翻译。
+             原实现只走 walkEl（文本节点），簿记建档运行时拼出的
+             「第 N 组 · 机构 · 报价」因此永远漏译。doAttrs 只查后代，
+             元素自身的属性需在此单独处理（逻辑与 doAttrs 一致）。 */
+          try {
+            for (var j = 0; j < ATTRS.length; j++) {
+              var av = n.getAttribute(ATTRS[j]);
+              if (!av || !hasChinese(av)) continue;
+              var aen = DICT[av.trim()] || BLOCK[av.trim()];
+              if (aen && aen.indexOf('<') !== 0) {
+                savedAttr.push({ el: n, a: ATTRS[j], v: av });
+                n.setAttribute(ATTRS[j], av.replace(av.trim(), aen));
+              } else {
+                var aph = trPhrase(av);
+                if (aph !== null) {
+                  savedAttr.push({ el: n, a: ATTRS[j], v: av });
+                  n.setAttribute(ATTRS[j], aph);
+                }
+              }
+            }
+            doAttrs(n);
+          } catch (e) {}
+        }
       }
     }
   });

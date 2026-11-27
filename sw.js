@@ -15,7 +15,7 @@
  * 注意：Service Worker 只在 https 或 localhost 下生效；双击 file:// 打开时注册会被跳过。
  */
 
-const CACHE_VERSION = 'ibank-v32';   // v146 标准档去冗余：精简超长 section-sub + 删装饰副标题（index/i18n-dict）
+const CACHE_VERSION = 'ibank-v33';   // v147 双语补齐（16处文本+35处属性）+ 语言开关改左右拖动 switch（index/game/i18n.js/i18n.css/i18n-dict）
 const CACHE_NAME = `ibank-shell-${CACHE_VERSION}`;
 
 /* ★总开关：想把 PWA 停掉，只把这个 true 改成 false，然后推送一次。
