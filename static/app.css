@@ -1706,30 +1706,29 @@
     body.dark:not(.light) .um-empty { color: var(--muted); }
     body.dark:not(.light) .admin-chart-wrap { background: rgba(255,255,255,0.04); border-color: rgba(148,163,184,0.12); }
 
-    /* 窄屏导航（C 方案 · 分层导航带）：品牌与账号独占细顶栏，一级菜单下挂一条通栏导航带。
-       第二行加分隔线 + 淡底色，让它读起来是「顶栏 + 导航带」两个明确层级，而非被挤散的空行。
-       下拉挂到导航栏下方居中。断点按「最坏情况」定：已登录+教师端需 991px，取 1000px 留余量 */
+    /* 窄屏导航：压缩成真正单行（品牌 → 菜单 → 工具），所有按钮可见、无留白。
+       实测 1000/960/900/860px 均单行不溢出（导航高 60px）；更窄时由下方 820px 断点继续收窄。
+       用 flex order 保证 DOM 顺序（品牌/菜单/工具）即视觉顺序，不动任何按钮 id 与 click 行为。 */
     @media (max-width: 1000px) {
-      .navbar { flex-wrap: wrap; row-gap: 0; padding: 7px 16px 0; }
-      .nav-brand { padding-bottom: 7px; }
-      .nav-brand .mini-robot { width: 34px; height: 34px; }
-      .nav-actions { margin-left: auto; padding-bottom: 7px; }
+      .navbar { flex-wrap: nowrap; gap: 10px; padding: 9px 12px; }
+      .nav-brand { order: 1; gap: 8px; }
+      .nav-brand .mini-robot { width: 30px; height: 30px; }
+      .nav-brand .t2 { display: none; }
+      .nav-brand .t1 { font-size: 15px; }
       .nav-menu {
-        order: 3; width: calc(100% + 32px); margin: 0 -16px; min-width: 0;
-        /* 通栏导航带：贴边 + 分隔线 + 淡底色，视觉上独立于顶栏 */
-        padding: 7px 16px;
-        border-top: 1px solid var(--panel-border);
-        background: rgba(15, 23, 42, 0.025);
-        /* safe center：内容放得下时居中，放不下时退回左对齐，避免第一项被裁掉且滚不回来 */
-        justify-content: center;
-        justify-content: safe center;
+        order: 2; flex: 1 1 auto; width: auto; min-width: 0; margin: 0; gap: 0; padding: 0;
+        justify-content: center; justify-content: safe center;
         overflow-x: auto; -ms-overflow-style: none; scrollbar-width: none;
       }
-      body.dark:not(.light) .nav-menu { background: rgba(255, 255, 255, 0.03); }
       .nav-menu::-webkit-scrollbar { display: none; }
-      .nav-group { position: static; }
+      .nav-menu > .tab-btn,
+      .nav-menu > .nav-group > .nav-trigger { padding: 7px 9px; font-size: 13px; }
+      .nav-actions { order: 3; flex: 0 0 auto; gap: 6px; }
+      #teacher-entry-btn, #login-top-btn { padding: 0 9px; font-size: 12px; }
+      /* 单行下顶部 dropdown 相对 nav-group 定位，挂到导航栏下方 */
+      .nav-group { position: relative; }
       .nav-dropdown,
-      .nav-group.dd-right .nav-dropdown { left: 50%; right: auto; top: calc(100% + 4px); transform: translateX(-50%) translateY(-6px); }
+      .nav-group.dd-right .nav-dropdown { left: 50%; right: auto; top: calc(100% + 12px); transform: translateX(-50%) translateY(-6px); }
       .nav-group.open .nav-dropdown,
       .nav-group.dd-right.open .nav-dropdown { transform: translateX(-50%) translateY(0); }
     }
@@ -1752,6 +1751,26 @@
       #nav-user-name { max-width: 72px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     }
     @media (max-width: 440px) {
+      /* 手机端恢复两行：顶栏压缩放品牌+全部工具（含登录/教师入口），菜单独占第二行可横滑。
+         单行在 EN 态按钮变长（Sign in / Sign up）会溢出，故此处退回两行保菜单可见。 */
+      .navbar { flex-wrap: wrap; row-gap: 0; gap: 6px; padding: 8px 8px 0; }
+      .nav-brand { order: 1; gap: 5px; padding-bottom: 6px; }
+      .nav-brand .mini-robot { width: 24px; height: 24px; }
+      .nav-brand .t1 { font-size: 13px; }
+      .nav-actions { order: 2; flex: 0 0 auto; gap: 4px; margin-left: auto; padding-bottom: 6px; }
+      #ibk-lang-btn.lang-switch { width: 50px; height: 26px; }
+      #teacher-entry-btn, #login-top-btn { padding: 0 6px; font-size: 11px; }
+      #theme-toggle { width: 28px; height: 28px; }
+      .nav-menu {
+        order: 3; flex: 1 1 auto; width: calc(100% + 16px); margin: 0 -8px;
+        padding: 6px 8px; border-top: 1px solid var(--panel-border); background: rgba(15, 23, 42, 0.025);
+      }
+      body.dark:not(.light) .nav-menu { background: rgba(255, 255, 255, 0.03); }
+      .nav-group { position: static; }
+      .nav-dropdown,
+      .nav-group.dd-right .nav-dropdown { left: 50%; right: auto; top: calc(100% + 4px); transform: translateX(-50%) translateY(-6px); }
+      .nav-group.open .nav-dropdown,
+      .nav-group.dd-right.open .nav-dropdown { transform: translateX(-50%) translateY(0); }
       #nav-user-role { display: none; }
       #nav-class { max-width: 84px; padding: 0 6px; }
       #logout-btn { padding: 0 8px; font-size: 12px; }
