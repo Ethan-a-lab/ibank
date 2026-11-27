@@ -15,7 +15,7 @@
  * 注意：Service Worker 只在 https 或 localhost 下生效；双击 file:// 打开时注册会被跳过。
  */
 
-const CACHE_VERSION = 'ibank-v31';   // v145 覆盖学生改读真实注册人数 + 年级按 class_name 判断（index/app-auth）
+const CACHE_VERSION = 'ibank-v32';   // v146 标准档去冗余：精简超长 section-sub + 删装饰副标题（index/i18n-dict）
 const CACHE_NAME = `ibank-shell-${CACHE_VERSION}`;
 
 /* ★总开关：想把 PWA 停掉，只把这个 true 改成 false，然后推送一次。
