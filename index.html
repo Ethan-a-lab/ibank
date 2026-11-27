@@ -3725,6 +3725,12 @@ body.dark #p-game .mode-panel{
         <div class="admin-kpi"><div class="k">章节学习</div><div class="v">0</div><div class="sub">章节完成次数</div></div>
         <div class="admin-kpi"><div class="k">结课周活跃</div><div class="v">0</div><div class="sub">课程最后一周活跃人数</div></div>
       </div>
+      <!-- v143 两套数据并存的分层看板：申报基线（以前的班）与真实数据（现在的班）
+           并列显示，按班级/年级汇总。整体 data-i18n-skip：展示的是数据看板，
+           新增中文不进词典、不抬英文态残留；不改动上方申报看板任何数字。 -->
+      <details class="cb-box" id="cb-board" data-i18n-skip>
+        <summary>两套数据并存 · 按班级 / 年级汇总</summary>
+      </details>
       <!-- 统计区间：与上方 KPI 同源同批事件算出，避免"光给数字看不出是哪段时间" -->
       <div class="ev-scope" id="ev-scope-range">统计区间：等待数据加载…</div>
       <!-- 一键清本机埋点：本机答题记录会累加进 KPI，答辩前需要回到学期累计口径 -->
@@ -3903,6 +3909,8 @@ body.dark #p-game .mode-panel{
   <script src="static/qa-chain.js"></script>
   <!-- 主题讨论伦理量规（专家建议③ · E 维 · v142）：依赖 app-forum 的 state -->
   <script src="static/forum-rubric.js"></script>
+  <!-- v143 两套数据并存的分层看板：依赖 app-auth 暴露的 __ibankCohort 只读接口 -->
+  <script src="static/cohort-board.js"></script>
 
   <!-- 中英双语语言层：字典与运行时分离，补译文只需改 i18n-dict.js -->
   <script src="static/i18n-dict.js"></script>

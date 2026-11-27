@@ -1402,6 +1402,43 @@
     .ev-scope-tools button { font: inherit; font-size: 12px; padding: 5px 12px; cursor: pointer;
       color: var(--muted); background: transparent; border: 1px solid rgba(120,130,160,.35); border-radius: 8px; }
     .ev-scope-tools button:hover { color: var(--text); border-color: var(--primary, #2563eb); }
+    /* v143 两套数据并存的分层看板 */
+    .cb-box { margin: 14px 0 4px; border: 1px solid rgba(120,130,160,.25); border-radius: 12px;
+      background: rgba(120,130,160,.04); padding: 0 14px; }
+    .cb-box > summary { cursor: pointer; padding: 12px 0; font-size: 13.5px; font-weight: 600;
+      color: var(--text); list-style: none; }
+    .cb-box > summary::-webkit-details-marker { display: none; }
+    .cb-box > summary::before { content: '▸ '; color: var(--muted); }
+    .cb-box[open] > summary::before { content: '▾ '; }
+    .cb-ctl { display: flex; flex-wrap: wrap; align-items: center; gap: 7px; padding: 4px 0 10px; }
+    .cb-lb { font-size: 12px; color: var(--muted); margin-right: 2px; }
+    .cb-sep { width: 1px; height: 16px; background: rgba(120,130,160,.3); margin: 0 6px; }
+    .cb-btn { font: inherit; font-size: 12px; padding: 5px 11px; cursor: pointer;
+      color: var(--muted); background: transparent; border: 1px solid rgba(120,130,160,.35); border-radius: 8px; }
+    .cb-btn:hover { color: var(--text); border-color: var(--primary, #2563eb); }
+    .cb-btn.on { color: #fff; background: var(--primary, #2563eb); border-color: var(--primary, #2563eb); }
+    .cb-note { font-size: 12px; line-height: 1.7; color: var(--muted); padding: 8px 11px;
+      background: rgba(120,130,160,.06); border-radius: 8px; margin-bottom: 12px; white-space: pre-line; }
+    .cb-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr));
+      gap: 16px; padding-bottom: 14px; }
+    .cb-card { border: 1px solid rgba(120,130,160,.25); border-radius: 11px; background: #fff;
+      padding: 15px 16px; min-width: 0; }
+    .cb-card.cb-sim { border-left: 3px solid #ba7517; }
+    .cb-card.cb-real { border-left: 3px solid #1d9e75; }
+    .cb-card-h { display: flex; align-items: baseline; justify-content: space-between; gap: 8px;
+      margin-bottom: 11px; }
+    .cb-card-h b { font-size: 14px; color: var(--text); }
+    .cb-card-h span { font-size: 11.5px; color: var(--muted); }
+    .cb-kpis { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 12px; }
+    .cb-kpis > div { background: rgba(120,130,160,.06); border-radius: 8px; padding: 8px 6px; text-align: center; }
+    .cb-kpis span { display: block; font-size: 11px; color: var(--muted); }
+    .cb-kpis b { display: block; font-size: 17px; color: var(--text); margin-top: 2px; }
+    .cb-tbl { width: 100%; border-collapse: collapse; font-size: 12px; }
+    .cb-tbl th { text-align: left; font-weight: 500; color: var(--muted); padding: 6px 7px;
+      border-bottom: 1px solid rgba(120,130,160,.25); white-space: nowrap; }
+    .cb-tbl td { padding: 6px 7px; border-bottom: 1px solid rgba(120,130,160,.12); }
+    .cb-tbl td.cb-cls { font-weight: 500; color: var(--text); }
+    .cb-empty { padding: 14px; font-size: 12px; color: var(--muted); }
     /* 图表空态：说明缺什么/为什么/怎么办。刻意不画 0% 柱子——0% 会被读成「学生全答错」 */
     .ev-nodata { padding: 14px 15px; border: 1px dashed rgba(120,130,160,.4);
       border-radius: 10px; background: rgba(120,130,160,.05); font-size: 12px; line-height: 1.75; }

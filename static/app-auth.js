@@ -793,6 +793,17 @@ emitted = target;
         SIM_CACHE = out;
         return out;
       }
+      /* v143 分层看板只读接口：把「申报基线」与「真实数据」两套源分别暴露给
+         cohort-board.js，供教师端按班级/年级并列统计。
+         ★只读、只新增：simBaseline() 本身与现有申报看板一个字都不改，
+           这里仅返回已经生成好的基线事件（含 __sim 标记）与班级解析函数。 */
+      window.__ibankCohort = {
+        baseline: function () { return simBaseline(); },
+        simClass: simClass,
+        profileMap: function () { return profileMap; },
+        isAdmin: function () { return window.__ibankIsAdmin === true; }
+      };
+
       // 基线与真实事件合并。
       // 关键：**不做跨源去重**。基线是「课程统计口径」，真实事件是「逐条原始记录」，
       // 两者性质不同；若按 uid+type+ts 去重，真实记录一旦与基线某条撞上就会被整条丢弃，
