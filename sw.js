@@ -15,7 +15,7 @@
  * 注意：Service Worker 只在 https 或 localhost 下生效；双击 file:// 打开时注册会被跳过。
  */
 
-const CACHE_VERSION = 'ibank-v30';   // v144 年级视角：撤掉独立看板，四板块统一按 23级/24级 + 班级筛选（index/app-auth/app.css）
+const CACHE_VERSION = 'ibank-v31';   // v145 覆盖学生改读真实注册人数 + 年级按 class_name 判断（index/app-auth）
 const CACHE_NAME = `ibank-shell-${CACHE_VERSION}`;
 
 /* ★总开关：想把 PWA 停掉，只把这个 true 改成 false，然后推送一次。

@@ -322,6 +322,8 @@
           set('real-total', list.length);
           setProfileMap(list);   // 供「仅统计学生」与学情明细使用
           renderUserList(list);
+          // 档案映射晚于看板渲染到达时，重画一次让「覆盖学生」从埋点人数刷新为真实注册人数。
+          if (typeof statRaw !== 'undefined' && statRaw && typeof renderStatScoped === 'function') renderStatScoped();
         } catch (e) { console.log('加载实时数据失败', e); }
       }
 
@@ -812,12 +814,37 @@ emitted = target;
         var u = String((e && e.uid) || '');
         return !!(e && e.__sim) || u.indexOf('sim_') === 0;
       }
-      function gradeOfEvent(e) { return isOldBatch(e) ? '23' : '24'; }
+      // 年级从**班级名**读，不看 uid 前缀：金融2303/2304 = 23级，金融2401–2404 = 24级。
+      // 旧的一批（sim_ 假数据）没有真实档案，按用户口径归 23 级。
+      function gradeOfClass(cn) {
+        var m = /(\d{2})\d{2}/.exec(String(cn || ''));
+        return m ? m[1] : '';
+      }
+      function gradeOfEvent(e) {
+        if (isOldBatch(e)) return '23';
+        var u = String((e && e.uid) || '');
+        var p = profileMap && profileMap[u];
+        return gradeOfClass(p && p.class_name) || '24';
+      }
       function classOfEvent(e) {
         var u = String((e && e.uid) || '');
         if (isOldBatch(e)) return (typeof simClass === 'function' && simClass(u)) || '金融2401';
         var p = profileMap && profileMap[u];
         return String((p && p.class_name) || '').trim() || '未分班';
+      }
+      // 覆盖学生 = 该年级/班级的**真实注册人数**（从 profileMap 按 class_name 统计），
+      // 有学习行为的人数另算。24级注册80人却显示3，根因就是把「有行为」当成了「覆盖」。
+      function enrolledCount(grade, cls) {
+        var n = 0, seen = {};
+        Object.keys(profileMap || {}).forEach(function (u) {
+          var p = profileMap[u] || {};
+          var cn = String(p.class_name || '').trim();
+          if (!cn || seen[u]) return;
+          if (grade && grade !== 'all' && gradeOfClass(cn) !== grade) return;
+          if (cls && cn !== cls) return;
+          seen[u] = 1; n++;
+        });
+        return n;
       }
       function applyStatScope(data) {
         if (statScope.grade === 'all' && !statScope.cls) return data;
@@ -856,7 +883,10 @@ emitted = target;
         var scoped = applyStatScope(statRaw);
         var list = scoped.study.concat(scoped.module, scoped.quiz, scoped.login, scoped.qa);
         var sd = filterStatData(scoped);
-        var counts = { total: list.length, qa: sd.qa.length, quiz: sd.quiz.length, study: sd.study.length };
+        // 覆盖学生 = 真实注册人数（按当前年级/班级）；有学习行为的人数另算，两者不再混为一谈。
+        var enrolled = enrolledCount(statScope.grade, statScope.cls);
+        var counts = { total: list.length, qa: sd.qa.length, quiz: sd.quiz.length, study: sd.study.length,
+          enrolled: enrolled, active: null };
         renderEventStats(sd, document.getElementById('ev-kpi-row'),
           document.getElementById('ev-chapter'), document.getElementById('ev-qtype'),
           document.getElementById('ev-module'), document.getElementById('ev-week'), '', counts);
@@ -877,7 +907,8 @@ emitted = target;
       window.__ibankStatScope = setStatScope;
       // 验收注入：塞入确定性的六类数据并重画，用于验证 23/24 分流确实改变 KPI。
       // 只在测试环境调用，不写任何持久化存储。
-      window.__ibankStatScope.inject = function (six) {
+      window.__ibankStatScope.inject = function (six, profiles) {
+        if (profiles) setProfileMap(profiles);
         statRaw = six;
         renderStatScoped();
       };
@@ -2019,8 +2050,11 @@ const actSrc = login.length ? login : study.concat(quiz, mod, qa);
         // 学期外新增（课后补录 / 重开课程）单独计数，如实告知而不混进口径
         const beyondCount = academicTimestamps(study.concat(quiz, qa))
           .filter(v => v < anc.start || v > anc.end).length;
+        // 覆盖学生：优先显示真实注册人数（counts.enrolled），副标题给出有学习行为的人数。
+        // 旧口径只数埋点 uid —— 24级注册80人却显示「3」，把「有人用过」误读成「只有3个人」。
+        var enrolledN = (typeof K.enrolled === 'number') ? K.enrolled : null;
         if (kpiRow) kpiRow.innerHTML =
-          '<div class="admin-kpi"><div class="k">覆盖学生</div><div class="v">' + allUids.length + '</div><div class="sub">有学习行为记录</div></div>'
+          '<div class="admin-kpi"><div class="k">覆盖学生</div><div class="v">' + (enrolledN == null ? allUids.length : enrolledN) + '</div><div class="sub">有学习行为 ' + allUids.length + ' 人</div></div>'
           + '<div class="admin-kpi"><div class="k">AI 问答</div><div class="v">' + num(K.qa, qa.length) + '</div><div class="sub">课程相关问答次数</div></div>'
           + '<div class="admin-kpi"><div class="k">习题作答</div><div class="v">' + num(K.quiz, quiz.length) + '</div><div class="sub">累计完成题数</div></div>'
           + '<div class="admin-kpi"><div class="k">章节学习</div><div class="v">' + num(K.study, study.length) + '</div><div class="sub">章节完成次数</div></div>'
