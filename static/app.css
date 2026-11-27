@@ -60,6 +60,17 @@
       border-bottom: 1px solid var(--panel-border);
       backdrop-filter: blur(16px);
     }
+    /* v151 顶栏背景通栏：内容仍按 1200px 居中，但背景铺满整个视口宽度，
+       左右两端不再露出页面背景光斑（原先左淡紫、右淡灰且宽度不等，显得不对称）。
+       伪元素用不透明色盖住光斑，明暗主题各一档；不改任何布局与按钮位置。 */
+    .navbar::before {
+      content: "";
+      position: absolute; z-index: -1; pointer-events: none;
+      top: 0; bottom: 0; left: 50%; width: 100vw;
+      transform: translateX(-50%);
+      background: #ffffff;
+    }
+    body.dark:not(.light) .navbar::before { background: #0d1020; }
     .nav-brand { display: flex; align-items: center; gap: 12px; flex: 0 0 auto; }
     /* 熊猫以位图（static/mascot/panda.png）嵌入，容器定尺寸、图内 object-fit 兜底 */
     .panda-img { display: block; width: 100%; height: 100%; object-fit: contain; }

@@ -15,7 +15,7 @@
  * 注意：Service Worker 只在 https 或 localhost 下生效；双击 file:// 打开时注册会被跳过。
  */
 
-const CACHE_VERSION = 'ibank-v35';   // v150 窄屏导航压成真正单行（品牌→菜单→工具）+ 440px 手机端两行兜底（app.css）
+const CACHE_VERSION = 'ibank-v36';   // v151 顶栏背景通栏铺满视口，消除左右不对称光斑留白（app.css）
 const CACHE_NAME = `ibank-shell-${CACHE_VERSION}`;
 
 /* ★总开关：想把 PWA 停掉，只把这个 true 改成 false，然后推送一次。
