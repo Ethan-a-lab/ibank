@@ -15,7 +15,7 @@
  * 注意：Service Worker 只在 https 或 localhost 下生效；双击 file:// 打开时注册会被跳过。
  */
 
-const CACHE_VERSION = 'ibank-v36';   // v151 顶栏背景通栏铺满视口，消除左右不对称光斑留白（app.css）
+const CACHE_VERSION = 'ibank-v37';   // v152 宽屏导航三段均分（断点1340）+ CSS/JS 版本化破缓存（app.css/index.html）
 const CACHE_NAME = `ibank-shell-${CACHE_VERSION}`;
 
 /* ★总开关：想把 PWA 停掉，只把这个 true 改成 false，然后推送一次。
@@ -39,12 +39,12 @@ const PRECACHE_URLS = [
   './ibank-game.html',
   './uc.html',
   './manifest.webmanifest',
-  './static/app.css',
+  './static/app.css?v=152',
   './static/app-core.js',
   './static/app-auth.js',
-  './static/i18n.css',
-  './static/i18n-dict.js',
-  './static/i18n.js',
+  './static/i18n.css?v=152',
+  './static/i18n-dict.js?v=152',
+  './static/i18n.js?v=152',
   './static/undercover.css',
   './static/undercover.js',
   './static/timeline.css',

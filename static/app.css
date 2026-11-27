@@ -1717,10 +1717,21 @@
     body.dark:not(.light) .um-empty { color: var(--muted); }
     body.dark:not(.light) .admin-chart-wrap { background: rgba(255,255,255,0.04); border-color: rgba(148,163,184,0.12); }
 
+    /* v152 宽屏三段式：品牌 / 菜单 / 工具三组均分间距。
+       原先 .nav-menu 用 margin-left:auto 把剩余空间全堆在品牌与菜单之间
+       （1548px 下实测 150px），而菜单到工具只有 16px，看上去左边空一块。
+       改成 space-between 后两个间隙相等，整条导航左右观感一致。 */
+    @media (min-width: 1341px) {
+      .navbar { justify-content: space-between; }
+      .nav-menu { margin-left: 0; }
+    }
+
     /* 窄屏导航：压缩成真正单行（品牌 → 菜单 → 工具），所有按钮可见、无留白。
-       实测 1000/960/900/860px 均单行不溢出（导航高 60px）；更窄时由下方 820px 断点继续收窄。
+       v152 断点由 1000px 提到 1340px：英文态 Sign in/Sign up 更长，实测 1300px 仍溢出 8px、
+       1320px 起才不溢出，故留 20px 余量。1340 以下单行导航高 53px，中英文全宽度 0 溢出。
+       440px 以下由下方规则退为两行兜底（品牌/工具一行、菜单一行）。
        用 flex order 保证 DOM 顺序（品牌/菜单/工具）即视觉顺序，不动任何按钮 id 与 click 行为。 */
-    @media (max-width: 1000px) {
+    @media (max-width: 1340px) {
       .navbar { flex-wrap: nowrap; gap: 10px; padding: 9px 12px; }
       .nav-brand { order: 1; gap: 8px; }
       .nav-brand .mini-robot { width: 30px; height: 30px; }
