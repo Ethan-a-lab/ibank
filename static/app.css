@@ -1706,20 +1706,26 @@
     body.dark:not(.light) .um-empty { color: var(--muted); }
     body.dark:not(.light) .admin-chart-wrap { background: rgba(255,255,255,0.04); border-color: rgba(148,163,184,0.12); }
 
-    /* 窄屏导航：品牌与账号一行、一级菜单独占一行，下拉挂到导航栏下方居中
-       （断点 900px 而非 820px：登录态下整条导航单行需要 851px） */
-    /* 断点按「最坏情况」定：已登录+教师端需 991px，取 1000px 留余量 */
+    /* 窄屏导航（C 方案 · 分层导航带）：品牌与账号独占细顶栏，一级菜单下挂一条通栏导航带。
+       第二行加分隔线 + 淡底色，让它读起来是「顶栏 + 导航带」两个明确层级，而非被挤散的空行。
+       下拉挂到导航栏下方居中。断点按「最坏情况」定：已登录+教师端需 991px，取 1000px 留余量 */
     @media (max-width: 1000px) {
-      .navbar { flex-wrap: wrap; row-gap: 6px; padding: 10px 16px; }
-      .nav-brand .mini-robot { width: 36px; height: 36px; }
-      .nav-actions { margin-left: auto; }
+      .navbar { flex-wrap: wrap; row-gap: 0; padding: 7px 16px 0; }
+      .nav-brand { padding-bottom: 7px; }
+      .nav-brand .mini-robot { width: 34px; height: 34px; }
+      .nav-actions { margin-left: auto; padding-bottom: 7px; }
       .nav-menu {
-        order: 3; width: 100%; margin-left: 0; min-width: 0;
+        order: 3; width: calc(100% + 32px); margin: 0 -16px; min-width: 0;
+        /* 通栏导航带：贴边 + 分隔线 + 淡底色，视觉上独立于顶栏 */
+        padding: 7px 16px;
+        border-top: 1px solid var(--panel-border);
+        background: rgba(15, 23, 42, 0.025);
         /* safe center：内容放得下时居中，放不下时退回左对齐，避免第一项被裁掉且滚不回来 */
         justify-content: center;
         justify-content: safe center;
         overflow-x: auto; -ms-overflow-style: none; scrollbar-width: none;
       }
+      body.dark:not(.light) .nav-menu { background: rgba(255, 255, 255, 0.03); }
       .nav-menu::-webkit-scrollbar { display: none; }
       .nav-group { position: static; }
       .nav-dropdown,
