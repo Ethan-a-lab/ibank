@@ -442,6 +442,36 @@
           </form>
           <div class="qa-foot"><b>Enter</b> 发送 · <b>Shift+Enter</b> 换行 · 回答由 AI 生成，仅供学习参考，不构成投资建议</div>
         </div>
+
+        <!-- 探究成果链（专家建议④ · v141）：过程可留痕、可修订、可总结。
+             两块：① 自动统计只读本机 qa 埋点里的数字，不存原文；② 学生主动保存才落原文，可回放/删除/导出。
+             面板整体 data-i18n-skip：展示的是学生自己的中文对话原文，不该被英文模式翻译。 -->
+        <details class="qc-panel" id="qc-panel" data-i18n-skip>
+          <summary class="qc-sum">
+            <span class="qc-sum-t">探究成果链</span>
+            <span class="qc-sum-sub" id="qc-sum-sub">提问 → 改问 → 迭代 → 质疑修正，全过程留痕</span>
+            <span class="qc-sum-badge" id="qc-badge"></span>
+          </summary>
+          <div class="qc-body">
+            <div class="qc-lead">系统只自动记录<b>次数与轮次</b>（不问你写了什么）；<b>对话原文只有你自己点「保存这一轮」才会存到本机</b>，随时可删、可导出。云端只收结构化数字，不收提问原文。</div>
+
+            <div class="qc-sec">
+              <h4>① 过程统计 <span class="qc-tag">自动 · 只记数字</span></h4>
+              <div class="qc-stats" id="qc-stats"></div>
+              <div class="qc-dim" id="qc-dim"></div>
+            </div>
+
+            <div class="qc-sec">
+              <h4>② 我的成果链 <span class="qc-tag">主动保存 · 可删</span></h4>
+              <div class="qc-actions">
+                <button type="button" class="sim-btn primary" id="qc-save">保存这一轮对话</button>
+                <button type="button" class="sim-btn ghost" id="qc-export">导出成果链</button>
+                <button type="button" class="sim-btn ghost" id="qc-clear">清空</button>
+              </div>
+              <div class="qc-list" id="qc-list"></div>
+            </div>
+          </div>
+        </details>
       </div>
     </section>
 
@@ -3619,6 +3649,12 @@ body.dark #p-game .mode-panel{
         </div>
 
         <div id="forum-detail" class="forum-detail hidden"></div>
+
+        <!-- 主题讨论 · 伦理量规（v142）：系统参考分 + 教师复核异常帖，接进 E 维。
+             与讨论区同属 data-i18n-skip，展示学生自己的中文原文。 -->
+        <details class="frb-box" id="frb-box" data-i18n-skip>
+          <summary>讨论量规 · E 维 evidence</summary>
+        </details>
       </div>
     </section>
 
@@ -3863,6 +3899,10 @@ body.dark #p-game .mode-panel{
   <script src="static/app-forum.js"></script>
   <script src="static/eval-core.js"></script>
   <script src="static/bond-core.js"></script>
+  <!-- 探究成果链（专家建议④ · v141）：依赖 app-core 的 __ibankQaDump 只读接口 -->
+  <script src="static/qa-chain.js"></script>
+  <!-- 主题讨论伦理量规（专家建议③ · E 维 · v142）：依赖 app-forum 的 state -->
+  <script src="static/forum-rubric.js"></script>
 
   <!-- 中英双语语言层：字典与运行时分离，补译文只需改 i18n-dict.js -->
   <script src="static/i18n-dict.js"></script>

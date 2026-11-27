@@ -1492,6 +1492,9 @@ document.addEventListener('keydown', function (e) {
       var vpanel = document.getElementById('qa-vpanel');
       var statusEl = document.getElementById('qa-status');
       var history = [];
+      // v141 成果链：只读快照接口。只在学生主动点「保存当前对话到成果链」时被 qa-chain.js 调用，
+      //   拿走 [{role,content}] 的浅拷贝存到学生本机 ibank_qa_chain；平时统计不碰它、不落原文。
+      window.__ibankQaDump = function () { return history.map(function (m) { return { role: m.role, content: m.content }; }); };
       var aborted = false;
       var busy = false;
       var lastReply = '';
@@ -1958,10 +1961,33 @@ document.addEventListener('keydown', function (e) {
       // ---------- 提问 ----------
       var SEND_SVG = sendBtn.innerHTML;
       var STOP_SVG = '<svg viewBox="0 0 24 24" width="14" height="14" fill="#fff"><rect x="5" y="5" width="14" height="14" rx="2.5"/></svg>';
+      // v140 问答结构化留痕：只落数字，不落原文
+      //   要回答的问题是「学生有没有追问、有没有改 prompt 重问、有没有要求重新生成」——
+      //   这些都能用长度 / 轮次 / 相似度 / 重生成标记算出来，不需要保存提问文本。
+      //   相似度仅在内存里与上一问做 bigram 比对，算完即弃，不入任何存储。
+      var qaTurn = 0, lastAskAt = 0, lastQMem = '';
+      function bigramSim(a, b) {
+        if (!a || !b) return 0;
+        function grams(s) { var g = {}; for (var i = 0; i < s.length - 1; i++) g[s.substr(i, 2)] = 1; return g; }
+        var ga = grams(a), gb = grams(b), inter = 0, uni = 0, k;
+        for (k in ga) { uni++; if (gb[k]) inter++; }
+        for (k in gb) { if (!ga[k]) uni++; }
+        return uni ? Math.round(inter / uni * 100) : 0;
+      }
       function ask(q, opts) {
         opts = opts || {};
         q = String(q || '').trim();
         if (!q || busy) return;
+        // 轮次与追问判定：重新生成不算新轮；10 分钟内接着问算追问
+        var nowAsk = Date.now();
+        var gap = lastAskAt ? nowAsk - lastAskAt : 0;
+        if (!opts.fresh) qaTurn += 1;
+        var qTurn = qaTurn || 1;
+        var qFollow = (!opts.fresh && qTurn > 1 && gap > 0 && gap < 10 * 60 * 1000) ? 1 : 0;
+        var qRevise = opts.fresh ? 0 : bigramSim(q, lastQMem);   // 与上一问的相似度：高=在改 prompt
+        lastAskAt = nowAsk; lastQMem = q;
+        var qLen = q.length;
+        if (window.__ibankSess) window.__ibankSess.hit('qa');
         var u = addRow('u');
         u.bub.innerHTML = '<p>' + esc(q) + '</p>';
         var b = addRow('b');
@@ -1997,7 +2023,18 @@ document.addEventListener('keydown', function (e) {
           //   埋点放在 done（无论云端还是本地知识库回落，都会走到），保证问答必计。
           //  § q 不入库，沿用既有做法只记类型与长度，避免把学生提问原文写进行为表。
           if (window.__ibankTrack) {
-            try { window.__ibankTrack('qa', { chars: (finalText || '').length, local: local ? 1 : 0 }); } catch (e) {}
+            try {
+              window.__ibankTrack('qa', {
+                chars: (finalText || '').length, local: local ? 1 : 0,
+                // v140 结构化字段（detail 里落数字，不含原文）：
+                q_len: qLen,              // 提问字数 → 平均提问长度
+                turn: qTurn,              // 本次会话第几轮 → 追问率
+                follow: qFollow,          // 是否追问（10 分钟内接着问）
+                revise: qRevise,          // 与上一问相似度 0-100 → 改 prompt 重问的迹象
+                regen: opts.fresh ? 1 : 0,// 点「重新生成」= 对答案不满意
+                sid: (window.__ibankSess && window.__ibankSess.sid()) || ''
+              });
+            } catch (e) {}
           }
           busy = false;
           sendBtn.classList.remove('stop');
@@ -2075,6 +2112,8 @@ document.addEventListener('keydown', function (e) {
       // 清空对话
       document.getElementById('qa-clear').addEventListener('click', function () {
         history.length = 0; lastReply = ''; log.innerHTML = ''; renderWelcome();
+        // v140：清空对话即开新的话题链，轮次与「上一问」记忆一起归零
+        qaTurn = 0; lastAskAt = 0; lastQMem = '';
         ibankToast('对话已清空');
       });
       // 自动朗读开关
@@ -2106,6 +2145,82 @@ document.addEventListener('keydown', function (e) {
       window.addEventListener('beforeunload', function () { stopSpeak(); });
     })();
 
+    // ===== v140 会话层：给「过程性评价」提供一次学习的挂载点 =====
+    // 为什么需要：S 维（时长/自主学习）与 D 维（追问、质疑修正）都要求「同一次会话内」的连续记录。
+    //   过去只有 ibank_time_第X章 这种跨天累计值，算不出「这次坐下来学了多久」，也串不起「同一个问题的追问链」。
+    // 设计取舍：
+    //   ① sid 存 sessionStorage，同一标签页复用、关页即失效，符合「一次会话」的直觉；离开超过 30 分钟算新会话。
+    //   ② 只记数值与页面名，**不记任何内容**，与 qa 不落原文的隐私口径一致。
+    //   ③ 走既有 __ibankTrack 落 events.detail，不新增表、不新增列，教师端现有查询不用改。
+    //   ④ 上报用「增量」：sec/acts 每次只报上次之后新增的部分，后端 sum 即可，重复 flush 不会翻倍。
+    (function () {
+      var KEY = 'ibank_sess_id';
+      function newSid() { return 's' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6); }
+      var sid = '';
+      try { sid = sessionStorage.getItem(KEY) || ''; } catch (e) {}
+      if (!sid) { sid = newSid(); try { sessionStorage.setItem(KEY, sid); } catch (e) {} }
+
+      var t0 = Date.now();
+      var visibleMs = 0, last = Date.now(), hiddenAt = 0;
+      var pages = {}, acts = 0;
+      var sentMs = 0, sentActs = 0, sentPages = {};
+
+      function acc() {
+        var now = Date.now();
+        if (!document.hidden) visibleMs += now - last;
+        last = now;
+      }
+
+      function flush(why) {
+        acc();
+        var dsec = Math.round((visibleMs - sentMs) / 1000);
+        var dacts = acts - sentActs;
+        var fresh = [];
+        Object.keys(pages).forEach(function (p) { if (!sentPages[p]) fresh.push(p); });
+        // 控制 events 表体量（否则一节课心跳能刷几十条）：
+        //   收尾（切走/关页）：满 10 秒或有交互就发，短会话不丢；
+        //   心跳：有交互立即发，光挂着不动则满 5 分钟才发一条。
+        var closing = (why === 'hide' || why === 'unload');
+        if (closing ? (dsec < 10 && !dacts) : (!dacts && !fresh.length && dsec < 300)) return;
+        sentMs = visibleMs; sentActs = acts;
+        fresh.forEach(function (p) { sentPages[p] = 1; });
+        if (typeof window.__ibankTrack !== 'function') return;
+        try {
+          window.__ibankTrack('sess', {
+            sid: sid, sec: dsec, acts: dacts,
+            pages: fresh.join(',').slice(0, 40), why: why || ''
+          });
+        } catch (e) {}
+      }
+
+      document.addEventListener('visibilitychange', function () {
+        if (document.hidden) {
+          flush('hide');                 // 切走即上报，避免学生直接关标签页丢整段
+          hiddenAt = Date.now();
+        } else {
+          last = Date.now();
+          // 课间/隔夜回来：视为新会话，避免把 8 小时挂机算成一次学习
+          if (hiddenAt && Date.now() - hiddenAt > 30 * 60 * 1000) {
+            sid = newSid(); try { sessionStorage.setItem(KEY, sid); } catch (e) {}
+            t0 = Date.now(); visibleMs = 0; acts = 0; pages = {};
+            sentMs = 0; sentActs = 0; sentPages = {};
+          }
+          hiddenAt = 0;
+        }
+      });
+      window.addEventListener('pagehide', function () { flush('unload'); });
+      // 心跳间隔与「无交互满 5 分钟才发」配套：间隔太短会让增量永远够不到门槛
+      setInterval(function () { if (!document.hidden) flush('beat'); }, 300000);
+
+      // 供其他模块记录「这次会话看了哪页、发生了几次交互」
+      window.__ibankSess = {
+        sid: function () { return sid; },
+        hit: function (page) { acts++; if (page) pages[page] = 1; },
+        sec: function () { acc(); return Math.round(visibleMs / 1000); },
+        start: function () { return t0; }
+      };
+    })();
+
     // ===== 学习计时器（章节 / 习题复用） + 全局提示 =====
     function ibankFmtTime(s) { var h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60), ss = s % 60; var p = function (n) { return (n < 10 ? '0' : '') + n; }; return h > 0 ? h + ':' + p(m) + ':' + p(ss) : p(m) + ':' + p(ss); }
     function ibankMakeTimer(mountEl, storeKey, autoDoneKey, onAuto) {
@@ -2114,7 +2229,23 @@ document.addEventListener('keydown', function (e) {
       mountEl.innerHTML = '<span class="timer-chip">⏱ 本次 <b class="t-sess">00:00</b> · 累计 <b class="t-acc">' + ibankFmtTime(acc) + '</b></span>';
       var sessEl = mountEl.querySelector('.t-sess'), accEl = mountEl.querySelector('.t-acc');
       var last = Date.now(), saved = 0, fired = false;
-      document.addEventListener('visibilitychange', function () { if (!document.hidden) last = Date.now(); });
+      // v140 口径修正：
+      //   ① 切走时先把「不足 1 秒的零头」结算掉再暂停，原来直接丢 last，切走瞬间最多丢 1 秒；
+      //   ② pagehide 时落盘一次，原来只有 stop() 才写，学生直接关标签页会丢最后一次；
+      //   ③ 全程只在 document.hidden 为 false 时累加，后台标签页不计时。
+      function settle() {
+        var now = Date.now();
+        var dt = Math.floor((now - last) / 1000);
+        last = now;
+        if (dt >= 1) { sess += dt; acc += dt; }
+      }
+      document.addEventListener('visibilitychange', function () {
+        if (document.hidden) { settle(); }
+        else { last = Date.now(); }
+      });
+      window.addEventListener('pagehide', function () {
+        try { localStorage.setItem(storeKey, String(acc)); } catch (e) {}
+      });
       var iv = setInterval(function () {
         var now = Date.now();
         if (document.hidden) { last = now; return; }

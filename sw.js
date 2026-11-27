@@ -15,7 +15,7 @@
  * 注意：Service Worker 只在 https 或 localhost 下生效；双击 file:// 打开时注册会被跳过。
  */
 
-const CACHE_VERSION = 'ibank-v26';   // v139 答疑头像：AI 消息头像从机器人 SVG 统一为熊猫位图（app-core/app.css）
+const CACHE_VERSION = 'ibank-v28';   // v142 讨论量规：新增 forum-rubric 模块 + E 维 e.talk 接入（index/forum-rubric.js/eval-core/app.css）
 const CACHE_NAME = `ibank-shell-${CACHE_VERSION}`;
 
 /* ★总开关：想把 PWA 停掉，只把这个 true 改成 false，然后推送一次。
@@ -53,6 +53,8 @@ const PRECACHE_URLS = [
   './static/bond.css',
   './static/eval-core.js',
   './static/eval.css',
+  './static/qa-chain.js',
+  './static/forum-rubric.js',
   './static/qrcode.min.js',
   './static/mascot/panda.png',
   './static/mascot/panda@2x.png',
@@ -61,7 +63,7 @@ const PRECACHE_URLS = [
 ];
 
 // 与 HTML 结构强耦合、必须跟随线上最新的资源（后缀匹配，兼容 /ibank/ 子路径与将来换域名）
-const NETWORK_FIRST_ASSET = /\/static\/(app\.css|app-core\.js|app-auth\.js|i18n\.css|i18n\.js|i18n-dict\.js|undercover\.css|undercover\.js|timeline\.css|timeline\.js|bond-core\.js|bond\.css|eval-core\.js|eval\.css)$/;
+const NETWORK_FIRST_ASSET = /\/static\/(app\.css|app-core\.js|app-auth\.js|i18n\.css|i18n\.js|i18n-dict\.js|undercover\.css|undercover\.js|timeline\.css|timeline\.js|bond-core\.js|bond\.css|eval-core\.js|eval\.css|qa-chain\.js|forum-rubric\.js)$/;
 
 /* 只缓存"应用外壳"类资源。白名单之外一律放行，不进缓存。
  *

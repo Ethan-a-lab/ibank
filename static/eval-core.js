@@ -90,7 +90,7 @@
       src: '投行教学案例库 ＋ 主题讨论量规',
       obs: [
         { n: '合规情境判断与理由', p: 0.6, key: 'e.case', demo: 84, s: '投行教学案例库（决策 + 书面理由）' },
-        { n: '主题讨论 · 伦理量规', p: 0.4, key: 'e.talk', demo: 78, s: '教师三级量规评分（尚未建）' }
+        { n: '主题讨论 · 伦理量规', p: 0.4, key: 'e.talk', demo: 78, s: '系统三级量规评分＋教师复核异常帖' }
       ]
     },
     {
@@ -248,6 +248,15 @@
     }
     Out.val['e.case'] = cv;
 
+    /* 主题讨论 · 伦理量规（v142）：由 forum-rubric.js 在本机现算并写入 ibank_forum_etalk。
+       取数优先级 = 教师复核分 > 系统参考分，全部由该模块算好；这里只读那一个数字，
+       不读帖子原文、不猜分。没有本人帖子就保持 null（待采集），不用 0 冒充。 */
+    var et = ls('ibank_forum_etalk', null);
+    if (et && typeof et.score === 'number' && et.score >= 0 && et.score <= 100) {
+      Out.val['e.talk'] = Math.round(et.score);
+      Out.ev['e.talk'] = (et.n || 1) + ' 篇讨论帖 · 系统参考分/教师复核';
+    }
+
     /* 模块使用广度 */
     var seen = {};
     evs.forEach(function (e) { if (e && e.type === 'module' && e.module) seen[e.module] = 1; });
@@ -279,8 +288,9 @@
     Out.val['r.tries'] = Out.tries ? clamp(100 - (Out.tries - 1) * 12, 0, 100) : null;
     Out.ev['r.tries'] = Out.tries ? '最多重试 ' + Out.tries + ' 次' : '';
 
-    /* 尚未接入的观测点一律 null，不用示例值冒充 */
-    ['d.stress', 'e.talk', 'r.trade'].forEach(function (k) { Out.val[k] = null; });
+    /* 尚未接入的观测点一律 null，不用示例值冒充。
+       e.talk 已于 v142 接入（见上），不再列入此处；d.proj / r.trade 仍待接入。 */
+    ['d.stress', 'r.trade'].forEach(function (k) { Out.val[k] = null; });
 
     return Out;
   }
