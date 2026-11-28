@@ -89,7 +89,7 @@
       metric: '合规情境判断与理由质量',
       src: '投行教学案例库 ＋ 主题讨论量规',
       obs: [
-        { n: '合规情境判断与理由', p: 0.6, key: 'e.case', demo: 84, s: '投行教学案例库（决策 + 书面理由）' },
+        { n: '合规情境判断与理由', p: 0.6, key: 'e.case', demo: 84, s: '案例库各案例「决策记录卡」（决策 + 书面理由）' },
         { n: '主题讨论 · 伦理量规', p: 0.4, key: 'e.talk', demo: 78, s: '系统三级量规评分＋教师复核异常帖' }
       ]
     },
@@ -324,8 +324,13 @@
         + ' · ' + (stated ? '已完成' : anyState ? '进行中' : '未启动');
     } else { Out.val['d.proj'] = null; }
 
-    /* 合规情境判断：有决策 + 理由 ≥20 字 */
-    var cbs = evs.filter(function (e) { return e && e.type === 'cb_decision'; });
+    /* 合规情境判断：有决策 + 理由 ≥20 字。
+       v161：事件源从「东财转3 一张卡」扩到全案例库——cb_decision 是东财转3
+       4.3 实验记录卡的老埋点（保留兼容历史数据），case_decision 是其余 19 个
+       案例通用决策卡的埋点。两者同一评分口径，取各次提交的最高分。 */
+    var cbs = evs.filter(function (e) {
+      return e && (e.type === 'cb_decision' || e.type === 'case_decision');
+    });
     var cv = null;
     if (cbs.length) {
       cbs.forEach(function (e) {

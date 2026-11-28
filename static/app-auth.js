@@ -926,7 +926,8 @@ emitted = target;
          v160：wb_add/wb_master/wb_unmaster/wb_del（错题本生命周期，detail.qid 为主键）
          进取数范围——教师端 s.digest（错题消化率）由此还原，只统计 v160 后「答错入本」的错题。 */
       var AV_TYPES = { quiz: 1, module: 1, ipo: 1, bond: 1, project: 1, cb_decision: 1, trade: 1, study: 1, etalk: 1,
-        wb_add: 1, wb_master: 1, wb_unmaster: 1, wb_del: 1 };
+        wb_add: 1, wb_master: 1, wb_unmaster: 1, wb_del: 1,
+        case_decision: 1 };   /* v161：案例库通用决策卡（E 维 e.case），与 cb_decision 同口径 */
       var AV_DIMS = [
         { k: 'K', zh: '知识整合', en: 'Knowledge', line: 75 },
         { k: 'D', zh: '决策预判', en: 'Decision', line: 70 },

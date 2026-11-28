@@ -2524,6 +2524,17 @@
     .cbr-state { margin-left: auto; font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; }
     .cbr-state b { color: var(--cl-ok); }
 
+    /* v161 · 案例库通用决策记录卡（case-cards.js 渲染，复用上方 .cbr 骨架）。
+       与东财转3 卡的差异只有两处：理由框用类选择器（一张页面 19 张卡不能共用 id）、
+       选项按钮文案较长故去掉 min-width 并左对齐。 */
+    .cbc-reason { width: 100%; padding: 9px 11px; font-size: 16px; line-height: 1.7; font-family: inherit;
+      color: var(--text); background: var(--bg); border: 1px solid var(--cl-line);
+      border-radius: 10px; resize: vertical; min-height: 62px; }
+    .cbc-reason::placeholder { font-size: 12px; color: var(--dim); }
+    .cbc-reason:focus { outline: none; border-color: var(--cl-ring); box-shadow: 0 0 0 3px var(--cl-chip); }
+    .cbr-gen .cbr-choice button { min-width: 0; padding: 9px 14px; text-align: left; }
+    .cbr-gen .cbr-head p b { color: var(--accent-text); }
+
     /* 教师端 4.3 三环节面板 */
     .cb43-top { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 12px; }
     .cb43-kpi { flex: 1 1 140px; min-width: 0; padding: 10px 12px; border: 1px solid var(--cl-line);
