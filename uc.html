@@ -139,6 +139,7 @@
 
   function paint() {
     document.documentElement.lang = lang === 'en' ? 'en' : 'zh-CN';
+    document.title = lang === 'en' ? 'IB Undercover · Get your word' : '投行卧底 · 领词';
     document.getElementById('brand').textContent = t('brand');
     btnLang.textContent = lang === 'en' ? '中' : 'EN';
     if (state.step === 'input') {

@@ -15,7 +15,7 @@
  * 注意：Service Worker 只在 https 或 localhost 下生效；双击 file:// 打开时注册会被跳过。
  */
 
-const CACHE_VERSION = 'ibank-v50';   // v165 修复：v154 起 CACHE_NAME 定义被误删导致新 SW 一直安装失败（旧站靠 v38 旧 SW 掩盖，新站暴露）；恢复定义并升版本
+const CACHE_VERSION = 'ibank-v51';   // v166 i18n 全站覆盖：教师端拆豁免 + 字典增补 + ai-chat/uc 接入语言层
 const CACHE_NAME = `ibank-shell-${CACHE_VERSION}`;   // v154 误删此行，2026-11-28 20:22 恢复
 
 /* ★总开关：想把 PWA 停掉，只把这个 true 改成 false，然后推送一次。
@@ -42,9 +42,9 @@ const PRECACHE_URLS = [
   './static/app.css?v=156',
   './static/app-core.js',
   './static/app-auth.js',
-  './static/i18n.css?v=156',
-  './static/i18n-dict.js?v=156',
-  './static/i18n.js?v=156',
+  './static/i18n.css?v=166',
+  './static/i18n-dict.js?v=166',
+  './static/i18n.js?v=166',
   './static/undercover.css',
   './static/undercover.js',
   './static/timeline.css',

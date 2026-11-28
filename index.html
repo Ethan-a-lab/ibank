@@ -21,7 +21,7 @@
   <link rel="stylesheet" href="static/app.css?v=162">
   <link rel="stylesheet" href="static/eval.css">
   <link rel="stylesheet" href="static/bond.css">
-  <link rel="stylesheet" href="static/i18n.css?v=156">
+  <link rel="stylesheet" href="static/i18n.css?v=166">
   <link rel="stylesheet" href="static/undercover.css">
   <link rel="stylesheet" href="static/timeline.css">
   <!-- v163 质感层：噪点/渐变网格纹理 + 滚动入场 stagger（颜色零改动，JS 门控渐进增强） -->
@@ -195,7 +195,7 @@
            为什么不塞进 #nav-menu：学生端「5 组 / 16 项 / 首页 16 卡」是既有对外口径，
            _private/accept_v130 会逐个比对集合，塞进去会把 16 变成 17。这里独立成容器，
            两套导航各自完整、互不干扰。 -->
-      <div class="nav-menu nav-menu-teacher" id="nav-teacher-menu" data-scope="teacher" data-i18n-skip hidden>
+      <div class="nav-menu nav-menu-teacher" id="nav-teacher-menu" data-scope="teacher" hidden>
         <!-- v133 修正：首页放回教师端导航第一项（教师进站也要先看到首页），工作台降为第二项。
              登录落地页同步改回首页，见 app-auth.js 的 applyRole()。 -->
         <button class="tab-btn active" data-page="p-home">首页</button>
@@ -236,7 +236,7 @@
 
     <!-- 学生视角预览提示条（v132）：教师点「切到学生视角」后出现，一键切回。
          权限不降级 —— 只是换界面，教师仍可随时回到后台，避免"预览完找不回来"。 -->
-    <div id="th-preview-bar" hidden data-i18n-skip>
+    <div id="th-preview-bar" hidden>
       <span>正在以<b>学生视角</b>预览界面；教师权限仍然有效，点右侧按钮即可切回。</span>
       <button type="button" id="th-back-teacher">返回教师端</button>
     </div>
@@ -309,7 +309,7 @@
          定位是教师端的「首页」：只放教学管理入口，不放学生学习模块。
          四张卡全部指向已经跑通的真实功能，不放「即将上线」的空壳 ——
          评审点进来必须看到数据，而不是占位页。 -->
-    <section class="page" id="p-teacher-home" data-i18n-skip>
+    <section class="page" id="p-teacher-home">
       <div class="hero2 panel">
         <div class="hero2-left">
           <div class="eyebrow">教师端 · 教学工作台</div>
@@ -367,10 +367,10 @@
         <div class="section-sub">全学期只做这一个主项目：比亚迪四讲。四次融资、四次报价，按过程性证据评分，不看期末一张卷。</div>
 
         <!-- 列表视图：项目卡 -->
-        <div class="pj-list" id="pj-list" data-i18n-skip></div>
+        <div class="pj-list" id="pj-list"></div>
 
         <!-- 详情视图：与本页同容器切换，不新增路由 -->
-        <div class="pj-detail" id="pj-detail" hidden data-i18n-skip></div>
+        <div class="pj-detail" id="pj-detail" hidden></div>
       </div>
     </section>
 
@@ -3624,7 +3624,7 @@ body.dark #p-game .mode-panel{
 
     <!-- ⑪ 后台统计 -->
     <!-- ⑫ 课程讨论区：一个总版，四个班共用；每条帖子标注作者班级（本页按中文呈现，不参与英文切换） -->
-    <section class="page" id="p-forum" data-i18n-skip>
+    <section class="page" id="p-forum">
       <div class="panel">
         <div class="section-title"><span class="bar"></span>课程讨论区</div>
         <div class="section-sub">四个班共用一个讨论区，发帖标明所属班级；教师可置顶、锁定与删除。发言请遵守课程规范，就事论事。</div>
@@ -3644,14 +3644,14 @@ body.dark #p-game .mode-panel{
         </div>
 
         <div id="forum-list-wrap">
-          <div id="forum-list" class="forum-list"></div>
+          <div id="forum-list" class="forum-list" data-i18n-skip></div>
         </div>
 
-        <div id="forum-detail" class="forum-detail hidden"></div>
+        <div id="forum-detail" class="forum-detail hidden" data-i18n-skip></div>
 
         <!-- 主题讨论 · 伦理量规（v142）：系统参考分 + 教师复核异常帖，接进 E 维。
-             与讨论区同属 data-i18n-skip，展示学生自己的中文原文。 -->
-        <details class="frb-box" id="frb-box" data-i18n-skip>
+             帖子标题/作者属于学生原文，不在字典内即保持中文原样。 -->
+        <details class="frb-box" id="frb-box">
           <summary>讨论量规 · E 维 evidence</summary>
         </details>
       </div>
@@ -3697,7 +3697,7 @@ body.dark #p-game .mode-panel{
       </details>
 
       <!-- v144 年级筛选：23级 / 24级分开看，四张图与 KPI 一起重算。布局自解释，不再挂说明条。 -->
-      <div class="stat-scope" id="stat-scope" data-i18n-skip>
+      <div class="stat-scope" id="stat-scope">
         <span class="ss-lb">年级</span>
         <button type="button" class="ss-btn on" data-ss-grade="all">全部</button>
         <button type="button" class="ss-btn" data-ss-grade="23">23级</button>
@@ -3707,17 +3707,17 @@ body.dark #p-game .mode-panel{
         <select id="ss-class" class="ss-select" aria-label="Filter by class"><option value="">全部班级</option></select>
       </div>
 
-      <details class="fold-panel" id="av-board-fold" data-i18n-skip>
+      <details class="fold-panel" id="av-board-fold">
         <summary><span class="fp-t" id="av-board-title">五维达成（24级及以后）</span></summary>
-        <div class="fp-body" id="av-board-body"><div class="um-empty">加载中…</div></div>
+        <div class="fp-body" id="av-board-body" data-i18n-skip><div class="um-empty">加载中…</div></div>
       </details>
 
-      <details class="fold-panel" id="qc-board-fold" data-i18n-skip>
+      <details class="fold-panel" id="qc-board-fold">
         <summary><span class="fp-t" id="qc-board-title">探究成果链 · 授权摘要（24级及以后）</span></summary>
-        <div class="fp-body" id="qc-board-body"><div class="um-empty">加载中…</div></div>
+        <div class="fp-body" id="qc-board-body" data-i18n-skip><div class="um-empty">加载中…</div></div>
       </details>
 
-      <div class="admin-kpi-row" id="ev-kpi-row" data-i18n-skip>
+      <div class="admin-kpi-row" id="ev-kpi-row">
         <div class="admin-kpi"><div class="k">覆盖学生</div><div class="v">0</div><div class="sub">有学习行为记录</div></div>
         <div class="admin-kpi"><div class="k">AI 问答</div><div class="v">0</div><div class="sub">课程相关问答次数</div></div>
         <div class="admin-kpi"><div class="k">习题作答</div><div class="v">0</div><div class="sub">累计完成题数</div></div>
@@ -3735,7 +3735,7 @@ body.dark #p-game .mode-panel{
         <div class="admin-panel"><h4>各题型平均正确率</h4><div id="ev-qtype"></div></div>
         <div class="admin-panel"><h4>学习模块使用占比</h4><div id="ev-module"></div></div>
         <div class="admin-panel"><h4>考核构成（教学大纲）</h4><div id="ev-assess"></div></div>
-        <div class="admin-panel ev-right" data-i18n-skip><h4>每周活跃人数</h4><div class="sub">单击某天定锚点，再选另一天定区间</div><div id="ev-week"></div><div class="wk-pick"><div class="wk-hd"><span class="wk-range" id="ev-range">默认按周</span><span class="wk-quick"><button type="button" class="wk-reset" data-quick="all">整学期</button><button type="button" class="wk-reset" data-quick="m0">首月</button><button type="button" class="wk-reset" data-quick="m-1">末月</button><button type="button" class="wk-reset" id="ev-cal-reset">重置</button></span></div><div class="wk-tip">单击某天 → 再单击另一天（可翻月）即选定区间，也可拖动圈选。</div><div id="ev-calendar"></div></div></div>
+        <div class="admin-panel ev-right"><h4>每周活跃人数</h4><div class="sub">单击某天定锚点，再选另一天定区间</div><div id="ev-week"></div><div class="wk-pick"><div class="wk-hd"><span class="wk-range" id="ev-range">默认按周</span><span class="wk-quick"><button type="button" class="wk-reset" data-quick="all">整学期</button><button type="button" class="wk-reset" data-quick="m0">首月</button><button type="button" class="wk-reset" data-quick="m-1">末月</button><button type="button" class="wk-reset" id="ev-cal-reset">重置</button></span></div><div class="wk-tip">单击某天 → 再单击另一天（可翻月）即选定区间，也可拖动圈选。</div><div id="ev-calendar"></div></div></div>
       </div>
 
       <div class="admin-panel" style="margin-top:16px;">
@@ -3905,8 +3905,8 @@ body.dark #p-game .mode-panel{
   <script src="static/case-cards.js"></script>
 
   <!-- 中英双语语言层：字典与运行时分离，补译文只需改 i18n-dict.js -->
-  <script src="static/i18n-dict.js?v=156"></script>
-  <script src="static/i18n.js?v=156"></script>
+  <script src="static/i18n-dict.js?v=166"></script>
+  <script src="static/i18n.js?v=166"></script>
 
   <!-- 投行卧底（教师控场）：独立模块，自带双语表，不经 i18n-dict.js -->
   <script src="static/undercover.js"></script>
