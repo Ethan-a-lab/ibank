@@ -203,6 +203,28 @@
           src.etalk = { score: esc2, n: Number(ed.n) || 1 };
         }
       }
+      /* v160：错题消化率还原 —— wb_add/wb_master/wb_unmaster/wb_del 记录每道错题的
+         生命周期，按 qid 取最后一次状态：del 出表；mastered 计入已消化；其余在册待复习。
+         分母只统计真正通过「答错入本」事件进来的错题（wb_add）：示例错题（isSeed）从未
+         入过本事件、v160 前入本的旧错题没有 wb_add，都不计——与学生页「非 seed 错题」口径对齐，
+         历史数据不追溯。学生端 computeM 恒传 wb（本机错题本），此回填不触发。 */
+      if (!('wb' in src)) {
+        var added = {}, wbLast = {};
+        evs.forEach(function (e) {
+          if (!e) return;
+          var t = e.type;
+          if (t !== 'wb_add' && t !== 'wb_master' && t !== 'wb_unmaster' && t !== 'wb_del') return;
+          var qid = detOf(e).qid;
+          if (!qid) return;
+          qid = String(qid);
+          if (t === 'wb_add') added[qid] = 1;
+          wbLast[qid] = t.slice(3);
+        });
+        var wbLive = Object.keys(wbLast).filter(function (q) { return added[q] && wbLast[q] !== 'del'; });
+        if (wbLive.length) {
+          items = wbLive.map(function (q) { return { status: wbLast[q] === 'master' ? 'mastered' : 'todo' }; });
+        }
+      }
     }
 
     var Out = { val: {}, ev: {}, n: evs.length, quiz: 0, qok: 0, tries: 0 };

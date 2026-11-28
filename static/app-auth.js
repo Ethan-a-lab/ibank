@@ -922,8 +922,11 @@ emitted = target;
        * 分数复用 eval-core 的 __ibankEvalCompute，与学生在自己页面看到的口径相同。 */
       /* v159：study（章节完成标记，detail 外的 duration 是标记时刻累计秒数）与
          etalk（讨论量规分，detail.score/n）进五维取数范围——教师端据此还原
-         K 维章节完成度/时长与 E 维讨论量规观测点。错题消化率仍为本机数据，云端无法还原。 */
-      var AV_TYPES = { quiz: 1, module: 1, ipo: 1, bond: 1, project: 1, cb_decision: 1, trade: 1, study: 1, etalk: 1 };
+         K 维章节完成度/时长与 E 维讨论量规观测点。
+         v160：wb_add/wb_master/wb_unmaster/wb_del（错题本生命周期，detail.qid 为主键）
+         进取数范围——教师端 s.digest（错题消化率）由此还原，只统计 v160 后「答错入本」的错题。 */
+      var AV_TYPES = { quiz: 1, module: 1, ipo: 1, bond: 1, project: 1, cb_decision: 1, trade: 1, study: 1, etalk: 1,
+        wb_add: 1, wb_master: 1, wb_unmaster: 1, wb_del: 1 };
       var AV_DIMS = [
         { k: 'K', zh: '知识整合', en: 'Knowledge', line: 75 },
         { k: 'D', zh: '决策预判', en: 'Decision', line: 70 },
@@ -942,8 +945,8 @@ emitted = target;
           scopeAll: '全部年级', scopeGrade: '{g}级',
           summary: '汇总画像（当前筛选范围平均）', avgTotal: '平均综合达成度', overall: '综合达成度',
           hint: '点任意学生行展开该生的五维雷达图与证据明细；班级/年级筛选同时作用于汇总画像与明细表。'
-            + '口径：本视图只统计云端可验证的行为证据（作答、仿真、交易、情境决策、章节完成标记、讨论量规分）；'
-            + '错题消化率属学生本机数据，教师端该项保持「待采集」，不推算、不冒充。',
+            + '口径：本视图只统计云端可验证的行为证据（作答、仿真、交易、情境决策、章节完成标记、讨论量规分、错题本状态流转）；'
+            + '错题消化率自 v160 起由错题本事件还原，此前入本的旧错题不追溯。',
           challenge: '全部维度按同一算法现算；缺证据的维度记「待采集」，不用 0 分冒充。'
         },
         en: {
@@ -956,8 +959,8 @@ emitted = target;
           scopeAll: 'All grades', scopeGrade: 'Class of {g}',
           summary: 'Cohort profile (average of current scope)', avgTotal: 'Avg. overall', overall: 'Overall',
           hint: 'Tap any student row to expand their radar chart and evidence; grade/class filters apply to both the cohort profile and the table.'
-            + ' Scope: only cloud-verifiable behavioural evidence counts (quizzes, simulations, trades, scenario decisions, chapter completion, discussion rubric score);'
-            + ' wrong-answer mastery is device-local and stays “Not collected” here — never imputed.',
+            + ' Scope: only cloud-verifiable behavioural evidence counts (quizzes, simulations, trades, scenario decisions, chapter completion, discussion rubric score, wrong-book state transitions);'
+            + ' wrong-answer mastery is restored from wrong-book events collected since v160 — items added earlier are not retroactively counted.',
           challenge: 'All dimensions use the same algorithm; dimensions without evidence stay “Not collected” instead of 0.'
         }
       };

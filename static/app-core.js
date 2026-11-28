@@ -2761,7 +2761,7 @@ document.addEventListener('keydown', function (e) {
         if (ok) {
           it.stage = Math.min(it.stage + 1, SPACED.length);
           it.hist.push(now);
-          if (it.stage >= SPACED.length) { it.status = 'mastered'; it.nextTs = 0; st.fb = '✓ 答对了！已连续答对 ' + SPACED.length + ' 次，标记为「已掌握」。'; }
+          if (it.stage >= SPACED.length) { it.status = 'mastered'; it.nextTs = 0; st.fb = '✓ 答对了！已连续答对 ' + SPACED.length + ' 次，标记为「已掌握」。'; wbTrack('wb_master', it); }
           else { it.nextTs = now + SPACED[it.stage] * DAY; st.fb = '✓ 答对了！复习阶段推进到第 ' + (it.stage + 1) + ' 级，' + SPACED[it.stage] + ' 天后再次复习。'; }
         } else {
           it.stage = 0; it.status = 'todo'; it.nextTs = now + SPACED[0] * DAY;
@@ -2770,13 +2770,25 @@ document.addEventListener('keydown', function (e) {
         wbSave(); renderWrong();
         if (window.__ibankTrack) window.__ibankTrack('quiz', { chapter: it.chapter, qtype: it.type, correct: ok, kp: it.kp, cause: it.cause, redo: 1, pbl: it.pbl || '' });
       }
+      /* v160：错题本状态流转埋点 —— 教师端「错题消化率」观测点的唯一数据源。
+         四类事件：wb_add（答错入本）/ wb_master（标记掌握）/ wb_unmaster（取消或再错回炉）/ wb_del（删除）。
+         只传 qid/kp/chapter 三个结构化字段，题面与作答记录不出本机；示例错题（isSeed）不入本事件，教师端天然不可见。 */
+      function wbTrack(type, it) {
+        if (!it || !window.__ibankTrack) return;
+        try { window.__ibankTrack(type, { chapter: it.chapter, kp: it.kp || null, qid: it.qid || wbKey(it) }); } catch (e) {}
+      }
+
       function addWrong(item, pickedArr) {
         WB = WB || wbLoad();
         var k = wbKey(item), it = WB.items[k], now = Date.now();
-        if (!it) { it = mkItem(item, pickedArr); it.firstTs = now; it.wrongCount = 0; WB.items[k] = it; }
+        var isNew = false, wasMastered = false;
+        if (!it) { it = mkItem(item, pickedArr); it.firstTs = now; it.wrongCount = 0; WB.items[k] = it; isNew = true; }
+        else wasMastered = it.status === 'mastered';
         if (pickedArr) it.picked = pickedArr.slice();
         it.wrongCount++; it.lastTs = now; it.status = 'todo'; it.stage = 0; it.nextTs = now + SPACED[0] * DAY;
         wbSave(); renderWrong();
+        if (isNew) wbTrack('wb_add', it);
+        else if (wasMastered) wbTrack('wb_unmaster', it);   // 已掌握的题又答错回炉，消化率要相应回落
       }
       // 事件委托：整个 #wrong-app 只挂一个 click 监听，规避 innerHTML 重绘丢监听（本项目历史踩坑）
       (function () {
@@ -2793,9 +2805,9 @@ document.addEventListener('keydown', function (e) {
           if (act === 'due') { wbView.due = !wbView.due; wbView.kp = null; renderWrong(); return; }
           if (act === 'kpclear') { wbView.kp = null; renderWrong(); return; }
           if (act === 'review-all') { wbView.due = true; wbView.kp = null; renderWrong(); return; }
-          if (act === 'master') { if (it) { it.status = 'mastered'; it.nextTs = 0; it.hist.push(Date.now()); wbSave(); } renderWrong(); return; }
-          if (act === 'unmaster') { if (it) { it.status = 'todo'; it.stage = 0; it.nextTs = Date.now() + DAY; wbSave(); } renderWrong(); return; }
-          if (act === 'del') { if (it) { delete WB.items[qid]; delete wbVari[qid]; wbSave(); } renderWrong(); return; }
+          if (act === 'master') { if (it) { it.status = 'mastered'; it.nextTs = 0; it.hist.push(Date.now()); wbSave(); wbTrack('wb_master', it); } renderWrong(); return; }
+          if (act === 'unmaster') { if (it) { it.status = 'todo'; it.stage = 0; it.nextTs = Date.now() + DAY; wbSave(); wbTrack('wb_unmaster', it); } renderWrong(); return; }
+          if (act === 'del') { if (it) { wbTrack('wb_del', it); delete WB.items[qid]; delete wbVari[qid]; wbSave(); } renderWrong(); return; }
           if (act === 'cause') { if (it) { it.cause = t.getAttribute('data-cause'); wbSave(); } renderWrong(); return; }
           if (act === 'vari') { startVari(it); return; }
           if (act === 'vcollapse') { delete wbVari[qid]; renderWrong(); return; }

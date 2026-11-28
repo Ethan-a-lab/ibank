@@ -15,7 +15,7 @@
  * 注意：Service Worker 只在 https 或 localhost 下生效；双击 file:// 打开时注册会被跳过。
  */
 
-const CACHE_VERSION = 'ibank-v44';   // v159 五维口径审查：教师端云端证据还原（study/etalk）+ 采分口径披露
+const CACHE_VERSION = 'ibank-v45';   // v160 错题消化率上云：错题本生命周期四事件（wb_add/master/unmaster/del）
 
 /* ★总开关：想把 PWA 停掉，只把这个 true 改成 false，然后推送一次。
  *
