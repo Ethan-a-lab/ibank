@@ -726,6 +726,14 @@ python _private/site_files.py baseline
   ⑤ 新增 `accept_v162_case_cards.mjs` **30/30**（静态接线 8——19 个 mid 配置/17calc+2pick/SW v47；渲染语义 7——每卡 3 段/编号 1,2,3/计数器/算法提示/pick 选项数；交互 10——calc ✓✗与单位噪声「54.4%」、pick 判对判错提示、mid 入分桶存档、决策链路照旧、状态栏格式；取数口径 2 回归；布局刷新 4——1440 无溢出、刷新后段②值与 ✓ 状态还在），全程 0 JS 错误；回归 accept_v161（29/29）、accept_v160（18/18）全过。
   ⑥ **本地 commit，未 push（push 由用户自己做）。）（状态更正 2026-11-28 14:37：已由用户推送上线，`65396e3`；线上核实 `?v=162` / SW `ibank-v47`。）**
 
+- **v163（2026-11-28，质感层：噪点/渐变网格纹理 + 滚动入场 stagger + 视差光斑，颜色零改动）**：用户发外部设计提示词图要求「参照提示词改网页 UI」，并明确铁律**「原有色调风格保留，不是连颜色一起优化」**；方向经确认选「质感升级」——浅色默认与深色切换、全部颜色令牌、v118 的 hover 收敛决策一律不动，只补提示词里的微交互/纹理层。
+  ① **新增 `static/polish.css` + `static/polish.js`，只挂 index.html**：body::before 渐变网格底（三个 radial-gradient，只用既有光斑色相 #c7d2fe/#a5f3fc/#ddd6fe 的透明度变体，暗色模式 `body.dark` 另档更低透明度）；body::after 噪点覆膜（feTurbulence 去饱和 SVG data-URI，平铺 180px，透明度亮 2.8%/暗 4%，`pointer-events:none` 不拦点击）；动效 = IntersectionObserver 滚动入场 + 同屏 stagger（`--rv-d` 70ms/个封顶 350ms）+ MutationObserver 监听 `.page.active` 切页补入场（display:none 页切过来内容绝不滞留隐藏）+ rAF 节流视差光斑（三 blob 系数 -0.06/0.05/0.09）。卡片级级联：home-card/kpi-card/case-item 纳入入场目标（面板先入、卡片段联），块级嵌套去重防双层位移。
+  ② **三条护栏**：ⓐ 颜色零改动（polish.css 不定义任何颜色令牌，验收有静态断言）；ⓑ 渐进增强（入场隐藏全由 `html.polish-on` 门控，JS 不跑/报错=页面原样，任何内容不会被藏）；ⓒ 延续 v118「去模板味」决策，**不加卡片 hover 上浮**（hover 维持既有表面变化风格）。
+  ③ **reduced-motion**：`prefers-reduced-motion` 下整层退出（不注入 polish-on、不挂 .rv、无视差）；会话中途切换也即时还原（polish-on 移除 + 未入场元素直接标完成）。
+  ④ **接线**：sw v47→v48（预缓存清单与 network-first 正则纳入 polish 双文件）；index.html 挂 `polish.css?v=163` + `polish.js?v=163`（app.css?v=162 保持不变，v162 验收断言兼容）。
+  ⑤ 新增 `accept_v163_polish.mjs` **30/30**（静态接线 9——SW v48/双文件引用/颜色零改动断言/预缓存与 network-first；门控与入场 7——polish-on 注入/59 个目标/首页 16 张卡级联/首屏入场/隐藏页不提前/滚动补入场/本页全亮；纹理层 4——网格/噪点/透明度≤0.05/不拦点击；切页补入场 2；视差 1；reduced-motion 4；布局业务 3——1440 无溢出/0 JS 错误/案例决策卡 246 节点不受影响）。回归全套 21 套（v130…v162）**全部 0 失败**，日志 `_private/_post163/`（v162 日志中的 ✗ 为测试描述文本，非失败项）。
+  ⑥ **本地 commit，未 push（push 由用户自己做）。**
+
 ## 专家四条建议进度（截至 v156）
 
 | # | 建议 | 状态 |

@@ -15,7 +15,7 @@
  * 注意：Service Worker 只在 https 或 localhost 下生效；双击 file:// 打开时注册会被跳过。
  */
 
-const CACHE_VERSION = 'ibank-v47';   // v162 决策卡三段式：19 张卡各加「一步测算/规则判读」段（与东财转3 实验记录卡同构）
+const CACHE_VERSION = 'ibank-v48';   // v163 质感层：polish.css/polish.js（噪点纹理 + 滚动入场 stagger + 视差光斑，颜色零改动）
 
 /* ★总开关：想把 PWA 停掉，只把这个 true 改成 false，然后推送一次。
  *
@@ -55,6 +55,8 @@ const PRECACHE_URLS = [
   './static/qa-chain.js',
   './static/forum-rubric.js',
   './static/case-cards.js',
+  './static/polish.css',
+  './static/polish.js',
   './static/qrcode.min.js',
   './static/mascot/panda.png',
   './static/mascot/panda@2x.png',
@@ -63,7 +65,7 @@ const PRECACHE_URLS = [
 ];
 
 // 与 HTML 结构强耦合、必须跟随线上最新的资源（后缀匹配，兼容 /ibank/ 子路径与将来换域名）
-const NETWORK_FIRST_ASSET = /\/static\/(app\.css|app-core\.js|app-auth\.js|i18n\.css|i18n\.js|i18n-dict\.js|undercover\.css|undercover\.js|timeline\.css|timeline\.js|bond-core\.js|bond\.css|eval-core\.js|eval\.css|qa-chain\.js|forum-rubric\.js|case-cards\.js)$/;
+const NETWORK_FIRST_ASSET = /\/static\/(app\.css|app-core\.js|app-auth\.js|i18n\.css|i18n\.js|i18n-dict\.js|undercover\.css|undercover\.js|timeline\.css|timeline\.js|bond-core\.js|bond\.css|eval-core\.js|eval\.css|qa-chain\.js|forum-rubric\.js|case-cards\.js|polish\.css|polish\.js)$/;
 
 /* 只缓存"应用外壳"类资源。白名单之外一律放行，不进缓存。
  *

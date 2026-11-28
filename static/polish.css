@@ -1,0 +1,54 @@
+/* ============================================================
+   polish.css — v163 质感层（纹理 + 微交互的静态部分）
+
+   三条铁律（与 VERSION_LOG v163 条目对应）：
+   1. 颜色零改动：不新增任何文字/描边/强调色令牌；渐变网格只复用既有
+      光斑的三个色相（#c7d2fe / #a5f3fc / #ddd6fe）的透明度变体。
+   2. 渐进增强：入场隐藏一律由 html.polish-on 门控——JS 没跑、被拦截
+      或报错时，页面就是原样，任何内容都不会被藏起来。
+   3. 延续 v118 的「去模板味」决策：不加卡片 hover 上浮/大阴影，
+      hover 交互维持 app.css 既有的表面变化风格。
+
+   注：噪点/渐变网格是静态纹理而非动效，不受 prefers-reduced-motion
+       影响；动效（入场、视差）由 polish.js 在系统要求减少动效时整层退出。
+   ============================================================ */
+
+/* ---- 渐变网格底（body::before，铺在光斑之下、内容之下） ---- */
+body::before {
+  content: "";
+  position: fixed; inset: 0; z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(42% 34% at 16% 10%, rgba(199, 210, 254, 0.30), transparent 72%),
+    radial-gradient(38% 32% at 85% 84%, rgba(165, 243, 252, 0.22), transparent 72%),
+    radial-gradient(30% 26% at 62% 42%, rgba(221, 214, 254, 0.18), transparent 74%);
+}
+body.dark:not(.light)::before {
+  background:
+    radial-gradient(42% 34% at 16% 10%, rgba(129, 140, 248, 0.10), transparent 72%),
+    radial-gradient(38% 32% at 85% 84%, rgba(34, 211, 238, 0.07), transparent 72%),
+    radial-gradient(30% 26% at 62% 42%, rgba(167, 139, 250, 0.07), transparent 74%);
+}
+
+/* ---- 噪点纹理（fractalNoise 去饱和，全屏覆膜，很轻） ---- */
+body::after {
+  content: "";
+  position: fixed; inset: 0; z-index: 9999;
+  pointer-events: none;
+  opacity: 0.028;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E") repeat;
+  background-size: 180px 180px;
+}
+body.dark:not(.light)::after { opacity: 0.04; }
+
+/* ---- 滚动入场 + 同屏 stagger（静态定义，节奏由 JS 写 --rv-d） ---- */
+html.polish-on .rv {
+  opacity: 0;
+  transform: translateY(14px);
+  transition: opacity 0.55s ease, transform 0.55s cubic-bezier(0.22, 0.61, 0.36, 1);
+  transition-delay: var(--rv-d, 0ms);
+}
+html.polish-on .rv.rv-in {
+  opacity: 1;
+  transform: none;
+}

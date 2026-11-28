@@ -24,6 +24,8 @@
   <link rel="stylesheet" href="static/i18n.css?v=156">
   <link rel="stylesheet" href="static/undercover.css">
   <link rel="stylesheet" href="static/timeline.css">
+  <!-- v163 质感层：噪点/渐变网格纹理 + 滚动入场 stagger（颜色零改动，JS 门控渐进增强） -->
+  <link rel="stylesheet" href="static/polish.css?v=163">
 </head>
 <body>
   <!-- ===== 登录/注册遮罩 ===== -->
@@ -3883,6 +3885,8 @@ body.dark #p-game .mode-panel{
   </div>
 
   <script src="static/app-core.js"></script>
+  <!-- v163 质感层：滚动入场 stagger / 切页补入场 / 视差光斑（reduced-motion 自动整层退出） -->
+  <script src="static/polish.js?v=163"></script>
 
   <!-- 云服务 SDK：放在文档末尾而非 <head>，网络不通时不会阻塞首屏渲染；加载失败自动降级为本地演示 -->
   <script src="https://static.cloudbase.net/cloudbase-js-sdk/latest/cloudbase.full.js"></script>
