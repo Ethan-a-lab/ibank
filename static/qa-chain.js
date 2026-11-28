@@ -202,6 +202,36 @@
 
   /* ---------- v156 ④ 教师可见摘要：学生主动授权，只传数字 ---------- */
   function shared() { return ls(SHKEY, null); }
+  /* v157：把当前统计压成一份脱敏快照（数字 + 指纹）。指纹用于「数字变了才续传」。 */
+  function sharePayload(s, rv) {
+    var ch = rv.filter(function (r) { return r.type === 'challenge'; }).length;
+    var fx = rv.filter(function (r) { return r.type === 'revise'; }).length;
+    return {
+      ch: ch, fx: fx,
+      sig: [s.n, s.follow, s.revise, s.regen, ch, fx, s.sessions, s.avgQ].join('|')
+    };
+  }
+  /* v157：授权状态下新提问 / 新质疑后自动续传最新快照（仍只传数字，原文不出本机）。
+     教师端按学生取最新一条，旧快照自动被覆盖，不会重复累加。60 秒节流防刷事件表。 */
+  var lastResync = 0;
+  function resyncShare() {
+    var v = shared(); if (!v) return;
+    var now = Date.now();
+    if (now - lastResync < 60000) return;
+    var s = stats(), rv = reviews(), pl = sharePayload(s, rv);
+    if (pl.sig === v.sig) return;
+    lastResync = now;
+    if (typeof window.__ibankTrack === 'function') {
+      try {
+        window.__ibankTrack('qa_share', {
+          n: s.n, turns: s.turns, follow: s.follow, revise: s.revise, regen: s.regen,
+          challenge: pl.ch, fix: pl.fx, sessions: s.sessions, avgq: s.avgQ, rv: rv.length
+        });
+      } catch (e) { /* 上报失败不影响本机授权状态 */ }
+    }
+    try { localStorage.setItem(SHKEY, JSON.stringify({ ts: now, n: s.n, sig: pl.sig })); } catch (e) {}
+    renderShare();
+  }
   function renderShare() {
     var btn = q('qc-share'), state = q('qc-share-state'), note = q('qc-share-note');
     if (note) note.textContent = L(
@@ -227,20 +257,18 @@
       toast(L('已撤销授权，教师端不再显示你的摘要', 'Access revoked — your summary is no longer shown'));
       return true;
     }
-    var s = stats(), rv = reviews();
-    var ch = rv.filter(function (r) { return r.type === 'challenge'; }).length;
-    var fx = rv.filter(function (r) { return r.type === 'revise'; }).length;
+    var s = stats(), rv = reviews(), pl = sharePayload(s, rv);
     if (!s.n && !rv.length) { toast(L('还没有提问记录，无需授权', 'Nothing to share yet')); return false; }
     /* 只发数字：次数、字数、会话数。理由原文与对话原文一律不进 detail。 */
     if (typeof window.__ibankTrack === 'function') {
       try {
         window.__ibankTrack('qa_share', {
           n: s.n, turns: s.turns, follow: s.follow, revise: s.revise, regen: s.regen,
-          challenge: ch, fix: fx, sessions: s.sessions, avgq: s.avgQ, rv: rv.length
+          challenge: pl.ch, fix: pl.fx, sessions: s.sessions, avgq: s.avgQ, rv: rv.length
         });
       } catch (e) { /* 上报失败不阻断授权状态 */ }
     }
-    try { localStorage.setItem(SHKEY, JSON.stringify({ ts: Date.now(), n: s.n })); } catch (e) {}
+    try { localStorage.setItem(SHKEY, JSON.stringify({ ts: Date.now(), n: s.n, sig: pl.sig })); } catch (e) {}
     renderShare();
     toast(L('已授权上传脱敏摘要，随时可撤销', 'Summary shared — you can revoke any time'));
     return true;
@@ -265,6 +293,7 @@
       } catch (e) { /* 上报失败不阻断本地留痕 */ }
     }
     renderReviews(); renderStats();
+    resyncShare();   // v157：质疑/修正计数变了，已授权就把最新数字续传给教师端
     toast(rec.type === 'challenge'
       ? L('已记录质疑，可在成果链查看', 'Challenge saved — see it in your inquiry chain')
       : L('已记录修正，可在成果链查看', 'Revision saved — see it in your inquiry chain'));
@@ -341,6 +370,7 @@
   bind();
   renderAll();
   try { window.addEventListener('ibk:lang', function () { applyLabels(); renderAll(); }); } catch (e) {}
-  // 供外部（答疑发送成功后）刷新统计，也供验收脚本调用
-  window.__ibankQaChain = { refresh: renderAll, stats: stats, count: function () { return items().length; } };
+  // 供外部（答疑发送成功后）刷新统计，也供验收脚本调用；
+  // v157：resync 供答疑发送成功后调用 —— 已授权且数字有变时自动续传快照
+  window.__ibankQaChain = { refresh: renderAll, resync: resyncShare, stats: stats, count: function () { return items().length; } };
 })();

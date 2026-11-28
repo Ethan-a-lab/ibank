@@ -15,7 +15,7 @@
  * 注意：Service Worker 只在 https 或 localhost 下生效；双击 file:// 打开时注册会被跳过。
  */
 
-const CACHE_VERSION = 'ibank-v41';   // v156 D维项目题口径 + 成果链授权摘要（双语）
+const CACHE_VERSION = 'ibank-v42';   // v157 修复 detail 上云通道 + 授权摘要去重与自动续传
 
 /* ★总开关：想把 PWA 停掉，只把这个 true 改成 false，然后推送一次。
  *

@@ -342,17 +342,14 @@
           localStorage.setItem('ibank_events_local', JSON.stringify(arr.slice(-2000)));
         } catch (e) { /* 隐私模式 / 配额满：不影响云端上报 */ }
       }
-      // v62：events 表是否已有 detail 列 —— 懒探测一次，结果缓存；缺列时上报自动降级
+      // v62 引入 detail 列；v157 修复探测机制：
+      //   旧探测用 db.select('detail') 探列，而 CloudBase 网关对显式列名 detail 一律判 400
+      //   （v155 取数时已实测记录），探测恒为 false → 所有 detail 在上云前被删光 ——
+      //   v156 教师端「探究成果链 · 授权摘要」因此全是 0，学生的提问/追问数字根本没传上去。
+      //   现改为「默认带上 detail 直接插，插入真报错再摘掉重试」：
+      //   列在 → 一次成功；列缺 → 兜底重试裸字段并置 detailOK=false，本会话后续上报
+      //   不再带 detail，避免每条都双发。null = 尚未失败过，先乐观尝试。
       let detailOK = null;
-      async function hasDetailColumn() {
-        if (detailOK !== null) return detailOK;
-        if (!db) { detailOK = false; return detailOK; }
-        try {
-          const r = await db.from('events').select('detail').limit(1);
-          detailOK = !(r && r.error);
-        } catch (e) { detailOK = false; }
-        return detailOK;
-      }
       async function track(type, payload) {
         payload = payload || {};
         const uid = await getUserId();
@@ -393,8 +390,9 @@
           return;
         }
         trackLocalMirror(rec);   // ← 登录态同样留本机镜像，供学情画像页实时重算
-        // v62：上云前探测 detail 列。列没加过就摘掉该字段再写，决策记录照样入库（只是少了选项与理由）
-        if (rec.detail != null && !(await hasDetailColumn())) delete rec.detail;
+        // v157：不再预删 detail（旧探测在 CloudBase 上恒 false，等于 detail 永远不上云）。
+        //   仅当本会话已实测「插入带 detail 报错」时才跳过；列真缺时由下方插入失败兜底二次保护。
+        if (rec.detail != null && detailOK === false) delete rec.detail;
         try { await db.from('events').insert(rec); } catch (e) {
           // 兜底：探测通过但插入仍失败时，去掉 detail 再试一次，避免一条决策记录整体丢失
           if (rec.detail != null) {
@@ -979,8 +977,10 @@ emitted = target;
           if (!p) return;
           var ts = toMs(e.ts);
           if (ts && ts <= ancEnd) return;
+          // v157：云端 detail 是字符串（JSON）。旧写法 d={} 是真值，导致 JSON.parse 分支
+          //   永远不执行 —— 字符串 detail 被当成空对象，结构化字段全丢（与 eval-core.js 的正确写法对齐）。
           var d = (e.detail && typeof e.detail === 'object') ? e.detail : {};
-          if (!d && e.detail) { try { d = JSON.parse(e.detail) || {}; } catch (x) { d = {}; } }
+          if (typeof e.detail === 'string') { try { d = JSON.parse(e.detail) || {}; } catch (x) { d = {}; } }
           var key = [uid, e.type, ts, e.chapter || '', e.module || '', e.correct,
             d.step || '', d.score || '', d.side || ''].join('|');
           if (seen[key]) return;
@@ -1146,12 +1146,17 @@ emitted = target;
       function qcT(k) { var d = QC_TXT[avLang()] || QC_TXT.zh; return d[k] || QC_TXT.zh[k] || k; }
       var qcBoardRaw = [];
       function qcDetail(e) {
-        var d = (e && e.detail && typeof e.detail === 'object') ? e.detail : {};
-        if (!d && e && e.detail) { try { d = JSON.parse(e.detail) || {}; } catch (x) { d = {}; } }
-        return d;
+        /* v157：修复死分支 —— 旧写法 d={} 是真值，`if (!d ...)` 永不执行，云端返回的
+           字符串 detail（JSON）被当成空对象，qa_share 的数字全丢，教师端摘要永远是 0。 */
+        if (!e || !e.detail) return {};
+        if (typeof e.detail === 'object') return e.detail;
+        try { return JSON.parse(e.detail) || {}; } catch (x) { return {}; }
       }
       function qcEvents(list) {
-        var seen = {}, out = [], ancEnd = semesterAnchor().end;
+        /* v157：同一学生可产生多条 qa_share（撤销后重授 / 授权期间数字变化自动续传）。
+           旧逻辑按 uid+ts 去重等于不去重 —— 每条快照都入表，「授权学生」按条数计、
+           数字重复累加。改为按 uid 只保留最新一条快照：人数按学生计，数字取最近授权。 */
+        var byUid = {}, ancEnd = semesterAnchor().end;
         (list || []).forEach(function (e) {
           if (!e || e.type !== 'qa_share') return;
           if (isOldBatch(e)) return;
@@ -1159,18 +1164,17 @@ emitted = target;
           if (!p) return;
           var ts = toMs(e.ts);
           if (ts && ts <= ancEnd) return;
-          var key = String(e.uid) + '|' + ts;
-          if (seen[key]) return;
-          seen[key] = 1;
           var d = qcDetail(e), num = function (k) { var v = Number(d[k]); return isFinite(v) && v >= 0 ? v : 0; };
-          out.push({
+          var row = {
             uid: String(e.uid), profile: p, ts: ts,
             n: num('n'), turns: num('turns'), follow: num('follow'), revise: num('revise'),
             regen: num('regen'), challenge: num('challenge'), fix: num('fix'),
             sessions: num('sessions'), avgq: num('avgq'), rv: num('rv')
-          });
+          };
+          var prev = byUid[row.uid];
+          if (!prev || row.ts >= prev.ts) byUid[row.uid] = row;
         });
-        return out;
+        return Object.keys(byUid).map(function (k) { return byUid[k]; });
       }
       function renderQcBoard() {
         var body = document.getElementById('qc-board-body');

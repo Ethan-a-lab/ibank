@@ -2097,6 +2097,10 @@ document.addEventListener('keydown', function (e) {
               });
             } catch (e) {}
           }
+          // v157：学生已授权「教师可见摘要」时，提问数字变化即自动续传最新脱敏快照（只传数字，60 秒节流）
+          if (window.__ibankQaChain && typeof window.__ibankQaChain.resync === 'function') {
+            try { window.__ibankQaChain.resync(); } catch (e) {}
+          }
           busy = false;
           sendBtn.classList.remove('stop');
           sendBtn.innerHTML = SEND_SVG;
