@@ -9,11 +9,11 @@
 
 | 项目 | 值 |
 | --- | --- |
-| **当前版本号** | **v164** — 2026-11-28「质感层追加：home-card hover 渐变描边环」（**v163/v164 已由用户推送上线，2026-11-28 18:47 核实**） |
-| 上一版 | **v163** — 2026-11-28「质感层：噪点/渐变网格纹理 + 滚动入场 stagger + 视差光斑，颜色零改动」（`9120d36` 已推送） |
-| 对应提交 | v163（`9120d36`）/ v164（`5530239`）已全部推送，`origin/main` 同位 |
-| 线上校验 | **线上已是 v164**（2026-11-28 18:47 核实：首页引用 `polish.css?v=164` + `polish.js?v=163`、`app.css?v=162` 不变、`static/polish.css` 线上 200、SW `ibank-v49`） |
-| SW 版本 | **`ibank-v49`**（v164 升的；polish.css 引用参数 `?v=164`） |
+| **当前版本号** | **v165** — 2026-11-28「修复：v154 误删 CACHE_NAME 定义导致 SW 更新自 v39 起静默失效 11 版」（本地已 commit，**待用户 push**；推送后真机终验：新站 SW 应显示 `ibank-v50`） |
+| 上一版 | **v164** — 2026-11-28「质感层追加：home-card hover 渐变描边环」（`5530239` 已推送） |
+| 对应提交 | v163（`9120d36`）/ v164（`5530239`）已推送；**v165 本地待推** |
+| 线上校验 | 线上仍为 v164 文本（2026-11-28 18:47 核实）；**注意**：文件含 `ibank-v49` ≠ 浏览器在跑 v49——v39 起安装即失败，旧站浏览器实际仍运行 **ibank-v38**，v165 推送后才真正恢复升级 |
+| SW 版本 | 文本 **`ibank-v50`**（v165 修复后；浏览器实际运行版本以真机「应用程序→Service Workers」为准） |
 | **未完成的前置条件** | `db/undercover.sql`：README 记为**已执行**（2026-11-12 核实），本表旧口径作废。若课堂上「手机领词」仍退回纸质模式，先查这条与匿名登录开关 |
 | 台账登记 | 文末详细条目已到 **v145**；「三、版本记录」索引表停在 **v79**（历史遗留，仅作旧版检索，不再续写） |
 
@@ -739,6 +739,12 @@ python _private/site_files.py baseline
   ② **接线**：sw v48→v49；index.html `polish.css?v=163→164`（polish.js 无改动保持 ?v=163）。
   ③ **验收**：accept_v163_polish.mjs 扩至 **38/38**（新增 [2b] 静态 5——mask 环/position 锚点/亮暗色相断言/默认态不可见；运行时 3——hover 后 ::after opacity=1/linear-gradient/不拦点击）；回归全套 21 套（v130…v162）**全部 0 失败**，日志 `_private/_post163/`。
   ④ **本地 commit，未 push（push 由用户自己做）。）（状态更正 2026-11-28 18:47：已由用户推送上线，`5530239`；线上核实首页 `polish.css?v=164`、SW `ibank-v49`、`static/polish.css` 200。）**
+
+- **v165（2026-11-28，修复：CACHE_NAME 定义自 v154 起被误删，SW 更新已静默失效 11 版）**：新站 `ibank-5cx.pages.dev`（Cloudflare Pages 迁移验证）浏览器控制台暴露 `ReferenceError: CACHE_NAME is not defined`（sw.js:89）。**根因**：`cef8415`（v154，2026-11-28 09:57）升 `CACHE_VERSION` 时把 `const CACHE_NAME = \`ibank-shell-${CACHE_VERSION}\`;` 一并误删——v39…v49 共 11 个版本的 SW **安装时全部失败**（install 里 `caches.open(CACHE_NAME)` 抛错→安装中断）。**旧站为什么没发现**：浏览器里还挂着 v154 之前成功安装的 **ibank-v38 旧 SW** 兜底，新版装不上就继续用旧的，站点功能无感；此前台账「SW `ibank-v49`」核实的是**文件文本**而非浏览器实际运行版本，**该核实方法有漏洞，本条已更正**。新站是全新域名、无旧 SW 兜底，安装失败直接显形为「已删除」，反而把雷照出来了。
+  ① **修复**（sw.js，2 行）：恢复 `const CACHE_NAME = \`ibank-shell-${CACHE_VERSION}\`;`（与 v153 及之前逐字相同，git -S 佐证）；`CACHE_VERSION` v49→**v50**。零业务改动、零颜色改动、预缓存清单与策略分支未动。
+  ② **验证**：VM 模拟 SW 环境（self/caches/skipWaiting/clients 全 mock）求值 + 跑 install/activate 全流程——`CACHE_NAME=ibank-shell-ibank-v50` 正常定义、无 ReferenceError、activate 按预期清掉非本版缓存键；git show 比对确认恢复行与历史版本一致。**终验在真机**：推送后新站 F5 两次，SW 应显示 `ibank-v50` 已激活（若仍「已删除」即修复未生效，二值可断）。playwright 全套 21 套回归本环境未跑（仓库无 node_modules），以真机终验 + VM 模拟替代，风险为 2 行等价恢复。
+  ③ **连带提醒**：旧站浏览器的 v38 老 SW 在本版推送成功后会正常升级到 v50（v39–v49 的 polish 纹理层预缓存、network-first 名单等 SW 侧改动**第一次真正落到用户浏览器**——manifest/离线能力以真机实测为准）。
+  ④ 本地 commit，未 push（push 由用户自己做）。
 
 ## 专家四条建议进度（截至 v156）
 
