@@ -15,7 +15,7 @@
  * 注意：Service Worker 只在 https 或 localhost 下生效；双击 file:// 打开时注册会被跳过。
  */
 
-const CACHE_VERSION = 'ibank-v46';   // v161 案例库通用决策卡：新增 static/case-cards.js（E 维 e.case 全案例采分）
+const CACHE_VERSION = 'ibank-v47';   // v162 决策卡三段式：19 张卡各加「一步测算/规则判读」段（与东财转3 实验记录卡同构）
 
 /* ★总开关：想把 PWA 停掉，只把这个 true 改成 false，然后推送一次。
  *

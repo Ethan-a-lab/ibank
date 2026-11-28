@@ -18,7 +18,7 @@
   <meta name="apple-mobile-web-app-title" content="iBank">
   <link rel="apple-touch-icon" href="static/icons/apple-touch-icon.png">
   <!-- PWA:end -->
-  <link rel="stylesheet" href="static/app.css?v=161">
+  <link rel="stylesheet" href="static/app.css?v=162">
   <link rel="stylesheet" href="static/eval.css">
   <link rel="stylesheet" href="static/bond.css">
   <link rel="stylesheet" href="static/i18n.css?v=156">
@@ -2226,7 +2226,7 @@ body.dark #p-game .mode-panel{
     <section class="page" id="p-case">
       <div class="panel">
         <div class="section-title"><span class="bar"></span>投行教学案例库</div>
-        <div class="section-sub">收录 <strong>20 个真实交易案例</strong>，按教材章节（第0章导论 → 第7章公司并购）顺序编排，每章至少 2 例。点击展开查看背景、时间线、数据、投行角色与讨论题；支持关键词与章节筛选。每个案例底部都有一张<strong>「决策记录卡」</strong>：情境决策＋书面理由提交后，计入五维评估「价值认同与职业伦理」维度（东财转3 案例内是完整的 4.3 实验记录卡，其余案例为决策卡，两者同口径计分）。</div>
+        <div class="section-sub">收录 <strong>20 个真实交易案例</strong>，按教材章节（第0章导论 → 第7章公司并购）顺序编排，每章至少 2 例。点击展开查看背景、时间线、数据、投行角色与讨论题；支持关键词与章节筛选。每个案例底部都有一张<strong>「决策记录卡」</strong>（三段式：关键数速填 → 一步测算/规则判读 → 情境决策，与东财转3 的 4.3 实验记录卡同构）：提交情境决策与书面理由后，计入五维评估「价值认同与职业伦理」维度，速填与测算两段只做自查不评分。</div>
 
         <div class="cl-note">
           <b>教学使用说明</b>
@@ -3895,7 +3895,7 @@ body.dark #p-game .mode-panel{
   <!-- 主题讨论伦理量规（专家建议③ · E 维 · v142）：依赖 app-forum 的 state -->
   <script src="static/forum-rubric.js"></script>
 
-  <!-- 案例库通用决策记录卡（v161 · E 维 e.case）：为东财转3 之外的 19 个案例
+  <!-- 案例库通用决策记录卡（v161 两段式 → v162 三段式 · E 维 e.case）：为东财转3 之外的 19 个案例
        各渲染一张「关键数速填 + 情境决策」卡，提交上报 type=case_decision，
        eval-core 与 cb_decision 同口径计入 E 维。依赖 DOM 中 case-XX 与 __ibankTrack。 -->
   <script src="static/case-cards.js"></script>
