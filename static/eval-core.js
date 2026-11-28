@@ -150,16 +150,37 @@
   function num(k) { try { return parseInt(localStorage.getItem(k) || '0', 10) || 0; } catch (e) { return 0; } }
   function clamp(v, a, b) { return Math.max(a, Math.min(b, v)); }
 
+  /* v155：取数与计算分离。computeFrom(src) 是纯函数，教师端可用云端事件按同一口径算分；
+     本机页面仍走 computeM()，读数顺序与 v154 完全一致。 */
   function computeM() {
-    var evs = ls('ibank_events_local', []);
+    var times = {};
+    CHS.forEach(function (c) { times[c] = num('ibank_time_' + c); });
+    return computeFrom({
+      evs: ls('ibank_events_local', []),
+      done: ls('ibank_chapter_done', {}),
+      wb: ls('ibank_wrongbook', null),
+      times: times,
+      etalk: ls('ibank_forum_etalk', null)
+    });
+  }
+
+  function detOf(e) {
+    if (!e) return {};
+    if (e.detail && typeof e.detail === 'object') return e.detail;
+    if (e.detail) { try { return JSON.parse(e.detail) || {}; } catch (x) { return {}; } }
+    return {};
+  }
+
+  function computeFrom(src) {
+    src = src || {};
+    var evs = src.evs;
     if (!Array.isArray(evs)) evs = [];
-    var done = ls('ibank_chapter_done', {}) || {};
-    var wb = ls('ibank_wrongbook', null);
+    var done = src.done || {};
+    var wb = src.wb || null;
     var items = (wb && wb.items && typeof wb.items === 'object')
       ? Object.keys(wb.items).map(function (k) { return wb.items[k]; }) : [];
     items = items.filter(function (w) { return w && !w.isSeed; });
-    var times = {};
-    CHS.forEach(function (c) { times[c] = num('ibank_time_' + c); });
+    var times = src.times || {};
 
     var Out = { val: {}, ev: {}, n: evs.length, quiz: 0, qok: 0, tries: 0 };
     var qs = evs.filter(function (e) { return e && e.type === 'quiz' && typeof e.correct === 'boolean'; });
@@ -197,13 +218,29 @@
         + (sec ? ' · ' + Math.round(sec / 60) + ' 分钟' : '');
     });
 
-    /* IPO：各步得分率均值 */
-    var ios = evs.filter(function (e) { return e && e.type === 'ipo' && e.max > 0 && typeof e.score === 'number'; });
+    /* IPO：各步得分率均值。
+       v155：track() 把 score/max/tries 压进 detail，顶层字段只在早期版本出现；
+       两处都读，否则 D 维 0.4 的这一项永远拿不到分。 */
+    var ios = evs.filter(function (e) {
+      if (!e || e.type !== 'ipo') return false;
+      var d = detOf(e);
+      var mx = typeof e.max === 'number' ? e.max : Number(d.max);
+      var sc = typeof e.score === 'number' ? e.score : Number(d.score);
+      return mx > 0 && isFinite(sc);
+    });
     if (ios.length) {
       var s = 0;
-      ios.forEach(function (e) { s += e.score / e.max; });
+      ios.forEach(function (e) {
+        var d = detOf(e);
+        var mx = typeof e.max === 'number' ? e.max : Number(d.max);
+        var sc = typeof e.score === 'number' ? e.score : Number(d.score);
+        s += sc / mx;
+      });
       Out.val['d.ipo'] = Math.round(s / ios.length * 100);
-      Out.tries = Math.max.apply(null, ios.map(function (e) { return e.tries || 1; }));
+      Out.tries = Math.max.apply(null, ios.map(function (e) {
+        var d = detOf(e);
+        return Number(typeof e.tries === 'number' ? e.tries : d.tries) || 1;
+      }));
       Out.ev['d.ipo'] = ios.length + ' 次分步提交 · 最多重试 ' + Out.tries + ' 次';
     } else { Out.val['d.ipo'] = null; }
 
@@ -227,9 +264,9 @@
     /* 课程项目：押注 30 + 推进状态 40 起 */
     var ps = evs.filter(function (e) { return e && e.type === 'project'; });
     if (ps.length) {
-      var picked = ps.some(function (e) { return e.pick; });
-      var stated = ps.some(function (e) { return e.state === 'done'; });
-      var anyState = ps.some(function (e) { return e.state; });
+      var picked = ps.some(function (e) { return e.pick || detOf(e).pick; });
+      var stated = ps.some(function (e) { return e.state === 'done' || detOf(e).state === 'done'; });
+      var anyState = ps.some(function (e) { return e.state || detOf(e).state; });
       Out.val['d.proj'] = Math.min(100, 40 + (picked ? 30 : 0) + (stated ? 30 : (anyState ? 15 : 0)));
       Out.ev['d.proj'] = (picked ? '已押注路线' : '未押注') + ' · ' + (stated ? '已完成' : anyState ? '进行中' : '未启动');
     } else { Out.val['d.proj'] = null; }
@@ -251,7 +288,7 @@
     /* 主题讨论 · 伦理量规（v142）：由 forum-rubric.js 在本机现算并写入 ibank_forum_etalk。
        取数优先级 = 教师复核分 > 系统参考分，全部由该模块算好；这里只读那一个数字，
        不读帖子原文、不猜分。没有本人帖子就保持 null（待采集），不用 0 冒充。 */
-    var et = ls('ibank_forum_etalk', null);
+    var et = src.etalk || null;
     if (et && typeof et.score === 'number' && et.score >= 0 && et.score <= 100) {
       Out.val['e.talk'] = Math.round(et.score);
       Out.ev['e.talk'] = (et.n || 1) + ' 篇讨论帖 · 系统参考分/教师复核';
@@ -350,6 +387,34 @@
     var n = 0;
     d.obs.forEach(function (o) { if (valOf(o) != null) n++; });
     return n;
+  }
+
+  /* v155：教师端按同一口径给任意一串事件算五维。
+     与 dimScore 的差别只在取数对象（Out 而非全局 M），缺项同样往 50 拉、不用 0 冒充。
+     综合分只在五维都有证据时给，缺任一维显示 null —— 与「待采集」口径一致。 */
+  function scoreOut(Out) {
+    var dims = {}, coverage = {}, haveAll = 0;
+    DIMS.forEach(function (d) {
+      var sum = 0, wp = 0, have = 0;
+      d.obs.forEach(function (o) {
+        var v = Out.val[o.key];
+        if (v == null || !isFinite(v)) return;
+        sum += o.p * v; wp += o.p; have++;
+      });
+      coverage[d.k] = have;
+      haveAll += have;
+      var v = null;
+      if (wp) {
+        var raw = sum / wp, missing = (d.obs.length - have) / d.obs.length;
+        v = Math.round(raw + (50 - raw) * missing * 0.5);
+      }
+      dims[d.k] = v;
+    });
+    var full = ['K', 'D', 'R', 'E', 'S'].every(function (k) { return dims[k] != null; });
+    return {
+      dims: dims, coverage: coverage, obsHave: haveAll, obsTotal: TOTAL_OBS,
+      total: full ? Math.round(totalOf(dims, dimWeights())) : null
+    };
   }
 
   /* ---------------- 6. 班级示例集（n=42，仅用于敏感性检验） ---------------- */
@@ -769,6 +834,16 @@
   window.__ibankAvRefresh = renderAll;
   /* v154 只读调试接口：供验收注入 trade 事件后核对 r.trade 取数，不改动任何教案口径 */
   window.__ibankEvalDump = function () { return M; };
+  /* v155 教师端专用：传入 {evs, done, wb, times, etalk} 返回五维分与证据数。
+     只读计算，不改本机 M、不写 localStorage；缺项口径与页面完全一致。 */
+  window.__ibankEvalCompute = function (src) {
+    var Out = computeFrom(src);
+    var s = scoreOut(Out);
+    s.val = Out.val;
+    s.ev = Out.ev;
+    s.n = Out.n;
+    return s;
+  };
 
   /* 深链直达 */
   function gotoEval() {

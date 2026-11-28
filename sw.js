@@ -15,7 +15,7 @@
  * 注意：Service Worker 只在 https 或 localhost 下生效；双击 file:// 打开时注册会被跳过。
  */
 
-const CACHE_VERSION = 'ibank-v39';   // v154 R维交易埋点 + 成果链显式质疑/修正（双语）
+const CACHE_VERSION = 'ibank-v40';   // v155 教师端五维达成（24级+真实学生，23级冻结）+ detail兜底取数
 
 /* ★总开关：想把 PWA 停掉，只把这个 true 改成 false，然后推送一次。
  *
@@ -38,12 +38,12 @@ const PRECACHE_URLS = [
   './ibank-game.html',
   './uc.html',
   './manifest.webmanifest',
-  './static/app.css?v=154',
+  './static/app.css?v=155',
   './static/app-core.js',
   './static/app-auth.js',
-  './static/i18n.css?v=154',
-  './static/i18n-dict.js?v=154',
-  './static/i18n.js?v=154',
+  './static/i18n.css?v=155',
+  './static/i18n-dict.js?v=155',
+  './static/i18n.js?v=155',
   './static/undercover.css',
   './static/undercover.js',
   './static/timeline.css',

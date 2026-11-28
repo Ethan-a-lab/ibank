@@ -18,10 +18,10 @@
   <meta name="apple-mobile-web-app-title" content="iBank">
   <link rel="apple-touch-icon" href="static/icons/apple-touch-icon.png">
   <!-- PWA:end -->
-  <link rel="stylesheet" href="static/app.css?v=154">
+  <link rel="stylesheet" href="static/app.css?v=155">
   <link rel="stylesheet" href="static/eval.css">
   <link rel="stylesheet" href="static/bond.css">
-  <link rel="stylesheet" href="static/i18n.css?v=154">
+  <link rel="stylesheet" href="static/i18n.css?v=155">
   <link rel="stylesheet" href="static/undercover.css">
   <link rel="stylesheet" href="static/timeline.css">
 </head>
@@ -3696,6 +3696,11 @@ body.dark #p-game .mode-panel{
         <select id="ss-class" class="ss-select" aria-label="Filter by class"><option value="">全部班级</option></select>
       </div>
 
+      <details class="fold-panel" id="av-board-fold" data-i18n-skip>
+        <summary><span class="fp-t" id="av-board-title">五维达成（24级及以后）</span></summary>
+        <div class="fp-body" id="av-board-body"><div class="um-empty">加载中…</div></div>
+      </details>
+
       <div class="admin-kpi-row" id="ev-kpi-row" data-i18n-skip>
         <div class="admin-kpi"><div class="k">覆盖学生</div><div class="v">0</div><div class="sub">有学习行为记录</div></div>
         <div class="admin-kpi"><div class="k">AI 问答</div><div class="v">0</div><div class="sub">课程相关问答次数</div></div>
@@ -3877,8 +3882,8 @@ body.dark #p-game .mode-panel{
   <script src="static/forum-rubric.js"></script>
 
   <!-- 中英双语语言层：字典与运行时分离，补译文只需改 i18n-dict.js -->
-  <script src="static/i18n-dict.js?v=154"></script>
-  <script src="static/i18n.js?v=154"></script>
+  <script src="static/i18n-dict.js?v=155"></script>
+  <script src="static/i18n.js?v=155"></script>
 
   <!-- 投行卧底（教师控场）：独立模块，自带双语表，不经 i18n-dict.js -->
   <script src="static/undercover.js"></script>

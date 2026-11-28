@@ -324,6 +324,8 @@
           renderUserList(list);
           // 档案映射晚于看板渲染到达时，重画一次让「覆盖学生」从埋点人数刷新为真实注册人数。
           if (typeof statRaw !== 'undefined' && statRaw && typeof renderStatScoped === 'function') renderStatScoped();
+          // 学生档案晚于五维取数到达时，用已取到的事件重新按真实年级归类，不再请求云端
+          if (window.__ibankAvBoard && typeof window.__ibankAvBoard.reprocess === 'function') window.__ibankAvBoard.reprocess();
         } catch (e) { console.log('加载实时数据失败', e); }
       }
 
@@ -863,10 +865,11 @@ emitted = target;
         var sel = document.getElementById('ss-class');
         if (!sel) return;
         var seen = {};
-        var grades = statScope.grade === 'all' ? ['23', '24'] : [statScope.grade];
+        // v155：「全部」要含 25 级及以后的班级，否则新年级一出现就会被这里清空筛选
+        var grades = statScope.grade === 'all' ? null : [statScope.grade];
         Object.keys(data || {}).forEach(function (k) {
           (data[k] || []).forEach(function (e) {
-            if (grades.indexOf(gradeOfEvent(e)) < 0) return;
+            if (grades && grades.indexOf(gradeOfEvent(e)) < 0) return;
             var c = classOfEvent(e);
             if (c && c !== '未分班') seen[c] = 1;
           });
@@ -903,6 +906,7 @@ emitted = target;
           });
         }
         renderStatScoped();
+        if (typeof renderAvBoard === 'function') renderAvBoard();
       }
       window.__ibankStatScope = setStatScope;
       // 验收注入：塞入确定性的六类数据并重画，用于验证 23/24 分流确实改变 KPI。
@@ -912,6 +916,218 @@ emitted = target;
         statRaw = six;
         renderStatScoped();
       };
+
+      /* ===== v155 教师端五维达成视图 =====
+       * 只聚合 24 级及以后**真实注册学生**的行为事件：23 级 89 人基线（sim_ 前缀、
+       * 班级名却是金融24xx）产生于五维功能上线之前，整批排除、不回填、不混算。
+       * 分数复用 eval-core 的 __ibankEvalCompute，与学生在自己页面看到的口径相同。 */
+      var AV_TYPES = { quiz: 1, module: 1, ipo: 1, bond: 1, project: 1, cb_decision: 1, trade: 1 };
+      var AV_DIMS = [
+        { k: 'K', zh: '知识整合', en: 'Knowledge', line: 75 },
+        { k: 'D', zh: '决策预判', en: 'Decision', line: 70 },
+        { k: 'R', zh: '心理韧性', en: 'Resilience', line: 70 },
+        { k: 'E', zh: '职业伦理', en: 'Ethics', line: 70 },
+        { k: 'S', zh: '自主学习', en: 'Self-study', line: 70 }
+      ];
+      var AV_TXT = {
+        zh: {
+          title: '五维达成（24级及以后）',
+          old: '23级为五维上线前的历史档案，不参与本视图。',
+          empty: '暂无真实学生的五维证据。学生登录后完成作答、仿真与讨论，这里会自动汇总。',
+          students: '参与学生', evidence: '观测点覆盖', withScore: '有维度分',
+          student: '学生', cls: '班级', total: '综合', evCol: '证据', na: '待采集',
+          pending: '云端读取中…', local: '本机镜像 · 云端同步中',
+          challenge: '全部维度按同一算法现算；缺证据的维度记「待采集」，不用 0 分冒充。'
+        },
+        en: {
+          title: 'Five-dimension attainment (class of 2024+)',
+          old: 'The 2023 cohort predates this evaluation and is not included here.',
+          empty: 'No evidence from real students yet. Once signed-in students complete quizzes, simulations and discussions, results appear here.',
+          students: 'Students', evidence: 'Evidence points', withScore: 'With scores',
+          student: 'Student', cls: 'Class', total: 'Overall', evCol: 'Evidence', na: 'Not collected',
+          pending: 'Loading…', local: 'Local mirror · syncing',
+          challenge: 'All dimensions use the same algorithm; dimensions without evidence stay “Not collected” instead of 0.'
+        }
+      };
+      function avLang() { return document.documentElement.lang === 'en' ? 'en' : 'zh'; }
+      function avT(k) { var d = AV_TXT[avLang()] || AV_TXT.zh; return d[k] || AV_TXT.zh[k] || k; }
+      function avDim(d) { return avLang() === 'en' ? d.en : d.zh; }
+      var avBoardData = [];
+      var avBoardRaw = [];
+      var avBoardStamp = 0;
+
+      // 真实学生 = 有档案、非模拟 uid、班级名能读出年级且 >=24。教师/管理员无班级自动排除。
+      function avRealProfile(uid) {
+        if (isOldBatch({ uid: uid })) return null;
+        var p = profileMap && profileMap[uid];
+        if (!p || (p.role && p.role !== 'student')) return null;
+        var cn = String(p.class_name || '').trim();
+        var g = parseInt(gradeOfClass(cn), 10);
+        if (!cn || !isFinite(g) || g < 24) return null;
+        return { name: p.name || ('用户' + String(uid).slice(-6)), cls: cn, grade: String(g) };
+      }
+      // 学期内的云端记录是站点基线（89 人）的另一份拷贝，与 sim_ 基线一起排除；
+      // 同一事件在云端与本机镜像各写一次，按 uid|type|ts 等结构化键去重。
+      function avEvents(list) {
+        var out = [], seen = {}, ancEnd = semesterAnchor().end;
+        (list || []).forEach(function (e) {
+          if (!e || !AV_TYPES[e.type]) return;
+          if (isOldBatch(e)) return;
+          var uid = String(e.uid || '');
+          var p = avRealProfile(uid);
+          if (!p) return;
+          var ts = toMs(e.ts);
+          if (ts && ts <= ancEnd) return;
+          var d = (e.detail && typeof e.detail === 'object') ? e.detail : {};
+          if (!d && e.detail) { try { d = JSON.parse(e.detail) || {}; } catch (x) { d = {}; } }
+          var key = [uid, e.type, ts, e.chapter || '', e.module || '', e.correct,
+            d.step || '', d.score || '', d.side || ''].join('|');
+          if (seen[key]) return;
+          seen[key] = 1;
+          out.push({ uid: uid, profile: p, type: e.type, chapter: e.chapter,
+            qtype: e.qtype, module: e.module, correct: e.correct, detail: e.detail, ts: ts });
+        });
+        return out;
+      }
+      function avMean(a) {
+        var v = a.filter(function (x) { return x != null && isFinite(x); });
+        return v.length ? Math.round(v.reduce(function (s, x) { return s + x; }, 0) / v.length) : null;
+      }
+      function renderAvBoard() {
+        var body = document.getElementById('av-board-body');
+        var title = document.getElementById('av-board-title');
+        if (title) title.textContent = avT('title');
+        if (!body) return;
+        if (statScope.grade === '23') { body.innerHTML = '<div class="um-empty">' + esc(avT('old')) + '</div>'; return; }
+        var scoped = avBoardData.filter(function (e) {
+          if (statScope.cls && e.profile.cls !== statScope.cls) return false;
+          if (statScope.grade !== 'all' && e.profile.grade !== statScope.grade) return false;
+          return true;
+        });
+        var byUid = {};
+        scoped.forEach(function (e) { (byUid[e.uid] || (byUid[e.uid] = [])).push(e); });
+        var uids = Object.keys(byUid);
+        if (!uids.length) {
+          body.innerHTML = '<div class="um-empty">' + esc(avT('empty')) + '</div>';
+          return;
+        }
+        var rows = uids.map(function (uid) {
+          var evs = byUid[uid];
+          var s = window.__ibankEvalCompute ? window.__ibankEvalCompute({ evs: evs }) : null;
+          return { uid: uid, p: evs[0].profile, evs: evs, s: s, last: Math.max.apply(null, evs.map(function (e) { return e.ts || 0; })) };
+        }).sort(function (a, b) { return (b.s && b.s.total || -1) - (a.s && a.s.total || -1); });
+        var dimAvgs = {}, dimCounts = {};
+        AV_DIMS.forEach(function (d) {
+          dimAvgs[d.k] = avMean(rows.map(function (r) { return r.s && r.s.dims[d.k]; }));
+          dimCounts[d.k] = rows.filter(function (r) { return r.s && r.s.dims[d.k] != null; }).length;
+        });
+        var evHave = rows.reduce(function (n, r) { return n + (r.s ? r.s.obsHave : 0); }, 0);
+        var evAll = rows.length * (rows[0].s ? rows[0].s.obsTotal : 15);
+        var withScore = rows.filter(function (r) { return r.s && r.s.dims && AV_DIMS.some(function (d) { return r.s.dims[d.k] != null; }); }).length;
+        var kpi = function (k, v) {
+          return '<div class="admin-kpi"><div class="k">' + esc(k) + '</div><div class="v">' + esc(v) + '</div></div>';
+        };
+        var h = '<div class="admin-kpi-row avb-kpi">'
+          + kpi(avT('students'), rows.length)
+          + kpi(avT('evidence'), evHave + ' / ' + evAll)
+          + kpi(avT('withScore'), withScore + ' / ' + rows.length) + '</div>';
+        h += '<div class="avb-bars">';
+        AV_DIMS.forEach(function (d) {
+          var v = dimAvgs[d.k], w = v == null ? 0 : v;
+          h += '<div class="avb-row"><span class="avb-n">' + esc(avDim(d)) + '</span>'
+            + '<span class="avb-track"><span class="avb-fill" style="width:' + w + '%"></span>'
+            + '<span class="avb-line" style="left:' + d.line + '%"></span></span>'
+            + '<span class="avb-v">' + (v == null ? esc(avT('na')) : v) + '</span></div>';
+        });
+        h += '</div><table class="pj-bt-tb avb-tb"><thead><tr><th>' + esc(avT('student'))
+          + '</th><th>' + esc(avT('cls')) + '</th>'
+          + AV_DIMS.map(function (d) { return '<th>' + esc(avDim(d)) + '</th>'; }).join('')
+          + '<th>' + esc(avT('total')) + '</th><th>' + esc(avT('evCol')) + '</th></tr></thead><tbody>';
+        rows.forEach(function (r, i) {
+          var cell = function (v) { return '<td class="num">' + (v == null ? esc(avT('na')) : v) + '</td>'; };
+          h += '<tr class="avb-tr" data-av-row="' + i + '"><td>' + esc(r.p.name) + '</td><td>' + esc(r.p.cls) + '</td>'
+            + AV_DIMS.map(function (d) { return cell(r.s && r.s.dims[d.k]); }).join('')
+            + cell(r.s && r.s.total)
+            + '<td class="num">' + (r.s ? r.s.obsHave + '/' + r.s.obsTotal : '—') + '</td></tr>';
+          var ev = '<tr class="avb-exp" data-av-exp="' + i + '" hidden><td colspan="9"><div class="avb-ev">';
+          if (r.s && avLang() === 'zh') {
+            Object.keys(r.s.val).forEach(function (k) {
+              if (r.s.val[k] == null) return;
+              ev += '<span><b>' + esc(k) + '</b> ' + esc(r.s.val[k]) + ' · ' + esc(r.s.ev[k] || '') + '</span>';
+            });
+          } else if (r.s) {
+            Object.keys(r.s.val).forEach(function (k) {
+              if (r.s.val[k] == null) return;
+              ev += '<span><b>' + esc(k) + '</b> ' + esc(r.s.val[k]) + '</span>';
+            });
+          }
+          ev += '</div></td></tr>';
+          h += ev;
+        });
+        h += '</tbody></table>';
+        body.innerHTML = h;
+      }
+
+      // 云端按 type 分页拉取学期末之后的新增事件；缺 detail 列时自动降级，
+      // 至少保证 quiz / module 等不依赖 detail 的维度仍能出分。
+      async function loadAvBoardStats(force) {
+        if (!force && avBoardData.length && Date.now() - avBoardStamp < 5000) { renderAvBoard(); return; }
+        var local = [];
+        try { local = normEvents(JSON.parse(localStorage.getItem('ibank_events_local') || '[]')); } catch (e) {}
+        avBoardRaw = local;
+        avBoardData = avEvents(avBoardRaw);
+        renderAvBoard();
+        if (OFFLINE || !db) return;
+        // 与 loadCb43Stats() 一致用 select('*')：显式列出 detail 列会被网关判 400；
+        // 学期内基线的剔除统一由 avEvents() 在本地按 toMs(ts) 完成。
+        var fields = '*', cloud = [];
+        for (var ti = 0; ti < Object.keys(AV_TYPES).length; ti++) {
+          var type = Object.keys(AV_TYPES)[ti], got = false;
+          for (var pass = 0; pass < 2 && !got; pass++) {
+            var rows = [], failed = false;
+            for (var from = 0; from < 20000; from += 1000) {
+              var r = await Promise.race([
+                db.from('events').select(fields).eq('type', type)
+                  .order('id', { ascending: true }).range(from, from + 999),
+                new Promise(function (res) { setTimeout(function () { res(null); }, 8000); })
+              ]);
+              if (!r || r.error) { failed = true; break; }
+              var batch = r.data || [];
+              rows = rows.concat(batch);
+              if (batch.length < 1000) break;
+            }
+            if (!failed) { got = true; cloud = cloud.concat(rows); }
+            else fields = 'id, uid, type, chapter, qtype, correct, module, duration, ts';
+          }
+        }
+        avBoardRaw = cloud.concat(local);
+        avBoardData = avEvents(avBoardRaw);
+        avBoardStamp = Date.now();
+        renderAvBoard();
+      }
+      window.__ibankAvBoard = {
+        refresh: renderAvBoard,
+        load: loadAvBoardStats,
+        reprocess: function () { avBoardData = avEvents(avBoardRaw); renderAvBoard(); },
+        inject: function (evs, profiles) {
+          if (profiles) setProfileMap(profiles);
+          avBoardRaw = evs || [];
+          avBoardData = avEvents(avBoardRaw);
+          avBoardStamp = Date.now();
+          renderAvBoard();
+        }
+      };
+      try { window.addEventListener('ibk:lang', renderAvBoard); } catch (e) {}
+      document.addEventListener('DOMContentLoaded', function () {
+        var b = document.getElementById('av-board-body');
+        if (!b) return;
+        b.addEventListener('click', function (e) {
+          var tr = e.target.closest ? e.target.closest('[data-av-row]') : null;
+          if (!tr) return;
+          var exp = b.querySelector('[data-av-exp="' + tr.getAttribute('data-av-row') + '"]');
+          if (exp) exp.hidden = !exp.hidden;
+        });
+      });
 
       // 基线与真实事件合并。
       // 关键：**不做跨源去重**。基线是「课程统计口径」，真实事件是「逐条原始记录」，
@@ -1759,6 +1975,8 @@ console.log('%c[iBank 数据自检]', 'font-weight:bold', out);
         if (!cEl) return;
         // v62：4.3 记录卡面板单独取数（自带 try/catch），失败不影响上面四张图
         try { loadCb43Stats(); } catch (e) { /* 不阻断主看板 */ }
+        // v155：五维达成同样独立取数；只统计 24 级及以后真实学生
+        try { loadAvBoardStats(); } catch (e) { /* 不阻断主看板 */ }
         // v63：项目式教学押注看板，同样独立取数，失败不拖累其他面板
         try { loadPjBet(); } catch (e) { /* 不阻断主看板 */ }
         // v84：第二段三路四栏，同样独立取数

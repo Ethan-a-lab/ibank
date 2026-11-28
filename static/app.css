@@ -3734,3 +3734,24 @@ body.dark:not(.light) .nav-group-x.open .nav-trigger { color: #e7eaf3; backgroun
 @media (max-width: 900px) {
   #nav-teacher-menu { flex-wrap: wrap; }
 }
+
+/* v155 · 教师端五维达成：只展示真实学生，缺证据记「待采集」 */
+.avb-kpi { margin-bottom: 15px; }
+.avb-bars { display: flex; flex-direction: column; gap: 9px; margin-bottom: 15px; }
+.avb-row { display: flex; align-items: center; gap: 10px; font-size: 12px; }
+.avb-n { flex: 0 0 78px; color: var(--muted); }
+.avb-track { position: relative; flex: 1 1 auto; height: 9px; border-radius: 9px;
+  background: var(--panel-solid); border: 1px solid var(--panel-border); }
+.avb-fill { display: block; height: 100%; border-radius: 9px; background: var(--accent); opacity: .78; }
+.avb-line { position: absolute; top: -3px; bottom: -3px; width: 2px;
+  background: var(--text); opacity: .45; }
+.avb-v { flex: 0 0 48px; text-align: right; font-weight: 700;
+  color: var(--accent-text); font-variant-numeric: tabular-nums; }
+.avb-tb { margin-top: 4px; }
+.avb-tr { cursor: pointer; }
+.avb-tr:hover td { background: rgba(99,102,241,.055); }
+.avb-exp td { white-space: normal !important; }
+.avb-ev { display: flex; flex-wrap: wrap; gap: 5px 13px;
+  font-size: 11px; color: var(--muted); line-height: 1.75; }
+.avb-ev b { color: var(--text); font-weight: 600; }
+body.dark:not(.light) .avb-fill { opacity: .9; }
