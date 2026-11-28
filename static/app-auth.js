@@ -920,7 +920,10 @@ emitted = target;
        * 只聚合 24 级及以后**真实注册学生**的行为事件：23 级 89 人基线（sim_ 前缀、
        * 班级名却是金融24xx）产生于五维功能上线之前，整批排除、不回填、不混算。
        * 分数复用 eval-core 的 __ibankEvalCompute，与学生在自己页面看到的口径相同。 */
-      var AV_TYPES = { quiz: 1, module: 1, ipo: 1, bond: 1, project: 1, cb_decision: 1, trade: 1 };
+      /* v159：study（章节完成标记，detail 外的 duration 是标记时刻累计秒数）与
+         etalk（讨论量规分，detail.score/n）进五维取数范围——教师端据此还原
+         K 维章节完成度/时长与 E 维讨论量规观测点。错题消化率仍为本机数据，云端无法还原。 */
+      var AV_TYPES = { quiz: 1, module: 1, ipo: 1, bond: 1, project: 1, cb_decision: 1, trade: 1, study: 1, etalk: 1 };
       var AV_DIMS = [
         { k: 'K', zh: '知识整合', en: 'Knowledge', line: 75 },
         { k: 'D', zh: '决策预判', en: 'Decision', line: 70 },
@@ -938,7 +941,9 @@ emitted = target;
           pending: '云端读取中…', local: '本机镜像 · 云端同步中',
           scopeAll: '全部年级', scopeGrade: '{g}级',
           summary: '汇总画像（当前筛选范围平均）', avgTotal: '平均综合达成度', overall: '综合达成度',
-          hint: '点任意学生行展开该生的五维雷达图与证据明细；班级/年级筛选同时作用于汇总画像与明细表。',
+          hint: '点任意学生行展开该生的五维雷达图与证据明细；班级/年级筛选同时作用于汇总画像与明细表。'
+            + '口径：本视图只统计云端可验证的行为证据（作答、仿真、交易、情境决策、章节完成标记、讨论量规分）；'
+            + '错题消化率属学生本机数据，教师端该项保持「待采集」，不推算、不冒充。',
           challenge: '全部维度按同一算法现算；缺证据的维度记「待采集」，不用 0 分冒充。'
         },
         en: {
@@ -950,7 +955,9 @@ emitted = target;
           pending: 'Loading…', local: 'Local mirror · syncing',
           scopeAll: 'All grades', scopeGrade: 'Class of {g}',
           summary: 'Cohort profile (average of current scope)', avgTotal: 'Avg. overall', overall: 'Overall',
-          hint: 'Tap any student row to expand their radar chart and evidence; grade/class filters apply to both the cohort profile and the table.',
+          hint: 'Tap any student row to expand their radar chart and evidence; grade/class filters apply to both the cohort profile and the table.'
+            + ' Scope: only cloud-verifiable behavioural evidence counts (quizzes, simulations, trades, scenario decisions, chapter completion, discussion rubric score);'
+            + ' wrong-answer mastery is device-local and stays “Not collected” here — never imputed.',
           challenge: 'All dimensions use the same algorithm; dimensions without evidence stay “Not collected” instead of 0.'
         }
       };
@@ -992,7 +999,8 @@ emitted = target;
           if (seen[key]) return;
           seen[key] = 1;
           out.push({ uid: uid, profile: p, type: e.type, chapter: e.chapter,
-            qtype: e.qtype, module: e.module, correct: e.correct, detail: e.detail, ts: ts });
+            qtype: e.qtype, module: e.module, correct: e.correct, detail: e.detail,
+            duration: e.duration, ts: ts });
         });
         return out;
       }

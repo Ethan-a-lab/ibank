@@ -87,6 +87,11 @@
     if (!vals.length) return;
     var avg = Math.round(vals.reduce(function (a, b) { return a + b; }, 0) / vals.length);
     try { localStorage.setItem('ibank_forum_etalk', JSON.stringify({ score: avg, n: vals.length, ts: Date.now() })); } catch (e) {}
+    /* v159：量规分上云（type='etalk'，detail 只含 score/n 两个数字）。
+       教师端五维 E 维的「讨论量规」观测点据此出分；帖子原文仍只在本机，不上传。 */
+    if (typeof window.__ibankTrack === 'function') {
+      try { window.__ibankTrack('etalk', { score: avg, n: vals.length }); } catch (e) {}
+    }
   }
 
   /* ---------- 面板渲染 ---------- */

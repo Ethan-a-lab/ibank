@@ -182,6 +182,29 @@
     items = items.filter(function (w) { return w && !w.isSeed; });
     var times = src.times || {};
 
+    /* v159 · 教师端证据还原：教师端只有云端事件流，没有学生本机的 done / times / etalk。
+       study 事件只在「章节完成标记置真」时上报（自动满 1 小时或手动勾选，两者都先置 done
+       再 track，duration 是标记那一刻的累计学习秒数）——所以一条 study 事件 ⇔ 该章完成过。
+       学生端 computeM 恒传 done/times（'done' in src 为真），此回填不触发，学生页口径不变。
+       etalk（讨论量规分）v159 起随算随传（type='etalk'，只传分数与篇数，不传帖子原文），
+       src 未给时取事件流里最新一条。 */
+    if (!('done' in src) && !('times' in src)) {
+      evs.forEach(function (e) {
+        if (!e || e.type !== 'study' || !e.chapter) return;
+        var dur = Number(e.duration) || 0;
+        if (!(times[e.chapter] >= dur)) times[e.chapter] = dur;   // 同章多条取最长累计
+        done[e.chapter] = true;
+      });
+      var ets = evs.filter(function (e) { return e && e.type === 'etalk'; });
+      if (ets.length) {
+        var ed = detOf(ets[ets.length - 1]);
+        var esc2 = Number(ed.score);
+        if (isFinite(esc2) && esc2 >= 0 && esc2 <= 100) {
+          src.etalk = { score: esc2, n: Number(ed.n) || 1 };
+        }
+      }
+    }
+
     var Out = { val: {}, ev: {}, n: evs.length, quiz: 0, qok: 0, tries: 0 };
     var qs = evs.filter(function (e) { return e && e.type === 'quiz' && typeof e.correct === 'boolean'; });
     Out.quiz = qs.length;

@@ -15,7 +15,7 @@
  * 注意：Service Worker 只在 https 或 localhost 下生效；双击 file:// 打开时注册会被跳过。
  */
 
-const CACHE_VERSION = 'ibank-v43';   // v158 教师端五维：汇总画像雷达 + 点学生展开雷达图
+const CACHE_VERSION = 'ibank-v44';   // v159 五维口径审查：教师端云端证据还原（study/etalk）+ 采分口径披露
 
 /* ★总开关：想把 PWA 停掉，只把这个 true 改成 false，然后推送一次。
  *
