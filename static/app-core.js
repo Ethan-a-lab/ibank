@@ -2541,6 +2541,7 @@ document.addEventListener('keydown', function (e) {
         var isObj = !!src.opts;
         return {
           qid: wbKey(src), q: src.q, kp: src.kp || '', chapter: src.chapter || '', type: src.type || '',
+          pbl: src.pbl || '',
           opts: isObj ? src.opts : null, a: isObj ? (Array.isArray(src.a) ? src.a.slice() : src.a) : null, multi: !!src.multi,
           aLab: isObj ? ansLabel(src) : '', aTxt: isObj ? ansText(src) : (src.ans || ''),
           exp: src.exp || '', picked: pickedArr || null,
@@ -2600,7 +2601,7 @@ document.addEventListener('keydown', function (e) {
         if (!window.__ibankTrack) return;
         var cause = null;
         try { if (WB && WB.items) { var w = WB.items[wbKey(item)]; if (w) cause = w.cause; } } catch (e) {}
-        window.__ibankTrack('quiz', { chapter: item.chapter, qtype: item.type, correct: !!ok, kp: item.kp || null, cause: cause });
+        window.__ibankTrack('quiz', { chapter: item.chapter, qtype: item.type, correct: !!ok, kp: item.kp || null, cause: cause, pbl: item.pbl || '' });
       }
 
       function wbCauseOf(it) {
@@ -2763,7 +2764,7 @@ document.addEventListener('keydown', function (e) {
           st.fb = '✗ 又答错了，正确答案是 ' + String.fromCharCode(65 + q.a) + '。复习阶段回到起点，1 天后重来。';
         }
         wbSave(); renderWrong();
-        if (window.__ibankTrack) window.__ibankTrack('quiz', { chapter: it.chapter, qtype: it.type, correct: ok, kp: it.kp, cause: it.cause, redo: 1 });
+        if (window.__ibankTrack) window.__ibankTrack('quiz', { chapter: it.chapter, qtype: it.type, correct: ok, kp: it.kp, cause: it.cause, redo: 1, pbl: it.pbl || '' });
       }
       function addWrong(item, pickedArr) {
         WB = WB || wbLoad();

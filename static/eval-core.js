@@ -75,12 +75,12 @@
     {
       k: 'D', name: '风险预判与决策能力', short: '决策预判', goal: 'G2', pts: '2-8、2-9',
       line: 70, c: 'var(--av-c2)', tag: '选得对不对',
-      metric: '定价偏离度 · 押注与复盘',
+      metric: '定价偏离度 · 项目题判断与复盘',
       src: 'IPO 仿真 ＋ 簿记仿真 ＋ 课程项目',
       obs: [
         { n: 'IPO 定价各步得分率', p: 0.40, key: 'd.ipo', demo: 66, s: 'IPO 定价配售仿真日志（每步提交即记分）' },
         { n: '簿记定价偏离真值', p: 0.40, key: 'd.bond', demo: 58, s: '债券簿记仿真（改价次数与最终利率）' },
-        { n: '路线押注与项目推进', p: 0.20, key: 'd.proj', demo: 85, s: '课程项目（押注 + 状态推进）' }
+        { n: '项目任务题与推进', p: 0.20, key: 'd.proj', demo: 85, s: '20 道比亚迪项目题正确率 + 项目状态推进' }
       ]
     },
     {
@@ -137,7 +137,7 @@
     var w = weights();
     /* G2 的 35 分内部再切：预判与选择 25、压力下的稳定性 10。
        比例写死为 25:10，是为了当 G1/G2/G3 被调参时，这个内部结构不被拉歪。
-       切分依据是证据来源不同（定价/押注 vs 反复试错/回撤调仓），
+       切分依据是证据来源不同（定价/项目题判断 vs 反复试错/回撤调仓），
        不是把 2-8、2-9 两个指标点的权重拆开——G2 仍整体挂在 2-8、2-9 上。 */
     return { K: w.G1, D: w.G2 * 25 / 35, R: w.G2 * 10 / 35, E: w.E, S: w.S };
   }
@@ -261,14 +261,22 @@
     }
     Out.val['d.bond'] = bv == null ? null : Math.round(bv);
 
-    /* 课程项目：押注 30 + 推进状态 40 起 */
+    /* 课程项目 v156：项目题正确率 30 + 推进状态 40 起。
+       原「押注一条融资路线」的选路入口在 692291d 被删，那段 30 分永远拿不到；
+       改从 20 道比亚迪项目任务题（quiz 事件带 pbl 字段）的真实正确率取数——
+       语义更贴 D 维「风险预判与决策」：同一家公司、四个对手盘、一次只改一个变量。
+       23 级历史事件没有 pbl 字段 → 视为无证据，不追溯、不回填。 */
     var ps = evs.filter(function (e) { return e && e.type === 'project'; });
-    if (ps.length) {
-      var picked = ps.some(function (e) { return e.pick || detOf(e).pick; });
+    var pq = evs.filter(function (e) { return e && e.type === 'quiz' && e.pbl; });
+    if (ps.length || pq.length) {
+      var right = pq.filter(function (e) { return e.correct === true; }).length;
+      var rate = pq.length ? right / pq.length : null;
       var stated = ps.some(function (e) { return e.state === 'done' || detOf(e).state === 'done'; });
       var anyState = ps.some(function (e) { return e.state || detOf(e).state; });
-      Out.val['d.proj'] = Math.min(100, 40 + (picked ? 30 : 0) + (stated ? 30 : (anyState ? 15 : 0)));
-      Out.ev['d.proj'] = (picked ? '已押注路线' : '未押注') + ' · ' + (stated ? '已完成' : anyState ? '进行中' : '未启动');
+      var pqPts = rate == null ? 0 : Math.round(rate * 30);
+      Out.val['d.proj'] = Math.min(100, 40 + pqPts + (stated ? 30 : (anyState ? 15 : 0)));
+      Out.ev['d.proj'] = (rate == null ? '未答项目题' : ('项目题 ' + right + '/' + pq.length + ' 正确'))
+        + ' · ' + (stated ? '已完成' : anyState ? '进行中' : '未启动');
     } else { Out.val['d.proj'] = null; }
 
     /* 合规情境判断：有决策 + 理由 ≥20 字 */
@@ -351,7 +359,7 @@
     } else { Out.val['r.trade'] = null; }
 
     /* 尚未接入的观测点一律 null，不用示例值冒充。
-       e.talk 已于 v142、r.trade 于 v154 接入，不再列入此处；d.proj / d.stress 仍待接入。 */
+       e.talk 于 v142、r.trade 于 v154、d.proj 于 v156 接入，不再列入此处；d.stress 仍待接入。 */
     ['d.stress'].forEach(function (k) { Out.val[k] = null; });
 
     return Out;
@@ -749,7 +757,7 @@
       + '</tbody></table>'
       + kNote
       + (d.k === 'R'
-        ? '<div class="av-note">本维 10 分来自 <b>G2 内部切分</b>：课程目标 2 的 35 分没有变，其中 25 分记「预判与选择」（定价、路线押注），10 分记「压力下的稳定性」（反复试错后的收敛、回撤期调仓）。切分依据是证据来源不同，不是把 2-8、2-9 的权重拆开——G2 整体仍挂在 2-8、2-9 上。这 10 分全部来自行为记录，每个数字都能点开看到原始操作。</div>'
+        ? '<div class="av-note">本维 10 分来自 <b>G2 内部切分</b>：课程目标 2 的 35 分没有变，其中 25 分记「预判与选择」（定价、项目题判断），10 分记「压力下的稳定性」（反复试错后的收敛、回撤期调仓）。切分依据是证据来源不同，不是把 2-8、2-9 的权重拆开——G2 整体仍挂在 2-8、2-9 上。这 10 分全部来自行为记录，每个数字都能点开看到原始操作。</div>'
         : '')
       + '</div>';
   }

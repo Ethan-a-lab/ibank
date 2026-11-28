@@ -2270,6 +2270,10 @@
       background: rgba(99,102,241,.1); border: 1px solid rgba(99,102,241,.28); }
     .qc-rv-ts { font-size: 10.5px; color: var(--muted); }
     .qc-rv-b { font-size: 12px; line-height: 1.7; color: var(--text); white-space: pre-wrap; word-break: break-word; }
+    /* v156：教师可见摘要授权区 */
+    .qc-share-box { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+    .qc-share-note { flex: 1 1 100%; font-size: 11.5px; color: var(--muted); line-height: 1.7; }
+    .qc-share-state { font-size: 11px; color: var(--muted); }
     .qc-item { border: 1px solid var(--panel-border); border-radius: 10px; background: var(--panel-solid); overflow: hidden; }
     .qc-item > summary { display: flex; align-items: center; gap: 9px; padding: 10px 12px; cursor: pointer;
       list-style: none; flex-wrap: wrap; }
@@ -3755,3 +3759,5 @@ body.dark:not(.light) .nav-group-x.open .nav-trigger { color: #e7eaf3; backgroun
   font-size: 11px; color: var(--muted); line-height: 1.75; }
 .avb-ev b { color: var(--text); font-weight: 600; }
 body.dark:not(.light) .avb-fill { opacity: .9; }
+/* v156 · 教师端成果链授权摘要 */
+.avb-cap { font-size: 11px; color: var(--muted); line-height: 1.7; margin-top: 10px; }

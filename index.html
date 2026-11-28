@@ -18,10 +18,10 @@
   <meta name="apple-mobile-web-app-title" content="iBank">
   <link rel="apple-touch-icon" href="static/icons/apple-touch-icon.png">
   <!-- PWA:end -->
-  <link rel="stylesheet" href="static/app.css?v=155">
+  <link rel="stylesheet" href="static/app.css?v=156">
   <link rel="stylesheet" href="static/eval.css">
   <link rel="stylesheet" href="static/bond.css">
-  <link rel="stylesheet" href="static/i18n.css?v=155">
+  <link rel="stylesheet" href="static/i18n.css?v=156">
   <link rel="stylesheet" href="static/undercover.css">
   <link rel="stylesheet" href="static/timeline.css">
 </head>
@@ -458,6 +458,15 @@
                 <button type="button" class="sim-btn ghost" id="qc-clear">清空</button>
               </div>
               <div class="qc-list" id="qc-list"></div>
+            </div>
+
+            <div class="qc-sec">
+              <h4>④ 教师可见摘要 <span class="qc-tag">主动授权 · 可撤销</span></h4>
+              <div class="qc-share-box">
+                <div class="qc-share-note" id="qc-share-note">默认不上传。授权后只把提问次数、追问 / 改问 / 质疑 / 修正的次数与字数发给教师看板，对话原文与理由原文永远只在本机。</div>
+                <button type="button" class="sim-btn ghost" id="qc-share">授权上传脱敏摘要</button>
+                <span class="qc-share-state" id="qc-share-state"></span>
+              </div>
             </div>
           </div>
         </details>
@@ -3701,6 +3710,11 @@ body.dark #p-game .mode-panel{
         <div class="fp-body" id="av-board-body"><div class="um-empty">加载中…</div></div>
       </details>
 
+      <details class="fold-panel" id="qc-board-fold" data-i18n-skip>
+        <summary><span class="fp-t" id="qc-board-title">探究成果链 · 授权摘要（24级及以后）</span></summary>
+        <div class="fp-body" id="qc-board-body"><div class="um-empty">加载中…</div></div>
+      </details>
+
       <div class="admin-kpi-row" id="ev-kpi-row" data-i18n-skip>
         <div class="admin-kpi"><div class="k">覆盖学生</div><div class="v">0</div><div class="sub">有学习行为记录</div></div>
         <div class="admin-kpi"><div class="k">AI 问答</div><div class="v">0</div><div class="sub">课程相关问答次数</div></div>
@@ -3882,8 +3896,8 @@ body.dark #p-game .mode-panel{
   <script src="static/forum-rubric.js"></script>
 
   <!-- 中英双语语言层：字典与运行时分离，补译文只需改 i18n-dict.js -->
-  <script src="static/i18n-dict.js?v=155"></script>
-  <script src="static/i18n.js?v=155"></script>
+  <script src="static/i18n-dict.js?v=156"></script>
+  <script src="static/i18n.js?v=156"></script>
 
   <!-- 投行卧底（教师控场）：独立模块，自带双语表，不经 i18n-dict.js -->
   <script src="static/undercover.js"></script>

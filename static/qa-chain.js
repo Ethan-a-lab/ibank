@@ -20,6 +20,7 @@
 
   var STORE = 'ibank_qa_chain';        // 学生主动保存的对话原文（本机）
   var RVKEY = 'ibank_qa_review';       // v154：学生显式提交的质疑/修正（本机）
+  var SHKEY = 'ibank_qa_share';        // v156：教师可见摘要的授权状态（本机，可撤销）
   var EVKEY = 'ibank_events_local';    // 行为埋点（本机镜像，只读统计）
   var MAX_ITEMS = 30;                  // 最多留 30 条成果链，防本机膨胀
 
@@ -196,7 +197,54 @@
     if (cl) cl.textContent = L('清空', 'Clear');
     var tt = root.querySelector('.qc-sum-t');
     if (tt) tt.textContent = L('探究成果链', 'Inquiry chain');
+    renderShare();
   }
+
+  /* ---------- v156 ④ 教师可见摘要：学生主动授权，只传数字 ---------- */
+  function shared() { return ls(SHKEY, null); }
+  function renderShare() {
+    var btn = q('qc-share'), state = q('qc-share-state'), note = q('qc-share-note');
+    if (note) note.textContent = L(
+      '默认不上传。授权后只把提问次数、追问 / 改问 / 质疑 / 修正的次数与字数发给教师看板，对话原文与理由原文永远只在本机。',
+      'Off by default. Once authorized, only counts and lengths (questions, follow-ups, revisions, challenges, fixes) reach the teacher dashboard. Your question text and reasons stay on this device.');
+    if (!btn) return;
+    var on = !!shared();
+    btn.textContent = on ? L('撤销授权', 'Revoke access') : L('授权上传脱敏摘要', 'Share anonymized summary');
+    btn.classList.toggle('primary', !on);
+    if (state) {
+      var v = shared();
+      state.textContent = on
+        ? L('已授权 · ' + fmt(v.ts) + ' 上传，教师可见统计数字', 'Shared ' + fmt(v.ts) + ' — teacher sees counts only')
+        : L('未授权 · 教师看不到你的成果链', 'Not shared — your chain is invisible to the teacher');
+    }
+  }
+  window.__ibankQaShare = function () {
+    var btn = q('qc-share');
+    if (!btn) return false;
+    if (shared()) {
+      try { localStorage.removeItem(SHKEY); } catch (e) {}
+      renderShare();
+      toast(L('已撤销授权，教师端不再显示你的摘要', 'Access revoked — your summary is no longer shown'));
+      return true;
+    }
+    var s = stats(), rv = reviews();
+    var ch = rv.filter(function (r) { return r.type === 'challenge'; }).length;
+    var fx = rv.filter(function (r) { return r.type === 'revise'; }).length;
+    if (!s.n && !rv.length) { toast(L('还没有提问记录，无需授权', 'Nothing to share yet')); return false; }
+    /* 只发数字：次数、字数、会话数。理由原文与对话原文一律不进 detail。 */
+    if (typeof window.__ibankTrack === 'function') {
+      try {
+        window.__ibankTrack('qa_share', {
+          n: s.n, turns: s.turns, follow: s.follow, revise: s.revise, regen: s.regen,
+          challenge: ch, fix: fx, sessions: s.sessions, avgq: s.avgQ, rv: rv.length
+        });
+      } catch (e) { /* 上报失败不阻断授权状态 */ }
+    }
+    try { localStorage.setItem(SHKEY, JSON.stringify({ ts: Date.now(), n: s.n })); } catch (e) {}
+    renderShare();
+    toast(L('已授权上传脱敏摘要，随时可撤销', 'Summary shared — you can revoke any time'));
+    return true;
+  };
 
   /* 供答疑页「⚑ 质疑 / ✎ 修正」按钮调用：理由只落本机，云端只收长度数字。 */
   window.__ibankQaReviewSave = function (type, reason, aid, qLen, aLen) {
@@ -224,7 +272,8 @@
   };
 
   function bind() {
-    var save = q('qc-save'), exp = q('qc-export'), clear = q('qc-clear');
+    var save = q('qc-save'), exp = q('qc-export'), clear = q('qc-clear'), share = q('qc-share');
+    if (share) share.addEventListener('click', window.__ibankQaShare);
     if (save) save.addEventListener('click', function () {
       var dump = (typeof window.__ibankQaDump === 'function') ? window.__ibankQaDump() : [];
       var u = dump.filter(function (m) { return m.role === 'user'; });

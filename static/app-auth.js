@@ -907,6 +907,7 @@ emitted = target;
         }
         renderStatScoped();
         if (typeof renderAvBoard === 'function') renderAvBoard();
+        if (typeof renderQcBoard === 'function') renderQcBoard();
       }
       window.__ibankStatScope = setStatScope;
       // 验收注入：塞入确定性的六类数据并重画，用于验证 23/24 分流确实改变 KPI。
@@ -1118,6 +1119,113 @@ emitted = target;
         }
       };
       try { window.addEventListener('ibk:lang', renderAvBoard); } catch (e) {}
+
+      /* ===== v156 教师端探究成果链 · 授权摘要 =====
+       * 学生主动授权后才有一条 qa_share 事件；detail 里只有次数/字数，无原文。
+       * 与五维面板共用「真实学生 + 非 23 级 + 学期内」的过滤口径，只展示聚合数字。 */
+      var QC_TXT = {
+        zh: {
+          title: '探究成果链 · 授权摘要（24级及以后）',
+          old: '23级为五维上线前的历史档案，不参与本视图。',
+          empty: '暂无学生授权上传摘要。学生在答疑页「探究成果链 → ④ 教师可见摘要」里主动授权后，这里才会显示。',
+          students: '授权学生', asks: '累计提问', chain: '追问/改问', challenge: '质疑/修正',
+          avg: '平均提问字数', student: '学生', cls: '班级', questions: '提问', follow: '追问',
+          revise: '改问', regen: '重生成', challengeC: '质疑', fixC: '修正', sessions: '会话',
+          na: '待授权', privacy: '只显示学生授权上传的结构化数字，对话原文与理由原文不上传、不可见。'
+        },
+        en: {
+          title: 'Inquiry chain · shared summaries (class of 2024+)',
+          old: 'The 2023 cohort predates this evaluation and is not included here.',
+          empty: 'No student has shared a summary yet. This view fills in once students opt in via “Inquiry chain → ④ Shared summary” on the Q&A page.',
+          students: 'Students', asks: 'Total questions', chain: 'Follow-ups / revisions', challenge: 'Challenges / fixes',
+          avg: 'Avg. question length', student: 'Student', cls: 'Class', questions: 'Questions', follow: 'Follow-ups',
+          revise: 'Revisions', regen: 'Regens', challengeC: 'Challenges', fixC: 'Fixes', sessions: 'Sessions',
+          na: 'Not shared', privacy: 'Only structured numbers that students chose to share are shown. Question text and reasons are never uploaded or visible.'
+        }
+      };
+      function qcT(k) { var d = QC_TXT[avLang()] || QC_TXT.zh; return d[k] || QC_TXT.zh[k] || k; }
+      var qcBoardRaw = [];
+      function qcDetail(e) {
+        var d = (e && e.detail && typeof e.detail === 'object') ? e.detail : {};
+        if (!d && e && e.detail) { try { d = JSON.parse(e.detail) || {}; } catch (x) { d = {}; } }
+        return d;
+      }
+      function qcEvents(list) {
+        var seen = {}, out = [], ancEnd = semesterAnchor().end;
+        (list || []).forEach(function (e) {
+          if (!e || e.type !== 'qa_share') return;
+          if (isOldBatch(e)) return;
+          var p = avRealProfile(String(e.uid || ''));
+          if (!p) return;
+          var ts = toMs(e.ts);
+          if (ts && ts <= ancEnd) return;
+          var key = String(e.uid) + '|' + ts;
+          if (seen[key]) return;
+          seen[key] = 1;
+          var d = qcDetail(e), num = function (k) { var v = Number(d[k]); return isFinite(v) && v >= 0 ? v : 0; };
+          out.push({
+            uid: String(e.uid), profile: p, ts: ts,
+            n: num('n'), turns: num('turns'), follow: num('follow'), revise: num('revise'),
+            regen: num('regen'), challenge: num('challenge'), fix: num('fix'),
+            sessions: num('sessions'), avgq: num('avgq'), rv: num('rv')
+          });
+        });
+        return out;
+      }
+      function renderQcBoard() {
+        var body = document.getElementById('qc-board-body');
+        var title = document.getElementById('qc-board-title');
+        if (title) title.textContent = qcT('title');
+        if (!body) return;
+        if (statScope.grade === '23') { body.innerHTML = '<div class="um-empty">' + esc(qcT('old')) + '</div>'; return; }
+        var rows = qcEvents(qcBoardRaw).filter(function (e) {
+          if (statScope.cls && e.profile.cls !== statScope.cls) return false;
+          if (statScope.grade !== 'all' && e.profile.grade !== statScope.grade) return false;
+          return true;
+        });
+        if (!rows.length) { body.innerHTML = '<div class="um-empty">' + esc(qcT('empty')) + '</div>'; return; }
+        var sum = function (k) { return rows.reduce(function (a, r) { return a + (r[k] || 0); }, 0); };
+        var kpi = function (k, v) {
+          return '<div class="admin-kpi"><div class="k">' + esc(k) + '</div><div class="v">' + esc(v) + '</div></div>';
+        };
+        var h = '<div class="admin-kpi-row avb-kpi">'
+          + kpi(qcT('students'), rows.length) + kpi(qcT('asks'), sum('n'))
+          + kpi(qcT('chain'), sum('follow') + ' / ' + sum('revise'))
+          + kpi(qcT('challenge'), sum('challenge') + ' / ' + sum('fix')) + '</div>';
+        h += '<table class="pj-bt-tb avb-tb"><thead><tr><th>' + esc(qcT('student')) + '</th><th>' + esc(qcT('cls')) + '</th>'
+          + ['questions', 'follow', 'revise', 'regen', 'challengeC', 'fixC', 'sessions'].map(function (k) {
+            return '<th>' + esc(qcT(k)) + '</th>';
+          }).join('') + '<th>' + esc(qcT('avg')) + '</th></tr></thead><tbody>';
+        rows.sort(function (a, b) { return b.n - a.n; }).forEach(function (r) {
+          h += '<tr><td>' + esc(r.profile.name) + '</td><td>' + esc(r.profile.cls) + '</td>'
+            + [r.n, r.follow, r.revise, r.regen, r.challenge, r.fix, r.sessions].map(function (v) {
+              return '<td class="num">' + v + '</td>';
+            }).join('') + '<td class="num">' + r.avgq + '</td></tr>';
+        });
+        h += '</tbody></table><p class="avb-cap">' + esc(qcT('privacy')) + '</p>';
+        body.innerHTML = h;
+      }
+      window.__ibankQcBoard = {
+        refresh: renderQcBoard,
+        load: function () {
+          var local = [];
+          try { local = normEvents(JSON.parse(localStorage.getItem('ibank_events_local') || '[]')); } catch (e) {}
+          qcBoardRaw = local;
+          renderQcBoard();
+          if (OFFLINE || !db) return;
+          db.from('events').select('*').eq('type', 'qa_share').order('id', { ascending: true })
+            .limit(5000).then(function (r) {
+              if (r && !r.error) { qcBoardRaw = (r.data || []).concat(local); renderQcBoard(); }
+            }).catch(function () {});
+        },
+        inject: function (evs, profiles) {
+          if (profiles) setProfileMap(profiles);
+          qcBoardRaw = evs || [];
+          renderQcBoard();
+        }
+      };
+      try { window.addEventListener('ibk:lang', renderQcBoard); } catch (e) {}
+
       document.addEventListener('DOMContentLoaded', function () {
         var b = document.getElementById('av-board-body');
         if (!b) return;
@@ -1977,6 +2085,8 @@ console.log('%c[iBank 数据自检]', 'font-weight:bold', out);
         try { loadCb43Stats(); } catch (e) { /* 不阻断主看板 */ }
         // v155：五维达成同样独立取数；只统计 24 级及以后真实学生
         try { loadAvBoardStats(); } catch (e) { /* 不阻断主看板 */ }
+        // v156：成果链授权摘要，独立取数、独立降级
+        try { window.__ibankQcBoard.load(); } catch (e) { /* 不阻断主看板 */ }
         // v63：项目式教学押注看板，同样独立取数，失败不拖累其他面板
         try { loadPjBet(); } catch (e) { /* 不阻断主看板 */ }
         // v84：第二段三路四栏，同样独立取数
