@@ -18,10 +18,10 @@
   <meta name="apple-mobile-web-app-title" content="iBank">
   <link rel="apple-touch-icon" href="static/icons/apple-touch-icon.png">
   <!-- PWA:end -->
-  <link rel="stylesheet" href="static/app.css?v=152">
+  <link rel="stylesheet" href="static/app.css?v=153">
   <link rel="stylesheet" href="static/eval.css">
   <link rel="stylesheet" href="static/bond.css">
-  <link rel="stylesheet" href="static/i18n.css?v=152">
+  <link rel="stylesheet" href="static/i18n.css?v=153">
   <link rel="stylesheet" href="static/undercover.css">
   <link rel="stylesheet" href="static/timeline.css">
 </head>
@@ -30,8 +30,7 @@
   <div id="login-overlay" class="hidden">
     <div class="login-box">
       <button id="login-close" class="login-close">×</button>
-      <!-- v136：内容区单独滚动，关闭按钮留在框上不随内容滚走。
-           原来弹窗自己滚，注册面板一长，右上角那颗 × 会滚出视野，用户只能按 Esc。 -->
+      <!-- 内容区单独滚动，关闭按钮不随内容滚走 -->
       <div class="login-scroll">
       <div class="login-logo">iBank</div>
       <div class="login-sub">金融学智慧教学平台</div>
@@ -64,16 +63,14 @@
      <button id="login-sms-btn" type="button">获取验证码</button>
      </div>
         <button class="lprimary" id="login-btn" type="button">登录</button>
-<p class="login-note">师生同一登录入口，登录后系统按身份自动进入学生端 / 教师端。<br>忘记密码？点上方「注册」，用手机验证码即可重设密码。</p>
+<p class="login-note">忘记密码？点上方「注册」，用手机验证码即可重设密码。</p>
       </div>
     </form>
 
       <!-- 注册面板 -->
       <form id="form-register" autocomplete="on" novalidate>
  <div id="panel-register" class="hidden">
-        <!-- v136：三步说明改为默认收起。原来它是常驻的三大段（第 3 条尤其长），
-             注册模式下光说明就占了首屏一半，真正要填的输入框被挤到屏幕外。
-             成熟做法是把「遇到问题才需要读」的内容折叠，表单本身占主位。 -->
+        <!-- 三步说明默认收起，表单占主位 -->
         <details class="reg-guide">
           <summary><span>注册说明 · 为什么要发两次验证码</span><span class="chev" aria-hidden="true">›</span></summary>
           <ol>
@@ -84,8 +81,7 @@
           <p class="reg-guide-foot">验证码是个人凭证，请勿截图转发。</p>
         </details>
         <div class="lfield"><input id="reg-name" type="text" placeholder="姓名（必填）" /></div>
-        <!-- v136：学号与班级都是选填短字段，原本各占一整行（多出 54px 高度），并排只占一行。
-             窄屏（<360px）会退化成上下两行，见 .lrow-2 的媒体查询。 -->
+        <!-- 学号与班级并排；窄屏退化两行，见 .lrow-2 -->
         <div class="lrow-2">
           <div class="lfield"><input id="reg-student-id" type="text" placeholder="学号（选填）" /></div>
           <div class="lfield">
@@ -94,8 +90,6 @@
             </select>
           </div>
         </div>
-        <!-- v136：原来这里还有一行「学号与班级均为选填…」，与两个输入框的 placeholder 完全重复，
-             占掉两行高度却没说新东西，删掉。选填信息只在 placeholder 里说一次。 -->
         <div class="lfield"><input id="reg-phone" type="tel" placeholder="手机号" /></div>
         <div class="lfield">
           <input id="reg-sms-code" type="text" placeholder="短信验证码" />
@@ -105,9 +99,7 @@
   <div class="lfield"><input id="reg-password2" type="password" placeholder="确认密码" autocomplete="new-password" /></div>
  <button class="lprimary" id="register-btn" type="button">注册并登录</button>
         <p class="login-note">注册即学生账号；教师身份由课程管理员在后台授予。</p>
-        <!-- v136：隐私说明改为折叠。原来常驻近五行小字，是注册面板最占地方的一块。
-             折叠后摘要行仍把「收什么 / 干什么用 / 结课怎么处理」说清，合规明示不依赖点开；
-             要看法条级细节（具体采集项、匿名化范围）再展开。 -->
+        <!-- 隐私说明折叠：摘要行明示「收什么 / 干什么用 / 结课怎么处理」，细节展开看 -->
         <details class="privacy-note">
           <summary><span>数据与隐私说明：仅收集姓名、班级与学习行为，用于学情分析，结课后匿名化</span><span class="chev" aria-hidden="true">›</span></summary>
           <p>本平台仅收集<strong>姓名、班级与学习行为数据</strong>（章节学习时长、习题作答正误、模块使用情况），用于课程教学分析与学情反馈，不对外公开、不用于商业用途。<strong>课程结束后</strong>，将对个人身份信息做<strong>匿名化处理</strong>（清除姓名等可识别信息），仅保留汇总统计数据用于教学研究。</p>
@@ -320,15 +312,12 @@
         <div class="hero2-left">
           <div class="eyebrow">教师端 · 教学工作台</div>
           <h1>教学管理<br><span class="grad">从一个页面开始</span></h1>
-          <p class="th-hero-desc">班级学情、讨论区管理、项目过程与数据导出都收在这里。学生端的 15 个学习模块已从教师界面隐藏 —— 需要核对学生到底看到什么时，点「切到学生视角」随时往返，不必退出登录。</p>
+          <p class="th-hero-desc">班级学情、讨论区管理、项目过程与数据导出都收在这里。</p>
           <div class="hero2-actions">
             <button class="hbtn primary" data-goto="p-admin">打开班级学情看板 →</button>
             <button class="hbtn ghost" id="th-preview-student" type="button">切到学生视角</button>
           </div>
-          <!-- v133 修正：原来这三格写的是「4 入口 / 2 端 / 0 教师操作入库」，后两个是硬编码的
-               装饰数字——"2 端"只是陈述事实，"0 教师操作入库"等于在首页承认什么都没记录，
-               看着像故障。改成三个都能当场核对的真数：入口数=下方卡片数、教学班=CLASS_LIST 长度、
-               学生端模块=首页 16 卡里的学生部分（15 个，后台那张不含）。 -->
+          <!-- 三格为可当场核对的真数：入口数=下方卡片数、教学班=CLASS_LIST 长度、学生端模块=15 -->
           <div class="hero2-stats">
             <div><strong>4</strong><span>教学管理入口</span></div>
             <div><strong>4</strong><span>个教学班</span></div>
@@ -342,7 +331,7 @@
               <div class="th-id-row"><span>当前身份</span><b id="th-role-line">教师</b></div>
               <div class="th-id-row"><span>所教班级</span><b id="th-class-line">四个教学班（总版统一管理）</b></div>
               <div class="th-id-row"><span>数据口径</span><b>只统计学生行为</b></div>
-              <div class="th-id-tip">教师与管理员在本站的点击、试答、试问不写入统计，所以你在教师端演示时看板数字不会变化 —— 这是设计预期，不是故障。</div>
+              <div class="th-id-tip">教师与管理员的操作不写入统计，看板数字不变。</div>
             </div>
             <div class="pv-foot"><span>退出登录后回到未登录的学生视图</span><button type="button" data-goto="p-admin">去后台 →</button></div>
           </div>
@@ -408,7 +397,7 @@
           <span class="qa-hero-av" aria-hidden="true"><img class="panda-img" src="static/mascot/panda.png" srcset="static/mascot/panda.png 1x, static/mascot/panda@2x.png 2x" width="64" height="64" alt="" aria-hidden="true" decoding="async"></span>
           <div class="qa-hero-main">
             <div class="qa-hero-title">iBank AI 学伴 <span class="qa-status" id="qa-status"><i></i>就绪</span></div>
-            <div class="qa-hero-sub">智谱 GLM + 课程知识库检索增强（RAG），回答优先依据本课程资料；联网失败自动回落本地题库，离线也能答。</div>
+            <div class="qa-hero-sub">回答优先依据课程资料；联网失败自动回落本地题库，离线也能答。</div>
             <div class="qa-hero-tags"><span>8 章知识体系</span><span>20 个真实案例</span><span>RAG 课程知识库</span><span>流式作答</span></div>
           </div>
           <div class="qa-hero-side">
@@ -479,7 +468,7 @@
     <section class="page" id="p-exercise">
       <div class="panel">
         <div class="section-title"><span class="bar"></span>实务习题训练</div>
-        <div class="section-sub">题库覆盖第 1–7 章共 <span id="ex-total">153</span> 题（名词解释 / 选择（含多选）/ 简答 / 案例），题量按各章学时加权。其中 <b>20 道为比亚迪项目式教学题</b>，按任务书四段打了「任务一 ~ 任务四」标记——选「项目任务」这一行即可整组刷，也可与章节 / 题型 / 知识点叠加筛选。选题逻辑是：同一家公司、四个不同的对手盘，一次只改一个变量（需求厚薄、审核快慢、摊薄与否、承销团托底多少），看定价权怎么移动。可按「章节 → 题型 → 项目任务 / 知识点」筛选定位到题；选择题与多选题提交后即时判分；名词解释、简答、案例提供作答框，提交后可对照参考要点、按关键词覆盖情况自行评定掌握程度。答错或自评未掌握的题自动进入「错题定位」；上方答题卡（含「看过答案」紫点标记）与题目一览可随时跳转到任意一题。</div>
+        <div class="section-sub">题库覆盖第 1–7 章共 <span id="ex-total">153</span> 题，其中 <b>20 道为比亚迪项目任务题</b>（按「同一家公司、四个对手盘、一次只改一个变量」设计，选「项目任务」整组刷）。可按章节 / 题型 / 知识点筛选；选择题即时判分，答错或自评未掌握自动进「错题定位」。</div>
         <div class="ex-toolbar">
           <div class="ex-filters">
             <div class="ex-fgroup"><span class="ex-flbl">章节</span><div id="ex-chips-ch"></div></div>
@@ -534,7 +523,7 @@
     <section class="page" id="p-eval">
       <div class="panel">
         <div class="section-title"><span class="bar"></span>五维能力达成评价</div>
-        <div class="section-sub">你的五维各得多少分、哪一维已经达标、下一步该补哪里——每一项都能点开看到是从哪几条记录算出来的。</div>
+        <div class="section-sub">每一项都能点开，看到它由哪几条记录算出。</div>
 
         <div class="av-src" id="av-src"></div>
 
@@ -2158,7 +2147,6 @@ body.dark #p-game .mode-panel{
         <div class="val-grid">
           <div class="chart-card">
             <h4>参数设置</h4>
-            <div class="note">拖动滑块调整假设，估值实时联动；点情景按钮一键切换悲观 / 中性 / 乐观三套假设。</div>
             <!-- v63 · 案例预设：净利润与股本量程跨 4 个数量级（0.05 亿 ~ 3000 亿），用对数滑块 + 可输入框 -->
             <div class="val-preset-row">
               <label for="val-preset">载入案例</label>
@@ -3501,7 +3489,7 @@ body.dark #p-game .mode-panel{
             <button class="sim-btn ghost sb-btn" id="sim-seed-apply">应用种子</button>
             <button class="sim-btn ghost sb-btn" id="sim-seed-rand">随机换一组</button>
           </div>
-          <div class="sb-hint">同一种子号 + 同一情景 = 完全相同的走势。课堂统一发一个号，全班看到同一条行情，作业与讲评才有可比性。</div>
+          <div class="sb-hint">同一种子号 + 同一情景 = 全班同一条行情，作业与讲评才可比。</div>
         </div>
 
         <!-- v42 C：行情情景（确定性路径，便于同一策略在不同市况下对照） -->
@@ -3680,7 +3668,7 @@ body.dark #p-game .mode-panel{
       </div>
 
       <details class="fold-panel" id="um-fold">
-        <summary><span class="fp-t">用户管理</span><span class="fp-sub">新老师入职流程：本人先正常注册 → 管理员在此点「设为教师」即可，无需邀请码、无需改数据库。</span></summary>
+        <summary><span class="fp-t">用户管理</span><span class="fp-sub">本人先正常注册，管理员在此点「设为教师」即可。</span></summary>
         <div class="fp-body">
         <div class="um-toolbar">
           <input id="um-search" type="text" placeholder="搜索姓名 / 学号…" />
@@ -3749,13 +3737,7 @@ body.dark #p-game .mode-panel{
         </div>
       </div>
 
-      <!-- v137 · 比亚迪项目 · 三次出价与偏差（折叠卡，复用后台既有 .fold-panel 规范）。
-           原来这里是三块独立面板：小组押注 / 三路四栏 / 三次出价，每块都顶着一段口径长文，
-           没数据时整页只剩三句「还没有…」，教师看不出能干什么。
-           查证结果：押注与三路四栏的**学生端入口在 692291d「删除项目」里被删掉了**（本文件与
-           app-core 只剩事件处理器，没有任何生成 data-pj-pick / data-cmp-* 元素的代码），
-           两块面板的数据只会停在旧记录、永远不会新增 —— 已从页面上撤掉（渲染函数与导出逻辑保留，
-           恢复入口后只需把这两块壳贴回来）。现在只留真正有数据的这块。 -->
+      <!-- 比亚迪项目 · 三次出价（押注/三路四栏学生端入口已撤，渲染函数保留可贴回） -->
       <details class="fold-panel" id="pj-fold-bench">
         <summary>
           <span class="fp-t">比亚迪项目 · 三次出价与偏差</span>
@@ -3791,11 +3773,11 @@ body.dark #p-game .mode-panel{
       </div>
 
       <details class="fold-panel" id="stu-fold">
-        <summary><span class="fp-t">学生学情明细</span><span class="fp-sub">逐个学生查看章节完成数、累计学习时长、答题量与正确率、最近活跃时间（点击某行展开章节与题型明细）。</span></summary>
+        <summary><span class="fp-t">学生学情明细</span><span class="fp-sub">点击某行展开该生的章节与题型明细。</span></summary>
         <div class="fp-body">
         <div class="setup-actions" style="margin:0 0 10px;">
           <button class="copy-sql-btn" id="stu-export-btn" type="button">⬇️ 导出学情明细（CSV）</button>
-          <span class="tip" style="font-size:12px;color:var(--muted);">可先导出留档，再按「数据与隐私说明」在下线后匿名化处理。</span>
+          <span class="tip" style="font-size:12px;color:var(--muted);">可先导出留档，下线后匿名化处理。</span>
         </div>
         <div id="stu-detail"><div class="um-empty">加载中…</div></div>
         </div>
@@ -3895,8 +3877,8 @@ body.dark #p-game .mode-panel{
   <script src="static/forum-rubric.js"></script>
 
   <!-- 中英双语语言层：字典与运行时分离，补译文只需改 i18n-dict.js -->
-  <script src="static/i18n-dict.js?v=152"></script>
-  <script src="static/i18n.js?v=152"></script>
+  <script src="static/i18n-dict.js?v=153"></script>
+  <script src="static/i18n.js?v=153"></script>
 
   <!-- 投行卧底（教师控场）：独立模块，自带双语表，不经 i18n-dict.js -->
   <script src="static/undercover.js"></script>
