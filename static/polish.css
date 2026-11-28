@@ -52,3 +52,35 @@ html.polish-on .rv.rv-in {
   opacity: 1;
   transform: none;
 }
+
+/* ---- 渐变描边（v164：hover 时淡入的 1px 描边环） ----
+   三条约束：① 不引入新颜色——只复用既有强调色三色相的透明度变体
+   （亮：#6366f1/#0e7490/#8b5cf6；暗：#818cf8/#22d3ee/#a78bfa，即 app.css
+   深色模式已在用的强调色）；② 默认态完全不可见，仅 hover 淡入，
+   且不覆盖 app.css 既有的描边加深与小阴影（环叠在 border 之上）；
+   ③ mask 环形方案随 border-radius 走，不引入 layout 变化。 */
+.home-card { position: relative; }
+.home-card::after {
+  content: "";
+  position: absolute; inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(135deg,
+    rgba(99, 102, 241, 0.55),
+    rgba(14, 116, 144, 0.30) 45%,
+    rgba(139, 92, 246, 0.55));
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+          mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+          mask-composite: exclude;
+  opacity: 0;
+  transition: opacity 0.25s ease;
+  pointer-events: none;
+}
+.home-card:hover::after { opacity: 1; }
+body.dark:not(.light) .home-card::after {
+  background: linear-gradient(135deg,
+    rgba(129, 140, 248, 0.65),
+    rgba(34, 211, 238, 0.35) 45%,
+    rgba(167, 139, 250, 0.65));
+}

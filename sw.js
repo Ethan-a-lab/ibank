@@ -15,7 +15,7 @@
  * 注意：Service Worker 只在 https 或 localhost 下生效；双击 file:// 打开时注册会被跳过。
  */
 
-const CACHE_VERSION = 'ibank-v48';   // v163 质感层：polish.css/polish.js（噪点纹理 + 滚动入场 stagger + 视差光斑，颜色零改动）
+const CACHE_VERSION = 'ibank-v49';   // v164 质感层追加：home-card hover 渐变描边（复用既有强调色相，默认态不可见）
 
 /* ★总开关：想把 PWA 停掉，只把这个 true 改成 false，然后推送一次。
  *
