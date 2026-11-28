@@ -3759,5 +3759,19 @@ body.dark:not(.light) .nav-group-x.open .nav-trigger { color: #e7eaf3; backgroun
   font-size: 11px; color: var(--muted); line-height: 1.75; }
 .avb-ev b { color: var(--text); font-weight: 600; }
 body.dark:not(.light) .avb-fill { opacity: .9; }
+/* v158 · 教师端五维：汇总画像雷达 + 学生展开雷达 */
+.avb-overview { display: flex; gap: 20px; align-items: flex-start; flex-wrap: wrap; margin-bottom: 12px; }
+.avb-radar-main { flex: 0 0 340px; max-width: 340px; }
+.avb-radar-main svg { width: 100%; height: auto; display: block; }
+.avb-radar-cap { font-size: 11.5px; color: var(--muted); text-align: center; margin-top: 2px; line-height: 1.6; }
+.avb-overview .avb-bars { flex: 1 1 250px; min-width: 230px; align-self: center; }
+.avb-hint { font-size: 11.5px; color: var(--muted); line-height: 1.7; margin: 0 0 10px; }
+.avb-ev-detail { display: flex; gap: 18px; align-items: flex-start; flex-wrap: wrap; }
+.avb-radar-box { flex: 0 0 300px; max-width: 300px; }
+.avb-radar-box svg { width: 100%; height: auto; display: block; }
+.avb-ev-detail .avb-ev { flex: 1 1 230px; min-width: 210px; align-self: center; }
+@media (max-width: 720px) {
+  .avb-radar-main, .avb-radar-box { flex-basis: 100%; max-width: 100%; }
+}
 /* v156 · 教师端成果链授权摘要 */
 .avb-cap { font-size: 11px; color: var(--muted); line-height: 1.7; margin-top: 10px; }

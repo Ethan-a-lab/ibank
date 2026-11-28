@@ -936,6 +936,9 @@ emitted = target;
           students: '参与学生', evidence: '观测点覆盖', withScore: '有维度分',
           student: '学生', cls: '班级', total: '综合', evCol: '证据', na: '待采集',
           pending: '云端读取中…', local: '本机镜像 · 云端同步中',
+          scopeAll: '全部年级', scopeGrade: '{g}级',
+          summary: '汇总画像（当前筛选范围平均）', avgTotal: '平均综合达成度', overall: '综合达成度',
+          hint: '点任意学生行展开该生的五维雷达图与证据明细；班级/年级筛选同时作用于汇总画像与明细表。',
           challenge: '全部维度按同一算法现算；缺证据的维度记「待采集」，不用 0 分冒充。'
         },
         en: {
@@ -945,6 +948,9 @@ emitted = target;
           students: 'Students', evidence: 'Evidence points', withScore: 'With scores',
           student: 'Student', cls: 'Class', total: 'Overall', evCol: 'Evidence', na: 'Not collected',
           pending: 'Loading…', local: 'Local mirror · syncing',
+          scopeAll: 'All grades', scopeGrade: 'Class of {g}',
+          summary: 'Cohort profile (average of current scope)', avgTotal: 'Avg. overall', overall: 'Overall',
+          hint: 'Tap any student row to expand their radar chart and evidence; grade/class filters apply to both the cohort profile and the table.',
           challenge: 'All dimensions use the same algorithm; dimensions without evidence stay “Not collected” instead of 0.'
         }
       };
@@ -994,6 +1000,76 @@ emitted = target;
         var v = a.filter(function (x) { return x != null && isFinite(x); });
         return v.length ? Math.round(v.reduce(function (s, x) { return s + x; }, 0) / v.length) : null;
       }
+      function avF1(n) { return n == null ? '—' : (Math.round(n * 10) / 10).toFixed(1); }
+
+      /* v158 教师端五维雷达图：与学生页 eval-core 的 radarSVG 同一网格 / 配色 / 达标线口径。
+         vals 与 AV_DIMS 对齐（null 维画空心点并标「待采集」）；不写任何 DOM，纯返回 SVG 字符串，
+         供「汇总画像」与「点学生展开」两处复用。文案按 <html lang> 自取。 */
+      var avBoardRows = [];   // renderAvBoard 现算出的逐生数据（含分数），展开行按 index 取
+      var avSel = -1;         // 当前展开的学生行 index；-1 = 全部收起
+      function avRadarSVG(vals, center, centerLabel) {
+        var W = 460, H = 356, cx = 230, cy = 184, R = 100;
+        var ang = function (i) { return (-90 + i * 72) * Math.PI / 180; };
+        var pt = function (i, r) { return [cx + Math.cos(ang(i)) * r, cy + Math.sin(ang(i)) * r]; };
+        var poly = function (rs) {
+          return rs.map(function (r, i) { var p = pt(i, R * r / 100); return p[0].toFixed(1) + ',' + p[1].toFixed(1); }).join(' ');
+        };
+        var cs = function (name, d) { try { var v = getComputedStyle(document.body).getPropertyValue(name).trim(); return v || d; } catch (e) { return d; } };
+        var gridC = cs('--chart-grid', '#eef2f7'), axisC = cs('--chart-axis', '#cbd5e1');
+        var labelC = cs('--chart-value', '#1a2233'), subC = cs('--chart-label', '#64748b');
+        var acc = cs('--accent', '#6366f1'), warn = cs('--av-warn', '#b45309');
+        var vArr = AV_DIMS.map(function (d, i) { return vals && vals[i] != null && isFinite(vals[i]) ? vals[i] : 0; });
+        var anyNull = AV_DIMS.some(function (d, i) { return !vals || vals[i] == null || !isFinite(vals[i]); });
+
+        var s = '<svg viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="' + esc(centerLabel || '') + '雷达图">';
+        [20, 40, 60, 80, 100].forEach(function (r) {
+          s += '<polygon points="' + poly([r, r, r, r, r]) + '" fill="none" stroke="' + gridC + '" stroke-width="1"/>';
+        });
+        for (var i = 0; i < 5; i++) {
+          var e = pt(i, R);
+          s += '<line x1="' + cx + '" y1="' + cy + '" x2="' + e[0].toFixed(1) + '" y2="' + e[1].toFixed(1) + '" stroke="' + axisC + '" stroke-width="1"/>';
+        }
+        s += '<polygon points="' + poly([60, 60, 60, 60, 60]) + '" fill="none" stroke="' + subC + '" stroke-width="1.2" stroke-dasharray="5 4" opacity="0.65"/>';
+        s += '<polygon points="' + poly(AV_DIMS.map(function (d) { return d.line; })) + '" fill="none" stroke="' + warn + '" stroke-width="1.2" stroke-dasharray="2 4" opacity="0.85"/>';
+        s += '<polygon points="' + poly(vArr) + '" fill="' + acc + '" fill-opacity="0.16" stroke="' + acc + '" stroke-width="2" stroke-linejoin="round"/>';
+        vArr.forEach(function (v, idx) {
+          var hollow = !vals || vals[idx] == null || !isFinite(vals[idx]);
+          var p = pt(idx, R * v / 100);
+          s += '<circle cx="' + p[0].toFixed(1) + '" cy="' + p[1].toFixed(1) + '" r="3.6" fill="' + (hollow ? 'var(--panel-solid, #fff)' : acc) + '" stroke="' + acc + '" stroke-width="1.6"/>';
+        });
+        AV_DIMS.forEach(function (d, idx) {
+          var real = vals ? vals[idx] : null;
+          if (real != null && !isFinite(real)) real = null;
+          var p = pt(idx, R + 30);
+          var anchor = 'middle';
+          if (p[0] > cx + 20) anchor = 'start';
+          else if (p[0] < cx - 20) anchor = 'end';
+          var x = p[0], y = p[1];
+          if (anchor === 'start') x += 4;
+          if (anchor === 'end') x -= 4;
+          var dy = (idx === 0) ? -14 : (p[1] > cy ? 4 : -14);
+          s += '<text x="' + x.toFixed(1) + '" y="' + (y + dy).toFixed(1) + '" text-anchor="' + anchor
+            + '" font-size="12" font-weight="600" fill="' + labelC + '">' + esc(avDim(d)) + '</text>';
+          s += '<text x="' + x.toFixed(1) + '" y="' + (y + dy + 15).toFixed(1) + '" text-anchor="' + anchor
+            + '" font-size="11.5" fill="' + (real == null ? subC : labelC) + '">'
+            + (real == null ? esc(avT('na')) : avF1(real)) + '</text>';
+        });
+        s += '<text x="' + cx + '" y="' + (cy - 2) + '" text-anchor="middle" font-size="26" font-weight="700" fill="' + labelC + '">'
+          + (center == null ? '—' : avF1(center)) + '</text>';
+        s += '<text x="' + cx + '" y="' + (cy + 17) + '" text-anchor="middle" font-size="11" fill="' + subC + '">'
+          + esc(centerLabel || '') + (anyNull ? (centerLabel ? '（' : '（') + esc(avT('na')) + '）' : '') + '</text>';
+        s += '</svg>';
+        return s;
+      }
+      /* 展开行首次点开时才生成该生的雷达 SVG（80 人 × 全量预生成没必要）。 */
+      function avEnsureRadar(exp, i) {
+        if (!exp) return;
+        var box = exp.querySelector('.avb-radar-box');
+        if (!box || box.firstChild) return;
+        var r = avBoardRows[i];
+        var vals = AV_DIMS.map(function (d) { return r && r.s ? r.s.dims[d.k] : null; });
+        box.innerHTML = avRadarSVG(vals, r && r.s ? r.s.total : null, avT('overall'));
+      }
       function renderAvBoard() {
         var body = document.getElementById('av-board-body');
         var title = document.getElementById('av-board-title');
@@ -1032,7 +1108,18 @@ emitted = target;
           + kpi(avT('students'), rows.length)
           + kpi(avT('evidence'), evHave + ' / ' + evAll)
           + kpi(avT('withScore'), withScore + ' / ' + rows.length) + '</div>';
-        h += '<div class="avb-bars">';
+        /* v158 汇总画像：当前筛选范围（年级/班级联动）的五维平均雷达，与各维平均条并排。
+           中心数字 = 范围内有综合分学生的平均综合达成度（无人齐全时显示 —）。 */
+        avBoardRows = rows;
+        var avgTotal = avMean(rows.map(function (r) { return r.s && r.s.total; }));
+        var scopeTxt = (statScope.grade === 'all' ? avT('scopeAll')
+            : avT('scopeGrade').replace('{g}', statScope.grade))
+          + (statScope.cls ? ' · ' + statScope.cls : '')
+          + ' · ' + rows.length + (avLang() === 'en' ? ' students' : ' 人');
+        h += '<div class="avb-overview">'
+          + '<div class="avb-radar-main">' + avRadarSVG(AV_DIMS.map(function (d) { return dimAvgs[d.k]; }), avgTotal, avT('avgTotal'))
+          + '<div class="avb-radar-cap">' + esc(avT('summary')) + ' · ' + esc(scopeTxt) + '</div></div>'
+          + '<div class="avb-bars">';
         AV_DIMS.forEach(function (d) {
           var v = dimAvgs[d.k], w = v == null ? 0 : v;
           h += '<div class="avb-row"><span class="avb-n">' + esc(avDim(d)) + '</span>'
@@ -1040,7 +1127,9 @@ emitted = target;
             + '<span class="avb-line" style="left:' + d.line + '%"></span></span>'
             + '<span class="avb-v">' + (v == null ? esc(avT('na')) : v) + '</span></div>';
         });
-        h += '</div><table class="pj-bt-tb avb-tb"><thead><tr><th>' + esc(avT('student'))
+        h += '</div></div>'
+          + '<p class="avb-hint">' + esc(avT('hint')) + '</p>'
+          + '<table class="pj-bt-tb avb-tb"><thead><tr><th>' + esc(avT('student'))
           + '</th><th>' + esc(avT('cls')) + '</th>'
           + AV_DIMS.map(function (d) { return '<th>' + esc(avDim(d)) + '</th>'; }).join('')
           + '<th>' + esc(avT('total')) + '</th><th>' + esc(avT('evCol')) + '</th></tr></thead><tbody>';
@@ -1050,7 +1139,8 @@ emitted = target;
             + AV_DIMS.map(function (d) { return cell(r.s && r.s.dims[d.k]); }).join('')
             + cell(r.s && r.s.total)
             + '<td class="num">' + (r.s ? r.s.obsHave + '/' + r.s.obsTotal : '—') + '</td></tr>';
-          var ev = '<tr class="avb-exp" data-av-exp="' + i + '" hidden><td colspan="9"><div class="avb-ev">';
+          var ev = '<tr class="avb-exp" data-av-exp="' + i + '" hidden><td colspan="9"><div class="avb-ev-detail">'
+            + '<div class="avb-radar-box"></div><div class="avb-ev">';
           if (r.s && avLang() === 'zh') {
             Object.keys(r.s.val).forEach(function (k) {
               if (r.s.val[k] == null) return;
@@ -1062,11 +1152,16 @@ emitted = target;
               ev += '<span><b>' + esc(k) + '</b> ' + esc(r.s.val[k]) + '</span>';
             });
           }
-          ev += '</div></td></tr>';
+          ev += '</div></div></td></tr>';
           h += ev;
         });
         h += '</tbody></table>';
         body.innerHTML = h;
+        /* v158：切筛选 / 切语言重渲染后，恢复之前展开的学生行（雷达图懒注入） */
+        if (avSel >= 0 && avSel < rows.length) {
+          var exp = body.querySelector('[data-av-exp="' + avSel + '"]');
+          if (exp) { exp.hidden = false; avEnsureRadar(exp, avSel); }
+        }
       }
 
       // 云端按 type 分页拉取学期末之后的新增事件；缺 detail 列时自动降级，
@@ -1236,8 +1331,14 @@ emitted = target;
         b.addEventListener('click', function (e) {
           var tr = e.target.closest ? e.target.closest('[data-av-row]') : null;
           if (!tr) return;
-          var exp = b.querySelector('[data-av-exp="' + tr.getAttribute('data-av-row') + '"]');
-          if (exp) exp.hidden = !exp.hidden;
+          var i = parseInt(tr.getAttribute('data-av-row'), 10);
+          var exp = b.querySelector('[data-av-exp="' + i + '"]');
+          if (!exp) return;
+          var willOpen = exp.hidden;
+          exp.hidden = !willOpen;
+          avSel = willOpen ? i : -1;
+          /* v158：首次展开时才生成该生雷达图（与学生在自己页面看到的同一口径） */
+          if (willOpen) avEnsureRadar(exp, i);
         });
       });
 
