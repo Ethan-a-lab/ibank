@@ -9,11 +9,11 @@
 
 | 项目 | 值 |
 | --- | --- |
-| **当前版本号** | **v162** — 2026-11-28「决策记录卡三段式：19 张卡各加『一步测算/规则判读』段」（**v161/v162 已由用户推送上线，2026-11-28 14:37 核实**） |
-| 上一版 | **v161** — 2026-11-28「案例库通用决策记录卡：E 维 e.case 全案例采分」（`709d660` 已推送） |
-| 对应提交 | v161（`709d660`）/ v162（`65396e3`）已全部推送，`origin/main` 同位 |
-| 线上校验 | **线上已是 v162**（2026-11-28 14:37 核实：`app.css?v=162`、case-cards.js 已挂载、SW `ibank-v47`），案例库 20 个案例全部为三段式决策卡 |
-| SW 版本 | **`ibank-v47`**（v162 升的；CSS/JS 引用参数升 `?v=162`） |
+| **当前版本号** | **v164** — 2026-11-28「质感层追加：home-card hover 渐变描边环」（**v163/v164 已由用户推送上线，2026-11-28 18:47 核实**） |
+| 上一版 | **v163** — 2026-11-28「质感层：噪点/渐变网格纹理 + 滚动入场 stagger + 视差光斑，颜色零改动」（`9120d36` 已推送） |
+| 对应提交 | v163（`9120d36`）/ v164（`5530239`）已全部推送，`origin/main` 同位 |
+| 线上校验 | **线上已是 v164**（2026-11-28 18:47 核实：首页引用 `polish.css?v=164` + `polish.js?v=163`、`app.css?v=162` 不变、`static/polish.css` 线上 200、SW `ibank-v49`） |
+| SW 版本 | **`ibank-v49`**（v164 升的；polish.css 引用参数 `?v=164`） |
 | **未完成的前置条件** | `db/undercover.sql`：README 记为**已执行**（2026-11-12 核实），本表旧口径作废。若课堂上「手机领词」仍退回纸质模式，先查这条与匿名登录开关 |
 | 台账登记 | 文末详细条目已到 **v145**；「三、版本记录」索引表停在 **v79**（历史遗留，仅作旧版检索，不再续写） |
 
@@ -732,13 +732,13 @@ python _private/site_files.py baseline
   ③ **reduced-motion**：`prefers-reduced-motion` 下整层退出（不注入 polish-on、不挂 .rv、无视差）；会话中途切换也即时还原（polish-on 移除 + 未入场元素直接标完成）。
   ④ **接线**：sw v47→v48（预缓存清单与 network-first 正则纳入 polish 双文件）；index.html 挂 `polish.css?v=163` + `polish.js?v=163`（app.css?v=162 保持不变，v162 验收断言兼容）。
   ⑤ 新增 `accept_v163_polish.mjs` **30/30**（静态接线 9——SW v48/双文件引用/颜色零改动断言/预缓存与 network-first；门控与入场 7——polish-on 注入/59 个目标/首页 16 张卡级联/首屏入场/隐藏页不提前/滚动补入场/本页全亮；纹理层 4——网格/噪点/透明度≤0.05/不拦点击；切页补入场 2；视差 1；reduced-motion 4；布局业务 3——1440 无溢出/0 JS 错误/案例决策卡 246 节点不受影响）。回归全套 21 套（v130…v162）**全部 0 失败**，日志 `_private/_post163/`（v162 日志中的 ✗ 为测试描述文本，非失败项）。
-  ⑥ **本地 commit，未 push（push 由用户自己做）。**
+  ⑥ **本地 commit，未 push（push 由用户自己做）。）（状态更正 2026-11-28 18:47：已由用户推送上线，`9120d36`；线上核实 `polish.css?v=164` / SW `ibank-v49`。）**
 
 - **v164（2026-11-28，质感层追加：home-card hover 渐变描边环，不引入新颜色）**：用户追问「渐变描边可以在不改变原有网页光暗色调的基础上加上吗？」——可以且已做：描边环只用**既有强调色三色相**的透明度变体，默认态完全不可见，光暗基调零改动。
   ① **实现**（polish.css 追加）：`.home-card::after` mask 环形描边（`padding:1px + mask-composite:exclude`，随 border-radius 走，不引入 layout 变化），亮色环 `#6366f1→#0e7490→#8b5cf6`（即 --accent/--accent2/--accent3 的色相）、暗色环 `#818cf8→#22d3ee→#a78bfa`（app.css 深色模式已在用的强调色相）；`opacity 0→1` hover 淡入 0.25s，`pointer-events:none`；补 `.home-card{position:relative}` 锚点。app.css 既有的 hover 描边加深与小阴影**保留不动**（环叠在 border 之上，二者叠加而非替换）——v118「hover 收敛」决策延续为「收敛 + 一条渐变环」，无上浮无大阴影。
   ② **接线**：sw v48→v49；index.html `polish.css?v=163→164`（polish.js 无改动保持 ?v=163）。
   ③ **验收**：accept_v163_polish.mjs 扩至 **38/38**（新增 [2b] 静态 5——mask 环/position 锚点/亮暗色相断言/默认态不可见；运行时 3——hover 后 ::after opacity=1/linear-gradient/不拦点击）；回归全套 21 套（v130…v162）**全部 0 失败**，日志 `_private/_post163/`。
-  ④ **本地 commit，未 push（push 由用户自己做）。**
+  ④ **本地 commit，未 push（push 由用户自己做）。）（状态更正 2026-11-28 18:47：已由用户推送上线，`5530239`；线上核实首页 `polish.css?v=164`、SW `ibank-v49`、`static/polish.css` 200。）**
 
 ## 专家四条建议进度（截至 v156）
 
