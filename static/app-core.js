@@ -1121,6 +1121,22 @@ document.addEventListener('keydown', function (e) {
         if (colorV !== null && colorV !== undefined) e.style.color = colorV > 0.0001 ? 'var(--up)' : (colorV < -0.0001 ? 'var(--down)' : 'var(--text)');
       }
 
+      /* v154 · R 维「回撤期调仓」证据源：每笔委托上报结构化数字，不含买卖理由原文。
+         dd = 成交价距该股历史高点的回撤（单位 0.1%，50 = 回撤 5%）；
+         教师端按 dd 筛出回撤期调仓，linking 到五维 R 维，23 级历史数据无此事件。 */
+      function trackTrade(side, code, qty, price, realized) {
+        if (typeof window.__ibankTrack !== 'function') return;
+        try {
+          var hist = S.hist[code] || [], hi = 0;
+          for (var i = 0; i < hist.length; i++) if (hist[i] > hi) hi = hist[i];
+          var dd = hi > 0 ? Math.max(0, Math.round((hi - price) / hi * 1000)) : 0;
+          window.__ibankTrack('trade', {
+            side: side, code: code, qty: qty, dd: dd,
+            realized: Math.round(realized || 0), step: S.step || 0
+          });
+        } catch (e) { /* 上报失败不阻断交易 */ }
+      }
+
       function buy(code, q) {
         if (!q || q <= 0 || q % 100 !== 0) { toast('请输入 100 的整数倍股数'); return; }
         const p = px(code), amount = q * p, fee = feeOf(amount, false);
@@ -1132,6 +1148,7 @@ document.addEventListener('keydown', function (e) {
         S.trades.unshift({ date: mdOf(S.dates[DAYS - 1]), side: 'buy', code: code, qty: q, price: p, amount: amount, fee: fee });
         S.selected = code;              // 买入后走势图自动切到该标的
         save(); renderAll();
+        trackTrade('buy', code, q, p, 0);
         toast('买入 ' + nameOf(code) + ' ' + q + ' 股 @ ' + money(p) + (fee > 0 ? '，费用 ' + money(fee) : ''));
       }
 
@@ -1151,6 +1168,7 @@ document.addEventListener('keydown', function (e) {
         S.trades.unshift({ date: mdOf(S.dates[DAYS - 1]), side: 'sell', code: code, qty: q, price: p, amount: amount, fee: fee, realized: realized });
         S.selected = code;              // 卖出后走势图自动切到该标的
         save(); renderAll();
+        trackTrade('sell', code, q, p, realized);
         toast('卖出 ' + nameOf(code) + ' ' + q + ' 股 @ ' + money(p) + '，本笔' + (realized >= 0 ? '盈利 ' : '亏损 ') + money(Math.abs(realized)) + (fee > 0 ? '（含费用 ' + money(fee) + '）' : ''));
       }
 
@@ -1875,7 +1893,42 @@ document.addEventListener('keydown', function (e) {
         log.scrollTop = log.scrollHeight;
         return { row: row, bub: bub, main: main };
       }
-      function addTools(row, main, host, text, rel) {
+      function addTools(row, main, host, text, rel, aid) {
+        /* v154 · 显式「质疑 / 修正」入口：结果交给 qa-chain.js 本机保存，
+           云端只收类型与理由长度，不收理由原文（沿用隐私口径）。 */
+        function openReviewForm(type) {
+          var old = row.querySelector('.qa-review-form');
+          if (old) old.remove();
+          var form = document.createElement('div');
+          form.className = 'qa-review-form';
+          var title = document.createElement('div');
+          title.className = 'qrf-t';
+          title.textContent = type === 'challenge' ? '质疑这一答' : '给出你的修正版本';
+          var ta = document.createElement('textarea');
+          ta.className = 'qrf-ta';
+          ta.rows = 3;
+          ta.placeholder = type === 'challenge' ? '写下你的理由或反例…' : '写下你认为更准确的表述…';
+          var bar = document.createElement('div');
+          bar.className = 'qrf-bar';
+          var ok = document.createElement('button');
+          ok.type = 'button'; ok.className = 'qrf-ok'; ok.textContent = '提交';
+          var cancel = document.createElement('button');
+          cancel.type = 'button'; cancel.className = 'qrf-no'; cancel.textContent = '取消';
+          var qtext = host.getAttribute('data-ask') || '';
+          ok.addEventListener('click', function () {
+            var reason = (ta.value || '').trim();
+            var saved = false;
+            if (typeof window.__ibankQaReviewSave === 'function') {
+              saved = window.__ibankQaReviewSave(type, reason, aid, qtext.length, (text || '').length);
+            }
+            if (saved) form.remove();
+          });
+          cancel.addEventListener('click', function () { form.remove(); });
+          bar.appendChild(ok); bar.appendChild(cancel);
+          form.appendChild(title); form.appendChild(ta); form.appendChild(bar);
+          main.appendChild(form);
+          ta.focus();
+        }
         var box = document.createElement('div');
         box.className = 'qa-tools';
         var bCopy = document.createElement('button');
@@ -1908,7 +1961,14 @@ document.addEventListener('keydown', function (e) {
           if (tts.on) { tts.on = false; stopSpeak(); syncVoiceBtn(); ibankToast('已停止朗读'); }
           else { tts.on = true; syncVoiceBtn(); speak(text); ibankToast('开始朗读（' + tts.voice.name + '）'); }
         });
-        box.appendChild(bCopy); box.appendChild(bRe); box.appendChild(bRead);
+        var bChallenge = document.createElement('button');
+        bChallenge.type = 'button'; bChallenge.textContent = '⚑ 质疑';
+        bChallenge.addEventListener('click', function () { openReviewForm('challenge'); });
+        var bRevise = document.createElement('button');
+        bRevise.type = 'button'; bRevise.textContent = '✎ 修正';
+        bRevise.addEventListener('click', function () { openReviewForm('revise'); });
+        box.appendChild(bCopy); box.appendChild(bRe); box.appendChild(bChallenge);
+        box.appendChild(bRevise); box.appendChild(bRead);
         main.appendChild(box);
         if (rel) {
           var wrap = document.createElement('span');
@@ -2012,7 +2072,8 @@ document.addEventListener('keydown', function (e) {
             ? '来源：<b>本地知识库</b>（联网调用大模型失败时自动回落）'
             : '来源：<b>智谱 GLM + 课程知识库检索</b> · 生成内容仅供学习参考，不构成投资建议';
           b.bub.appendChild(foot);
-          addTools(b.row, b.main, b.bub, finalText, qaRelated(q));
+          var aid = Date.now();
+          addTools(b.row, b.main, b.bub, finalText, qaRelated(q), aid);
           // v49：可核验依据面板（默认折叠的 details；实测用时 + 站内匹配到的章节/案例 + 兜底如实标注）
           var nowT = (window.performance && performance.now) ? performance.now() : Date.now();
           addBasis(b.main, q, local, local ? null : { ttfbMs: ttfb, totalMs: nowT - t0, chars: (finalText || '').length });

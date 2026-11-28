@@ -19,6 +19,7 @@
   if (!root) return;
 
   var STORE = 'ibank_qa_chain';        // 学生主动保存的对话原文（本机）
+  var RVKEY = 'ibank_qa_review';       // v154：学生显式提交的质疑/修正（本机）
   var EVKEY = 'ibank_events_local';    // 行为埋点（本机镜像，只读统计）
   var MAX_ITEMS = 30;                  // 最多留 30 条成果链，防本机膨胀
 
@@ -29,6 +30,11 @@
   }
   function ls(k, d) { try { var v = localStorage.getItem(k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } }
   function toast(s) { try { if (typeof ibankToast === 'function') ibankToast(s); } catch (e) {} }
+  /* v154：面板带 data-i18n-skip，双语由本模块自己按 <html lang> 渲染；
+     中文态文案与 v141 断言逐字一致，英文态只在这些节点上生效。 */
+  function L(zh, en) { return document.documentElement.lang === 'en' ? en : zh; }
+  function reviews() { var a = ls(RVKEY, []); return Array.isArray(a) ? a : []; }
+  function saveReviews(a) { try { localStorage.setItem(RVKEY, JSON.stringify(a.slice(-200))); } catch (e) {} }
   function fmt(ts) {
     try { var d = new Date(ts); return d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2)
       + '-' + ('0' + d.getDate()).slice(-2) + ' ' + ('0' + d.getHours()).slice(-2) + ':' + ('0' + d.getMinutes()).slice(-2); }
@@ -74,12 +80,12 @@
     var s = stats(), box = q('qc-stats');
     if (!box) return;
     var cards = [
-      { k: '累计提问', v: s.n, u: '次' },
-      { k: '学习会话', v: s.sessions, u: '段' },
-      { k: '追问', v: s.follow, u: '次' },
-      { k: '改问重提', v: s.revise, u: '次' },
-      { k: '要求重生成', v: s.regen, u: '次' },
-      { k: '平均提问', v: s.avgQ, u: '字' }
+      { k: L('累计提问', 'Questions'), v: s.n, u: L('次', 'x') },
+      { k: L('学习会话', 'Sessions'), v: s.sessions, u: L('段', 'sess') },
+      { k: L('追问', 'Follow-ups'), v: s.follow, u: L('次', 'x') },
+      { k: L('改问重提', 'Rephrased'), v: s.revise, u: L('次', 'x') },
+      { k: L('要求重生成', 'Regenerated'), v: s.regen, u: L('次', 'x') },
+      { k: L('平均提问', 'Avg. length'), v: s.avgQ, u: L('字', 'chars') }
     ];
     box.innerHTML = cards.map(function (c) {
       return '<div class="qc-stat"><div class="qc-stat-v">' + c.v + '<small>' + c.u + '</small></div>'
@@ -87,22 +93,29 @@
     }).join('');
 
     var badge = q('qc-badge'), sub = q('qc-sum-sub');
-    if (badge) badge.textContent = s.n ? (s.n + ' 次提问留痕') : '尚无记录';
+    if (badge) badge.textContent = s.n ? (s.n + (L(' 次提问留痕', ' answers logged'))) : L('尚无记录', 'No records yet');
     if (sub) sub.textContent = s.n
-      ? ('已留痕 ' + s.n + ' 次 · ' + s.sessions + ' 段会话 · 追问 ' + s.follow + ' 次 · 改问 ' + s.revise + ' 次')
-      : '提问 → 改问 → 迭代 → 质疑修正，全过程留痕';
+      ? L('已留痕 ' + s.n + ' 次 · ' + s.sessions + ' 段会话 · 追问 ' + s.follow + ' 次 · 改问 ' + s.revise + ' 次',
+         s.n + ' logged · ' + s.sessions + ' sessions · ' + s.follow + ' follow-ups · ' + s.revise + ' rephrasings')
+      : L('提问 → 改问 → 迭代 → 质疑修正，全过程留痕',
+         'Ask → rephrase → iterate → challenge: the whole chain, visible');
 
     var dim = q('qc-dim');
     if (dim) {
       if (!s.n) {
-        dim.innerHTML = '<div class="qc-dim-empty">还没有提问记录。去上面问一个问题，回来就能看到过程统计。</div>';
+        dim.innerHTML = '<div class="qc-dim-empty">' + L('还没有提问记录。去上面问一个问题，回来就能看到过程统计。',
+          'No questions logged yet. Ask one above, then come back to see your process log.') + '</div>';
       } else {
         var parts = [];
-        if (s.follow) parts.push('有 <b>' + s.follow + '</b> 次追问——你在沿着同一个问题深挖');
-        if (s.revise) parts.push('有 <b>' + s.revise + '</b> 次改问重提——你在调整提问方式而不是照单全收');
-        if (s.regen) parts.push('有 <b>' + s.regen + '</b> 次要求重生成——你对答案提出了质疑');
-        dim.innerHTML = '<div class="qc-dim-h">从数字看你的探究习惯</div><div class="qc-dim-b">'
-          + (parts.length ? parts.join('；') + '。' : '目前是单轮提问，试着追问一句或换个说法再问，过程留痕会更丰富。')
+        if (s.follow) parts.push(L('有 <b>' + s.follow + '</b> 次追问——你在沿着同一个问题深挖',
+          '<b>' + s.follow + '</b> follow-ups — you dug deeper into the same question'));
+        if (s.revise) parts.push(L('有 <b>' + s.revise + '</b> 次改问重提——你在调整提问方式而不是照单全收',
+          '<b>' + s.revise + '</b> rephrasings — you adjusted how you ask instead of accepting the first answer'));
+        if (s.regen) parts.push(L('有 <b>' + s.regen + '</b> 次要求重生成——你对答案提出了质疑',
+          '<b>' + s.regen + '</b> regenerations — you challenged the answer'));
+        dim.innerHTML = '<div class="qc-dim-h">' + L('从数字看你的探究习惯', 'Your inquiry habits in numbers') + '</div><div class="qc-dim-b">'
+          + (parts.length ? parts.join(L('；', '; ')) + L('。', '.') : L('目前是单轮提问，试着追问一句或换个说法再问，过程留痕会更丰富。',
+             'Single-turn so far. Try a follow-up or rephrase the question to make your chain richer.'))
           + '</div>';
       }
     }
@@ -116,7 +129,8 @@
     var box = q('qc-list'), arr = items();
     if (!box) return;
     if (!arr.length) {
-      box.innerHTML = '<div class="qc-empty">还没有保存的成果链。上面的对话问完后，点「保存这一轮对话」把原文存到这里——不点就不存。</div>';
+      box.innerHTML = '<div class="qc-empty">' + L('还没有保存的成果链。上面的对话问完后，点「保存这一轮对话」把原文存到这里——不点就不存。',
+        'No saved chain yet. After a conversation, tap “Save this conversation” to keep the transcript here — nothing is stored unless you do.') + '</div>';
       return;
     }
     box.innerHTML = arr.map(function (it, i) {
@@ -131,6 +145,83 @@
           }).join('') + '</div></details>';
     }).join('');
   }
+
+  /* ---------- ③ 显式质疑 / 修正（v154） ---------- */
+  function ensureReviewSection() {
+    var body = root.querySelector('.qc-body');
+    if (!body || q('qc-review-sec')) return;
+    var sec = document.createElement('div');
+    sec.className = 'qc-sec'; sec.id = 'qc-review-sec';
+    sec.innerHTML = '<h4 id="qc-rv-h"></h4>'
+      + '<div class="qc-rv-intro" id="qc-rv-intro"></div>'
+      + '<div class="qc-reviews" id="qc-reviews"></div>';
+    body.appendChild(sec);
+  }
+
+  function renderReviews() {
+    var box = q('qc-reviews'); if (!box) return;
+    var arr = reviews();
+    if (!arr.length) {
+      box.innerHTML = '<div class="qc-empty">' + L('还没有质疑或修正记录。在 AI 回答下方点「⚑ 质疑」或「✎ 修正」，写下理由即可留痕。',
+        'No challenges or fixes yet. Tap “⚑ Challenge” or “✎ Revise” under an AI answer and write your reason.') + '</div>';
+      return;
+    }
+    box.innerHTML = arr.slice().reverse().map(function (r) {
+      var t = r.type === 'revise' ? L('修正', 'Fix') : L('质疑', 'Challenge');
+      return '<div class="qc-rv"><div class="qc-rv-h"><span class="qc-rv-tag">' + esc(t)
+        + '</span><span class="qc-rv-ts">' + fmt(r.ts) + '</span></div>'
+        + '<div class="qc-rv-b">' + esc(r.reason) + '</div></div>';
+    }).join('');
+  }
+
+  function applyLabels() {
+    var h4 = root.querySelectorAll('.qc-sec h4');
+    if (h4[0]) h4[0].innerHTML = L('① 过程统计 <span class="qc-tag">自动 · 只记数字</span>',
+      '① Process log <span class="qc-tag">Automatic · numbers only</span>');
+    if (h4[1]) h4[1].innerHTML = L('② 我的成果链 <span class="qc-tag">主动保存 · 可删</span>',
+      '② My chain <span class="qc-tag">Saved by you · deletable</span>');
+    var h3 = q('qc-rv-h');
+    if (h3) h3.innerHTML = L('③ 质疑与修正 <span class="qc-tag">显式留痕 · 本机</span>',
+      '③ Challenges & fixes <span class="qc-tag">Explicit · on this device</span>');
+    var intro = q('qc-rv-intro');
+    if (intro) intro.textContent = L('对答案不同意？点一下、写清楚理由——这条链才算真正经过你的思考。',
+      'Disagree with an answer? Say so, and explain why — that is what turns a transcript into your own chain.');
+    var lead = root.querySelector('.qc-lead');
+    if (lead) lead.innerHTML = L(
+      '系统只自动记录<b>次数与轮次</b>（不问你写了什么）；<b>对话原文只有你自己点「保存这一轮」才会存到本机</b>，随时可删、可导出。云端只收结构化数字，不收提问原文。',
+      'The system logs <b>counts and turns only</b> (not what you wrote); <b>the transcript is saved to this device only when you tap “Save this conversation”</b>, and can be deleted or exported any time. The cloud receives structured numbers, never your question text.');
+    var st = q('qc-save'), ex = q('qc-export'), cl = q('qc-clear');
+    if (st) st.textContent = L('保存这一轮对话', 'Save this conversation');
+    if (ex) ex.textContent = L('导出成果链', 'Export chain');
+    if (cl) cl.textContent = L('清空', 'Clear');
+    var tt = root.querySelector('.qc-sum-t');
+    if (tt) tt.textContent = L('探究成果链', 'Inquiry chain');
+  }
+
+  /* 供答疑页「⚑ 质疑 / ✎ 修正」按钮调用：理由只落本机，云端只收长度数字。 */
+  window.__ibankQaReviewSave = function (type, reason, aid, qLen, aLen) {
+    reason = String(reason || '').trim();
+    if (reason.length < 4) { toast(L('理由至少写 4 个字', 'Please write at least 4 characters')); return false; }
+    var rec = {
+      ts: Date.now(), type: type === 'revise' ? 'revise' : 'challenge',
+      aid: aid || 0, reason: reason.slice(0, 600), q_len: qLen || 0, a_len: aLen || 0,
+      sid: (window.__ibankSess && window.__ibankSess.sid && window.__ibankSess.sid()) || ''
+    };
+    var arr = reviews(); arr.push(rec); saveReviews(arr);
+    if (typeof window.__ibankTrack === 'function') {
+      try {
+        window.__ibankTrack('qa_review', {
+          typ: rec.type === 'challenge' ? 1 : 2,
+          reason_len: rec.reason.length, q_len: rec.q_len, a_len: rec.a_len, sid: rec.sid
+        });
+      } catch (e) { /* 上报失败不阻断本地留痕 */ }
+    }
+    renderReviews(); renderStats();
+    toast(rec.type === 'challenge'
+      ? L('已记录质疑，可在成果链查看', 'Challenge saved — see it in your inquiry chain')
+      : L('已记录修正，可在成果链查看', 'Revision saved — see it in your inquiry chain'));
+    return true;
+  };
 
   function bind() {
     var save = q('qc-save'), exp = q('qc-export'), clear = q('qc-clear');
@@ -154,8 +245,8 @@
 
     if (exp) exp.addEventListener('click', function () {
       var arr = items();
-      if (!arr.length) { toast('还没有保存的成果链'); return; }
-      var md = ['# 探究成果链', '', '> 导出时间：' + fmt(Date.now()) + '　共 ' + arr.length + ' 条', ''];
+      if (!arr.length && !reviews().length) { toast(L('还没有保存的成果链', 'No saved chain yet')); return; }
+      var md = ['# 探究成果链 / Inquiry chain', '', L('> 导出时间：', '> Exported: ') + fmt(Date.now()) + '　' + L('共', '') + ' ' + arr.length + ' ' + L('条', 'items'), ''];
       arr.forEach(function (it, idx) {
         md.push('## ' + (idx + 1) + '. ' + (it.title || '第 ' + it.turns + ' 轮探究'));
         md.push('-' + fmt(it.ts) + ' · ' + it.turns + ' 轮对话', '');
@@ -164,6 +255,15 @@
           md.push(String(m.content || '').trim(), '');
         });
       });
+      var rvs = reviews();
+      if (rvs.length) {
+        md.push('## ' + L('质疑与修正 / Challenges & fixes', 'Challenges & fixes'), '');
+        rvs.forEach(function (r, i) {
+          md.push((i + 1) + '. ' + (r.type === 'revise' ? L('修正', 'Fix') : L('质疑', 'Challenge'))
+            + ' · ' + fmt(r.ts));
+          md.push('   ' + String(r.reason || '').trim(), '');
+        });
+      }
       try {
         var blob = new Blob([md.join('\n')], { type: 'text/markdown;charset=utf-8' });
         var a = document.createElement('a'); a.href = URL.createObjectURL(blob);
@@ -175,19 +275,23 @@
     });
 
     if (clear) clear.addEventListener('click', function () {
-      if (!items().length) { toast('成果链已经是空的'); return; }
-      if (!window.confirm('确定清空本机的全部成果链吗？此操作不可撤销（云端不受影响）。')) return;
-      try { localStorage.removeItem(STORE); } catch (e) {}
-      renderList(); renderStats(); toast('已清空本机成果链');
+      if (!items().length && !reviews().length) { toast(L('成果链已经是空的', 'The chain is already empty')); return; }
+      if (!window.confirm(L('确定清空本机的全部成果链（含质疑与修正）吗？此操作不可撤销（云端不受影响）。',
+        'Clear the entire chain on this device (including challenges and fixes)? This cannot be undone; the cloud is unaffected.'))) return;
+      try { localStorage.removeItem(STORE); localStorage.removeItem(RVKEY); } catch (e) {}
+      renderList(); renderReviews(); renderStats(); toast(L('已清空本机成果链', 'Local chain cleared'));
     });
 
     var panel = q('qc-panel');
-    if (panel) panel.addEventListener('toggle', function () { if (panel.open) { renderStats(); renderList(); } });
+    if (panel) panel.addEventListener('toggle', function () { if (panel.open) { renderStats(); renderList(); renderReviews(); } });
   }
 
-  function renderAll() { renderStats(); renderList(); }
+  function renderAll() { renderStats(); renderList(); renderReviews(); }
+  ensureReviewSection();
+  applyLabels();
   bind();
   renderAll();
+  try { window.addEventListener('ibk:lang', function () { applyLabels(); renderAll(); }); } catch (e) {}
   // 供外部（答疑发送成功后）刷新统计，也供验收脚本调用
   window.__ibankQaChain = { refresh: renderAll, stats: stats, count: function () { return items().length; } };
 })();

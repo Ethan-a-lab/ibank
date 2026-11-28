@@ -111,7 +111,7 @@
       src: 'IPO 重试记录 ＋ 股市模拟委托流水',
       obs: [
         { n: 'IPO 反复试错的收敛', p: 0.6, key: 'r.tries', demo: 64, s: 'IPO 仿真的重试次数（tries）' },
-        { n: '回撤期调仓幅度', p: 0.4, key: 'r.trade', demo: 70, s: '股市模拟委托流水（待接入）' }
+        { n: '回撤期调仓幅度', p: 0.4, key: 'r.trade', demo: 70, s: '股市模拟委托流水（回撤期调仓埋点）' }
       ]
     }
   ];
@@ -288,9 +288,34 @@
     Out.val['r.tries'] = Out.tries ? clamp(100 - (Out.tries - 1) * 12, 0, 100) : null;
     Out.ev['r.tries'] = Out.tries ? '最多重试 ' + Out.tries + ' 次' : '';
 
+    /* R 维 · 回撤期调仓（v154）：只读本机 trade 埋点里的结构化数字。
+       23 级历史数据没有该事件 → 保持 null，不追溯、不用示例值冒充。 */
+    var trades = evs.filter(function (e) { return e && e.type === 'trade'; });
+    if (trades.length) {
+      var ddTrades = [], deepest = 0;
+      trades.forEach(function (e) {
+        var d = null;
+        try { d = JSON.parse(e.detail || '{}'); } catch (x) { d = null; }
+        if (!d) return;
+        var dd = typeof d.dd === 'number' ? d.dd : parseInt(d.dd, 10);
+        if (!isFinite(dd)) return;
+        if (dd > deepest) deepest = dd;
+        if (dd >= 30) ddTrades.push(String(d.side || ''));
+      });
+      if (ddTrades.length) {
+        var hasSell = ddTrades.some(function (x) { return x === 'sell'; });
+        var rv = 55 + Math.min(30, ddTrades.length * 6) + (hasSell ? 15 : 0);
+        Out.val['r.trade'] = Math.round(clamp(rv, 0, 100));
+        Out.ev['r.trade'] = '回撤期调仓 ' + ddTrades.length + ' 笔 · 最深回撤 ' + (deepest / 10).toFixed(1) + '%';
+      } else {
+        Out.val['r.trade'] = null;   // 有交易但未发生在回撤期：无可观测证据
+        Out.ev['r.trade'] = trades.length + ' 笔交易 · 均未发生在回撤期';
+      }
+    } else { Out.val['r.trade'] = null; }
+
     /* 尚未接入的观测点一律 null，不用示例值冒充。
-       e.talk 已于 v142 接入（见上），不再列入此处；d.proj / r.trade 仍待接入。 */
-    ['d.stress', 'r.trade'].forEach(function (k) { Out.val[k] = null; });
+       e.talk 已于 v142、r.trade 于 v154 接入，不再列入此处；d.proj / d.stress 仍待接入。 */
+    ['d.stress'].forEach(function (k) { Out.val[k] = null; });
 
     return Out;
   }
@@ -742,6 +767,8 @@
   }
   renderAll();
   window.__ibankAvRefresh = renderAll;
+  /* v154 只读调试接口：供验收注入 trade 事件后核对 r.trade 取数，不改动任何教案口径 */
+  window.__ibankEvalDump = function () { return M; };
 
   /* 深链直达 */
   function gotoEval() {
